@@ -427,7 +427,7 @@
     {
       "path": "docs/architecture/decisions/ADR-0009-provider-scoped-optional-software.md",
       "kind": "narrative",
-      "sha256": "1eb512ef871f62a1edf7354041bed8ba71539483e47e3d379a7ef12a0db070e6",
+      "sha256": "59f8497b8e5c2c545a0ff24c4c3792da751a666cc821f6e7de37ee0280ab8a6f",
       "lines": 44,
       "read_status": "pending",
       "read_sha256": null

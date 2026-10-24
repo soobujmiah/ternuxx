@@ -2,7 +2,7 @@
 > **Scope update (2026-10-24):** ADR-0017 recorded a temporary Native-only direction, later reversed when the owner reauthorized Debian PRoot support. This record remains historical; current behavior is defined by source, [P11 phase status](../../PHASE-STATUS.md), and [restoration evidence](../../evidence/2026-10-24-p11-proot-source-restoration-audit.md).
 
 - **Date:** 2026-10-17
-- **Status:** Partial implementation — fresh Debian package groups are selectable in the CLI and were replayed on-device; Native optional workload selection and shared CLI/Web/GTK/TUI catalog parity remain open
+- **Status:** Partial implementation — the three-item Native app lifecycle is shared across CLI, TUI, authenticated Web, and GTK; fresh Debian package groups are CLI-selectable and were replayed on-device. Unified provider-scoped bundles, saved desired profiles, and existing-guest migration remain open.
 - **Type:** installation-and-package-management
 
 ## Context
@@ -29,16 +29,16 @@ Model optional software as catalogued, provider-scoped selections. Installation 
 
 ## Consequences
 
-The fresh Debian Trixie setup path supports package-group selection in its CLI preview and confirmed apply. A new plan defaults to `base` only; additional groups must be selected explicitly, and a failed-plan resume inherits its recorded group selection. The dated disposable replay selected all five groups and verified 50 requested packages on this device. This is not the shared provider-scoped optional catalog described above: Native optional workloads, saved desired profiles, and Web/GTK/TUI parity remain unimplemented. Existing-guest package migration remains separate and unimplemented. See the [2026-10-23 replay evidence](../../evidence/2026-10-23-disposable-debian-replay.md).
+The fresh Debian Trixie setup path supports package-group selection in its CLI preview and confirmed apply. A new plan defaults to `base` only; additional groups must be selected explicitly, and a failed-plan resume inherits its recorded group selection. The dated disposable replay selected all five groups and verified 50 requested packages on this device. Separately, the Native catalog implements three curated app IDs through one typed list/preview/apply service used by CLI, TUI, authenticated Web, and GTK; its previews were live-checked but no package apply was performed. See the [P7 implementation evidence](../../evidence/2026-10-24-p7-native-catalog-implementation.md) and [2026-10-23 replay evidence](../../evidence/2026-10-23-disposable-debian-replay.md). The full provider-scoped bundle catalog, saved desired profiles, combined cross-provider planning, and existing-guest package migration remain unimplemented.
 
 ## Acceptance criteria
 
 The implementation status below is evaluated against current source and dated evidence; the acceptance criteria remain open unless explicitly qualified here.
 
 1. Install preview displays Native and PRoot changes separately, including repositories and dependency resolution where available.
-2. Core-only is the non-interactive default; optional software is selected explicitly per provider. **PRoot fresh setup now defaults to `base` only**, but Native optional selection and cross-provider catalog selection remain open.
+2. Core-only is the non-interactive default; optional software is selected explicitly per provider. **PRoot fresh setup defaults to `base` only.** Native app selection is implemented for the three curated IDs in P7; complete per-provider workload bundles and a shared cross-provider catalog remain open.
 3. A catalog ID cannot cause execution of arbitrary shell text or cross-provider fallback.
 4. Existing Ternux rootfs/launcher is never selected or modified implicitly.
-5. CLI, Web, and X11 interfaces produce the same plan from the same provider selections.
+5. **Native curated app operations** share the same plan across CLI, TUI, authenticated Web, and GTK (P7). Equivalent cross-provider plans for Debian package groups and a saved provider-scoped profile remain open.
 6. Cancelling, invalid selection, provider unavailable, and one-item failure produce truthful operation status without claiming installation.
-7. Package operations have fixture/integration tests and are only device-qualified after owner-operated acceptance.
+7. Native app and Debian package operations have fixture coverage and dated preview/replay evidence. Native live package application and broader provider lifecycle behavior remain unqualified; see the linked phase evidence before describing them as installed or supported.
