@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "8722f6e3da706782e3616393baf9465c49bb45b2c31e4496ffd7d71924ac9def",
+      "sha256": "c1cb35fff972b1af2c953ff798ed6f1e36f0bd7f54c016d249155e76a8569823",
       "lines": 46,
       "read_status": "read",
-      "read_sha256": "8722f6e3da706782e3616393baf9465c49bb45b2c31e4496ffd7d71924ac9def"
+      "read_sha256": "c1cb35fff972b1af2c953ff798ed6f1e36f0bd7f54c016d249155e76a8569823"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
