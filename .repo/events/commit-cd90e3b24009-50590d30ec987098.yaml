@@ -1,0 +1,7 @@
+event_id: commit-cd90e3b24009-50590d30ec987098
+repository: soobujmiah/ternuxx
+commit: cd90e3b24009d0e4e06e71913bb07be8a94d3313
+kind: commit
+occurred_at: '2026-10-24T14:06:13Z'
+status: completed
+summary: 'docs(p12): record native accelerator resource checks'
