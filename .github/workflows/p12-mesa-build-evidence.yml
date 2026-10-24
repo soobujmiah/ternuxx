@@ -106,28 +106,13 @@ jobs:
           test -s termux-packages/p12-mesa-evidence/aarch64/host/ninja-commands.txt
           test -s termux-packages/p12-mesa-evidence/aarch64/target/meson-targets.json
           test -s termux-packages/p12-mesa-evidence/aarch64/target/ninja-commands.txt
-          python3 - <<'PY'
-          import json
-          from pathlib import Path
-          root = Path("termux-packages/p12-mesa-evidence")
-          packages = json.loads((root / "package-staging-manifests.json").read_text())["packages"]
-          expected_packages = {
-              "mesa", "mesa-dev", "mesa-opencl-icd-rusticl",
-              "mesa-vulkan-icd-freedreno", "mesa-vulkan-icd-swrast",
-          }
-          actual_packages = {package["name"] for package in packages}
-          assert actual_packages == expected_packages, (
-              f"expected split packages {sorted(expected_packages)}, found {sorted(actual_packages)}"
-          )
-          assert len(packages) == len(expected_packages), "split package names are duplicated"
-          assert all(package["architecture"] == "aarch64" for package in packages), (
-              "a staged Mesa split package has the wrong architecture"
-          )
-          for label in ("host", "target"):
-              targets = json.loads((root / "aarch64" / label / "meson-targets.json").read_text())
-              assert targets, f"{label} Meson target inventory is empty"
-          print("Pinned recipe, host/target Meson graphs, Ninja commands, and five package payload manifests verified.")
-          PY
+          python3 -m tools.mesa_build_source_audit \
+            --targets termux-packages/p12-mesa-evidence/aarch64/target/meson-targets.json \
+            --inventory docs/evidence/data/2026-10-24-p12-mesa-source-license-inventory.json \
+            --source-root /home/builder/.termux-build/mesa/src \
+            --output termux-packages/p12-mesa-evidence/configured-target-source-map.json
+          python3 tools/p12_mesa_build_evidence.py validate-capture \
+            --evidence-dir termux-packages/p12-mesa-evidence
 
       - name: Upload metadata-only build evidence
         if: always()

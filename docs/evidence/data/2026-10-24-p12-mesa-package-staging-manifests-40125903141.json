@@ -1,0 +1,947 @@
+{
+  "other_staging_packages": [
+    "brotli_1.2.0_aarch64.deb",
+    "ca-certificates-java_1:2026.08.13_all.deb",
+    "ca-certificates_1:2026.08.13_all.deb",
+    "freetype-static_2.14.3_aarch64.deb",
+    "freetype_2.14.3_aarch64.deb",
+    "libexpat-static_2.8.5_aarch64.deb",
+    "libexpat_2.8.5_aarch64.deb",
+    "libpng-static_1.6.58_aarch64.deb",
+    "libpng_1.6.58_aarch64.deb",
+    "libsqlite-static_3.53.4_aarch64.deb",
+    "libsqlite-tcl_3.53.4_aarch64.deb",
+    "libsqlite_3.53.4_aarch64.deb",
+    "libwayland-cross-scanner_1.25.0-1_all.deb",
+    "libwayland_1.25.0-1_aarch64.deb",
+    "libx11-static_1.8.13-1_aarch64.deb",
+    "libx11_1.8.13-1_aarch64.deb",
+    "libxrender_0.9.12-1_aarch64.deb",
+    "openssl-static_1:3.6.3_aarch64.deb",
+    "openssl-tool_1:3.6.3_aarch64.deb",
+    "openssl_1:3.6.3_aarch64.deb",
+    "python-ensurepip-wheels_3.14.6-1_all.deb",
+    "python-static_3.14.6-1_aarch64.deb",
+    "python-tkinter_3.14.6-1_aarch64.deb",
+    "python_3.14.6-1_aarch64.deb",
+    "spirv-headers_1.4.357.0_all.deb",
+    "spirv-llvm-translator_21.1.10_aarch64.deb",
+    "spirv-tools_1.4.357.0_aarch64.deb",
+    "sqlite_3.53.4_aarch64.deb",
+    "vulkan-headers_1.4.364_all.deb",
+    "vulkan-loader-generic_1.4.364_aarch64.deb",
+    "xorgproto_2025.1_all.deb"
+  ],
+  "packages": [
+    {
+      "architecture": "all",
+      "archive_sha256": "09c81b60186cac48dcd73ff066925f57273b1d2f327214fbd449c13c0bf1aa60",
+      "control": {
+        "Architecture": "all",
+        "Breaks": "mesa (<< 22.3.3-2), ndk-sysroot (<< 25b-3)",
+        "Depends": "libglvnd-dev",
+        "Description": "Mesa's OpenGL headers",
+        "Homepage": "https://www.mesa3d.org",
+        "Installed-Size": "168",
+        "Maintainer": "@termux",
+        "Package": "mesa-dev",
+        "Replaces": "mesa (<< 22.3.3-2), ndk-sysroot (<< 25b-3)",
+        "Version": "26.3.0"
+      },
+      "filename": "mesa-dev_26.3.0_all.deb",
+      "files": [
+        {
+          "mode": 493,
+          "path": ".",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/include",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/include/EGL",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/include/EGL/eglext_angle.h",
+          "sha256": "df92523469632129b6b0c37bcade9fa8cc449e23e487beda2cc130b4e4bd1df5",
+          "size": 19926,
+          "type": "file"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/include/EGL/eglmesaext.h",
+          "sha256": "e9119482f23bfa6a4fd006278d16434328fa91abcb6c55033959c262644d85f4",
+          "size": 2129,
+          "type": "file"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/include/GL",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/include/GL/internal",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/include/GL/internal/dri_interface.h",
+          "sha256": "03a91da7f918a5a70643ec64b750f19a90832230235d6b66076daf3fbf489149",
+          "size": 82567,
+          "type": "file"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/include/gbm.h",
+          "sha256": "95f3b4a6ee5175c7cc5d47368d4efb100063fe49e5a6f5b19030ac2ceed73b81",
+          "size": 19165,
+          "type": "file"
+        }
+      ],
+      "name": "mesa-dev",
+      "version": "26.3.0"
+    },
+    {
+      "architecture": "aarch64",
+      "archive_sha256": "c15d3cd543faa1db4cb9e323529c80ad0a87c94e28da1ce194707ccea24a2d27",
+      "control": {
+        "Architecture": "aarch64",
+        "Depends": "clang (<< 22), libandroid-shmem, libc++, libclc, libdrm, libllvm (<< 22), zlib, zstd",
+        "Description": "Mesa's Rusticl OpenCL ICD",
+        "Homepage": "https://www.mesa3d.org",
+        "Installed-Size": "21028",
+        "Maintainer": "@termux",
+        "Package": "mesa-opencl-icd-rusticl",
+        "Version": "26.3.0"
+      },
+      "filename": "mesa-opencl-icd-rusticl_26.3.0_aarch64.deb",
+      "files": [
+        {
+          "mode": 493,
+          "path": ".",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/etc",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/etc/OpenCL",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/etc/OpenCL/vendors",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/etc/OpenCL/vendors/rusticl.icd",
+          "sha256": "e5c8c3013b5649d561611166156d5e6c5462e7712940431b993fa6cfe7709448",
+          "size": 22,
+          "type": "file"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/lib",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/libRusticlOpenCL.so",
+          "sha256": "3a599227ac3ee34ce04a3e4d44a41d92197e4e32763914b620ab005db3ef1b90",
+          "size": 21484160,
+          "type": "file"
+        },
+        {
+          "link_target": "libRusticlOpenCL.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/libRusticlOpenCL.so.1",
+          "size": 0,
+          "type": "symlink"
+        }
+      ],
+      "name": "mesa-opencl-icd-rusticl",
+      "version": "26.3.0"
+    },
+    {
+      "architecture": "aarch64",
+      "archive_sha256": "c46ac83ad8b1d30c83d76f61db676e1457400c94c90869a436f15342a5646413",
+      "control": {
+        "Architecture": "aarch64",
+        "Breaks": "mesa-vulkan-icd-freedreno-dri3",
+        "Depends": "libandroid-shmem, libc++, libdrm, libx11, libxcb, libxshmfence, libwayland, vulkan-loader-generic, zlib, zstd",
+        "Description": "Mesa's Freedreno Vulkan ICD",
+        "Homepage": "https://www.mesa3d.org",
+        "Installed-Size": "13464",
+        "Maintainer": "@termux",
+        "Package": "mesa-vulkan-icd-freedreno",
+        "Provides": "mesa-vulkan-icd-freedreno-dri3",
+        "Replaces": "mesa-vulkan-icd-freedreno-dri3",
+        "Version": "26.3.0"
+      },
+      "filename": "mesa-vulkan-icd-freedreno_26.3.0_aarch64.deb",
+      "files": [
+        {
+          "mode": 493,
+          "path": ".",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/lib",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/libvulkan_freedreno.so",
+          "sha256": "03c86f1fc636839294a66f13c648eef99d65f6d1f2b7239deab110ee11da7b36",
+          "size": 13741704,
+          "type": "file"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/share",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/share/vulkan",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/share/vulkan/icd.d",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json",
+          "sha256": "735e6fa01e22fc528cdaa948acfe413949a1b4ea4ffd0f0a5f58bb629989213e",
+          "size": 207,
+          "type": "file"
+        }
+      ],
+      "name": "mesa-vulkan-icd-freedreno",
+      "version": "26.3.0"
+    },
+    {
+      "architecture": "aarch64",
+      "archive_sha256": "ae4adfdb590f8e81b4acf543f6daa762b558f7fadfff4e956b54e8a5386cfcb6",
+      "control": {
+        "Architecture": "aarch64",
+        "Depends": "libandroid-shmem, libc++, libdrm, libllvm (<< 22), libx11, libxcb, libxshmfence, libwayland, ncurses, vulkan-loader-generic, zlib, zstd",
+        "Description": "Mesa's Swrast Vulkan ICD",
+        "Homepage": "https://www.mesa3d.org",
+        "Installed-Size": "12764",
+        "Maintainer": "@termux",
+        "Package": "mesa-vulkan-icd-swrast",
+        "Version": "26.3.0"
+      },
+      "filename": "mesa-vulkan-icd-swrast_26.3.0_aarch64.deb",
+      "files": [
+        {
+          "mode": 493,
+          "path": ".",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/lib",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/libvulkan_lvp.so",
+          "sha256": "8e1547e4575a0053ded3f1bb1768825e3594d4997c764b4bf7cf189f972464f2",
+          "size": 13024456,
+          "type": "file"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/share",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/share/vulkan",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files/usr/share/vulkan/icd.d",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/share/vulkan/icd.d/lvp_icd.aarch64.json",
+          "sha256": "a1945aef5ae350d4c1582f92fd4c89fcbe540f5948e353b805ae4e8ba38388f8",
+          "size": 201,
+          "type": "file"
+        }
+      ],
+      "name": "mesa-vulkan-icd-swrast",
+      "version": "26.3.0"
+    },
+    {
+      "architecture": "aarch64",
+      "archive_sha256": "3204a9baa696079b93ee8e85a98ab163735d6b9f1efe3afeabbf6a5c335dbc23",
+      "control": {
+        "Architecture": "aarch64",
+        "Breaks": "osmesa, osmesa-demos",
+        "Conflicts": "libmesa, ndk-sysroot (<= 25b), osmesa",
+        "Depends": "libandroid-shmem, libc++, libdrm, libglvnd, libllvm (<< 22), libwayland, libx11, libxext, libxfixes, libxshmfence, libxxf86vm, ncurses, vulkan-loader, zlib, zstd",
+        "Description": "An open-source implementation of the OpenGL specification",
+        "Homepage": "https://www.mesa3d.org",
+        "Installed-Size": "20272",
+        "Maintainer": "@termux",
+        "Package": "mesa",
+        "Replaces": "libmesa, osmesa",
+        "Suggests": "mesa-dev",
+        "Version": "26.3.0"
+      },
+      "filename": "mesa_26.3.0_aarch64.deb",
+      "files": [
+        {
+          "mode": 493,
+          "path": ".",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 493,
+          "path": "data/data/com.termux/files",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/include",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/include/gbm_backend_abi.h",
+          "sha256": "4eacf82b37a754dc5e64c89ab9c8a32ad8b96bfac12e91f7e217e7fa5c5602c5",
+          "size": 11460,
+          "type": "file"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/dri",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/apple_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/armada-drm_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/exynos_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/gm12u320_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/hdlcd_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/hx8357d_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/ili9163_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/ili9225_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/ili9341_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/ili9486_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/imx-dcss_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/imx-drm_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/imx-lcdif_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/ingenic-drm_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/kgsl_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/kirin_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/kms_swrast_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/komeda_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "sha256": "2b9e257e9eff82d7a3bbda0334f27678500857de13aabc0746f7362eb1caf837",
+          "size": 110464,
+          "type": "file"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/mali-dp_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/mcde_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/mediatek_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/meson_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/mi0283qt_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/msm_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/mxsfb-drm_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/panel-mipi-dbi_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/pl111_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/rcar-du_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/repaper_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/rockchip_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/rzg2l-du_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/ssd130x_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/st7586_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/st7735r_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/sti_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/stm_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/sun4i-drm_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/swrast_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/udl_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/virtio_gpu_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/vkms_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/zink_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "link_target": "libdril_dri.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/dri/zynqmp-dpsub_dri.so",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/gbm",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/gbm/dri_gbm.so",
+          "sha256": "214dcb0212929e1e1ff2cb65a791509fe4028ae906b405e0a28e0b5f8623e322",
+          "size": 109384,
+          "type": "file"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/libEGL_mesa.so",
+          "sha256": "aaca571dee4d15434d44c044bd0f6a1ac21beb2c43a9a81a0e86b992d14f3f3f",
+          "size": 366568,
+          "type": "file"
+        },
+        {
+          "link_target": "libEGL_mesa.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/libEGL_mesa.so.0",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/libGLX_mesa.so",
+          "sha256": "decc058bad8c26b4331d1f3643cffe3b844bd0124d753ec49e7f4b3399edf2c3",
+          "size": 339112,
+          "type": "file"
+        },
+        {
+          "link_target": "libGLX_mesa.so",
+          "mode": 511,
+          "path": "data/data/com.termux/files/usr/lib/libGLX_mesa.so.0",
+          "size": 0,
+          "type": "symlink"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/libgallium-26.3.0-devel.so",
+          "sha256": "583eb5a04f63cea199ea231643f2c83eae719633b4ee53b3ba76ffabd19e972c",
+          "size": 19716440,
+          "type": "file"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/libgbm.so",
+          "sha256": "5d41eca336a15ee3f992a0e0606c1dba59c4a750ef55d164e3e6784b71322d90",
+          "size": 13824,
+          "type": "file"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/lib/pkgconfig",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/lib/pkgconfig/dri.pc",
+          "sha256": "035b8690db3b94f0519ced574f45a8fd4f5781eb0ca038d76701d9a8c701626c",
+          "size": 261,
+          "type": "file"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/lib/pkgconfig/gbm.pc",
+          "sha256": "a6354d76f09070a8c0aa0d1c7075834a017dde948ee2ec9ac73ed66353d6d3d5",
+          "size": 257,
+          "type": "file"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/share",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/share/doc",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/share/doc/mesa",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/share/doc/mesa/license.rst",
+          "sha256": "0d1a0472ecc81830e75c20d59b0ea02841e3db21255e0ebad97ab682c54d6615",
+          "size": 1816,
+          "type": "file"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/share/glvnd",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 448,
+          "path": "data/data/com.termux/files/usr/share/glvnd/egl_vendor.d",
+          "size": 0,
+          "type": "directory"
+        },
+        {
+          "mode": 384,
+          "path": "data/data/com.termux/files/usr/share/glvnd/egl_vendor.d/50_mesa.json",
+          "sha256": "cd3881df4227c13ca7f9cfe6c78820f21d5f7a00a41b299214f6f827e63be369",
+          "size": 105,
+          "type": "file"
+        }
+      ],
+      "name": "mesa",
+      "version": "26.3.0"
+    }
+  ],
+  "schema_version": 1
+}

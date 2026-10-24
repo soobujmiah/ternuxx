@@ -3,18 +3,18 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 539,
-  "read_count": 172,
+  "document_count": 541,
+  "read_count": 171,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
     {
       "path": ".github/workflows/p12-mesa-build-evidence.yml",
       "kind": "structured",
-      "sha256": "d626912a4754e941f3a7f38efc8a1743f4b77eab00c0056c655a4b442d5aabd8",
-      "lines": 139,
-      "read_status": "read",
-      "read_sha256": "d626912a4754e941f3a7f38efc8a1743f4b77eab00c0056c655a4b442d5aabd8"
+      "sha256": "0a926253b3ba11530e51c158eddfcbcf06e0ae5fc6320d079156699efe97ba65",
+      "lines": 124,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": ".github/workflows/repo-contract.yml",
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "99c4191667c884cad57cae726f5ed031a5e71376e6b8f127f5fb61e432cc0b7c",
+      "sha256": "c64d33925780ce710ca6a4708e3d2f0b7097c163197427dffd44133d141c6626",
       "lines": 29,
       "read_status": "read",
-      "read_sha256": "99c4191667c884cad57cae726f5ed031a5e71376e6b8f127f5fb61e432cc0b7c"
+      "read_sha256": "c64d33925780ce710ca6a4708e3d2f0b7097c163197427dffd44133d141c6626"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -179,7 +179,7 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "8fb844768e843e10e6c4622d6d89ad4d244e4ba3fafe7d96920e311bf55e4b35",
+      "sha256": "cc98a7953c9ac952e4377d0b16b6914f724daed0d4c55c58a899b5d292a9b5fd",
       "lines": 166,
       "read_status": "pending",
       "read_sha256": null
@@ -235,7 +235,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "620acd601d6dd559689125f8d90b724ad24b0ac17258c3ad160dd10abeb5dd02",
+      "sha256": "2f335cb02b8916ac065f7c9a3dccf26dfce6777becdbed0556c6d83b9dff07a5",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "7ef297ae9f557352478be817ccbe03e55b29cdb9d83e3d1c85ce34958e2e7bc2",
+      "sha256": "8c1e342c700b9af99e8a8ca328fc5093b426347675850760752d99d043a0f620",
       "lines": 46,
       "read_status": "read",
-      "read_sha256": "7ef297ae9f557352478be817ccbe03e55b29cdb9d83e3d1c85ce34958e2e7bc2"
+      "read_sha256": "8c1e342c700b9af99e8a8ca328fc5093b426347675850760752d99d043a0f620"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
@@ -3179,10 +3179,10 @@
     {
       "path": "docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md",
       "kind": "narrative",
-      "sha256": "acaf3fd6f34b1728c4b06892be50be143a5221beb585cec720fc5bfdf35b6335",
-      "lines": 39,
+      "sha256": "48e6123d09cd8265ee52a60532092750c983ada950a82e3dc0590089711f5879",
+      "lines": 41,
       "read_status": "read",
-      "read_sha256": "acaf3fd6f34b1728c4b06892be50be143a5221beb585cec720fc5bfdf35b6335"
+      "read_sha256": "48e6123d09cd8265ee52a60532092750c983ada950a82e3dc0590089711f5879"
     },
     {
       "path": "docs/evidence/2026-10-24-p12-multi-case-runner.md",
@@ -3585,10 +3585,26 @@
       "read_sha256": null
     },
     {
-      "path": "docs/evidence/data/2026-10-24-p12-mesa-configured-target-source-map-40123636196.json",
+      "path": "docs/evidence/data/2026-10-24-p12-mesa-build-metadata-40125903141.json",
       "kind": "structured",
-      "sha256": "ea79f3d87edcb1783d69538d618c9391e6674b21535d190b78d3bf30dadc9050",
+      "sha256": "e18eaed08e411a156ef0d1008cdc10385599338590bf6590c0c1ceeae9870976",
+      "lines": 14,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/data/2026-10-24-p12-mesa-configured-target-source-map-40125903141.json",
+      "kind": "structured",
+      "sha256": "daac4a8770c3bb037f4158ba87a3ec398387da99801980ea4d27e388e0989c28",
       "lines": 30135,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/data/2026-10-24-p12-mesa-package-staging-manifests-40125903141.json",
+      "kind": "structured",
+      "sha256": "85c5236ba1f343debcb10a645baf0ab6298012c56d29d8db98c090aed5c4c66a",
+      "lines": 947,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3955,7 +3971,7 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "1a7db7e86bc56fb6d52799040840c1d5693cb99b81569c2f0c2b0c4b573638dd",
+      "sha256": "1acf198f6c879248652c8c5c1ca68c2921ab8b4964209df46165d880a6ce454e",
       "lines": 269,
       "read_status": "pending",
       "read_sha256": null

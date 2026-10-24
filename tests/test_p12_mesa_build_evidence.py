@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import hashlib
 import io
 import json
 import os
@@ -12,7 +13,17 @@ import tarfile
 import tempfile
 import unittest
 
-from tools.p12_mesa_build_evidence import EvidenceError, instrument_recipe, package_manifests
+from tools.p12_mesa_build_evidence import (
+    BUILDER_IMAGE,
+    EXPECTED_PACKAGE_ARCHITECTURES,
+    MESA_SOURCE_ARCHIVE_SHA256,
+    RECIPE_COMMIT,
+    TERMUX_PACKAGES_COMMIT,
+    EvidenceError,
+    instrument_recipe,
+    package_manifests,
+    validate_capture,
+)
 
 
 class MesaRecipeInstrumentationTests(unittest.TestCase):
@@ -175,6 +186,96 @@ class PackageStagingManifestTests(unittest.TestCase):
             (packages / "mesa_2_aarch64.deb").write_bytes(b"duplicate mesa archive")
             with self.assertRaisesRegex(EvidenceError, "requested package set mismatch"):
                 package_manifests(packages, output, dpkg_deb=str(fake), expected_packages={"mesa"})
+
+
+class MesaCaptureValidationTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name) / "evidence"
+        self.root.mkdir()
+        metadata = {
+            "termux_packages_commit": TERMUX_PACKAGES_COMMIT,
+            "mesa_source_commit": RECIPE_COMMIT,
+            "builder_image": BUILDER_IMAGE,
+            "target_architecture": "aarch64",
+            "ternuxx_commit": "a" * 40,
+            "workflow_run": "https://github.com/soobujmiah/ternuxx/actions/runs/123456",
+        }
+        (self.root / "build-metadata.json").write_text(json.dumps(metadata), encoding="utf-8")
+        for role in ("host", "target"):
+            role_dir = self.root / "aarch64" / role
+            role_dir.mkdir(parents=True)
+            (role_dir / "source-commit.txt").write_text(RECIPE_COMMIT + "\n", encoding="utf-8")
+            (role_dir / "meson-targets.json").write_text('[{"name":"mesa"}]\n', encoding="utf-8")
+            (role_dir / "ninja-commands.txt").write_text("cc -c mesa.c\n", encoding="utf-8")
+            (role_dir / "ninja-targets.txt").write_text("libmesa.so\n", encoding="utf-8")
+            (role_dir / "build.ninja").write_text("build libmesa.so\n", encoding="utf-8")
+        target_graph_path = self.root / "aarch64" / "target" / "meson-targets.json"
+        (self.root / "configured-target-source-map.json").write_text(json.dumps({
+            "source_commit": RECIPE_COMMIT,
+            "source_archive_sha256": MESA_SOURCE_ARCHIVE_SHA256,
+            "meson_targets_sha256": hashlib.sha256(target_graph_path.read_bytes()).hexdigest(),
+            "counts": {
+                "meson_targets": 1,
+                "source_root_paths": 1,
+                "outside_source_root_paths": 1,
+                "unique_source_paths": 2,
+                "source_root_paths_with_spdx_header": 1,
+                "source_root_paths_without_recognized_spdx_header": 0,
+                "generated_source_paths": 1,
+            },
+        }), encoding="utf-8")
+        packages = []
+        for name, architecture in EXPECTED_PACKAGE_ARCHITECTURES.items():
+            version = "26.3.0"
+            packages.append({
+                "name": name,
+                "version": version,
+                "architecture": architecture,
+                "filename": f"{name}_{version}_{architecture}.deb",
+                "archive_sha256": "b" * 64,
+                "control": {
+                    "Package": name,
+                    "Version": version,
+                    "Architecture": architecture,
+                },
+                "files": [{"path": "data/usr/lib/libmesa.so", "type": "file",
+                           "sha256": "c" * 64}],
+            })
+        (self.root / "package-staging-manifests.json").write_text(
+            json.dumps({"schema_version": 1, "packages": packages,
+                        "other_staging_packages": ["openssl.deb"]}), encoding="utf-8")
+
+    def tearDown(self) -> None:
+        self.temp.cleanup()
+
+    def test_validates_pinned_graphs_and_split_package_architectures(self) -> None:
+        validate_capture(self.root)
+
+    def test_rejects_wrong_split_package_architecture(self) -> None:
+        path = self.root / "package-staging-manifests.json"
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        package = next(item for item in manifest["packages"] if item["name"] == "mesa-dev")
+        package["architecture"] = "aarch64"
+        package["control"]["Architecture"] = "aarch64"
+        package["filename"] = "mesa-dev_26.3.0_aarch64.deb"
+        path.write_text(json.dumps(manifest), encoding="utf-8")
+        with self.assertRaisesRegex(EvidenceError, "unexpected architecture"):
+            validate_capture(self.root)
+
+    def test_rejects_unpinned_source_commit(self) -> None:
+        path = self.root / "aarch64" / "host" / "source-commit.txt"
+        path.write_text("0" * 40 + "\n", encoding="utf-8")
+        with self.assertRaisesRegex(EvidenceError, "source commit"):
+            validate_capture(self.root)
+
+    def test_rejects_target_source_map_for_a_different_graph(self) -> None:
+        path = self.root / "configured-target-source-map.json"
+        source_map = json.loads(path.read_text(encoding="utf-8"))
+        source_map["meson_targets_sha256"] = "c" * 64
+        path.write_text(json.dumps(source_map), encoding="utf-8")
+        with self.assertRaisesRegex(EvidenceError, "does not match the pinned target graph"):
+            validate_capture(self.root)
 
 
 if __name__ == "__main__":

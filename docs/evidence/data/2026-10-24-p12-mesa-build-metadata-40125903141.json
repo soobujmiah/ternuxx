@@ -1,0 +1,14 @@
+{
+  "artifact_policy": "metadata-only; built Debian archives are not uploaded",
+  "builder_image": "ghcr.io/termux/package-builder@sha256:e2de051a518d8b188c59c4a1ecf357d373b9ccf48d6c06d7681fdc3f61a77287",
+  "captured_utc": "2026-10-24T19:34:27+00:00",
+  "instrumented_recipe_sha256": "edf1fd9862d3347b004d5ec50ccaac9348d59cd578909713314641f1150a96e1",
+  "mesa_recipe_sha256": "8d2706623c33555edba6a6297042f4838bed23e2ec37e01dce6262ab47c30e3e",
+  "mesa_source_commit": "98f3d6229d61452cef80f8563af7c56ae599dc14",
+  "schema_version": 1,
+  "target_architecture": "aarch64",
+  "termux_packages_commit": "0219ff84b372c9d38aad4e40f448c20ec3d1588e",
+  "termux_packages_repository": "https://github.com/lfdevs/termux-packages",
+  "ternuxx_commit": "2937ff0dab9b6c3107f9efa398b5a2ab110f870a",
+  "workflow_run": "https://github.com/soobujmiah/ternuxx/actions/runs/40125903141"
+}

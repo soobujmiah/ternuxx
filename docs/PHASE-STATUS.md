@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Mesa configured source graph is mapped to the expanded 9,376-file inventory; corrected package staging is running. Fresh guarded CPU, Vulkan, and HTP repeats all cancelled at the unchanged 60°C CPU guard before any case completed; single-case checks remain the only current correctness passes.
+Pinned Mesa source archive, configured graph, and five-package payload manifests are recorded. Run 40125903141 built successfully; its final architecture assertion incorrectly rejected mesa-dev=all. Local corrected validation passes; the workflow is being fixed and rerun. Fresh guarded CPU/Vulkan/HTP repeats each cancelled before any case completed.
 
-**Next action:** Finish Mesa run 40125903141 and verify package manifests and source/license attribution. Resume repeated backend qualification only while the unchanged live guards pass; broaden HTP coverage and validate a reproducible experimental Vulkan install path.
+**Next action:** Rerun the corrected Mesa workflow with per-package architecture rules and graph-bound source mapping. Then audit package-to-target/generated/external attribution and applicable notices. Continue repeated Native backend qualification only under unchanged live guards; address sustained HTP coverage and reproducible Vulkan install provenance.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

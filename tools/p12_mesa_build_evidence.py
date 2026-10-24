@@ -14,6 +14,16 @@ import tarfile
 from typing import BinaryIO
 
 RECIPE_COMMIT = "98f3d6229d61452cef80f8563af7c56ae599dc14"
+MESA_SOURCE_ARCHIVE_SHA256 = "5211bd235658a0585740fb2dfbe64e7e8ca3085ad8e423fc333b4d5e0de6fd93"
+TERMUX_PACKAGES_COMMIT = "0219ff84b372c9d38aad4e40f448c20ec3d1588e"
+BUILDER_IMAGE = "ghcr.io/termux/package-builder@sha256:e2de051a518d8b188c59c4a1ecf357d373b9ccf48d6c06d7681fdc3f61a77287"
+EXPECTED_PACKAGE_ARCHITECTURES = {
+    "mesa": "aarch64",
+    "mesa-dev": "all",
+    "mesa-opencl-icd-rusticl": "aarch64",
+    "mesa-vulkan-icd-freedreno": "aarch64",
+    "mesa-vulkan-icd-swrast": "aarch64",
+}
 MARKER = "# TERNUXX P12 build-evidence capture (audit only)"
 _HELPER = r'''# TERNUXX P12 build-evidence capture (audit only)
 _ternuxx_capture_meson() {
@@ -192,6 +202,133 @@ def package_manifests(packages_dir: Path, output_dir: Path, *, dpkg_deb: str | N
     return len(packages)
 
 
+def validate_capture(evidence_dir: Path) -> None:
+    """Validate provenance metadata, configured graphs, and expected split packages."""
+    if evidence_dir.is_symlink() or not evidence_dir.is_dir():
+        raise EvidenceError("evidence directory must be an existing non-symlink directory")
+
+    def read_json(path: Path) -> object:
+        if path.is_symlink() or not path.is_file():
+            raise EvidenceError(f"required evidence file is missing or unsafe: {path.name}")
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise EvidenceError(f"invalid JSON evidence file: {path.name}") from exc
+
+    metadata = read_json(evidence_dir / "build-metadata.json")
+    if not isinstance(metadata, dict):
+        raise EvidenceError("build metadata must be an object")
+    expected_metadata = {
+        "termux_packages_commit": TERMUX_PACKAGES_COMMIT,
+        "mesa_source_commit": RECIPE_COMMIT,
+        "builder_image": BUILDER_IMAGE,
+        "target_architecture": "aarch64",
+    }
+    for key, expected in expected_metadata.items():
+        if metadata.get(key) != expected:
+            raise EvidenceError(f"build metadata {key} does not match the pinned build")
+    commit = metadata.get("ternuxx_commit")
+    if not isinstance(commit, str) or not re.fullmatch(r"[0-9a-f]{40}", commit):
+        raise EvidenceError("build metadata has an invalid Ternuxx commit")
+    workflow_run = metadata.get("workflow_run")
+    if not isinstance(workflow_run, str) or not re.fullmatch(
+            r"https://github\.com/soobujmiah/ternuxx/actions/runs/[0-9]+", workflow_run):
+        raise EvidenceError("build metadata has an invalid workflow run URL")
+
+    for role in ("host", "target"):
+        role_dir = evidence_dir / "aarch64" / role
+        if role_dir.is_symlink() or not role_dir.is_dir():
+            raise EvidenceError(f"{role} build evidence directory is missing or unsafe")
+        source_commit = role_dir / "source-commit.txt"
+        if source_commit.is_symlink() or not source_commit.is_file() \
+                or source_commit.read_text(encoding="utf-8").strip() != RECIPE_COMMIT:
+            raise EvidenceError(f"{role} build source commit does not match the pinned Mesa commit")
+        targets_path = role_dir / "meson-targets.json"
+        targets = read_json(targets_path)
+        if not isinstance(targets, list) or not targets:
+            raise EvidenceError(f"{role} Meson target inventory is empty or malformed")
+        for name in ("ninja-commands.txt", "ninja-targets.txt", "build.ninja"):
+            artifact = role_dir / name
+            if artifact.is_symlink() or not artifact.is_file() or artifact.stat().st_size == 0:
+                raise EvidenceError(f"{role} build graph evidence is missing or empty: {name}")
+
+    target_graph_path = evidence_dir / "aarch64" / "target" / "meson-targets.json"
+    target_graph = read_json(target_graph_path)
+    source_map = read_json(evidence_dir / "configured-target-source-map.json")
+    if not isinstance(source_map, dict) or not isinstance(source_map.get("counts"), dict):
+        raise EvidenceError("configured target-source map is malformed")
+    counts = source_map["counts"]
+    try:
+        target_count = len(target_graph) if isinstance(target_graph, list) else 0
+        source_root_count = counts["source_root_paths"]
+        external_count = counts["outside_source_root_paths"]
+        unique_source_count = counts["unique_source_paths"]
+        with_spdx_count = counts["source_root_paths_with_spdx_header"]
+        without_spdx_count = counts["source_root_paths_without_recognized_spdx_header"]
+        generated_count = counts["generated_source_paths"]
+    except KeyError as exc:
+        raise EvidenceError("configured target-source map is missing count fields") from exc
+    numeric_counts = (counts.get("meson_targets"), source_root_count, external_count,
+                      unique_source_count, with_spdx_count, without_spdx_count, generated_count)
+    if any(type(value) is not int or value < 0 for value in numeric_counts):
+        raise EvidenceError("configured target-source map has invalid counts")
+    if source_map.get("source_commit") != RECIPE_COMMIT \
+            or source_map.get("source_archive_sha256") != MESA_SOURCE_ARCHIVE_SHA256 \
+            or source_map.get("meson_targets_sha256") != _sha256_file(target_graph_path):
+        raise EvidenceError("configured target-source map does not match the pinned target graph")
+    if (counts.get("meson_targets") != target_count or source_root_count <= 0
+            or source_root_count + external_count != unique_source_count
+            or with_spdx_count + without_spdx_count != source_root_count
+            or generated_count < 0):
+        raise EvidenceError("configured target-source map counts are inconsistent")
+
+    manifest = read_json(evidence_dir / "package-staging-manifests.json")
+    if not isinstance(manifest, dict) or not isinstance(manifest.get("packages"), list):
+        raise EvidenceError("package staging manifest is malformed")
+    packages = manifest["packages"]
+    names = [item.get("name") for item in packages if isinstance(item, dict)]
+    if any(not isinstance(name, str) for name in names) \
+            or len(names) != len(packages) or len(names) != len(set(names)) \
+            or set(names) != set(EXPECTED_PACKAGE_ARCHITECTURES):
+        raise EvidenceError("package staging manifest does not contain the exact five Mesa splits")
+    for package in packages:
+        assert isinstance(package, dict)
+        name = package["name"]
+        architecture = EXPECTED_PACKAGE_ARCHITECTURES[name]
+        control = package.get("control")
+        if package.get("architecture") != architecture:
+            raise EvidenceError(f"package {name} has unexpected architecture {package.get('architecture')!r}")
+        if not isinstance(control, dict) or control.get("Package") != name \
+                or control.get("Architecture") != architecture \
+                or package.get("version") != control.get("Version"):
+            raise EvidenceError(f"package {name} control metadata does not match its manifest")
+        filename = package.get("filename")
+        if not isinstance(filename, str) or filename != f"{name}_{package.get('version')}_{architecture}.deb":
+            raise EvidenceError(f"package {name} filename does not match its control metadata")
+        if not isinstance(package.get("archive_sha256"), str) \
+                or not re.fullmatch(r"[0-9a-f]{64}", package["archive_sha256"]):
+            raise EvidenceError(f"package {name} archive hash is invalid")
+        if not isinstance(package.get("files"), list) or not package["files"]:
+            raise EvidenceError(f"package {name} payload manifest is empty or malformed")
+        payload_paths: set[str] = set()
+        for item in package["files"]:
+            if not isinstance(item, dict) or not isinstance(item.get("path"), str):
+                raise EvidenceError(f"package {name} has a malformed payload entry")
+            payload_path = PurePosixPath(item["path"])
+            if payload_path.is_absolute() or ".." in payload_path.parts \
+                    or item["path"] in payload_paths:
+                raise EvidenceError(f"package {name} has an unsafe or duplicate payload path")
+            payload_paths.add(item["path"])
+            if item.get("type") == "file" and (not isinstance(item.get("sha256"), str)
+                                                  or not re.fullmatch(r"[0-9a-f]{64}", item["sha256"])):
+                raise EvidenceError(f"package {name} has an invalid payload file hash")
+
+
+def _sha256_file(path: Path) -> str:
+    with path.open("rb") as stream:
+        return _sha256_stream(stream)
+
+
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(description=__doc__)
     commands = root.add_subparsers(dest="command", required=True)
@@ -201,6 +338,8 @@ def parser() -> argparse.ArgumentParser:
     manifests.add_argument("--packages-dir", type=Path, required=True)
     manifests.add_argument("--output-dir", type=Path, required=True)
     manifests.add_argument("--expected-packages", nargs="+")
+    validate = commands.add_parser("validate-capture", help="validate the complete pinned Mesa capture")
+    validate.add_argument("--evidence-dir", type=Path, required=True)
     return root
 
 
@@ -210,10 +349,13 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "instrument":
             instrument_recipe(args.recipe)
             print(f"instrumented pinned Mesa recipe: {args.recipe}")
-        else:
+        elif args.command == "package-manifests":
             count = package_manifests(args.packages_dir, args.output_dir,
                                       expected_packages=set(args.expected_packages) if args.expected_packages else None)
             print(f"hashed package staging manifests for {count} archives")
+        else:
+            validate_capture(args.evidence_dir)
+            print("Pinned recipe metadata, host/target build graphs, and five split-package manifests verified.")
     except (EvidenceError, OSError, subprocess.TimeoutExpired) as exc:
         print(f"p12_mesa_build_evidence: {exc}", file=sys.stderr)
         return 2
