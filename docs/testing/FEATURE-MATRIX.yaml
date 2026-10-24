@@ -52,9 +52,9 @@ features:
     dependencies: [python3]
     validation_status: PARTIAL
     qualification: DETECTED
-    evidence: [../architecture/MANAGEMENT-API.md, ../architecture/CAPABILITY-MATRIX.md, ../../lib/management_service.py, ../../tests/test_management_service.py]
+    evidence: [../architecture/MANAGEMENT-API.md, ../architecture/CAPABILITY-MATRIX.md, ../evidence/2026-10-24-client-dispatch-audit.md, ../../lib/management_service.py, ../../tests/test_management_service.py]
     release_qualified: false
-    limitations: [Typed operations and client bridges exist; visual parity and release qualification remain open.]
+    limitations: [The inspected client routes share typed backend operations; per-operation reach, visual/accessibility parity, and release qualification remain open.]
     next_action: Reconcile each client action with the shared catalog and test the resulting UI behavior.
     owner_decision_required: false
 

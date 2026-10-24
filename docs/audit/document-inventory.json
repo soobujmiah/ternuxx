@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 520,
-  "read_count": 160,
+  "document_count": 521,
+  "read_count": 161,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -259,10 +259,10 @@
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
       "kind": "narrative",
-      "sha256": "8b58ec55edbbcc5bac872103ceedc9e4db1c8cf09b981335642acb7f79338690",
+      "sha256": "47ecc7c3a5de062ec72ccdb77824c2efcfcfc513dcefb9c75173c5f9c4022db4",
       "lines": 21,
       "read_status": "read",
-      "read_sha256": "8b58ec55edbbcc5bac872103ceedc9e4db1c8cf09b981335642acb7f79338690"
+      "read_sha256": "47ecc7c3a5de062ec72ccdb77824c2efcfcfc513dcefb9c75173c5f9c4022db4"
     },
     {
       "path": "docs/architecture/CONTINUITY-IMPLEMENTATION.md",
@@ -2897,6 +2897,14 @@
       "read_sha256": "be9a5d59fa8bfbbae4a78fe81f76931573b7d73c0b27f4648ec6a2f4098ddd93"
     },
     {
+      "path": "docs/evidence/2026-10-24-client-dispatch-audit.md",
+      "kind": "narrative",
+      "sha256": "c231306575d5d5b2ee15851f2244eb9915662f5bbdb2df2b821d5f9efa4a2062",
+      "lines": 44,
+      "read_status": "read",
+      "read_sha256": "c231306575d5d5b2ee15851f2244eb9915662f5bbdb2df2b821d5f9efa4a2062"
+    },
+    {
       "path": "docs/evidence/2026-10-24-cron-inspection-client-parity.md",
       "kind": "narrative",
       "sha256": "885125d13a41d26d84a629aa0571d3271829524b905b3a1722b98a8a85351c8a",
@@ -3723,10 +3731,10 @@
     {
       "path": "docs/testing/FEATURE-MATRIX.yaml",
       "kind": "structured",
-      "sha256": "ce4d56c9ae730265dd213bf7daf703264cd70a7f2e3857d0d0a0fd45470269ca",
+      "sha256": "b7dfb66c938fe947e56e42612ec5084335f20bf21c5472d0d05f3eb5121d905a",
       "lines": 209,
       "read_status": "read",
-      "read_sha256": "ce4d56c9ae730265dd213bf7daf703264cd70a7f2e3857d0d0a0fd45470269ca"
+      "read_sha256": "b7dfb66c938fe947e56e42612ec5084335f20bf21c5472d0d05f3eb5121d905a"
     },
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
