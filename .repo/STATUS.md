@@ -2,9 +2,9 @@
 # ternuxx -- deterministic status
 
 - Repository: `soobujmiah/ternuxx`
-- Generated at: 2026-10-24T13:15:23Z (by `tools/repo_knowledge collect`)
-- Version: `055371b`
-- Head: `055371b6f6381dd8ea49fbe819a2883775c4ff2d` on `main` (2026-10-24T13:14:00Z)
+- Generated at: 2026-10-24T13:17:03Z (by `tools/repo_knowledge collect`)
+- Version: `ebca6ce`
+- Head: `ebca6ced4156119d6a232b3ecd3b158625d39e08` on `main` (2026-10-24T13:17:03Z)
 
 ## Build / test
 
@@ -18,5 +18,5 @@
 ## Sync
 
 - Status: ok
-- Source: ci
-- Last synced at: 2026-10-24T13:15:23Z
+- Source: local
+- Last synced at: 2026-10-24T13:17:03Z
