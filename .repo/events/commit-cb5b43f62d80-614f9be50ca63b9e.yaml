@@ -1,0 +1,7 @@
+event_id: commit-cb5b43f62d80-614f9be50ca63b9e
+repository: soobujmiah/ternuxx
+commit: cb5b43f62d8040ee42a1d8fdfc1d623d90309327
+kind: commit
+occurred_at: '2026-10-24T16:16:01Z'
+status: completed
+summary: 'fix(web): remove duplicate operation labels'
