@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import argparse
 from datetime import datetime, timezone
 import fcntl
@@ -60,6 +61,94 @@ def _now() -> str:
 
 def _root(home: str | os.PathLike[str], state_dir: str | os.PathLike[str]) -> Path:
     return continuity._private_root(home, state_dir) / "continuity" / "reboot-tests"
+
+
+def _plan_id(action: str, details: dict[str, object], private_identity: str) -> str:
+    payload = {"action": action, "details": details, "private_identity": private_identity}
+    encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def _normalized_boot_id(boot_id: str | None) -> str | None:
+    if boot_id is None:
+        boot_id = continuity.read_boot_id()
+    if boot_id is not None:
+        try:
+            return str(uuid.UUID(boot_id))
+        except (ValueError, TypeError) as exc:
+            raise RecoveryError("boot ID is malformed") from exc
+    return None
+
+
+def prepare_preview(*, home: str | os.PathLike[str], state_dir: str | os.PathLike[str],
+                    test_id: str, evidence: dict[str, object], boot_id: str | None = None) -> dict[str, object]:
+    """Validate reboot-test input and return a stable, non-writing preview."""
+    if not isinstance(test_id, str) or not TEST_ID_RE.fullmatch(test_id):
+        raise RecoveryError("test ID is invalid")
+    baseline = _check_evidence(evidence)
+    current_boot_id = _normalized_boot_id(boot_id)
+    root = _root(home, state_dir)
+    target = root / f"{test_id}.json"
+    if target.exists() or target.is_symlink():
+        raise RecoveryError("reboot-test ID already exists; choose a new unique ID")
+    baseline_digest = hashlib.sha256(
+        json.dumps(baseline, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    details: dict[str, object] = {
+        "test_id": test_id,
+        "baseline_sha256": baseline_digest,
+        "record_path": str(target),
+        "readiness": "NOT_READY",
+        "automatic_resume": False,
+    }
+    return {
+        "plan_id": _plan_id("prepare_reboot_test", details, current_boot_id or "boot-id-unavailable"),
+        "action": "create_private_reboot_test_record",
+        "details": details,
+        "read_only": True,
+        "warning": "Writes a private NOT_READY record only; it does not reboot or resume work.",
+    }
+
+
+def verify_preview(*, home: str | os.PathLike[str], state_dir: str | os.PathLike[str],
+                   test_id: str, current_boot_id: str | None = None) -> dict[str, object]:
+    """Validate a reboot-test record and preview its evidence-only verification."""
+    if not isinstance(test_id, str) or not TEST_ID_RE.fullmatch(test_id):
+        raise RecoveryError("test ID is invalid")
+    root = _root(home, state_dir)
+    record = _read_record(root / f"{test_id}.json")
+    current_boot_id = _normalized_boot_id(current_boot_id)
+    previous_boot_id = record.get("previous_boot_id")
+    if previous_boot_id is None or current_boot_id is None:
+        transition = "unknown"
+    else:
+        transition = "changed" if previous_boot_id != current_boot_id else "same"
+    observations = record.get("boot_observations")
+    latest = observations[-1] if isinstance(observations, list) and observations else None
+    observation_matches = isinstance(latest, dict) and latest.get("current_boot_id") == current_boot_id
+    if transition == "changed" and observation_matches and latest.get("termux_boot_invoked") is True:
+        outcome = "verified_reboot_partial" if latest.get("sshd_process") != "present" else "verified_reboot_service_unqualified"
+    elif transition == "same":
+        outcome = "same_boot"
+    else:
+        outcome = "inconclusive"
+    record_digest = hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    details: dict[str, object] = {
+        "test_id": test_id,
+        "record_sha256": record_digest,
+        "state": record["state"],
+        "boot_id_transition": transition,
+        "boot_observation_matches": observation_matches,
+        "expected_outcome": outcome,
+        "automatic_resume": False,
+    }
+    return {
+        "plan_id": _plan_id("verify_reboot_test", details, current_boot_id or "boot-id-unavailable"),
+        "action": "record_reboot_test_verification",
+        "details": details,
+        "read_only": True,
+        "warning": "Writes verification evidence only; it does not reboot or resume work.",
+    }
 
 
 def _check_evidence(evidence: object, *, allow_historical: bool = False) -> dict[str, object]:
@@ -298,7 +387,7 @@ def record_boot_observation(
 
 def verify(
     *, home: str | os.PathLike[str], state_dir: str | os.PathLike[str], test_id: str,
-    nonce: str, current_boot_id: str | None = None,
+    nonce: str, current_boot_id: str | None = None, expected_record_sha256: str | None = None,
 ) -> dict[str, object]:
     if not TEST_ID_RE.fullmatch(test_id):
         raise RecoveryError("test ID is invalid")
@@ -312,6 +401,10 @@ def verify(
     root = _root(home, state_dir)
     record_path = root / f"{test_id}.json"
     record = _read_record(record_path)
+    if expected_record_sha256 is not None:
+        record_digest = hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        if not hmac.compare_digest(record_digest, expected_record_sha256):
+            raise RecoveryError("reboot-test record changed after preview; preview it again")
     if not isinstance(nonce, str) or not hmac.compare_digest(str(record.get("nonce", "")), nonce):
         raise RecoveryError("test nonce does not match the pending checkpoint")
     previous = record.get("previous_boot_id")
@@ -349,14 +442,15 @@ def verify(
 
 def verify_pending(
     *, home: str | os.PathLike[str], state_dir: str | os.PathLike[str], test_id: str,
-    current_boot_id: str | None = None,
+    current_boot_id: str | None = None, expected_record_sha256: str | None = None,
 ) -> dict[str, object]:
     """Verify a private checkpoint without exposing its nonce in process arguments."""
     if not TEST_ID_RE.fullmatch(test_id):
         raise RecoveryError("test ID is invalid")
     record = _read_record(_root(home, state_dir) / f"{test_id}.json")
     return verify(home=home, state_dir=state_dir, test_id=test_id,
-                  nonce=str(record["nonce"]), current_boot_id=current_boot_id)
+                  nonce=str(record["nonce"]), current_boot_id=current_boot_id,
+                  expected_record_sha256=expected_record_sha256)
 
 
 def resume_info(*, home: str | os.PathLike[str], state_dir: str | os.PathLike[str], test_id: str) -> dict[str, object]:

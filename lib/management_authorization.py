@@ -156,7 +156,9 @@ OPERATION_CAPABILITIES: dict[str, str] = {
     "continuity.prepare": "continuity.checkpoint.manage",
     "continuity.verify.preview": "continuity.checkpoint.manage",
     "continuity.verify": "continuity.checkpoint.manage",
+    "continuity.prepare-reboot-test.preview": "continuity.manage",
     "continuity.prepare-reboot-test": "continuity.manage",
+    "continuity.verify-reboot-test.preview": "continuity.manage",
     "continuity.verify-reboot-test": "continuity.manage",
     "continuity.resume-info": "continuity.read",
 }

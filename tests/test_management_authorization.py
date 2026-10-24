@@ -89,13 +89,19 @@ class ManagementAuthorizationTests(unittest.TestCase):
         import management_sessions
         for operation in ("continuity.prepare.preview", "continuity.prepare", "continuity.verify.preview", "continuity.verify"):
             self.assertEqual(management_authorization.required_capability(operation), "continuity.checkpoint.manage")
-        self.assertEqual(management_authorization.required_capability("continuity.prepare-reboot-test"), "continuity.manage")
+        for operation in ("continuity.prepare-reboot-test.preview", "continuity.prepare-reboot-test",
+                          "continuity.verify-reboot-test.preview", "continuity.verify-reboot-test"):
+            self.assertEqual(management_authorization.required_capability(operation), "continuity.manage")
         self.assertTrue(management_authorization.authorize("continuity.prepare", {"continuity.checkpoint.manage"}))
         self.assertFalse(management_authorization.authorize("continuity.prepare-reboot-test", {"continuity.checkpoint.manage"}))
         self.assertIn("continuity.prepare.preview", management_sessions.READ_ONLY_OPERATIONS)
         self.assertIn("continuity.verify.preview", management_sessions.READ_ONLY_OPERATIONS)
+        self.assertIn("continuity.prepare-reboot-test.preview", management_sessions.READ_ONLY_OPERATIONS)
+        self.assertIn("continuity.verify-reboot-test.preview", management_sessions.READ_ONLY_OPERATIONS)
         self.assertIn("continuity.prepare", management_sessions.MUTATING_OPERATIONS)
         self.assertIn("continuity.verify", management_sessions.MUTATING_OPERATIONS)
+        self.assertIn("continuity.prepare-reboot-test", management_sessions.MUTATING_OPERATIONS)
+        self.assertIn("continuity.verify-reboot-test", management_sessions.MUTATING_OPERATIONS)
 
     def test_boot_helper_changes_use_a_separate_exact_capability(self) -> None:
         for operation in ("boot.helpers.preview", "boot.helpers.apply"):

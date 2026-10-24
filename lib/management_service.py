@@ -206,8 +206,10 @@ OPERATIONS = {
     "continuity.prepare": {"args": {"test_id", "repository", "commit", "worktree_state", "task_state", "pending_tests", "next_safe_action", "confirmed", "plan_id"}},
     "continuity.verify.preview": {"args": {"checkpoint_id"}},
     "continuity.verify": {"args": {"checkpoint_id", "confirmed", "plan_id"}},
-    "continuity.prepare-reboot-test": {"args": {"test_id", "baseline", "boot_id"}},
-    "continuity.verify-reboot-test": {"args": {"test_id", "current_boot_id"}},
+    "continuity.prepare-reboot-test.preview": {"args": {"test_id", "baseline", "boot_id"}},
+    "continuity.prepare-reboot-test": {"args": {"test_id", "baseline", "boot_id", "confirmed", "plan_id"}},
+    "continuity.verify-reboot-test.preview": {"args": {"test_id", "current_boot_id"}},
+    "continuity.verify-reboot-test": {"args": {"test_id", "current_boot_id", "confirmed", "plan_id"}},
     "continuity.resume-info": {"args": {"test_id"}},
 }
 
@@ -1130,13 +1132,29 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 data = continuity.verify(home=home, state_dir=state_dir, checkpoint_id=args["checkpoint_id"],
                                          current_boot_id=preview["details"]["current_boot_id"],
                                          expected_record_sha256=preview["details"]["record_sha256"])
-        elif operation == "continuity.prepare-reboot-test":
-            data = reboot_recovery.prepare(home=home, state_dir=state_dir, test_id=args["test_id"],
-                                           evidence=args["baseline"],
-                                           boot_id=args.get("boot_id"))
-        elif operation == "continuity.verify-reboot-test":
-            data = reboot_recovery.verify_pending(home=home, state_dir=state_dir, test_id=args["test_id"],
-                                                  current_boot_id=args.get("current_boot_id"))
+        elif operation in {"continuity.prepare-reboot-test.preview", "continuity.prepare-reboot-test"}:
+            reboot_boot_id = args.get("boot_id") or continuity.read_boot_id()
+            preview = reboot_recovery.prepare_preview(home=home, state_dir=state_dir, test_id=args["test_id"],
+                                                       evidence=args["baseline"], boot_id=reboot_boot_id)
+            if operation.endswith(".preview"):
+                data = preview
+            else:
+                if args.get("confirmed") is not True or args.get("plan_id") != preview["plan_id"]:
+                    return _error(request_id, "confirmation_required", "reboot-test preparation requires confirmed=true and the exact plan_id from preview")
+                data = reboot_recovery.prepare(home=home, state_dir=state_dir, test_id=args["test_id"],
+                                               evidence=args["baseline"], boot_id=reboot_boot_id)
+        elif operation in {"continuity.verify-reboot-test.preview", "continuity.verify-reboot-test"}:
+            reboot_boot_id = args.get("current_boot_id") or continuity.read_boot_id()
+            preview = reboot_recovery.verify_preview(home=home, state_dir=state_dir, test_id=args["test_id"],
+                                                      current_boot_id=reboot_boot_id)
+            if operation.endswith(".preview"):
+                data = preview
+            else:
+                if args.get("confirmed") is not True or args.get("plan_id") != preview["plan_id"]:
+                    return _error(request_id, "confirmation_required", "reboot-test verification requires confirmed=true and the exact plan_id from preview")
+                data = reboot_recovery.verify_pending(home=home, state_dir=state_dir, test_id=args["test_id"],
+                                                      current_boot_id=reboot_boot_id,
+                                                      expected_record_sha256=preview["details"]["record_sha256"])
         else:
             data = reboot_recovery.resume_info(home=home, state_dir=state_dir, test_id=args["test_id"])
     except optional_software.SoftwareError as exc:
@@ -1727,7 +1745,7 @@ def main(argv: list[str] | None = None) -> int:
                 print("Ternuxx operation failed [invalid_arguments]: --owner is required", file=sys.stderr)
             return 1
         payload = {"owner": args.owner, "persistent": args.persistent}
-    elif args.operation == "continuity.prepare-reboot-test":
+    elif args.operation in {"continuity.prepare-reboot-test.preview", "continuity.prepare-reboot-test"}:
         try:
             baseline = json.loads(args.baseline_json or "")
         except json.JSONDecodeError:
@@ -1746,8 +1764,19 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print("Ternuxx operation failed [invalid_arguments]: --test-id is required", file=sys.stderr)
             return 1
-        payload = {"test_id": args.test_id, "baseline": baseline}
-    elif args.operation == "continuity.verify-reboot-test":
+        if args.operation.endswith(".preview"):
+            if args.yes or args.plan_id:
+                response = _error(request_id, "invalid_arguments", "reboot-test preview does not accept apply flags")
+                print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+                return 1
+            payload = {"test_id": args.test_id, "baseline": baseline}
+        else:
+            if not args.yes or not args.plan_id:
+                response = _error(request_id, "confirmation_required", "reboot-test preparation apply requires --yes and the exact --plan-id")
+                print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+                return 1
+            payload = {"test_id": args.test_id, "baseline": baseline, "confirmed": True, "plan_id": args.plan_id}
+    elif args.operation in {"continuity.verify-reboot-test.preview", "continuity.verify-reboot-test"}:
         if not args.test_id:
             response = _error(request_id, "invalid_arguments", "--test-id is required")
             if args.json:
@@ -1755,7 +1784,19 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 print("Ternuxx operation failed [invalid_arguments]: --test-id is required", file=sys.stderr)
             return 1
-        payload = {"test_id": args.test_id, "current_boot_id": args.current_boot_id}
+        if args.operation.endswith(".preview"):
+            if args.yes or args.plan_id:
+                response = _error(request_id, "invalid_arguments", "reboot-test verification preview does not accept apply flags")
+                print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+                return 1
+            payload = {"test_id": args.test_id, "current_boot_id": args.current_boot_id}
+        else:
+            if not args.yes or not args.plan_id:
+                response = _error(request_id, "confirmation_required", "reboot-test verification apply requires --yes and the exact --plan-id")
+                print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+                return 1
+            payload = {"test_id": args.test_id, "current_boot_id": args.current_boot_id,
+                       "confirmed": True, "plan_id": args.plan_id}
     elif args.operation == "continuity.resume-info":
         if not args.test_id:
             response = _error(request_id, "invalid_arguments", "--test-id is required")

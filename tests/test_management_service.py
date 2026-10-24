@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 import io
 import json
 import os
@@ -770,21 +770,67 @@ class ManagementServiceTests(unittest.TestCase):
                 "required_postboot_checks": [], "recovery_instructions": ["Inspect native status."],
                 "rollback_instructions": ["Preserve the checkpoint."], "next_action": "verify",
             }
-            prepared = management_service.dispatch(request("continuity.prepare-reboot-test", {
+            prepare_preview = management_service.dispatch(request("continuity.prepare-reboot-test.preview", {
                 "test_id": "api-reboot-check", "baseline": baseline,
             }), env=env)
+            self.assertTrue(prepare_preview["ok"])
+            record_dir = home / ".state/continuity/reboot-tests"
+            self.assertFalse(record_dir.exists())
+            rejected = management_service.dispatch(request("continuity.prepare-reboot-test", {
+                "test_id": "api-reboot-check", "baseline": baseline,
+                "confirmed": True, "plan_id": "wrong-plan",
+            }), env=env)
+            self.assertEqual(rejected["error"]["code"], "confirmation_required")
+            prepared = management_service.dispatch(request("continuity.prepare-reboot-test", {
+                "test_id": "api-reboot-check", "baseline": baseline,
+                "confirmed": True, "plan_id": prepare_preview["data"]["plan_id"],
+            }), env=env)
             self.assertTrue(prepared["ok"])
-            verified = management_service.dispatch(request("continuity.verify-reboot-test", {
+            verify_preview = management_service.dispatch(request("continuity.verify-reboot-test.preview", {
                 "test_id": "api-reboot-check",
+            }), env=env)
+            self.assertTrue(verify_preview["ok"])
+            verified = management_service.dispatch(request("continuity.verify-reboot-test", {
+                "test_id": "api-reboot-check", "confirmed": True,
+                "plan_id": verify_preview["data"]["plan_id"],
             }), env=env)
             self.assertTrue(verified["ok"])
             self.assertEqual(verified["data"]["outcome"], "same_boot")
             self.assertNotIn("nonce", verified["data"])
             denied = management_service.dispatch(request("continuity.verify-reboot-test", {
-                "test_id": "api-reboot-check", "nonce": "unexpected",
+                "test_id": "api-reboot-check", "nonce": "unexpected", "confirmed": True,
+                "plan_id": verify_preview["data"]["plan_id"],
             }), env=env)
             self.assertFalse(denied["ok"])
             self.assertEqual(denied["error"]["code"], "invalid_arguments")
+
+    def test_reboot_cli_preview_and_apply_require_exact_plan(self) -> None:
+        response = {"ok": True, "data": {"plan_id": "a" * 64}}
+        baseline = json.dumps({"stage": "qualification"})
+        with patch.dict(os.environ, NATIVE_ENV), patch.object(management_service, "dispatch", return_value=response) as dispatch, \
+                redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(management_service.main([
+                "--operation", "continuity.prepare-reboot-test.preview", "--test-id", "api-test",
+                "--baseline-json", baseline, "--json",
+            ]), 0)
+        self.assertEqual(dispatch.call_args.args[0]["operation"], "continuity.prepare-reboot-test.preview")
+        self.assertEqual(json.loads(output.getvalue())["data"]["plan_id"], "a" * 64)
+
+        with patch.dict(os.environ, NATIVE_ENV), patch.object(management_service, "dispatch") as dispatch, \
+                redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+            self.assertEqual(management_service.main([
+                "--operation", "continuity.prepare-reboot-test", "--test-id", "api-test",
+                "--baseline-json", baseline, "--json",
+            ]), 1)
+        dispatch.assert_not_called()
+
+        with patch.dict(os.environ, NATIVE_ENV), patch.object(management_service, "dispatch", return_value=response) as dispatch, \
+                redirect_stdout(io.StringIO()):
+            self.assertEqual(management_service.main([
+                "--operation", "continuity.prepare-reboot-test", "--test-id", "api-test",
+                "--baseline-json", baseline, "--yes", "--plan-id", "a" * 64, "--json",
+            ]), 0)
+        self.assertEqual(dispatch.call_args.args[0]["args"]["plan_id"], "a" * 64)
 
     def test_ssh_autostart_policy_routes_status_preview_and_apply_through_shared_service(self) -> None:
         with tempfile.TemporaryDirectory(prefix="ssh-autostart-service-") as temp:
@@ -857,6 +903,7 @@ class ManagementServiceTests(unittest.TestCase):
     def test_backend_has_no_generic_shell_or_unlisted_operation(self) -> None:
         self.assertNotIn("shell.exec", management_service.OPERATIONS)
         self.assertIn("continuity.prepare-reboot-test", management_service.OPERATIONS)
+        self.assertIn("continuity.prepare-reboot-test.preview", management_service.OPERATIONS)
         self.assertIn("boot.status", management_service.OPERATIONS)
         self.assertIn("boot.profile.status", management_service.OPERATIONS)
         self.assertIn("boot.profile.preview", management_service.OPERATIONS)

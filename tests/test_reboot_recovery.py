@@ -6,6 +6,7 @@ import json
 import fcntl
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -54,6 +55,78 @@ class RebootRecoveryTests(unittest.TestCase):
     def prepare(self) -> dict[str, object]:
         return reboot_recovery.prepare(home=self.home, state_dir=self.state, test_id="owner-reboot-check",
                                       evidence=evidence(), boot_id=BOOT_A)
+
+    def test_prepare_preview_is_private_nonwriting_and_bound_to_exact_baseline(self) -> None:
+        first = reboot_recovery.prepare_preview(home=self.home, state_dir=self.state,
+                                                test_id="owner-reboot-check", evidence=evidence(), boot_id=BOOT_A)
+        again = reboot_recovery.prepare_preview(home=self.home, state_dir=self.state,
+                                                test_id="owner-reboot-check", evidence=evidence(), boot_id=BOOT_A)
+        self.assertEqual(first["plan_id"], again["plan_id"])
+        self.assertTrue(first["read_only"])
+        self.assertFalse(self.record_path().exists())
+        self.assertNotIn("nonce", json.dumps(first))
+        changed = evidence()
+        changed["stage"] = "different-stage"
+        changed_preview = reboot_recovery.prepare_preview(home=self.home, state_dir=self.state,
+                                                          test_id="owner-reboot-check", evidence=changed, boot_id=BOOT_A)
+        self.assertNotEqual(first["plan_id"], changed_preview["plan_id"])
+        self.prepare()
+        with self.assertRaises(reboot_recovery.RecoveryError):
+            reboot_recovery.prepare_preview(home=self.home, state_dir=self.state,
+                                            test_id="owner-reboot-check", evidence=evidence(), boot_id=BOOT_A)
+
+    def test_verify_preview_is_readonly_and_plan_changes_with_boot_evidence(self) -> None:
+        self.prepare()
+        first = reboot_recovery.verify_preview(home=self.home, state_dir=self.state,
+                                               test_id="owner-reboot-check", current_boot_id=BOOT_A)
+        repeated = reboot_recovery.verify_preview(home=self.home, state_dir=self.state,
+                                                  test_id="owner-reboot-check", current_boot_id=BOOT_A)
+        self.assertEqual(first["plan_id"], repeated["plan_id"])
+        self.assertEqual(first["details"]["expected_outcome"], "same_boot")
+        self.assertNotIn("nonce", json.dumps(first))
+        record = json.loads(self.record_path().read_text(encoding="utf-8"))
+        self.assertNotIn("verification", record)
+        record["baseline"]["stage"] = "stale-after-preview"
+        self.record_path().write_text(json.dumps(record), encoding="utf-8")
+        with self.assertRaises(reboot_recovery.RecoveryError):
+            reboot_recovery.verify_pending(home=self.home, state_dir=self.state,
+                                           test_id="owner-reboot-check", current_boot_id=BOOT_A,
+                                           expected_record_sha256=first["details"]["record_sha256"])
+        different_boot = reboot_recovery.verify_preview(home=self.home, state_dir=self.state,
+                                                        test_id="owner-reboot-check", current_boot_id=BOOT_B)
+        self.assertNotEqual(first["plan_id"], different_boot["plan_id"])
+
+    def test_tx_reboot_json_commands_only_preview(self) -> None:
+        env = {
+            **os.environ,
+            "TERMUX_VERSION": "test-version",
+            "PREFIX": "/data/data/com.termux/files/usr",
+            "HOME": str(self.home),
+            "TERNUXX_STATE_DIR": str(self.state),
+        }
+        prepare = subprocess.run(
+            ["bash", str(ROOT / "bin/tx"), "--json", "reboot", "prepare", "--test-id", "shell-check",
+             "--baseline-json", json.dumps(evidence())],
+            env=env, text=True, capture_output=True, timeout=10, check=False,
+        )
+        self.assertEqual(prepare.returncode, 0, prepare.stderr)
+        prepare_result = json.loads(prepare.stdout)
+        self.assertTrue(prepare_result["ok"])
+        self.assertTrue(prepare_result["data"]["read_only"])
+        record_path = self.state / "continuity/reboot-tests/shell-check.json"
+        self.assertFalse(record_path.exists())
+
+        self.prepare()
+        verify = subprocess.run(
+            ["bash", str(ROOT / "bin/tx"), "--json", "reboot", "verify", "owner-reboot-check"],
+            env=env, text=True, capture_output=True, timeout=10, check=False,
+        )
+        self.assertEqual(verify.returncode, 0, verify.stderr)
+        verify_result = json.loads(verify.stdout)
+        self.assertTrue(verify_result["ok"])
+        self.assertTrue(verify_result["data"]["read_only"])
+        stored = json.loads(self.record_path().read_text(encoding="utf-8"))
+        self.assertEqual(stored["verification_history"], [])
 
     def record_path(self) -> Path:
         return self.state / "continuity/reboot-tests/owner-reboot-check.json"
