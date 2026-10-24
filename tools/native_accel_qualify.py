@@ -16,7 +16,8 @@ from datetime import datetime, timezone
 ROOT = Path(__file__).resolve().parents[1]
 TX = ROOT / "tx"
 BACKENDS = {"cpu", "vulkan", "npu"}
-MAX_PROMPT_BYTES = 4096
+PROMPT = "2 + 2? Reply with one digit."
+PROMPT_ID = "arithmetic-two-plus-two-v1"
 EXPECTED_ANSWER = re.compile(r"(?:2\s*\+\s*2\s*=\s*)?4[.!]?\Z")
 
 
@@ -144,7 +145,7 @@ def _render_report(args: argparse.Namespace, rows: list[dict[str, object]],
                      "machine": platform.machine(), "prefix": os.environ.get("PREFIX")},
         "provider": "native-termux",
         "backend": args.backend,
-        "prompt": args.prompt,
+        "prompt_id": PROMPT_ID,
         "max_tokens": args.max_tokens,
         "guards": {**limits, "minimum_memavailable_mib": minimum_mem_kib // 1024,
                    "note": "Conservative test guards selected for this run; not OEM-rated limits."},
@@ -220,7 +221,7 @@ def run(args: argparse.Namespace) -> int:
             break
         assert proc.stdin is not None
         try:
-            proc.stdin.write(args.prompt + "\n")
+            proc.stdin.write(PROMPT + "\n")
             proc.stdin.close()
         except (BrokenPipeError, OSError) as exc:
             _stop_process(proc, signal.SIGINT, 8)
@@ -316,7 +317,6 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--htp-stop-c", type=float, default=60)
     result.add_argument("--battery-stop-c", type=float, default=45)
     result.add_argument("--socd-stop-c", type=float, default=70)
-    result.add_argument("--prompt", default="2 + 2? Reply with one digit.")
     result.add_argument("--preview", action="store_true", help="validate and print plan without inference")
     return result
 
@@ -333,12 +333,9 @@ def main(argv: list[str] | None = None) -> int:
         parser().error("--idle-seconds must be between 0 and 300")
     if not 256 <= args.minimum_mem_mib <= 65536:
         parser().error("--minimum-mem-mib must be between 256 and 65536")
-    if not args.prompt.strip() or "\n" in args.prompt or "\r" in args.prompt:
-        parser().error("--prompt must be one nonempty line")
-    if len(args.prompt.encode("utf-8")) > MAX_PROMPT_BYTES:
-        parser().error("--prompt must be at most 4096 UTF-8 bytes")
     if args.preview:
-        print(json.dumps({"backend": args.backend, "runs": args.runs, "max_tokens": args.max_tokens,
+        print(json.dumps({"backend": args.backend, "prompt_id": PROMPT_ID,
+                          "runs": args.runs, "max_tokens": args.max_tokens,
                           "timeout_seconds": args.timeout, "idle_seconds": args.idle_seconds,
                           "test_guards_c": {"cpu": args.cpu_stop_c, "gpu": args.gpu_stop_c,
                               "htp": args.htp_stop_c, "battery": args.battery_stop_c,
