@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "521d9277fcd84616be6d0721560cf86b5b24db1e30696014e95ca2e0b240a3b9",
+      "sha256": "cbe338bfc4b7f4ee5f300195d5f7881bf85682d8fd315fcad28992ba1d7b6490",
       "lines": 150,
       "read_status": "read",
-      "read_sha256": "521d9277fcd84616be6d0721560cf86b5b24db1e30696014e95ca2e0b240a3b9"
+      "read_sha256": "cbe338bfc4b7f4ee5f300195d5f7881bf85682d8fd315fcad28992ba1d7b6490"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "e78dc442359b9f3ab95a086bfa25289d879729922c9841e352bea5e359b225d6",
+      "sha256": "52232caa88312ae611e5122e98ab1e90c296aa6663f6d381bbdf421faa4d3bcf",
       "lines": 39,
       "read_status": "read",
-      "read_sha256": "e78dc442359b9f3ab95a086bfa25289d879729922c9841e352bea5e359b225d6"
+      "read_sha256": "52232caa88312ae611e5122e98ab1e90c296aa6663f6d381bbdf421faa4d3bcf"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
@@ -3075,10 +3075,10 @@
     {
       "path": "docs/evidence/2026-10-24-p12-thermal-observation.md",
       "kind": "narrative",
-      "sha256": "c84db3ebb748a01c60e4c9762bf0041fc755f0b4e0400de1129f92cc99117918",
+      "sha256": "c06900c756c405d20d46401c36caf466695b3cf327872295004e164a35e884bf",
       "lines": 39,
       "read_status": "read",
-      "read_sha256": "c84db3ebb748a01c60e4c9762bf0041fc755f0b4e0400de1129f92cc99117918"
+      "read_sha256": "c06900c756c405d20d46401c36caf466695b3cf327872295004e164a35e884bf"
     },
     {
       "path": "docs/evidence/2026-10-24-p4-managed-icd-migration.md",

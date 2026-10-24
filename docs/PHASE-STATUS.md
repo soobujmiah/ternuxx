@@ -135,7 +135,7 @@ Evidence:
 
 **Status:** in_progress
 
-Host-like Native and GitHub runs pass all 1,017 tests; CLI/TUI/Web/GTK replay-guest parity passes 168 focused tests. On 2026-10-24, two short known-answer runs per CPU, Vulkan, and HTP route passed with expected backend/offload reports. One bounded 64-token generation per route also returned 51–55 words; Vulkan/HTP reported full 29/29 offload. The CPU run's sensor maximum reached 72.8°C and returned to 44.6°C or below across CPU/GPU/HTP after 30 seconds idle. Per-run memory and thermal samples are in the [P12 thermal evidence](evidence/2026-10-24-p12-thermal-observation.md); these bounded checks do not establish sustained behavior.
+Host-like Native and GitHub runs pass all 1,017 tests; CLI/TUI/Web/GTK replay-guest parity passes 168 focused tests. On 2026-10-24, two short known-answer runs per CPU, Vulkan, and HTP route passed with expected backend/offload reports. One bounded 64-token generation per route also returned 51–55 words; Vulkan/HTP reported full 29/29 offload. CPU sensor maximum reached 72.8°C, then returned to 45.0°C or below across CPU/GPU/HTP after 30 seconds idle before the Vulkan and HTP runs. Per-run memory and thermal samples are in the [P12 thermal evidence](evidence/2026-10-24-p12-thermal-observation.md); these bounded checks do not establish sustained behavior.
 
 **Next action:** Qualify the experimental Vulkan ICD clean-install provenance, then design bounded sustained CPU/Vulkan/HTP runs with process-memory and thermal sampling; broaden HTP model/operator coverage after the runtime stays within observed device conditions.
 
