@@ -35,10 +35,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "c8d6c5fbc174edac3ddb68eb167271af2c5f6645dceb55bbfcf5504045ad1b67",
+      "sha256": "a0c434728c85bb0b6ea396ecdf22ab98928956fdbf1074cd73bb343cdd82bd84",
       "lines": 23,
       "read_status": "read",
-      "read_sha256": "c8d6c5fbc174edac3ddb68eb167271af2c5f6645dceb55bbfcf5504045ad1b67"
+      "read_sha256": "a0c434728c85bb0b6ea396ecdf22ab98928956fdbf1074cd73bb343cdd82bd84"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "cd2ca0c2ae267f0dd94d51abfd27a1421f279a5ed62bb43e761a1f6086b1539e",
+      "sha256": "743bf532df681b74ae01c570b5907a9f8f77848a79bbdfeb65a92b15924c0d17",
       "lines": 153,
       "read_status": "read",
-      "read_sha256": "cd2ca0c2ae267f0dd94d51abfd27a1421f279a5ed62bb43e761a1f6086b1539e"
+      "read_sha256": "743bf532df681b74ae01c570b5907a9f8f77848a79bbdfeb65a92b15924c0d17"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -227,10 +227,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "5628965305b5c952091df429ed397fbd40f9c7a13cd0b05ed5ddd9d330291d42",
+      "sha256": "b2e7ed0e0f0a2b8e6d4d5ec48ca629a1b6570cd69b08f11af47292bca2f3696f",
       "lines": 45,
       "read_status": "read",
-      "read_sha256": "5628965305b5c952091df429ed397fbd40f9c7a13cd0b05ed5ddd9d330291d42"
+      "read_sha256": "b2e7ed0e0f0a2b8e6d4d5ec48ca629a1b6570cd69b08f11af47292bca2f3696f"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -3067,10 +3067,10 @@
     {
       "path": "docs/evidence/2026-10-24-p12-native-repeated-resource-check.md",
       "kind": "narrative",
-      "sha256": "91419d7f69bfd5f016839cb8927a22a927bfe270c7757785077a394d82e28c22",
-      "lines": 26,
+      "sha256": "3c6419b46127a6fb5b96a24a109137eb26b17d672d2b8f5ced2862cd2cc817af",
+      "lines": 28,
       "read_status": "read",
-      "read_sha256": "91419d7f69bfd5f016839cb8927a22a927bfe270c7757785077a394d82e28c22"
+      "read_sha256": "3c6419b46127a6fb5b96a24a109137eb26b17d672d2b8f5ced2862cd2cc817af"
     },
     {
       "path": "docs/evidence/2026-10-24-p12-repo-regression-followup.md",
@@ -3379,10 +3379,10 @@
     {
       "path": "docs/evidence/data/2026-10-24-p12-native-repeated-resource.json",
       "kind": "structured",
-      "sha256": "ce71ed04975e5d96277fa667d62f4085c37af648e46ccca90555f0c00ec8f356",
-      "lines": 106,
+      "sha256": "9676f37216f2e94e2fcc64b6da94c4b2d17614ccc494a864acb776a491bd9923",
+      "lines": 157,
       "read_status": "read",
-      "read_sha256": "ce71ed04975e5d96277fa667d62f4085c37af648e46ccca90555f0c00ec8f356"
+      "read_sha256": "9676f37216f2e94e2fcc64b6da94c4b2d17614ccc494a864acb776a491bd9923"
     },
     {
       "path": "docs/evidence/web-reconcile-visual/report.json",
@@ -3667,10 +3667,10 @@
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "0cc68b402aa20c38855adac36c0e4ebbe064b87881e59bc14bffa2c4e610cf07",
+      "sha256": "771165ed5b7a7ed2f0e2f85df1066ba4422e861241ab779109ac7814926d1540",
       "lines": 52,
       "read_status": "read",
-      "read_sha256": "0cc68b402aa20c38855adac36c0e4ebbe064b87881e59bc14bffa2c4e610cf07"
+      "read_sha256": "771165ed5b7a7ed2f0e2f85df1066ba4422e861241ab779109ac7814926d1540"
     },
     {
       "path": "docs/testing/README.md",
@@ -3715,10 +3715,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "d5ca1f95a397c1fe0bc3233f5507698a6646e3e09f8301dd5e01c9bab82e28fb",
+      "sha256": "83df533b1992ad25492acb546ff348a6482495a4badf9cc4c3ad7a89725a0bdb",
       "lines": 256,
       "read_status": "read",
-      "read_sha256": "d5ca1f95a397c1fe0bc3233f5507698a6646e3e09f8301dd5e01c9bab82e28fb"
+      "read_sha256": "83df533b1992ad25492acb546ff348a6482495a4badf9cc4c3ad7a89725a0bdb"
     },
     {
       "path": "requirements-dev.txt",

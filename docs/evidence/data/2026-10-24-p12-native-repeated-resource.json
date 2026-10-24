@@ -97,10 +97,61 @@
       "llama_cli_process_remaining": false
     }
   },
+  "htp_supervised_followup": {
+    "requested_runs": 1,
+    "completed_inference": false,
+    "preflight": {
+      "cpu_c": 46.9,
+      "gpu_c": 42.0,
+      "htp_c": 43.2,
+      "battery_c": 40.46,
+      "socd_c": 66.0,
+      "memavailable_kib": 5257776
+    },
+    "elapsed_seconds": 18.87,
+    "interrupt_reason": "CPU-zone sample reached 61.6 C against the 60 C test guard; supervisor sent SIGINT to the Ternuxx CLI process group.",
+    "at_interrupt": {
+      "cpu_c": 61.6,
+      "gpu_c": 47.9,
+      "htp_c": 53.1,
+      "battery_c": 40.94,
+      "socd_c": 66.0,
+      "memavailable_kib": 4655832
+    },
+    "client_result": {
+      "exit_code": 1,
+      "error_code": "inference_failed",
+      "message": "HTP inference cancelled; its owned process group received a bounded interrupt"
+    },
+    "peak_llama_cli_rss_kib": 176604,
+    "llama_cli_process_remaining": false,
+    "post_run_snapshot": {
+      "cpu_zone_max_c": 54.1,
+      "cpu_therm_c": 50.26,
+      "gpu_zone_max_c": 48.7,
+      "htp_zone_max_c": 49.9,
+      "battery_therm_c": 43.61,
+      "battery_c": 39.3,
+      "socd_c": 65.0,
+      "memavailable_kib": 5583932
+    },
+    "later_idle_recheck": {
+      "cpu_zone_max_c": 45.3,
+      "cpu_therm_c": 43.28,
+      "gpu_zone_max_c": 42.0,
+      "htp_zone_max_c": 42.8,
+      "battery_therm_c": 41.21,
+      "battery_c": 38.4,
+      "socd_c": 66.0,
+      "memavailable_kib": 5264356,
+      "pgrep_exact_llama_cli": "no process"
+    }
+  },
   "limitations": [
     "This is a repeated bounded workload, not continuous burn-in, a battery-life test, or OEM thermal qualification.",
     "Sensor excursions are recorded as returned and do not by themselves establish throttling or a hardware limit.",
     "The HTP sequence stopped before ten runs; broader HTP stability and correctness remain unqualified.",
+    "A following supervised HTP attempt was interrupted at the CPU-zone guard before completing inference; the signal path returned the expected cancellation error and no llama-cli remained.",
     "The selected experimental ICD and HTP runtime remain device-specific; no clean-device release qualification was performed."
   ]
 }

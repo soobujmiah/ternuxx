@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Ten repeated 64-token Vulkan calls completed with full layer offload; HTP resource repeats stopped at the test guard after two calls, and the indexed official ICD rejects Adreno 825. Sustained, clean-install, and broader correctness qualification remain open.
+Ten repeated 64-token Vulkan calls completed with full layer offload. Two HTP calls completed, while a supervised follow-up was interrupted at the CPU-zone guard and cleaned up correctly. The indexed official ICD rejects Adreno 825. Sustained, clean-install, and broader correctness qualification remain open.
 
-**Next action:** Investigate the HTP sensor excursion and define a reviewed device-specific repeated-load procedure; identify an Adreno 825-compatible Vulkan ICD with reproducible provenance, then broaden HTP model/operator checks and clean-device PRoot replay.
+**Next action:** Investigate the repeatable HTP CPU-zone rise and define a reviewed, device-specific monitored-load procedure; identify an Adreno 825-compatible Vulkan ICD with reproducible provenance, then broaden HTP model/operator checks and clean-device PRoot replay.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

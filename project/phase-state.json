@@ -236,7 +236,7 @@
       "id": "P12",
       "title": "Qualify Native CPU, GPU and NPU acceleration",
       "status": "in_progress",
-      "summary": "Ten repeated 64-token Vulkan calls completed with full layer offload; HTP resource repeats stopped at the test guard after two calls, and the indexed official ICD rejects Adreno 825. Sustained, clean-install, and broader correctness qualification remain open.",
+      "summary": "Ten repeated 64-token Vulkan calls completed with full layer offload. Two HTP calls completed, while a supervised follow-up was interrupted at the CPU-zone guard and cleaned up correctly. The indexed official ICD rejects Adreno 825. Sustained, clean-install, and broader correctness qualification remain open.",
       "evidence": [
         "docs/evidence/2026-10-24-native-acceleration-live-check.md",
         "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
@@ -250,7 +250,7 @@
         "docs/evidence/2026-10-24-official-freedreno-icd-adreno825-check.md",
         "docs/evidence/2026-10-24-p12-native-repeated-resource-check.md"
       ],
-      "next_action": "Investigate the HTP sensor excursion and define a reviewed device-specific repeated-load procedure; identify an Adreno 825-compatible Vulkan ICD with reproducible provenance, then broaden HTP model/operator checks and clean-device PRoot replay."
+      "next_action": "Investigate the repeatable HTP CPU-zone rise and define a reviewed, device-specific monitored-load procedure; identify an Adreno 825-compatible Vulkan ICD with reproducible provenance, then broaden HTP model/operator checks and clean-device PRoot replay."
     }
   ]
 }
