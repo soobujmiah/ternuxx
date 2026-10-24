@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 542,
-  "read_count": 171,
+  "document_count": 543,
+  "read_count": 174,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "13faaf39f8e8f6a513d39c934100f834d8d6fce28909898f02a382f24d3f8dfa",
+      "sha256": "69dcd5deb09fff0a4151518699e1bf056f2c2be3d4a82f20a4af641181d2a5b8",
       "lines": 29,
       "read_status": "read",
-      "read_sha256": "13faaf39f8e8f6a513d39c934100f834d8d6fce28909898f02a382f24d3f8dfa"
+      "read_sha256": "69dcd5deb09fff0a4151518699e1bf056f2c2be3d4a82f20a4af641181d2a5b8"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -179,10 +179,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "4c3dee913b6cf6670f768f7862b531844d6c6604db209df0160ef129f956cbbf",
-      "lines": 166,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "502f4984c4387b4c2555a17bce2d8350da48465ccde399aaa6967e0cf4a31dfc",
+      "lines": 167,
+      "read_status": "read",
+      "read_sha256": "502f4984c4387b4c2555a17bce2d8350da48465ccde399aaa6967e0cf4a31dfc"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -237,8 +237,8 @@
       "kind": "narrative",
       "sha256": "ec9460bbc552350cd780e9e4036654b165db3d31d6c7c7250e989088b67a9cc3",
       "lines": 45,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "ec9460bbc552350cd780e9e4036654b165db3d31d6c7c7250e989088b67a9cc3"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "b3bd22bfb381402c13c5ac189eb5f3045b31ce42035b8eb7c7c5ed18d3f94adb",
-      "lines": 46,
+      "sha256": "49129718e5f645f0a4b9502d3b9970abedb633eb897274b2e644dfde6dce95ea",
+      "lines": 47,
       "read_status": "read",
-      "read_sha256": "b3bd22bfb381402c13c5ac189eb5f3045b31ce42035b8eb7c7c5ed18d3f94adb"
+      "read_sha256": "49129718e5f645f0a4b9502d3b9970abedb633eb897274b2e644dfde6dce95ea"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
@@ -3417,6 +3417,14 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md",
+      "kind": "narrative",
+      "sha256": "5885ded2b11233ee52eb2dcb8ebf72e83af73959e076f868566e7207a425e380",
+      "lines": 38,
+      "read_status": "read",
+      "read_sha256": "5885ded2b11233ee52eb2dcb8ebf72e83af73959e076f868566e7207a425e380"
+    },
+    {
       "path": "docs/evidence/2026-10-25-reboot-test-client-parity.md",
       "kind": "narrative",
       "sha256": "2fddf4d583c9cf5b9f244f79ac2feefb134572b0a48c416aac1a19feaf2fcfc9",
@@ -3979,8 +3987,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "1ff528c62d9eac011f43a551bac01d54b0ba451fdbbf0961001efef686cbff9f",
-      "lines": 269,
+      "sha256": "e13c5dcfe5447b125a15d209533b94990571a500e56f0ed3e3d3c40a567b5819",
+      "lines": 270,
       "read_status": "pending",
       "read_sha256": null
     },

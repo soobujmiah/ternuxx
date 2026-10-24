@@ -135,7 +135,7 @@ Evidence:
 
 **Status:** in_progress
 
-Mesa source/target graph, split package manifests, and a cautious payload-to-target candidate map are now recorded. Eleven regular payload files match unique Meson output basenames; 46 package symlinks resolve to those matched files. The corrected workflow rerun is in progress. Fresh guarded CPU/Vulkan/HTP repeats all cancelled before any case completed.
+Mesa source/target graph, split package manifests, and cautious package-to-target candidates are recorded. Corrected Mesa workflow remains in build. Fresh CPU, Vulkan and HTP repeat suites have each been guard-cancelled; the latest CPU attempt crossed 64.1°C after 5.476 seconds with zero completed cases.
 
 **Next action:** Pass the corrected Mesa workflow; continue package install/source attribution beyond basename candidates, and audit generated/external inputs and notices. Resume repeated Native backend qualification only under unchanged live guards; broaden HTP coverage and validate experimental Vulkan install provenance.
 
@@ -164,3 +164,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md](evidence/2026-10-24-p12-mesa-source-license-inventory.md)
 - [docs/evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md](evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md)
 - [docs/evidence/2026-10-24-p12-three-backend-qualification-guard-cancel-2001z.md](evidence/2026-10-24-p12-three-backend-qualification-guard-cancel-2001z.md)
+- [docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md](evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md)
