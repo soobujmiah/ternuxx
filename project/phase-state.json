@@ -236,7 +236,7 @@
       "id": "P12",
       "title": "Qualify Native CPU, GPU and NPU acceleration",
       "status": "in_progress",
-      "summary": "Short guarded Vulkan/HTP repeats verified complete offload and cleanup, but audit found the initial runner did not check answer correctness; the corrected exact-answer validator is unit-tested. The CPU run was correctly blocked before inference at the live 70°C SoC guard. Sustained, provenance, broader-correctness, and clean-install gates remain open.",
+      "summary": "Short guarded Vulkan/HTP repeats verified offload and cleanup, but their initial runner did not check answer correctness; corrected validator is unit-tested. CPU test was blocked at the live SoC guard. Native Adreno package provenance traces to an open draft PR and an expiring workflow artifact; no durable Termux release asset exists. Sustained and clean-install gates remain open.",
       "evidence": [
         "docs/evidence/2026-10-24-native-acceleration-live-check.md",
         "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
@@ -252,9 +252,10 @@
         "docs/evidence/2026-10-24-native-thermal-api-access-check.md",
         "docs/evidence/2026-10-24-p12-guarded-vulkan-repeat-check.md",
         "docs/evidence/2026-10-24-p12-guarded-htp-repeat-check.md",
-        "docs/evidence/2026-10-24-p12-cpu-qualification-guard-block.md"
+        "docs/evidence/2026-10-24-p12-cpu-qualification-guard-block.md",
+        "docs/evidence/2026-10-24-p12-native-artifact-release-recheck.md"
       ],
-      "next_action": "When a fresh live preflight is below all conservative guards, rerun exact-answer CPU/Vulkan/HTP qualification and record outputs as verified flags; then extend HTP correctness and resource checks, and resolve Adreno 825 provenance and clean-install replay."
+      "next_action": "When device sensors fall below all conservative guards, rerun exact-answer CPU/Vulkan/HTP qualification. Then broaden HTP correctness/resource checks and establish a durable, auditable Bionic-compatible Adreno build source and clean-install replay."
     }
   ]
 }

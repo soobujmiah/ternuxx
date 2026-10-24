@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and supports optional Debia
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** When a fresh live preflight is below all conservative guards, rerun exact-answer CPU/Vulkan/HTP qualification and record outputs as verified flags; then extend HTP correctness and resource checks, and resolve Adreno 825 provenance and clean-install replay.
+**Next action:** When device sensors fall below all conservative guards, rerun exact-answer CPU/Vulkan/HTP qualification. Then broaden HTP correctness/resource checks and establish a durable, auditable Bionic-compatible Adreno build source and clean-install replay.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

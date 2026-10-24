@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 514,
-  "read_count": 155,
+  "document_count": 515,
+  "read_count": 154,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -171,8 +171,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "3f90859beffb067ae7839181a7f9fd9f20b12aa2e7ada241fb9cab589b184519",
-      "lines": 157,
+      "sha256": "e3b62a50f2bb9823f811b11ee25c4120398f8773e68ba03243bb5b2eface84b0",
+      "lines": 158,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -227,7 +227,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "cad69eee8bb49197ff832d55cfbe7c5f7c4b754d8ec3c678febcc10972ef3e54",
+      "sha256": "022b5008b24f246954bc3ab3cf048e0f5c853eb7d170ad715b4a0271a7286654",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -3097,6 +3097,14 @@
       "read_sha256": "0193434cb7b47ab2a5652ab9737b6dc35808c6e371a2390a379268ed83b4d0fc"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-native-artifact-release-recheck.md",
+      "kind": "narrative",
+      "sha256": "91a9b1e06dae9a6088d778de454eaf7c0866578cdec33e70797b4b3d1b971173",
+      "lines": 17,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-native-repeated-resource-check.md",
       "kind": "narrative",
       "sha256": "3c6419b46127a6fb5b96a24a109137eb26b17d672d2b8f5ced2862cd2cc817af",
@@ -3683,10 +3691,10 @@
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "d85af331905ab318f8ca40d76013fa78a1fad132304d6f4b2ceda1ef506e7c3d",
+      "sha256": "1e52d2feebbeb3c8e73566d89927f2239a3053fa366b2101d5fecd9cc9bbd2b3",
       "lines": 36,
-      "read_status": "read",
-      "read_sha256": "d85af331905ab318f8ca40d76013fa78a1fad132304d6f4b2ceda1ef506e7c3d"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/testing/KNOWN-LIMITATIONS.md",
@@ -3755,8 +3763,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "afe7631e3fd23b1c9976c4ca7aa3d11e2b0644ecf3dcfdef9b4f0ff8bdc3706c",
-      "lines": 260,
+      "sha256": "57f11da5c824c5cdfd6320122ae11558c2120bc17bbee123de3f43fbeff757db",
+      "lines": 261,
       "read_status": "pending",
       "read_sha256": null
     },
