@@ -3075,8 +3075,8 @@
     {
       "path": "docs/evidence/2026-10-24-p12-cpu-qualification-guard-block.md",
       "kind": "narrative",
-      "sha256": "f13132195283915ace4b650eec9cee25f245e450a48cf09b58308026d68da7bf",
-      "lines": 25,
+      "sha256": "8e77360c2e478310cf7a75ad146c316f1c2d22c838aaca66a5e7345537880473",
+      "lines": 27,
       "read_status": "pending",
       "read_sha256": null
     },
