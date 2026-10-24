@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 521,
-  "read_count": 161,
+  "document_count": 522,
+  "read_count": 162,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -35,10 +35,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "fd6d9ee4c79ff0d7582a7c155a7bc3a4e1b824419323756a498a84758fc1236b",
+      "sha256": "5f5d53331ba7ff0ad197f147a16f0b3075b228fbd1e18b38291b26db60de36d1",
       "lines": 26,
       "read_status": "read",
-      "read_sha256": "fd6d9ee4c79ff0d7582a7c155a7bc3a4e1b824419323756a498a84758fc1236b"
+      "read_sha256": "5f5d53331ba7ff0ad197f147a16f0b3075b228fbd1e18b38291b26db60de36d1"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "c0c88055ed70b3aab2fed533240b8e46fa9d509da34a887ef4ae243feb33e22a",
-      "lines": 161,
+      "sha256": "b8b4e06a035b984cdc45959a2c192a0fe4d918da5041227952da961d1dd64c48",
+      "lines": 162,
       "read_status": "read",
-      "read_sha256": "c0c88055ed70b3aab2fed533240b8e46fa9d509da34a887ef4ae243feb33e22a"
+      "read_sha256": "b8b4e06a035b984cdc45959a2c192a0fe4d918da5041227952da961d1dd64c48"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -227,10 +227,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "c8ef9b2ef241e1db8353a6b03bc42a8ec4da5d039c2e65dc4ad54f1fad47bd40",
+      "sha256": "4541d966fda5e545e4b03bd6f646cbff59f0faa16754f427c70e1d1a6bb904ac",
       "lines": 45,
       "read_status": "read",
-      "read_sha256": "c8ef9b2ef241e1db8353a6b03bc42a8ec4da5d039c2e65dc4ad54f1fad47bd40"
+      "read_sha256": "4541d966fda5e545e4b03bd6f646cbff59f0faa16754f427c70e1d1a6bb904ac"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -3193,6 +3193,14 @@
       "read_sha256": "c06900c756c405d20d46401c36caf466695b3cf327872295004e164a35e884bf"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-thermal-recheck-1558-utc.md",
+      "kind": "narrative",
+      "sha256": "58d907564c4b23a67a9cb40f836468f760236b482567e2a8277de60b5469188e",
+      "lines": 11,
+      "read_status": "read",
+      "read_sha256": "58d907564c4b23a67a9cb40f836468f760236b482567e2a8277de60b5469188e"
+    },
+    {
       "path": "docs/evidence/2026-10-24-p4-managed-icd-migration.md",
       "kind": "narrative",
       "sha256": "f2b3db3490e32425c3d0fb888bce2cb813bb1f492fd895dcaeabefdab52f9c2d",
@@ -3811,10 +3819,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "9074ddc20d3a3f36dbf12eb0cc03c0b2b5b75ef38aa517e5ed74f2c581d75cac",
-      "lines": 264,
+      "sha256": "add346edb3e74ee3da1de746daa2bfa734afc3d56c93377b22364c9189cfc0e7",
+      "lines": 265,
       "read_status": "read",
-      "read_sha256": "9074ddc20d3a3f36dbf12eb0cc03c0b2b5b75ef38aa517e5ed74f2c581d75cac"
+      "read_sha256": "add346edb3e74ee3da1de746daa2bfa734afc3d56c93377b22364c9189cfc0e7"
     },
     {
       "path": "requirements-dev.txt",

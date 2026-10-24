@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Package-level SPDX records five Mesa archives; the pinned recipe and subpackage manifests now map enabled Gallium/Vulkan/OpenCL targets to package boundaries, but file-level licensing and source-to-binary mapping remain open. The latest CPU, Vulkan, and HTP guarded runs each stopped before inference at socd=84 C against the 70 C guard; repository tests and CI remain green.
+Corrected CPU, Vulkan, and HTP qualification remains unverified; the 15:58 UTC read-only preflight measured socd=87°C against the 70°C test guard, so no inference was started.
 
-**Next action:** Build a reproducible source-file license inventory from the exact Mesa source commit and map compiled source, binaries, and shipped notices from configured build outputs. When every required sensor is below its guard, rerun corrected CPU/Vulkan/HTP arithmetic qualification, then sustained HTP checks and clean-install replay from durable audited Bionic inputs.
+**Next action:** Build a source-file license inventory tied to the pinned Mesa source and configured outputs; rerun corrected CPU/Vulkan/HTP arithmetic cases only when every live guard passes, then qualify sustained HTP and clean-install replay.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -159,3 +159,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-multi-case-runner.md](evidence/2026-10-24-p12-multi-case-runner.md)
 - [docs/evidence/2026-10-24-p12-native-mesa-package-inventory.md](evidence/2026-10-24-p12-native-mesa-package-inventory.md)
 - [docs/evidence/2026-10-24-p12-mesa-build-scope.md](evidence/2026-10-24-p12-mesa-build-scope.md)
+- [docs/evidence/2026-10-24-p12-thermal-recheck-1558-utc.md](evidence/2026-10-24-p12-thermal-recheck-1558-utc.md)

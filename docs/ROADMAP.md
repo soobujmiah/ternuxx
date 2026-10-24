@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and supports optional Debia
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Build a reproducible source-file license inventory from the exact Mesa source commit and map compiled source, binaries, and shipped notices from configured build outputs. When every required sensor is below its guard, rerun corrected CPU/Vulkan/HTP arithmetic qualification, then sustained HTP checks and clean-install replay from durable audited Bionic inputs.
+**Next action:** Build a source-file license inventory tied to the pinned Mesa source and configured outputs; rerun corrected CPU/Vulkan/HTP arithmetic cases only when every live guard passes, then qualify sustained HTP and clean-install replay.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->
