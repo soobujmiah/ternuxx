@@ -1,0 +1,7 @@
+event_id: commit-9ab3fd73a966-4ab044a1def7dfb8
+repository: soobujmiah/ternuxx
+commit: 9ab3fd73a9660697018ef027f211002718b5b83e
+kind: commit
+occurred_at: '2026-10-24T16:17:33Z'
+status: completed
+summary: 'fix(ui): deduplicate ssh presentation label'
