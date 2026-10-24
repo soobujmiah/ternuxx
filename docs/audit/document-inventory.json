@@ -3,26 +3,26 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 515,
-  "read_count": 154,
+  "document_count": 516,
+  "read_count": 152,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
     {
       "path": ".github/workflows/repo-contract.yml",
       "kind": "structured",
-      "sha256": "cd4aa5cbc826781bc20138c700045cb9a6d43a330fb61d449d530866cfe1b796",
+      "sha256": "5d4b8f9764c1441a3aa32e8399c66296807745cd2ed40f6bab31884a84c0f6b0",
       "lines": 56,
-      "read_status": "read",
-      "read_sha256": "cd4aa5cbc826781bc20138c700045cb9a6d43a330fb61d449d530866cfe1b796"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": ".github/workflows/repo-knowledge-sync.yml",
       "kind": "structured",
-      "sha256": "324eb248b9c08cd9296c90e603420a4b7093e9b2271d7d71698401f717e1d74b",
+      "sha256": "cad78fb36ebe8fa70759c5037ae6c1f4aff9312d395134a84e764823ca5ff2a5",
       "lines": 83,
-      "read_status": "read",
-      "read_sha256": "324eb248b9c08cd9296c90e603420a4b7093e9b2271d7d71698401f717e1d74b"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "AI_ASSISTANT.md",
@@ -2937,6 +2937,14 @@
       "read_sha256": "73d8c023496eea15e708f479f3c34e98a2e29a8cb59b13361a09d2890c1d7bc5"
     },
     {
+      "path": "docs/evidence/2026-10-24-github-actions-pin-review.md",
+      "kind": "narrative",
+      "sha256": "28981b3a44cf9cfd05311ed27078da4ea55a556c5f6e0d6e70f96de27298db45",
+      "lines": 18,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-24-gtk-replay-guest-source-restoration.md",
       "kind": "narrative",
       "sha256": "fa81923248867a6a855da577c765ba7e7e2a053dfdec15315a76f6601522b90f",
@@ -3571,7 +3579,7 @@
     {
       "path": "docs/readiness/LEGAL-IP.md",
       "kind": "narrative",
-      "sha256": "97564a7d09dc65c446c8437f6d3e7ad85884ffef5f59c2c40784dfea352509fc",
+      "sha256": "e39b1198d34192e7cf7cdcde13e4f8d70119aaaa91deac8cc84ed28875c1c77d",
       "lines": 58,
       "read_status": "pending",
       "read_sha256": null
