@@ -1,0 +1,7 @@
+event_id: commit-0fdf748ca8c3-c7a4282046ff9d33
+repository: soobujmiah/ternuxx
+commit: 0fdf748ca8c3d6453f5aecc5abde25841c282797
+kind: commit
+occurred_at: '2026-10-24T16:52:47Z'
+status: completed
+summary: 'feat(ssh): expose definition deploy in all clients'
