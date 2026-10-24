@@ -22,4 +22,4 @@
 - Public release still needs an approved license, build-specific SBOM, artifact signing and provenance, clean-device installation evidence, broader device support decisions, and the remaining workload and lifecycle gates.
 - The automated full suite validates repository behavior and fixtures. It cannot prove GUI visibility, human usability, external network reachability, physical audio, sustained accelerator performance, or cold-boot delivery.
 
-Use [CURRENT_STATE.md](../../CURRENT_STATE.md) for current runtime observations and the [historical pre-restoration audit snapshot](../audit/REPOSITORY-AUDIT.md) for its earlier source/document review. Dated evidence remains a snapshot; recheck live behavior before operational decisions.
+Use [CURRENT_STATE.md](../../CURRENT_STATE.md) for current runtime observations and the [current repository audit checkpoint](../audit/REPOSITORY-AUDIT.md) for its source and documentation review. The earlier pre-Native-only audit is preserved in [history](../history/REPOSITORY-AUDIT-pre-native-only-2026-10-24.md). Dated evidence remains a snapshot; recheck live behavior before operational decisions.
