@@ -1,0 +1,5010 @@
+{
+  "configured_target_source_map_sha256": "daac4a8770c3bb037f4158ba87a3ec398387da99801980ea4d27e388e0989c28",
+  "counts": {
+    "ambiguous_output_basenames": 0,
+    "files_without_target_basename_match": 10,
+    "packages": 5,
+    "payload_directories": 56,
+    "payload_entries": 123,
+    "payload_files": 21,
+    "payload_other_types": 0,
+    "payload_symlinks": 46,
+    "symlinks_resolving_to_candidate_files": 46,
+    "target_outputs_without_payload_basename_match": 341,
+    "unique_output_basename_candidates": 11
+  },
+  "meson_targets_sha256": "2339fb7d62fd1277ca62754a759b93c9eeefab29e56932dba6a0f7bd1b027efe",
+  "package_manifest_sha256": "85c5236ba1f343debcb10a645baf0ab6298012c56d29d8db98c090aed5c4c66a",
+  "packages": [
+    {
+      "architecture": "all",
+      "archive_sha256": "09c81b60186cac48dcd73ff066925f57273b1d2f327214fbd449c13c0bf1aa60",
+      "name": "mesa-dev",
+      "payload_entries": [
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": ".",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/include",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/include/EGL",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "file-no-target-output-basename-match",
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/include/EGL/eglext_angle.h",
+            "sha256": "df92523469632129b6b0c37bcade9fa8cc449e23e487beda2cc130b4e4bd1df5",
+            "size": 19926,
+            "type": "file"
+          }
+        },
+        {
+          "association": "file-no-target-output-basename-match",
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/include/EGL/eglmesaext.h",
+            "sha256": "e9119482f23bfa6a4fd006278d16434328fa91abcb6c55033959c262644d85f4",
+            "size": 2129,
+            "type": "file"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/include/GL",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/include/GL/internal",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "file-no-target-output-basename-match",
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/include/GL/internal/dri_interface.h",
+            "sha256": "03a91da7f918a5a70643ec64b750f19a90832230235d6b66076daf3fbf489149",
+            "size": 82567,
+            "type": "file"
+          }
+        },
+        {
+          "association": "file-no-target-output-basename-match",
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/include/gbm.h",
+            "sha256": "95f3b4a6ee5175c7cc5d47368d4efb100063fe49e5a6f5b19030ac2ceed73b81",
+            "size": 19165,
+            "type": "file"
+          }
+        }
+      ],
+      "version": "26.3.0"
+    },
+    {
+      "architecture": "aarch64",
+      "archive_sha256": "c15d3cd543faa1db4cb9e323529c80ad0a87c94e28da1ce194707ccea24a2d27",
+      "name": "mesa-opencl-icd-rusticl",
+      "payload_entries": [
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": ".",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/etc",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/etc/OpenCL",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/etc/OpenCL/vendors",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "file-no-target-output-basename-match",
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/etc/OpenCL/vendors/rusticl.icd",
+            "sha256": "e5c8c3013b5649d561611166156d5e6c5462e7712940431b993fa6cfe7709448",
+            "size": 22,
+            "type": "file"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/lib",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/libRusticlOpenCL.so",
+            "sha256": "3a599227ac3ee34ce04a3e4d44a41d92197e4e32763914b620ab005db3ef1b90",
+            "size": 21484160,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/rusticl/libRusticlOpenCL.so",
+            "target_id": "7657270@@RusticlOpenCL@sha",
+            "target_name": "RusticlOpenCL",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/gallium/targets/rusticl/rusticl_target.c",
+              "sha256": "17515d15707515fab464a707a25b8d62705e4878c8a39bec64e47eabe35e22d0",
+              "spdx_header_identifiers": []
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libRusticlOpenCL.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/libRusticlOpenCL.so.1",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/libRusticlOpenCL.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/rusticl/libRusticlOpenCL.so",
+            "target_id": "7657270@@RusticlOpenCL@sha",
+            "target_name": "RusticlOpenCL",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/gallium/targets/rusticl/rusticl_target.c",
+              "sha256": "17515d15707515fab464a707a25b8d62705e4878c8a39bec64e47eabe35e22d0",
+              "spdx_header_identifiers": []
+            }
+          ]
+        }
+      ],
+      "version": "26.3.0"
+    },
+    {
+      "architecture": "aarch64",
+      "archive_sha256": "c46ac83ad8b1d30c83d76f61db676e1457400c94c90869a436f15342a5646413",
+      "name": "mesa-vulkan-icd-freedreno",
+      "payload_entries": [
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": ".",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/lib",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [
+            "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/tu_drirc.c",
+            "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/tu_entrypoints.cc",
+            "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/tu_tracepoints.cc"
+          ],
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/libvulkan_freedreno.so",
+            "sha256": "03c86f1fc636839294a66f13c648eef99d65f6d1f2b7239deab110ee11da7b36",
+            "size": 13741704,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/libvulkan_freedreno.so",
+            "target_id": "ecb12ee@@vulkan_freedreno@sha",
+            "target_name": "vulkan_freedreno",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/layers/tu_rmv_layer.cc",
+              "sha256": "95bdb8c1a7a2e218798e0ac041714dfc4d43c348244adead1bfa49eb0851b8c4",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_acceleration_structure.cc",
+              "sha256": "e6e49a452c57993257f3a36f2145306ab41e79d148edb68374d126865fc168e5",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_autotune.cc",
+              "sha256": "da01826414dcea1a3481815d7406ebb75d4167c6f44a307113338604c9ed9f11",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_buffer.cc",
+              "sha256": "1c068e2d88559816a2748978cc418de93eb044d2f1c279a038bb30c782d8b0c6",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_buffer_view.cc",
+              "sha256": "214259bedea4d6b67860687471d73ec73a451aa74ca6b6adc4633325597d25de",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_clear_blit.cc",
+              "sha256": "45f18b8086b425f856d94ca1d7b4d7a0d04b7e937f63d01465cce73562c00edd",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_cmd_buffer.cc",
+              "sha256": "8d70682fa1277de02b2d7d9f01bcc83b409c4123dcad76993c2bf9a0794d303a",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_cs.cc",
+              "sha256": "838ea1a44cf5f16d46aa38039913ff0394582be92c81ddc9b7ede7a10a3f9ed7",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_cs_breadcrumbs.cc",
+              "sha256": "a883bcaf90d0e8dda9d174a0f1f82e59f7fe725a95ed533ceb0da184720b2158",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_descriptor_set.cc",
+              "sha256": "e468b04cf5a23a5a81c66b234b75ed716ec30764b5c9f3f862100384dcd7c31f",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_device.cc",
+              "sha256": "9783fde0fecb17158d1690d227de8bd33efa6ccbb138325e2bca9dcaf4c82325",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_dynamic_rendering.cc",
+              "sha256": "39c8f115346a056cce0b46a6c02263bd5658c1a80744c43b233a025ffcb86bdf",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_event.cc",
+              "sha256": "e462ac42dccb6dd16d79e230699dcbbc4d8acdc890780429b49ae1c4860e2250",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_formats.cc",
+              "sha256": "d6f4f5f1cf7e60ded53109f4985151b05f13e99066be646a562d157988a0e8c1",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_image.cc",
+              "sha256": "a6371101e89c76f9917aa2c6a5a2ec4e75d81135741ad537518fb16dfba1c98a",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_knl.cc",
+              "sha256": "e979c0696c93a4079e39495f58fedb9f98a744fbf88cae4dad5670b1fc14d02d",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_knl_drm.cc",
+              "sha256": "0f88da327cd39abe01b87521158367939f511d06356519120e60a99c0dfd9982",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_knl_drm_msm.cc",
+              "sha256": "86dd62b9754199fd553049677c398590e8967011487ab30df619fc4b3275358a",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_knl_kgsl.cc",
+              "sha256": "b4bb2468cc855949284e52a4e8fd1d31d4060a8a068df54d511e1d4880415358",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_lrz.cc",
+              "sha256": "a2d55de37b4d39e1e884b8eb9d559df090835feb1fdea249e74ffe240a8d62b9",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_nir_lower_demote_samples.cc",
+              "sha256": "cce0449ea9b34f15de6333dd11843a32c4bdc3299e960774af4093fa7ceecd40",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_nir_lower_multiview.cc",
+              "sha256": "e072f9c28bfcc131640df1da6d31a74f59e5d0ae9a74f9e2a658ea8ddef05b69",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_nir_lower_ray_query.cc",
+              "sha256": "6cdefe76ff8597124868af700d2e809b08db3f9d440bd1706418f349b9534589",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_pass.cc",
+              "sha256": "b8427feae0b1877efa6ceb1652375155d78ce93a0d33a3dd3afaee4ec7ffa1bf",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_pipeline.cc",
+              "sha256": "cf9c07c1329527c82ebe1430495c17208e909d32bd3936dee77e6addcc03fe86",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_query_pool.cc",
+              "sha256": "3f861f71a2ceb962bd4fcbc0b9c18abf7b174ae6f4b05f562ca182d45f629450",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_queue.cc",
+              "sha256": "03088b505684ad50707ea8d6d533bd8657813996316f1c7499db117a8b795582",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_rmv.cc",
+              "sha256": "6a281e28f7820a907cc54e2c9327f016af9a33b5777d05980179c628ca382c66",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_sampler.cc",
+              "sha256": "06a67b9b7247aa3a3e5f55efc3ace3450d162150e33464ca15a5696e72388333",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_shader.cc",
+              "sha256": "b85d6466a385f14a9fad904ecbca0167b942cedaad7b17d6aa184e817bfc226b",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_suballoc.cc",
+              "sha256": "a12affe866b846647c87dbfc939b33de9dda207916149d9273d77ce1a5d8c170",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_subsampled_image.cc",
+              "sha256": "9adde3bb5995aebecbfafd3ba4730f33e0d90e49f91e243c2dbc42330ac86a14",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_tile_config.cc",
+              "sha256": "f8686655a8a464806c0e6d6076722d5424bfdd204232196d4757b4fa94935f3b",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_util.cc",
+              "sha256": "6bf9e0a60c444157e20b419811c6957ffc61208c0f09a23c6c568a354114deea",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            },
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "cpp",
+              "path": "src/freedreno/vulkan/tu_wsi.cc",
+              "sha256": "553e08ac1d0f8449bc1031fd56f6289c6df635d0d0192ec86c18738575638bae",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/share",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/share/vulkan",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/share/vulkan/icd.d",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json",
+            "sha256": "735e6fa01e22fc528cdaa948acfe413949a1b4ea4ffd0f0a5f58bb629989213e",
+            "size": 207,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/freedreno_icd.aarch64.json",
+            "target_id": "ecb12ee@@freedreno_icd@cus",
+            "target_name": "freedreno_icd",
+            "target_type": "custom"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "unknown",
+              "path": "src/vulkan/registry/vk.xml",
+              "sha256": "82bc15aec2889b0058f01d019a0b34d77e3d502da7b71b23f79882a489804957",
+              "spdx_header_identifiers": [
+                "Apache-2.0 OR MIT"
+              ]
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "unknown",
+              "path": "src/vulkan/util/vk_icd_gen.py",
+              "sha256": "b1b7a3337ba1b5cd5300fe78bf57b67cfc4a618b203d2f17f43e04b8f952aa7a",
+              "spdx_header_identifiers": []
+            }
+          ]
+        }
+      ],
+      "version": "26.3.0"
+    },
+    {
+      "architecture": "aarch64",
+      "archive_sha256": "ae4adfdb590f8e81b4acf543f6daa762b558f7fadfff4e956b54e8a5386cfcb6",
+      "name": "mesa-vulkan-icd-swrast",
+      "payload_entries": [
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": ".",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/lib",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/libvulkan_lvp.so",
+            "sha256": "8e1547e4575a0053ded3f1bb1768825e3594d4997c764b4bf7cf189f972464f2",
+            "size": 13024456,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/lavapipe/libvulkan_lvp.so",
+            "target_id": "e8fcad7@@vulkan_lvp@sha",
+            "target_name": "vulkan_lvp",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/gallium/targets/lavapipe/lavapipe_target.c",
+              "sha256": "83e64fd4d3ef797b1508b03e95a59e1a09a70446302be41c90fb249686f458b3",
+              "spdx_header_identifiers": []
+            }
+          ]
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/share",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/share/vulkan",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files/usr/share/vulkan/icd.d",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/share/vulkan/icd.d/lvp_icd.aarch64.json",
+            "sha256": "a1945aef5ae350d4c1582f92fd4c89fcbe540f5948e353b805ae4e8ba38388f8",
+            "size": 201,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/lavapipe/lvp_icd.aarch64.json",
+            "target_id": "e8fcad7@@lvp_icd@cus",
+            "target_name": "lvp_icd",
+            "target_type": "custom"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "unknown",
+              "path": "src/vulkan/registry/vk.xml",
+              "sha256": "82bc15aec2889b0058f01d019a0b34d77e3d502da7b71b23f79882a489804957",
+              "spdx_header_identifiers": [
+                "Apache-2.0 OR MIT"
+              ]
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "unknown",
+              "path": "src/vulkan/util/vk_icd_gen.py",
+              "sha256": "b1b7a3337ba1b5cd5300fe78bf57b67cfc4a618b203d2f17f43e04b8f952aa7a",
+              "spdx_header_identifiers": []
+            }
+          ]
+        }
+      ],
+      "version": "26.3.0"
+    },
+    {
+      "architecture": "aarch64",
+      "archive_sha256": "3204a9baa696079b93ee8e85a98ab163735d6b9f1efe3afeabbf6a5c335dbc23",
+      "name": "mesa",
+      "payload_entries": [
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": ".",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 493,
+            "path": "data/data/com.termux/files",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/include",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "file-no-target-output-basename-match",
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/include/gbm_backend_abi.h",
+            "sha256": "4eacf82b37a754dc5e64c89ab9c8a32ad8b96bfac12e91f7e217e7fa5c5602c5",
+            "size": 11460,
+            "type": "file"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/dri",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/apple_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/armada-drm_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/exynos_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/gm12u320_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/hdlcd_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/hx8357d_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/ili9163_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/ili9225_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/ili9341_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/ili9486_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/imx-dcss_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/imx-drm_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/imx-lcdif_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/ingenic-drm_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/kgsl_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/kirin_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/kms_swrast_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/komeda_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+            "sha256": "2b9e257e9eff82d7a3bbda0334f27678500857de13aabc0746f7362eb1caf837",
+            "size": 110464,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/mali-dp_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/mcde_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/mediatek_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/meson_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/mi0283qt_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/msm_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/mxsfb-drm_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/panel-mipi-dbi_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/pl111_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/rcar-du_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/repaper_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/rockchip_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/rzg2l-du_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/ssd130x_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/st7586_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/st7735r_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/sti_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/stm_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/sun4i-drm_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/swrast_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/udl_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/virtio_gpu_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/vkms_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/zink_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libdril_dri.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/dri/zynqmp-dpsub_dri.so",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/dri/libdril_dri.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/libdril_dri.so",
+            "target_id": "dfda799@@dril_dri.so@sha",
+            "target_name": "dril_dri",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "IDENTIFIER_PRESENT",
+              "language": "c",
+              "path": "src/gallium/targets/dril/dril_target.c",
+              "sha256": "4af597d63e2a27a6779482815c84c62540b5b1e5d49ab89fdb73edeab15f4b84",
+              "spdx_header_identifiers": [
+                "MIT"
+              ]
+            }
+          ]
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/gbm",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/gbm/dri_gbm.so",
+            "sha256": "214dcb0212929e1e1ff2cb65a791509fe4028ae906b405e0a28e0b5f8623e322",
+            "size": 109384,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gbm/backends/dri/dri_gbm.so",
+            "target_id": "53ddf4f@@dri_gbm@sha",
+            "target_name": "dri_gbm",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/gbm/backends/dri/gbm_dri.c",
+              "sha256": "9109dbee9dd53301c644686e34a50364430798db484368a99e5fdf5422901f65",
+              "spdx_header_identifiers": []
+            }
+          ]
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [
+            "/home/builder/.termux-build/mesa/build/src/egl/g_egldispatchstubs.c",
+            "/home/builder/.termux-build/mesa/build/src/loader/linux-dmabuf-unstable-v1-protocol.c",
+            "/home/builder/.termux-build/mesa/build/src/loader/presentation-time-protocol.c"
+          ],
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/libEGL_mesa.so",
+            "sha256": "aaca571dee4d15434d44c044bd0f6a1ac21beb2c43a9a81a0e86b992d14f3f3f",
+            "size": 366568,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/egl/libEGL_mesa.so",
+            "target_id": "cb1d4f8@@EGL_mesa@sha",
+            "target_name": "EGL_mesa",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/egl_dri2.c",
+              "sha256": "6019761da1dc89d99b6f367874b6f425a93a2e77f896e9287fddd0781807d32b",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_device.c",
+              "sha256": "3394dea846b38c9d7dac4f1a1b175a2ed703cafa895883ca40ed9904371dc20c",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_drm.c",
+              "sha256": "e356c274c34a41a8b1cbdc1df310620eb59e8281183af19225d2fef49de1ff9f",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_surfaceless.c",
+              "sha256": "1c5df88a20a24d6d55b986f1ce05225d6aaec78928abeeaf0c63ddb9dc8d768b",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_wayland.c",
+              "sha256": "a41e7b33d5a23de78b345bea4f31975430a739befde7785f2a4ceede06df152e",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_x11.c",
+              "sha256": "34086dc041305b77dde3e9c0a4890fdfd5d7c0219e8f144044be67f9b2ea83d3",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_x11_dri3.c",
+              "sha256": "6be04410cb91fcf824606af5c5181811f740ff8eea35714c68612d523cd02d05",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglapi.c",
+              "sha256": "a3dffb93017261003a9bc129418fe799cdabd6c54393cc541ae7b63dc94760a9",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglarray.c",
+              "sha256": "282b423139ea2d8fa6dff63fe6fb727d89c227c9824afbb248694d238e4b9019",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglconfig.c",
+              "sha256": "5c3c51ca3bfe6eff902fa36c3e86699ed94818025ae47449ddac8f9ac38e1ab7",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglconfigdebug.c",
+              "sha256": "f950c22036cf080f20d2e9aaf639389fbcdf72187c5ab40f935947d13796c417",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglcontext.c",
+              "sha256": "2b56089df97c2c7dd7f948cf20d96f57451418d9a0ff5ddd49e11d4f5b73b827",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglcurrent.c",
+              "sha256": "b58ab9d74e30ad847d25990365449b8987a27de64ae91a20e723cbfd6291003b",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/egldevice.c",
+              "sha256": "363a5ee1679a00e4cc4247521efd5017cebd742352fd51dc5c27f5bb92140fc5",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/egldispatchstubs.c",
+              "sha256": "fa55352cbabb3b5b5b97565de61b3414c51d4f82e54196f3aa087820b18b1461",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/egldisplay.c",
+              "sha256": "f694506a9ea074a5d4d498583e76caaf53da3ced2ee6d5b838ec21f2d4282742",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglglobals.c",
+              "sha256": "65919e990cfc77c7598bf7578d5a59b6e854e3e73a310d7192e55526f35c4cfc",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglglvnd.c",
+              "sha256": "075ca224f07965f80bf60c41bb7f77391ba7f4758eb8608ba52777e4e851c35d",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglimage.c",
+              "sha256": "35443316f59e223b258b6afe307e97241f41dc5491195efde9c3cc13142e72d8",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/egllog.c",
+              "sha256": "54cca28f801ea80019d45858e9b2025a9b124501dbc031b53869c5293d97200d",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglsurface.c",
+              "sha256": "85d78f59d22fdd24085ee469be0509cf2c2601247e50e96c8533cfb5a6f23c33",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglsync.c",
+              "sha256": "0a19095aef2b36a0a51d5e9c80f255d93117a8c246e48beafb0e6053edd6d928",
+              "spdx_header_identifiers": []
+            }
+          ]
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [
+            "/home/builder/.termux-build/mesa/build/src/egl/g_egldispatchstubs.c",
+            "/home/builder/.termux-build/mesa/build/src/loader/linux-dmabuf-unstable-v1-protocol.c",
+            "/home/builder/.termux-build/mesa/build/src/loader/presentation-time-protocol.c"
+          ],
+          "payload": {
+            "link_target": "libEGL_mesa.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/libEGL_mesa.so.0",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/libEGL_mesa.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/egl/libEGL_mesa.so",
+            "target_id": "cb1d4f8@@EGL_mesa@sha",
+            "target_name": "EGL_mesa",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/egl_dri2.c",
+              "sha256": "6019761da1dc89d99b6f367874b6f425a93a2e77f896e9287fddd0781807d32b",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_device.c",
+              "sha256": "3394dea846b38c9d7dac4f1a1b175a2ed703cafa895883ca40ed9904371dc20c",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_drm.c",
+              "sha256": "e356c274c34a41a8b1cbdc1df310620eb59e8281183af19225d2fef49de1ff9f",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_surfaceless.c",
+              "sha256": "1c5df88a20a24d6d55b986f1ce05225d6aaec78928abeeaf0c63ddb9dc8d768b",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_wayland.c",
+              "sha256": "a41e7b33d5a23de78b345bea4f31975430a739befde7785f2a4ceede06df152e",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_x11.c",
+              "sha256": "34086dc041305b77dde3e9c0a4890fdfd5d7c0219e8f144044be67f9b2ea83d3",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/drivers/dri2/platform_x11_dri3.c",
+              "sha256": "6be04410cb91fcf824606af5c5181811f740ff8eea35714c68612d523cd02d05",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglapi.c",
+              "sha256": "a3dffb93017261003a9bc129418fe799cdabd6c54393cc541ae7b63dc94760a9",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglarray.c",
+              "sha256": "282b423139ea2d8fa6dff63fe6fb727d89c227c9824afbb248694d238e4b9019",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglconfig.c",
+              "sha256": "5c3c51ca3bfe6eff902fa36c3e86699ed94818025ae47449ddac8f9ac38e1ab7",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglconfigdebug.c",
+              "sha256": "f950c22036cf080f20d2e9aaf639389fbcdf72187c5ab40f935947d13796c417",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglcontext.c",
+              "sha256": "2b56089df97c2c7dd7f948cf20d96f57451418d9a0ff5ddd49e11d4f5b73b827",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglcurrent.c",
+              "sha256": "b58ab9d74e30ad847d25990365449b8987a27de64ae91a20e723cbfd6291003b",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/egldevice.c",
+              "sha256": "363a5ee1679a00e4cc4247521efd5017cebd742352fd51dc5c27f5bb92140fc5",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/egldispatchstubs.c",
+              "sha256": "fa55352cbabb3b5b5b97565de61b3414c51d4f82e54196f3aa087820b18b1461",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/egldisplay.c",
+              "sha256": "f694506a9ea074a5d4d498583e76caaf53da3ced2ee6d5b838ec21f2d4282742",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglglobals.c",
+              "sha256": "65919e990cfc77c7598bf7578d5a59b6e854e3e73a310d7192e55526f35c4cfc",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglglvnd.c",
+              "sha256": "075ca224f07965f80bf60c41bb7f77391ba7f4758eb8608ba52777e4e851c35d",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglimage.c",
+              "sha256": "35443316f59e223b258b6afe307e97241f41dc5491195efde9c3cc13142e72d8",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/egllog.c",
+              "sha256": "54cca28f801ea80019d45858e9b2025a9b124501dbc031b53869c5293d97200d",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglsurface.c",
+              "sha256": "85d78f59d22fdd24085ee469be0509cf2c2601247e50e96c8533cfb5a6f23c33",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/egl/main/eglsync.c",
+              "sha256": "0a19095aef2b36a0a51d5e9c80f255d93117a8c246e48beafb0e6053edd6d928",
+              "spdx_header_identifiers": []
+            }
+          ]
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/libGLX_mesa.so",
+            "sha256": "decc058bad8c26b4331d1f3643cffe3b844bd0124d753ec49e7f4b3399edf2c3",
+            "size": 339112,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/glx/libGLX_mesa.so",
+            "target_id": "3cd34c0@@GLX_mesa@sha",
+            "target_name": "GLX_mesa",
+            "target_type": "shared library"
+          },
+          "target_source_membership": []
+        },
+        {
+          "association": "symlink-resolves-to-payload-file-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "link_target": "libGLX_mesa.so",
+            "mode": 511,
+            "path": "data/data/com.termux/files/usr/lib/libGLX_mesa.so.0",
+            "size": 0,
+            "type": "symlink"
+          },
+          "resolves_to_payload_path": "data/data/com.termux/files/usr/lib/libGLX_mesa.so",
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/glx/libGLX_mesa.so",
+            "target_id": "3cd34c0@@GLX_mesa@sha",
+            "target_name": "GLX_mesa",
+            "target_type": "shared library"
+          },
+          "target_source_membership": []
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/libgallium-26.3.0-devel.so",
+            "sha256": "583eb5a04f63cea199ea231643f2c83eae719633b4ee53b3ba76ffabd19e972c",
+            "size": 19716440,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dri/libgallium-26.3.0-devel.so",
+            "target_id": "8381c20@@gallium-26.3.0-devel.so@sha",
+            "target_name": "gallium-26.3.0-devel",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/gallium/targets/dri/dri_target.c",
+              "sha256": "f91fa687d61aa73cfe0e3a4e21e2bd243b9f4914758e33936be4d1badbd565c2",
+              "spdx_header_identifiers": []
+            }
+          ]
+        },
+        {
+          "association": "unique-output-basename-candidate",
+          "external_inputs": [],
+          "generated_outputs": [],
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/libgbm.so",
+            "sha256": "5d41eca336a15ee3f992a0e0606c1dba59c4a750ef55d164e3e6784b71322d90",
+            "size": 13824,
+            "type": "file"
+          },
+          "target": {
+            "filename": "/home/builder/.termux-build/mesa/build/src/gbm/libgbm.so",
+            "target_id": "cd6bfad@@gbm@sha",
+            "target_name": "gbm",
+            "target_type": "shared library"
+          },
+          "target_source_membership": [
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/gbm/main/backend.c",
+              "sha256": "5966ee6dafe428fcf8d472f792d5830266ee8991ce0f40f2924453a667f3ae34",
+              "spdx_header_identifiers": []
+            },
+            {
+              "header_license_status": "NOASSERTION",
+              "language": "c",
+              "path": "src/gbm/main/gbm.c",
+              "sha256": "1b4e7e7fda758e2ae65e50faf5fa9c7023b672fd275459f90fee1e8edd0f832f",
+              "spdx_header_identifiers": []
+            }
+          ]
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/lib/pkgconfig",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "file-no-target-output-basename-match",
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/lib/pkgconfig/dri.pc",
+            "sha256": "035b8690db3b94f0519ced574f45a8fd4f5781eb0ca038d76701d9a8c701626c",
+            "size": 261,
+            "type": "file"
+          }
+        },
+        {
+          "association": "file-no-target-output-basename-match",
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/lib/pkgconfig/gbm.pc",
+            "sha256": "a6354d76f09070a8c0aa0d1c7075834a017dde948ee2ec9ac73ed66353d6d3d5",
+            "size": 257,
+            "type": "file"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/share",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/share/doc",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/share/doc/mesa",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "file-no-target-output-basename-match",
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/share/doc/mesa/license.rst",
+            "sha256": "0d1a0472ecc81830e75c20d59b0ea02841e3db21255e0ebad97ab682c54d6615",
+            "size": 1816,
+            "type": "file"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/share/glvnd",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "directory-not-target-output",
+          "payload": {
+            "mode": 448,
+            "path": "data/data/com.termux/files/usr/share/glvnd/egl_vendor.d",
+            "size": 0,
+            "type": "directory"
+          }
+        },
+        {
+          "association": "file-no-target-output-basename-match",
+          "payload": {
+            "mode": 384,
+            "path": "data/data/com.termux/files/usr/share/glvnd/egl_vendor.d/50_mesa.json",
+            "sha256": "cd3881df4227c13ca7f9cfe6c78820f21d5f7a00a41b299214f6f827e63be369",
+            "size": 105,
+            "type": "file"
+          }
+        }
+      ],
+      "version": "26.3.0"
+    }
+  ],
+  "schema_version": 1,
+  "scope_limit": "Unique output-basename matches are candidates only; Meson target membership is direct configuration evidence. This does not prove install rules, transitive object/source membership, runtime loading, or package license conclusions.",
+  "source_archive_sha256": "5211bd235658a0585740fb2dfbe64e7e8ca3085ad8e423fc333b4d5e0de6fd93",
+  "source_commit": "98f3d6229d61452cef80f8563af7c56ae599dc14",
+  "target_outputs_without_payload_basename_match": [
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/nir/libnir.a",
+      "target_id": "068b2c8@@nir@sta",
+      "target_name": "nir",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/nir/nir_builder_opcodes.h",
+      "target_id": "068b2c8@@nir_builder_opcodes.h@cus",
+      "target_name": "nir_builder_opcodes.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/nir/nir_constant_expressions.c",
+      "target_id": "068b2c8@@nir_constant_expressions.c@cus",
+      "target_name": "nir_constant_expressions.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/nir/nir_intrinsics.c",
+      "target_id": "068b2c8@@nir_intrinsic.c@cus",
+      "target_name": "nir_intrinsic.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/nir/nir_intrinsics.h",
+      "target_id": "068b2c8@@nir_intrinsics.h@cus",
+      "target_name": "nir_intrinsics.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/nir/nir_intrinsics_indices.h",
+      "target_id": "068b2c8@@nir_intrinsics_indices.h@cus",
+      "target_name": "nir_intrinsics_indices.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/nir/nir_opcodes.c",
+      "target_id": "068b2c8@@nir_opcodes.c@cus",
+      "target_name": "nir_opcodes.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/nir/nir_opcodes.h",
+      "target_id": "068b2c8@@nir_opcodes.h@cus",
+      "target_name": "nir_opcodes.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/nir/nir_opt_algebraic.c",
+      "target_id": "068b2c8@@nir_opt_algebraic@cus",
+      "target_name": "nir_opt_algebraic",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/builtin_types.c",
+      "target_id": "0bd8b88@@builtin_types.c@cus",
+      "target_name": "builtin_types.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/builtin_types.h",
+      "target_id": "0bd8b88@@builtin_types.h@cus",
+      "target_name": "builtin_types.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/libcompiler.a",
+      "target_id": "0bd8b88@@compiler@sta",
+      "target_name": "compiler",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/ir_expression_operation.h",
+      "target_id": "0bd8b88@@ir_expression_operation.h@cus",
+      "target_name": "ir_expression_operation.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/isa/encode.h",
+      "target_id": "0e68000@@encode.h@cus",
+      "target_name": "encode.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/isa/ir3-disasm",
+      "target_id": "0e68000@@ir3-disasm@exe",
+      "target_name": "ir3-disasm",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/isa/ir3-isa.c",
+      "target_id": "0e68000@@ir3-isa@cus",
+      "target_name": "ir3-isa",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/isa/ir3-isa.h",
+      "target_id": "0e68000@@ir3-isa@cus",
+      "target_name": "ir3-isa",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/isa/libir3decode.a",
+      "target_id": "0e68000@@ir3decode@sta",
+      "target_name": "ir3decode",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/isa/libir3encode.a",
+      "target_id": "0e68000@@ir3encode@sta",
+      "target_name": "ir3encode",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/builtin_kernels/rusticl_kernels.spv32",
+      "target_id": "0efa0c8@@rusticl_kernels.spv32@cus",
+      "target_name": "rusticl_kernels.spv32",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/builtin_kernels/rusticl_kernels.spv64",
+      "target_id": "0efa0c8@@rusticl_kernels.spv64@cus",
+      "target_name": "rusticl_kernels.spv64",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/builtin_kernels/librusticl_kernels.rlib",
+      "target_id": "0efa0c8@@rusticl_kernels@rlib",
+      "target_name": "rusticl_kernels",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/builtin_kernels/rusticl_kernels_ulong.spv32",
+      "target_id": "0efa0c8@@rusticl_kernels_ulong.spv32@cus",
+      "target_name": "rusticl_kernels_ulong.spv32",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/builtin_kernels/rusticl_kernels_ulong.spv64",
+      "target_id": "0efa0c8@@rusticl_kernels_ulong.spv64@cus",
+      "target_name": "rusticl_kernels_ulong.spv64",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/lavapipe/liblavapipe_st.a",
+      "target_id": "0f736b6@@lavapipe_st@sta",
+      "target_name": "lavapipe_st",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/lavapipe/lvp_drirc.c",
+      "target_id": "0f736b6@@lvp_drirc@cus",
+      "target_name": "lvp_drirc",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/lavapipe/lvp_drirc.h",
+      "target_id": "0f736b6@@lvp_drirc@cus",
+      "target_name": "lvp_drirc",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/lavapipe/lvp_entrypoints.c",
+      "target_id": "0f736b6@@lvp_entrypoints@cus",
+      "target_name": "lvp_entrypoints",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/lavapipe/lvp_entrypoints.h",
+      "target_id": "0f736b6@@lvp_entrypoints@cus",
+      "target_name": "lvp_entrypoints",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/drm/libfreedreno_drm.a",
+      "target_id": "1c0610c@@freedreno_drm@sta",
+      "target_name": "freedreno_drm",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/wsi/libvulkan_wsi.a",
+      "target_id": "1e36aa5@@vulkan_wsi@sta",
+      "target_name": "vulkan_wsi",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/wsi/wsi_common_entrypoints.c",
+      "target_id": "1e36aa5@@wsi_entrypoints@cus",
+      "target_name": "wsi_entrypoints",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/wsi/wsi_common_entrypoints.h",
+      "target_id": "1e36aa5@@wsi_entrypoints@cus",
+      "target_name": "wsi_entrypoints",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/winsys/virgl/vtest/libvirglvtest.a",
+      "target_id": "217e70c@@virglvtest@sta",
+      "target_name": "virglvtest",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/glcpp/glcpp-lex.c",
+      "target_id": "21ba2fb@@glcpp-lex.c@cus",
+      "target_name": "glcpp-lex.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/glcpp/glcpp-parse.c",
+      "target_id": "21ba2fb@@glcpp-parse.[ch]@cus",
+      "target_name": "glcpp-parse.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/glcpp/glcpp-parse.h",
+      "target_id": "21ba2fb@@glcpp-parse.[ch]@cus",
+      "target_name": "glcpp-parse.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/glcpp/glcpp",
+      "target_id": "21ba2fb@@glcpp@exe",
+      "target_name": "glcpp",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/glcpp/libglcpp.a",
+      "target_id": "21ba2fb@@glcpp@sta",
+      "target_name": "glcpp",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/glcpp/libglcpp_standalone.a",
+      "target_id": "21ba2fb@@glcpp_standalone@sta",
+      "target_name": "glcpp_standalone",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/git_sha1.h",
+      "target_id": "25a6634@@git_sha1.h@cus",
+      "target_name": "git_sha1.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/common/libfreedreno_common.a",
+      "target_id": "264007a@@freedreno_common@sta",
+      "target_name": "freedreno_common",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/common/freedreno_devices.h",
+      "target_id": "264007a@@freedreno_devices.h@cus",
+      "target_name": "freedreno_devices.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/winsys/sw/dri/libswdri.a",
+      "target_id": "2837117@@swdri@sta",
+      "target_name": "swdri",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/c11/impl/libmesa_util_c11.a",
+      "target_id": "386bff7@@mesa_util_c11@sta",
+      "target_name": "mesa_util_c11",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/glx/libglx.a",
+      "target_id": "3cd34c0@@glx@sta",
+      "target_name": "glx",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/zink/libzink.a",
+      "target_id": "3d02308@@zink@sta",
+      "target_name": "zink",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/zink/zink_device_info.c",
+      "target_id": "3d02308@@zink_device_info.c@cus",
+      "target_name": "zink_device_info.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/zink/zink_device_info.h",
+      "target_id": "3d02308@@zink_device_info.c@cus",
+      "target_name": "zink_device_info.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/zink/zink_instance.c",
+      "target_id": "3d02308@@zink_instance.c@cus",
+      "target_name": "zink_instance.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/zink/zink_instance.h",
+      "target_id": "3d02308@@zink_instance.c@cus",
+      "target_name": "zink_instance.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/zink/zink_nir_algebraic.c",
+      "target_id": "3d02308@@zink_nir_algebraic.c@cus",
+      "target_name": "zink_nir_algebraic.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/dri/libdri.a",
+      "target_id": "3ff5755@@dri@sta",
+      "target_name": "dri",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/winsys/virgl/drm/libvirgldrm.a",
+      "target_id": "41593f3@@virgldrm@sta",
+      "target_name": "virgldrm",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/softpipe/libsoftpipe.a",
+      "target_id": "48c2f4b@@softpipe@sta",
+      "target_name": "softpipe",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir2/libfreedreno_ir2.a",
+      "target_id": "4bb7dcc@@freedreno_ir2@sta",
+      "target_name": "freedreno_ir2",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/winsys/virgl/common/libvirglcommon.a",
+      "target_id": "4fbd9d3@@virglcommon@sta",
+      "target_name": "virglcommon",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/computerator/computerator",
+      "target_id": "575dc78@@computerator@exe",
+      "target_name": "computerator",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/winsys/zink/drm/libzinkwinsys.a",
+      "target_id": "5df6f8a@@zinkwinsys@sta",
+      "target_name": "zinkwinsys",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/freedreno/libfreedreno.a",
+      "target_id": "65bc3e3@@freedreno@sta",
+      "target_name": "freedreno",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/freedreno/freedreno_tracepoints.c",
+      "target_id": "65bc3e3@@freedreno_tracepoints.[ch]@cus",
+      "target_name": "freedreno_tracepoints.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/freedreno/freedreno_tracepoints.h",
+      "target_id": "65bc3e3@@freedreno_tracepoints.[ch]@cus",
+      "target_name": "freedreno_tracepoints.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/freedreno/gmemtool",
+      "target_id": "65bc3e3@@gmemtool@exe",
+      "target_name": "gmemtool",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/astc_spv.h",
+      "target_id": "664abc2@@astc_spv.h@cus",
+      "target_name": "astc_spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.c",
+      "target_id": "664abc2@@vk_cmd_enqueue_entrypoints@cus",
+      "target_name": "vk_cmd_enqueue_entrypoints",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_cmd_enqueue_entrypoints.h",
+      "target_id": "664abc2@@vk_cmd_enqueue_entrypoints@cus",
+      "target_name": "vk_cmd_enqueue_entrypoints",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_cmd_queue.c",
+      "target_id": "664abc2@@vk_cmd_queue@cus",
+      "target_name": "vk_cmd_queue",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_cmd_queue.h",
+      "target_id": "664abc2@@vk_cmd_queue@cus",
+      "target_name": "vk_cmd_queue",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_common_entrypoints.c",
+      "target_id": "664abc2@@vk_common_entrypoints@cus",
+      "target_name": "vk_common_entrypoints",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_common_entrypoints.h",
+      "target_id": "664abc2@@vk_common_entrypoints@cus",
+      "target_name": "vk_common_entrypoints",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_dispatch_trampolines.c",
+      "target_id": "664abc2@@vk_dispatch_trampolines@cus",
+      "target_name": "vk_dispatch_trampolines",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_dispatch_trampolines.h",
+      "target_id": "664abc2@@vk_dispatch_trampolines@cus",
+      "target_name": "vk_dispatch_trampolines",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_format_info.c",
+      "target_id": "664abc2@@vk_format_info@cus",
+      "target_name": "vk_format_info",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_format_info.h",
+      "target_id": "664abc2@@vk_format_info@cus",
+      "target_name": "vk_format_info",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_physical_device_features.c",
+      "target_id": "664abc2@@vk_physical_device_features@cus",
+      "target_name": "vk_physical_device_features",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_physical_device_features.h",
+      "target_id": "664abc2@@vk_physical_device_features@cus",
+      "target_name": "vk_physical_device_features",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_physical_device_properties.c",
+      "target_id": "664abc2@@vk_physical_device_properties@cus",
+      "target_name": "vk_physical_device_properties",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_physical_device_properties.h",
+      "target_id": "664abc2@@vk_physical_device_properties@cus",
+      "target_name": "vk_physical_device_properties",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_physical_device_spirv_caps.c",
+      "target_id": "664abc2@@vk_physical_device_spirv_caps@cus",
+      "target_name": "vk_physical_device_spirv_caps",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/vk_synchronization_helpers.c",
+      "target_id": "664abc2@@vk_synchronization_helpers@cus",
+      "target_name": "vk_synchronization_helpers",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/libvulkan_instance.a",
+      "target_id": "664abc2@@vulkan_instance@sta",
+      "target_name": "vulkan_instance",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/libvulkan_lite_instance.a",
+      "target_id": "664abc2@@vulkan_lite_instance@sta",
+      "target_name": "vulkan_lite_instance",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/libvulkan_lite_runtime.a",
+      "target_id": "664abc2@@vulkan_lite_runtime@sta",
+      "target_name": "vulkan_lite_runtime",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/libvulkan_runtime.a",
+      "target_id": "664abc2@@vulkan_runtime@sta",
+      "target_name": "vulkan_runtime",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/perfcntrs/fdperf",
+      "target_id": "6663e2e@@fdperf@exe",
+      "target_name": "fdperf",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/perfcntrs/libfreedreno_perfcntrs.a",
+      "target_id": "6663e2e@@freedreno_perfcntrs@sta",
+      "target_name": "freedreno_perfcntrs",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/vulkan_api.def",
+      "target_id": "67fefa6@@vulkan_api.def@cus",
+      "target_name": "vulkan_api.def",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/program/lex.yy.c",
+      "target_id": "6c0e855@@mesa_lex@cus",
+      "target_name": "mesa_lex",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/program/program_parse.tab.c",
+      "target_id": "6c0e855@@program_parse_tab.[ch]@cus",
+      "target_name": "program_parse_tab.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/program/program_parse.tab.h",
+      "target_id": "6c0e855@@program_parse_tab.[ch]@cus",
+      "target_name": "program_parse_tab.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/libglapi_bridge.a",
+      "target_id": "6c2cd12@@glapi_bridge@sta",
+      "target_name": "glapi_bridge",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/bvh/copy.spv.h",
+      "target_id": "719b4ab@@copy.spv.h@cus",
+      "target_name": "copy.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/bvh/encode.spv.h",
+      "target_id": "719b4ab@@encode.spv.h@cus",
+      "target_name": "encode.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/bvh/header.spv.h",
+      "target_id": "719b4ab@@header.spv.h@cus",
+      "target_name": "header.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/winsys/sw/kms-dri/libswkmsdri.a",
+      "target_id": "768d376@@swkmsdri@sta",
+      "target_name": "swkmsdri",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/api_beginend_init.h",
+      "target_id": "7780ebf@@api_beginend_init.h@cus",
+      "target_name": "api_beginend_init.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/api_exec_decl.h",
+      "target_id": "7780ebf@@api_exec_decl.h@cus",
+      "target_name": "api_exec_decl.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/api_exec_init.c",
+      "target_id": "7780ebf@@api_exec_init.c@cus",
+      "target_name": "api_exec_init.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/api_hw_select_init.h",
+      "target_id": "7780ebf@@api_hw_select_init.h@cus",
+      "target_name": "api_hw_select_init.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/api_save.h",
+      "target_id": "7780ebf@@api_save.h@cus",
+      "target_name": "api_save.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/api_save_init.h",
+      "target_id": "7780ebf@@api_save_init.h@cus",
+      "target_name": "api_save_init.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/api_trace.c",
+      "target_id": "7780ebf@@api_trace.c@cus",
+      "target_name": "api_trace.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/dispatch.h",
+      "target_id": "7780ebf@@dispatch.h@cus",
+      "target_name": "dispatch.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/enums.c",
+      "target_id": "7780ebf@@enums.c@cus",
+      "target_name": "enums.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/glapi_gentable.c",
+      "target_id": "7780ebf@@glapi_gentable.c@cus",
+      "target_name": "glapi_gentable.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/glapi_mapi_tmp.h",
+      "target_id": "7780ebf@@glapi_mapi_tmp.h@cus",
+      "target_name": "glapi_mapi_tmp.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/indirect.c",
+      "target_id": "7780ebf@@indirect.c@cus",
+      "target_name": "indirect.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/indirect.h",
+      "target_id": "7780ebf@@indirect.h@cus",
+      "target_name": "indirect.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/indirect_init.c",
+      "target_id": "7780ebf@@indirect_init.c@cus",
+      "target_name": "indirect_init.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/indirect_size.c",
+      "target_id": "7780ebf@@indirect_size.c@cus",
+      "target_name": "indirect_size.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/indirect_size.h",
+      "target_id": "7780ebf@@indirect_size.h@cus",
+      "target_name": "indirect_size.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/marshal_generated.h",
+      "target_id": "7780ebf@@marshal_generated.h@cus",
+      "target_name": "marshal_generated.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/marshal_generated0.c",
+      "target_id": "7780ebf@@marshal_generated0.c@cus",
+      "target_name": "marshal_generated0.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/marshal_generated1.c",
+      "target_id": "7780ebf@@marshal_generated1.c@cus",
+      "target_name": "marshal_generated1.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/marshal_generated2.c",
+      "target_id": "7780ebf@@marshal_generated2.c@cus",
+      "target_name": "marshal_generated2.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/marshal_generated3.c",
+      "target_id": "7780ebf@@marshal_generated3.c@cus",
+      "target_name": "marshal_generated3.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/marshal_generated4.c",
+      "target_id": "7780ebf@@marshal_generated4.c@cus",
+      "target_name": "marshal_generated4.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/marshal_generated5.c",
+      "target_id": "7780ebf@@marshal_generated5.c@cus",
+      "target_name": "marshal_generated5.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/marshal_generated6.c",
+      "target_id": "7780ebf@@marshal_generated6.c@cus",
+      "target_name": "marshal_generated6.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/marshal_generated7.c",
+      "target_id": "7780ebf@@marshal_generated7.c@cus",
+      "target_name": "marshal_generated7.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/glapi/gen/unmarshal_table.c",
+      "target_id": "7780ebf@@unmarshal_table.c@cus",
+      "target_name": "unmarshal_table.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/isaspec/libisaspec.a",
+      "target_id": "7a9f099@@isaspec@sta",
+      "target_name": "isaspec",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/bvh/hploc_internal.spv.h",
+      "target_id": "7b7497d@@hploc_internal.spv.h@cus",
+      "target_name": "hploc_internal.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/bvh/id_prefix_sum.spv.h",
+      "target_id": "7b7497d@@id_prefix_sum.spv.h@cus",
+      "target_name": "id_prefix_sum.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/bvh/lbvh_generate_ir.spv.h",
+      "target_id": "7b7497d@@lbvh_generate_ir.spv.h@cus",
+      "target_name": "lbvh_generate_ir.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/bvh/lbvh_main.spv.h",
+      "target_id": "7b7497d@@lbvh_main.spv.h@cus",
+      "target_name": "lbvh_main.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/bvh/leaf.spv.h",
+      "target_id": "7b7497d@@leaf.spv.h@cus",
+      "target_name": "leaf.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/bvh/morton_sort_32.spv.h",
+      "target_id": "7b7497d@@morton_sort_32.spv.h@cus",
+      "target_name": "morton_sort_32.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/bvh/morton_sort_64.spv.h",
+      "target_id": "7b7497d@@morton_sort_64.spv.h@cus",
+      "target_name": "morton_sort_64.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/bvh/pair_triangles.spv.h",
+      "target_id": "7b7497d@@pair_triangles.spv.h@cus",
+      "target_name": "pair_triangles.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/runtime/bvh/ploc_internal.spv.h",
+      "target_id": "7b7497d@@ploc_internal.spv.h@cus",
+      "target_name": "ploc_internal.spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/shared-glapi/libglapi.a",
+      "target_id": "801544d@@glapi@sta",
+      "target_name": "glapi",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/glapi/shared-glapi/shared_glapi_mapi_tmp.h",
+      "target_id": "801544d@@shared_glapi_mapi_tmp.h@cus",
+      "target_name": "shared_glapi_mapi_tmp.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gtest/libgtest.a",
+      "target_id": "8dc338d@@gtest@sta",
+      "target_name": "gtest",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno.xml.h",
+      "target_id": "8eb9d3e@@adreno.xml.h@cus",
+      "target_name": "adreno.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/pipe-loader/libpipe_loader_static.a",
+      "target_id": "8ec331e@@pipe_loader_static@sta",
+      "target_name": "pipe_loader_static",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/format/u_format_gen.h",
+      "target_id": "910b773@@u_format_gen.h@cus",
+      "target_name": "u_format_gen.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/format/u_format_pack.h",
+      "target_id": "910b773@@u_format_pack.h@cus",
+      "target_name": "u_format_pack.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/format/u_format_table.c",
+      "target_id": "910b773@@u_format_table.c@cus",
+      "target_name": "u_format_table.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/clc/liblibmesaclc.a",
+      "target_id": "93ae97e@@libmesaclc@sta",
+      "target_name": "libmesaclc",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/virgl/libvirgl.a",
+      "target_id": "9c5a602@@virgl@sta",
+      "target_name": "virgl",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/winsys/kmsro/drm/libkmsrowinsys.a",
+      "target_id": "9cf1352@@kmsrowinsys@sta",
+      "target_name": "kmsrowinsys",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/x11/libloader_x11.a",
+      "target_id": "9e07d5d@@loader_x11@sta",
+      "target_name": "loader_x11",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/winsys/sw/wrapper/libwsw.a",
+      "target_id": "9f32346@@wsw@sta",
+      "target_name": "wsw",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir3/libfreedreno_ir3.a",
+      "target_id": "a09ab27@@freedreno_ir3@sta",
+      "target_name": "freedreno_ir3",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir3/ir3_delay_test",
+      "target_id": "a09ab27@@ir3_delay_test@exe",
+      "target_name": "ir3_delay_test",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir3/ir3_disasm",
+      "target_id": "a09ab27@@ir3_disasm@exe",
+      "target_name": "ir3_disasm",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir3/ir3_lexer.c",
+      "target_id": "a09ab27@@ir3_lexer.c@cus",
+      "target_name": "ir3_lexer.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir3/ir3_nir_branch_and_or_not.c",
+      "target_id": "a09ab27@@ir3_nir_branch_and_or_not.c@cus",
+      "target_name": "ir3_nir_branch_and_or_not.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir3/ir3_nir_imul.c",
+      "target_id": "a09ab27@@ir3_nir_imul.c@cus",
+      "target_name": "ir3_nir_imul.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir3/ir3_nir_trig.c",
+      "target_id": "a09ab27@@ir3_nir_trig.c@cus",
+      "target_name": "ir3_nir_trig.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir3/ir3_nir_triop_bitwise.c",
+      "target_id": "a09ab27@@ir3_nir_triop_bitwise.c@cus",
+      "target_name": "ir3_nir_triop_bitwise.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir3/ir3_parser.c",
+      "target_id": "a09ab27@@ir3_parser.[ch]@cus",
+      "target_name": "ir3_parser.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/ir3/ir3_parser.h",
+      "target_id": "a09ab27@@ir3_parser.[ch]@cus",
+      "target_name": "ir3_parser.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/winsys/sw/null/libws_null.a",
+      "target_id": "b2e1a32@@ws_null@sta",
+      "target_name": "ws_null",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/liblibc_rust_gen.rlib",
+      "target_id": "b863b06@@libc_rust_gen@rlib",
+      "target_name": "libc_rust_gen",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/libmesa_rust.rlib",
+      "target_id": "b863b06@@mesa_rust@rlib",
+      "target_name": "mesa_rust",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/libmesa_rust_gen.rlib",
+      "target_id": "b863b06@@mesa_rust_gen@rlib",
+      "target_name": "mesa_rust_gen",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/libmesa_rust_util.rlib",
+      "target_id": "b863b06@@mesa_rust_util@rlib",
+      "target_name": "mesa_rust_util",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/librusticl.a",
+      "target_id": "b863b06@@rusticl@sta",
+      "target_name": "rusticl",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/librusticl_c.a",
+      "target_id": "b863b06@@rusticl_c@sta",
+      "target_name": "rusticl_c",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/librusticl_llvm_gen.rlib",
+      "target_id": "b863b06@@rusticl_llvm_gen@rlib",
+      "target_name": "rusticl_llvm_gen",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/librusticl_opencl_gen.rlib",
+      "target_id": "b863b06@@rusticl_opencl_gen@rlib",
+      "target_name": "rusticl_opencl_gen",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/librusticl_proc_macros.so",
+      "target_id": "b863b06@@rusticl_proc_macros@sha",
+      "target_name": "rusticl_proc_macros",
+      "target_type": "shared library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/rusticl_libc_bindings.rs",
+      "target_id": "b863b06@@rustmod-bindgen-rusticl_libc_bindings.h@cus",
+      "target_name": "rustmod-bindgen-rusticl_libc_bindings.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/rusticl_llvm_bindings.rs",
+      "target_id": "b863b06@@rustmod-bindgen-rusticl_llvm_bindings.hpp@cus",
+      "target_name": "rustmod-bindgen-rusticl_llvm_bindings.hpp",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/rusticl_mesa_bindings.c",
+      "target_id": "b863b06@@rustmod-bindgen-rusticl_mesa_bindings.h@cus",
+      "target_name": "rustmod-bindgen-rusticl_mesa_bindings.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/rusticl_mesa_bindings.rs",
+      "target_id": "b863b06@@rustmod-bindgen-rusticl_mesa_bindings.h@cus",
+      "target_name": "rustmod-bindgen-rusticl_mesa_bindings.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/frontends/rusticl/rusticl_opencl_bindings.rs",
+      "target_id": "b863b06@@rustmod-bindgen-rusticl_opencl_bindings.h@cus",
+      "target_name": "rustmod-bindgen-rusticl_opencl_bindings.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/fdl/fd5_layout",
+      "target_id": "ba8d826@@fd5_layout@exe",
+      "target_name": "fd5_layout",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/fdl/fd6_layout",
+      "target_id": "ba8d826@@fd6_layout@exe",
+      "target_name": "fd6_layout",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/fdl/libfreedreno_layout.a",
+      "target_id": "ba8d826@@freedreno_layout@sta",
+      "target_name": "freedreno_layout",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/drivers/llvmpipe/libllvmpipe.a",
+      "target_id": "baa9e9c@@llvmpipe@sta",
+      "target_name": "llvmpipe",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/format_fallback.c",
+      "target_id": "bbe4a73@@format_fallback.c@cus",
+      "target_name": "format_fallback.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/format_info.h",
+      "target_id": "bbe4a73@@format_info.h@cus",
+      "target_name": "format_info.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/get_hash.h",
+      "target_id": "bbe4a73@@get_hash.h@cus",
+      "target_name": "get_hash.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/mesa/libmesa.a",
+      "target_id": "bbe4a73@@mesa@sta",
+      "target_name": "mesa",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/util/vk_dispatch_table.c",
+      "target_id": "c053ff2@@vk_dispatch_table@cus",
+      "target_name": "vk_dispatch_table",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/util/vk_dispatch_table.h",
+      "target_id": "c053ff2@@vk_dispatch_table@cus",
+      "target_name": "vk_dispatch_table",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/util/vk_enum_defines.h",
+      "target_id": "c053ff2@@vk_enum_to_str@cus",
+      "target_name": "vk_enum_to_str",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/util/vk_enum_to_str.c",
+      "target_id": "c053ff2@@vk_enum_to_str@cus",
+      "target_name": "vk_enum_to_str",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/util/vk_enum_to_str.h",
+      "target_id": "c053ff2@@vk_enum_to_str@cus",
+      "target_name": "vk_enum_to_str",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/util/vk_extensions.c",
+      "target_id": "c053ff2@@vk_extensions@cus",
+      "target_name": "vk_extensions",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/util/vk_extensions.h",
+      "target_id": "c053ff2@@vk_extensions@cus",
+      "target_name": "vk_extensions",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/util/vk_struct_type_cast.h",
+      "target_id": "c053ff2@@vk_struct_type_cast@cus",
+      "target_name": "vk_struct_type_cast",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/vulkan/util/libvulkan_util.a",
+      "target_id": "c053ff2@@vulkan_util@sta",
+      "target_name": "vulkan_util",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/color-management-v1-client-protocol.h",
+      "target_id": "c9e3f98@@color-management-v1-client-protocol@cus",
+      "target_name": "color-management-v1-client-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/color-management-v1-protocol.c",
+      "target_id": "c9e3f98@@color-management-v1-protocol@cus",
+      "target_name": "color-management-v1-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/commit-timing-v1-client-protocol.h",
+      "target_id": "c9e3f98@@commit-timing-v1-client-protocol@cus",
+      "target_name": "commit-timing-v1-client-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/commit-timing-v1-protocol.c",
+      "target_id": "c9e3f98@@commit-timing-v1-protocol@cus",
+      "target_name": "commit-timing-v1-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/fifo-v1-client-protocol.h",
+      "target_id": "c9e3f98@@fifo-v1-client-protocol@cus",
+      "target_name": "fifo-v1-client-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/fifo-v1-protocol.c",
+      "target_id": "c9e3f98@@fifo-v1-protocol@cus",
+      "target_name": "fifo-v1-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/linux-dmabuf-unstable-v1-client-protocol.h",
+      "target_id": "c9e3f98@@linux-dmabuf-unstable-v1-client-protocol@cus",
+      "target_name": "linux-dmabuf-unstable-v1-client-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/linux-dmabuf-unstable-v1-protocol.c",
+      "target_id": "c9e3f98@@linux-dmabuf-unstable-v1-protocol@cus",
+      "target_name": "linux-dmabuf-unstable-v1-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/linux-drm-syncobj-v1-client-protocol.h",
+      "target_id": "c9e3f98@@linux-drm-syncobj-v1-client-protocol@cus",
+      "target_name": "linux-drm-syncobj-v1-client-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/linux-drm-syncobj-v1-protocol.c",
+      "target_id": "c9e3f98@@linux-drm-syncobj-v1-protocol@cus",
+      "target_name": "linux-drm-syncobj-v1-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/libloader.a",
+      "target_id": "c9e3f98@@loader@sta",
+      "target_name": "loader",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/libloader_wayland_helper.a",
+      "target_id": "c9e3f98@@loader_wayland_helper@sta",
+      "target_name": "loader_wayland_helper",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/presentation-time-client-protocol.h",
+      "target_id": "c9e3f98@@presentation-time-client-protocol@cus",
+      "target_name": "presentation-time-client-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/presentation-time-protocol.c",
+      "target_id": "c9e3f98@@presentation-time-protocol@cus",
+      "target_name": "presentation-time-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/tearing-control-v1-client-protocol.h",
+      "target_id": "c9e3f98@@tearing-control-v1-client-protocol@cus",
+      "target_name": "tearing-control-v1-client-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/loader/tearing-control-v1-protocol.c",
+      "target_id": "c9e3f98@@tearing-control-v1-protocol@cus",
+      "target_name": "tearing-control-v1-protocol",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/egl/egl.def",
+      "target_id": "cb1d4f8@@egl.def@cus",
+      "target_name": "egl.def",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/egl/g_egldispatchstubs.c",
+      "target_id": "cb1d4f8@@g_egldispatchstubs.c@cus",
+      "target_name": "g_egldispatchstubs.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/egl/g_egldispatchstubs.h",
+      "target_id": "cb1d4f8@@g_egldispatchstubs.c@cus",
+      "target_name": "g_egldispatchstubs.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/blake3/libblake3.a",
+      "target_id": "cbe03c4@@blake3@sta",
+      "target_name": "blake3",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/astc_glsl.h",
+      "target_id": "cdfbb49@@astc_glsl.h@cus",
+      "target_name": "astc_glsl.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/bc1_glsl.h",
+      "target_id": "cdfbb49@@bc1_glsl.h@cus",
+      "target_name": "bc1_glsl.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/bc4_glsl.h",
+      "target_id": "cdfbb49@@bc4_glsl.h@cus",
+      "target_name": "bc4_glsl.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/cross_platform_settings_piece_all.h",
+      "target_id": "cdfbb49@@cross_platform_settings_piece_all.h@cus",
+      "target_name": "cross_platform_settings_piece_all.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/etc2_rgba_stitch_glsl.h",
+      "target_id": "cdfbb49@@etc2_rgba_stitch_glsl.h@cus",
+      "target_name": "etc2_rgba_stitch_glsl.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/float64_glsl.h",
+      "target_id": "cdfbb49@@float64_glsl.h@cus",
+      "target_name": "float64_glsl.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/libglsl.a",
+      "target_id": "cdfbb49@@glsl@sta",
+      "target_name": "glsl",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/glsl_compiler",
+      "target_id": "cdfbb49@@glsl_compiler@exe",
+      "target_name": "glsl_compiler",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/glsl_lexer.cpp",
+      "target_id": "cdfbb49@@glsl_lexer_cpp@cus",
+      "target_name": "glsl_lexer_cpp",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/glsl_parser.cpp",
+      "target_id": "cdfbb49@@glsl_parser@cus",
+      "target_name": "glsl_parser",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/glsl_parser.h",
+      "target_id": "cdfbb49@@glsl_parser@cus",
+      "target_name": "glsl_parser",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/libglsl_standalone.a",
+      "target_id": "cdfbb49@@glsl_standalone@sta",
+      "target_name": "glsl_standalone",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/libglsl_util.a",
+      "target_id": "cdfbb49@@glsl_util@sta",
+      "target_name": "glsl_util",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/ir_expression_operation_constant.h",
+      "target_id": "cdfbb49@@ir_expression_operation_constant.h@cus",
+      "target_name": "ir_expression_operation_constant.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/glsl/ir_expression_operation_strings.h",
+      "target_id": "cdfbb49@@ir_expression_operation_strings.h@cus",
+      "target_name": "ir_expression_operation_strings.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a2xx.py",
+      "target_id": "d0fe7d3@@a2xx.py@cus",
+      "target_name": "a2xx.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a2xx.xml.h",
+      "target_id": "d0fe7d3@@a2xx.xml.h@cus",
+      "target_name": "a2xx.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a2xx_perfcntrs.json.h",
+      "target_id": "d0fe7d3@@a2xx_perfcntrs.json.h@cus",
+      "target_name": "a2xx_perfcntrs.json.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a3xx.py",
+      "target_id": "d0fe7d3@@a3xx.py@cus",
+      "target_name": "a3xx.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a3xx.xml.h",
+      "target_id": "d0fe7d3@@a3xx.xml.h@cus",
+      "target_name": "a3xx.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a4xx.py",
+      "target_id": "d0fe7d3@@a4xx.py@cus",
+      "target_name": "a4xx.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a4xx.xml.h",
+      "target_id": "d0fe7d3@@a4xx.xml.h@cus",
+      "target_name": "a4xx.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a5xx.py",
+      "target_id": "d0fe7d3@@a5xx.py@cus",
+      "target_name": "a5xx.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a5xx.xml.h",
+      "target_id": "d0fe7d3@@a5xx.xml.h@cus",
+      "target_name": "a5xx.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a5xx_perfcntrs.json.h",
+      "target_id": "d0fe7d3@@a5xx_perfcntrs.json.h@cus",
+      "target_name": "a5xx_perfcntrs.json.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx-pack.xml.h",
+      "target_id": "d0fe7d3@@a6xx-pack.xml.h@cus",
+      "target_name": "a6xx-pack.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx.py",
+      "target_id": "d0fe7d3@@a6xx.py@cus",
+      "target_name": "a6xx.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx.xml.h",
+      "target_id": "d0fe7d3@@a6xx.xml.h@cus",
+      "target_name": "a6xx.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx_descriptors.py",
+      "target_id": "d0fe7d3@@a6xx_descriptors.py@cus",
+      "target_name": "a6xx_descriptors.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx_descriptors.xml.h",
+      "target_id": "d0fe7d3@@a6xx_descriptors.xml.h@cus",
+      "target_name": "a6xx_descriptors.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx_enums.py",
+      "target_id": "d0fe7d3@@a6xx_enums.py@cus",
+      "target_name": "a6xx_enums.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx_enums.xml.h",
+      "target_id": "d0fe7d3@@a6xx_enums.xml.h@cus",
+      "target_name": "a6xx_enums.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx_gmu.xml.h",
+      "target_id": "d0fe7d3@@a6xx_gmu.xml.h@cus",
+      "target_name": "a6xx_gmu.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx_perfcntrs.json.h",
+      "target_id": "d0fe7d3@@a6xx_perfcntrs.json.h@cus",
+      "target_name": "a6xx_perfcntrs.json.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx_perfcntrs.py",
+      "target_id": "d0fe7d3@@a6xx_perfcntrs.py@cus",
+      "target_name": "a6xx_perfcntrs.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a6xx_perfcntrs.xml.h",
+      "target_id": "d0fe7d3@@a6xx_perfcntrs.xml.h@cus",
+      "target_name": "a6xx_perfcntrs.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a7xx_enums.py",
+      "target_id": "d0fe7d3@@a7xx_enums.py@cus",
+      "target_name": "a7xx_enums.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a7xx_enums.xml.h",
+      "target_id": "d0fe7d3@@a7xx_enums.xml.h@cus",
+      "target_name": "a7xx_enums.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a7xx_perfcntrs.json.h",
+      "target_id": "d0fe7d3@@a7xx_perfcntrs.json.h@cus",
+      "target_name": "a7xx_perfcntrs.json.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a7xx_perfcntrs.py",
+      "target_id": "d0fe7d3@@a7xx_perfcntrs.py@cus",
+      "target_name": "a7xx_perfcntrs.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a7xx_perfcntrs.xml.h",
+      "target_id": "d0fe7d3@@a7xx_perfcntrs.xml.h@cus",
+      "target_name": "a7xx_perfcntrs.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a8xx_descriptors.py",
+      "target_id": "d0fe7d3@@a8xx_descriptors.py@cus",
+      "target_name": "a8xx_descriptors.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a8xx_descriptors.xml.h",
+      "target_id": "d0fe7d3@@a8xx_descriptors.xml.h@cus",
+      "target_name": "a8xx_descriptors.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a8xx_enums.py",
+      "target_id": "d0fe7d3@@a8xx_enums.py@cus",
+      "target_name": "a8xx_enums.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a8xx_enums.xml.h",
+      "target_id": "d0fe7d3@@a8xx_enums.xml.h@cus",
+      "target_name": "a8xx_enums.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a8xx_perfcntrs.json.h",
+      "target_id": "d0fe7d3@@a8xx_perfcntrs.json.h@cus",
+      "target_name": "a8xx_perfcntrs.json.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a8xx_perfcntrs.py",
+      "target_id": "d0fe7d3@@a8xx_perfcntrs.py@cus",
+      "target_name": "a8xx_perfcntrs.py",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/a8xx_perfcntrs.xml.h",
+      "target_id": "d0fe7d3@@a8xx_perfcntrs.xml.h@cus",
+      "target_name": "a8xx_perfcntrs.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/adreno-pm4-pack.xml.h",
+      "target_id": "d0fe7d3@@adreno-pm4-pack.xml.h@cus",
+      "target_name": "adreno-pm4-pack.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/adreno_common.xml.h",
+      "target_id": "d0fe7d3@@adreno_common.xml.h@cus",
+      "target_name": "adreno_common.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/adreno_control_regs.xml.h",
+      "target_id": "d0fe7d3@@adreno_control_regs.xml.h@cus",
+      "target_name": "adreno_control_regs.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/adreno_pipe_regs.xml.h",
+      "target_id": "d0fe7d3@@adreno_pipe_regs.xml.h@cus",
+      "target_name": "adreno_pipe_regs.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/adreno_pm4.xml.h",
+      "target_id": "d0fe7d3@@adreno_pm4.xml.h@cus",
+      "target_name": "adreno_pm4.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/registers/adreno/ocmem.xml.h",
+      "target_id": "d0fe7d3@@ocmem.xml.h@cus",
+      "target_name": "ocmem.xml.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/glx/apple/libglxapple.a",
+      "target_id": "d788b7c@@glxapple@sta",
+      "target_name": "glxapple",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/apple_dri.so",
+      "target_id": "dfda799@@apple_dri.so@cus",
+      "target_name": "apple_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/armada-drm_dri.so",
+      "target_id": "dfda799@@armada-drm_dri.so@cus",
+      "target_name": "armada-drm_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/exynos_dri.so",
+      "target_id": "dfda799@@exynos_dri.so@cus",
+      "target_name": "exynos_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/gm12u320_dri.so",
+      "target_id": "dfda799@@gm12u320_dri.so@cus",
+      "target_name": "gm12u320_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/hdlcd_dri.so",
+      "target_id": "dfda799@@hdlcd_dri.so@cus",
+      "target_name": "hdlcd_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/hx8357d_dri.so",
+      "target_id": "dfda799@@hx8357d_dri.so@cus",
+      "target_name": "hx8357d_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/ili9163_dri.so",
+      "target_id": "dfda799@@ili9163_dri.so@cus",
+      "target_name": "ili9163_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/ili9225_dri.so",
+      "target_id": "dfda799@@ili9225_dri.so@cus",
+      "target_name": "ili9225_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/ili9341_dri.so",
+      "target_id": "dfda799@@ili9341_dri.so@cus",
+      "target_name": "ili9341_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/ili9486_dri.so",
+      "target_id": "dfda799@@ili9486_dri.so@cus",
+      "target_name": "ili9486_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/imx-dcss_dri.so",
+      "target_id": "dfda799@@imx-dcss_dri.so@cus",
+      "target_name": "imx-dcss_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/imx-drm_dri.so",
+      "target_id": "dfda799@@imx-drm_dri.so@cus",
+      "target_name": "imx-drm_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/imx-lcdif_dri.so",
+      "target_id": "dfda799@@imx-lcdif_dri.so@cus",
+      "target_name": "imx-lcdif_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/ingenic-drm_dri.so",
+      "target_id": "dfda799@@ingenic-drm_dri.so@cus",
+      "target_name": "ingenic-drm_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/kgsl_dri.so",
+      "target_id": "dfda799@@kgsl_dri.so@cus",
+      "target_name": "kgsl_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/kirin_dri.so",
+      "target_id": "dfda799@@kirin_dri.so@cus",
+      "target_name": "kirin_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/kms_swrast_dri.so",
+      "target_id": "dfda799@@kms_swrast_dri.so@cus",
+      "target_name": "kms_swrast_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/komeda_dri.so",
+      "target_id": "dfda799@@komeda_dri.so@cus",
+      "target_name": "komeda_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/mali-dp_dri.so",
+      "target_id": "dfda799@@mali-dp_dri.so@cus",
+      "target_name": "mali-dp_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/mcde_dri.so",
+      "target_id": "dfda799@@mcde_dri.so@cus",
+      "target_name": "mcde_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/mediatek_dri.so",
+      "target_id": "dfda799@@mediatek_dri.so@cus",
+      "target_name": "mediatek_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/meson_dri.so",
+      "target_id": "dfda799@@meson_dri.so@cus",
+      "target_name": "meson_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/mi0283qt_dri.so",
+      "target_id": "dfda799@@mi0283qt_dri.so@cus",
+      "target_name": "mi0283qt_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/msm_dri.so",
+      "target_id": "dfda799@@msm_dri.so@cus",
+      "target_name": "msm_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/mxsfb-drm_dri.so",
+      "target_id": "dfda799@@mxsfb-drm_dri.so@cus",
+      "target_name": "mxsfb-drm_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/panel-mipi-dbi_dri.so",
+      "target_id": "dfda799@@panel-mipi-dbi_dri.so@cus",
+      "target_name": "panel-mipi-dbi_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/pl111_dri.so",
+      "target_id": "dfda799@@pl111_dri.so@cus",
+      "target_name": "pl111_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/rcar-du_dri.so",
+      "target_id": "dfda799@@rcar-du_dri.so@cus",
+      "target_name": "rcar-du_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/repaper_dri.so",
+      "target_id": "dfda799@@repaper_dri.so@cus",
+      "target_name": "repaper_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/rockchip_dri.so",
+      "target_id": "dfda799@@rockchip_dri.so@cus",
+      "target_name": "rockchip_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/rzg2l-du_dri.so",
+      "target_id": "dfda799@@rzg2l-du_dri.so@cus",
+      "target_name": "rzg2l-du_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/ssd130x_dri.so",
+      "target_id": "dfda799@@ssd130x_dri.so@cus",
+      "target_name": "ssd130x_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/st7586_dri.so",
+      "target_id": "dfda799@@st7586_dri.so@cus",
+      "target_name": "st7586_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/st7735r_dri.so",
+      "target_id": "dfda799@@st7735r_dri.so@cus",
+      "target_name": "st7735r_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/sti_dri.so",
+      "target_id": "dfda799@@sti_dri.so@cus",
+      "target_name": "sti_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/stm_dri.so",
+      "target_id": "dfda799@@stm_dri.so@cus",
+      "target_name": "stm_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/sun4i-drm_dri.so",
+      "target_id": "dfda799@@sun4i-drm_dri.so@cus",
+      "target_name": "sun4i-drm_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/swrast_dri.so",
+      "target_id": "dfda799@@swrast_dri.so@cus",
+      "target_name": "swrast_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/udl_dri.so",
+      "target_id": "dfda799@@udl_dri.so@cus",
+      "target_name": "udl_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/virtio_gpu_dri.so",
+      "target_id": "dfda799@@virtio_gpu_dri.so@cus",
+      "target_name": "virtio_gpu_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/vkms_dri.so",
+      "target_id": "dfda799@@vkms_dri.so@cus",
+      "target_name": "vkms_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/zink_dri.so",
+      "target_id": "dfda799@@zink_dri.so@cus",
+      "target_name": "zink_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/dril/zynqmp-dpsub_dri.so",
+      "target_id": "dfda799@@zynqmp-dpsub_dri.so@cus",
+      "target_name": "zynqmp-dpsub_dri.so",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/spirv/spirv2nir",
+      "target_id": "e129d53@@spirv2nir@exe",
+      "target_name": "spirv2nir",
+      "target_type": "executable"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/spirv/spirv_info.c",
+      "target_id": "e129d53@@spirv_info@cus",
+      "target_name": "spirv_info",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/spirv/spirv_info.h",
+      "target_id": "e129d53@@spirv_info@cus",
+      "target_name": "spirv_info",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/spirv/libvtn.a",
+      "target_id": "e129d53@@vtn@sta",
+      "target_name": "vtn",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/spirv/vtn_gather_types.c",
+      "target_id": "e129d53@@vtn_gather_types.c@cus",
+      "target_name": "vtn_gather_types.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/compiler/spirv/vtn_generator_ids.h",
+      "target_id": "e129d53@@vtn_generator_ids.h@cus",
+      "target_name": "vtn_generator_ids.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/targets/lavapipe/lvp_devenv_icd.aarch64.json",
+      "target_id": "e8fcad7@@lvp_devenv_icd@cus",
+      "target_name": "lvp_devenv_icd",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/winsys/freedreno/drm/libfreedrenowinsys.a",
+      "target_id": "ea051d5@@freedrenowinsys@sta",
+      "target_name": "freedrenowinsys",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/draw_nir_lower_opcodes.c",
+      "target_id": "eb820e8@@draw_nir_lower_opcodes.c@cus",
+      "target_name": "draw_nir_lower_opcodes.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/libgallium.a",
+      "target_id": "eb820e8@@gallium@sta",
+      "target_name": "gallium",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/libgalliumvl.a",
+      "target_id": "eb820e8@@galliumvl@sta",
+      "target_name": "galliumvl",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/libgalliumvl_stub.a",
+      "target_id": "eb820e8@@galliumvl_stub@sta",
+      "target_name": "galliumvl_stub",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/libgalliumvlwinsys.a",
+      "target_id": "eb820e8@@galliumvlwinsys@sta",
+      "target_name": "galliumvlwinsys",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/lp_bld_nir_no_integer_algebraic.c",
+      "target_id": "eb820e8@@lp_bld_nir_no_integer_algebraic.c@cus",
+      "target_name": "lp_bld_nir_no_integer_algebraic.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/tr_util.c",
+      "target_id": "eb820e8@@tr_util.[ch]@cus",
+      "target_name": "tr_util.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/tr_util.h",
+      "target_id": "eb820e8@@tr_util.[ch]@cus",
+      "target_name": "tr_util.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/u_indices_gen.c",
+      "target_id": "eb820e8@@u_indices_gen.c@cus",
+      "target_name": "u_indices_gen.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/u_tracepoints.c",
+      "target_id": "eb820e8@@u_tracepoints.c@cus",
+      "target_name": "u_tracepoints.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/u_tracepoints.h",
+      "target_id": "eb820e8@@u_tracepoints.h@cus",
+      "target_name": "u_tracepoints.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/gallium/auxiliary/u_unfilled_gen.c",
+      "target_id": "eb820e8@@u_unfilled_gen.c@cus",
+      "target_name": "u_unfilled_gen.c",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/float32_spv.h",
+      "target_id": "ecb12ee@@float32_spv.h@cus",
+      "target_name": "float32_spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/float64_spv.h",
+      "target_id": "ecb12ee@@float64_spv.h@cus",
+      "target_name": "float64_spv.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/freedreno_devenv_icd.aarch64.json",
+      "target_id": "ecb12ee@@freedreno_devenv_icd@cus",
+      "target_name": "freedreno_devenv_icd",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/tu_drirc.c",
+      "target_id": "ecb12ee@@tu_drirc@cus",
+      "target_name": "tu_drirc",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/tu_drirc.h",
+      "target_id": "ecb12ee@@tu_drirc@cus",
+      "target_name": "tu_drirc",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/tu_entrypoints.cc",
+      "target_id": "ecb12ee@@tu_entrypoints@cus",
+      "target_name": "tu_entrypoints",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/tu_entrypoints.h",
+      "target_id": "ecb12ee@@tu_entrypoints@cus",
+      "target_name": "tu_entrypoints",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/tu_tracepoints.cc",
+      "target_id": "ecb12ee@@tu_tracepoints.[ch]@cus",
+      "target_name": "tu_tracepoints.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/tu_tracepoints.h",
+      "target_id": "ecb12ee@@tu_tracepoints.[ch]@cus",
+      "target_name": "tu_tracepoints.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/freedreno/vulkan/tu_tracepoints_perfetto.h",
+      "target_id": "ecb12ee@@tu_tracepoints.[ch]@cus",
+      "target_name": "tu_tracepoints.[ch]",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/driconf_static.h",
+      "target_id": "ed6d25d@@driconf_static.h@cus",
+      "target_name": "driconf_static.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/format_srgb.c",
+      "target_id": "ed6d25d@@format_srgb@cus",
+      "target_name": "format_srgb",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/libmesa_util.a",
+      "target_id": "ed6d25d@@mesa_util@sta",
+      "target_name": "mesa_util",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/libmesa_util_simd.a",
+      "target_id": "ed6d25d@@mesa_util_simd@sta",
+      "target_name": "mesa_util_simd",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/libparson.a",
+      "target_id": "ed6d25d@@parson@sta",
+      "target_name": "parson",
+      "target_type": "static library"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/shader_stats.h",
+      "target_id": "ed6d25d@@shader_stats.h@cus",
+      "target_name": "shader_stats.h",
+      "target_type": "custom"
+    },
+    {
+      "filename": "/home/builder/.termux-build/mesa/build/src/util/libxmlconfig.a",
+      "target_id": "ed6d25d@@xmlconfig@sta",
+      "target_name": "xmlconfig",
+      "target_type": "static library"
+    }
+  ]
+}

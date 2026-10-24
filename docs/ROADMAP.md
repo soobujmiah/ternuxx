@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and supports optional Debia
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Rerun the corrected Mesa workflow with per-package architecture rules and graph-bound source mapping. Then audit package-to-target/generated/external attribution and applicable notices. Continue repeated Native backend qualification only under unchanged live guards; address sustained HTP coverage and reproducible Vulkan install provenance.
+**Next action:** Pass the corrected Mesa workflow; continue package install/source attribution beyond basename candidates, and audit generated/external inputs and notices. Resume repeated Native backend qualification only under unchanged live guards; broaden HTP coverage and validate experimental Vulkan install provenance.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

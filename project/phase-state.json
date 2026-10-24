@@ -236,7 +236,7 @@
       "id": "P12",
       "title": "Qualify Native CPU, GPU and NPU acceleration",
       "status": "in_progress",
-      "summary": "Pinned Mesa source archive, configured graph, and five-package payload manifests are recorded. Run 40125903141 built successfully; its final architecture assertion incorrectly rejected mesa-dev=all. Local corrected validation passes; the workflow is being fixed and rerun. Fresh guarded CPU/Vulkan/HTP repeats each cancelled before any case completed.",
+      "summary": "Mesa source/target graph, split package manifests, and a cautious payload-to-target candidate map are now recorded. Eleven regular payload files match unique Meson output basenames; 46 package symlinks resolve to those matched files. The corrected workflow rerun is in progress. Fresh guarded CPU/Vulkan/HTP repeats all cancelled before any case completed.",
       "evidence": [
         "docs/evidence/2026-10-24-native-acceleration-live-check.md",
         "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
@@ -263,7 +263,7 @@
         "docs/evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md",
         "docs/evidence/2026-10-24-p12-three-backend-qualification-guard-cancel-2001z.md"
       ],
-      "next_action": "Rerun the corrected Mesa workflow with per-package architecture rules and graph-bound source mapping. Then audit package-to-target/generated/external attribution and applicable notices. Continue repeated Native backend qualification only under unchanged live guards; address sustained HTP coverage and reproducible Vulkan install provenance."
+      "next_action": "Pass the corrected Mesa workflow; continue package install/source attribution beyond basename candidates, and audit generated/external inputs and notices. Resume repeated Native backend qualification only under unchanged live guards; broaden HTP coverage and validate experimental Vulkan install provenance."
     }
   ]
 }
