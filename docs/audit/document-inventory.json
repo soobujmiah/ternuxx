@@ -3179,10 +3179,10 @@
     {
       "path": "docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md",
       "kind": "narrative",
-      "sha256": "a6235e3c3ff45189a65c3ca1c507758cd8855682b54a4061bf87f71e07cf3cfe",
+      "sha256": "99851c4b8c4997e9597065418a2f080af9bc6f61788d778b7c79ce608d65a447",
       "lines": 43,
       "read_status": "read",
-      "read_sha256": "a6235e3c3ff45189a65c3ca1c507758cd8855682b54a4061bf87f71e07cf3cfe"
+      "read_sha256": "99851c4b8c4997e9597065418a2f080af9bc6f61788d778b7c79ce608d65a447"
     },
     {
       "path": "docs/evidence/2026-10-24-p12-multi-case-runner.md",
