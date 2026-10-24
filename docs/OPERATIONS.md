@@ -26,6 +26,8 @@ The CLI, TUI, authenticated Web UI, and GTK center call the same typed managemen
 
 Native audio, desktop monitoring, boot profiles, and Wake Lock controls have independent owners and state. A stop operation releases only resources whose identity matches a Ternuxx record.
 
+`tx mng boot helpers status` inspects the two fixed repository-owned Termux:Boot helper files. CLI, TUI, GTK, and Web can preview and confirm deployment or rollback; each deployment keeps a private exact-byte snapshot, and rollback requires selecting the helper's snapshot ID. Web requires the separate opt-in `boot.helpers.manage` session capability. These file reconciliation actions do not run a boot script or prove Android delivery.
+
 The optional Termux:Boot Cron entrypoint starts only the Ternuxx Cron daemon. CLI, TUI, GTK, and Web expose status/validation and exact-preview enable/disable flows; Web requires the separate opt-in `boot.cron.manage` session capability. This does not establish Android cold-boot delivery, which remains unverified.
 
 ## Packages and updates

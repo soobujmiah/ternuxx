@@ -231,6 +231,10 @@ def status(*, home: str | os.PathLike[str], state_dir: str | os.PathLike[str],
            source_root: str | os.PathLike[str]) -> dict[str, object]:
     root = _root(home, state_dir, create=False)
     identity = _identity(root) if root.exists() else {"helpers": {}}
+    snapshot_index = _load_json(root / "snapshots.json", {"schema_version": 1, "items": {}}) if root.exists() else {"schema_version": 1, "items": {}}
+    if (not isinstance(snapshot_index, dict) or snapshot_index.get("schema_version") != 1
+            or not isinstance(snapshot_index.get("items"), dict)):
+        raise BootHelperError("boot-helper snapshot index is invalid")
     items = []
     for helper_id in HELPERS:
         target, source = _paths(home, helper_id, source_root)
@@ -252,7 +256,24 @@ def status(*, home: str | os.PathLike[str], state_dir: str | os.PathLike[str],
                       "installed_sha256": digest, "source_sha256": _sha(desired or b""),
                       "mode": format(stat.S_IMODE(meta.st_mode), "04o") if meta else None,
                       "identity": state})
+    snapshots = []
+    for snapshot_id, record in snapshot_index["items"].items():
+        if not isinstance(snapshot_id, str) or not re.fullmatch(r"[0-9a-f]{32}", snapshot_id):
+            continue
+        helper_id = record.get("helper_id") if isinstance(record, dict) else None
+        if helper_id not in HELPERS:
+            continue
+        try:
+            _snapshot_record(root, helper_id, snapshot_id, record)
+        except BootHelperError:
+            continue
+        snapshots.append({"snapshot_id": snapshot_id, "helper_id": helper_id,
+                          "created_at": record.get("created_at"), "sha256": record.get("sha256"),
+                          "mode": format(record["mode"], "04o")})
+    snapshots.sort(key=lambda item: str(item.get("created_at") or ""), reverse=True)
     return {"component": "boot_helpers", "helpers": items, "read_only": True,
+            "snapshots": snapshots[:40], "snapshot_count": len(snapshots),
+            "snapshots_truncated": len(snapshots) > 40,
             "boot_delivery": "not_qualified"}
 
 

@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 526,
-  "read_count": 164,
+  "document_count": 527,
+  "read_count": 167,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -35,10 +35,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "4d230d4a769b92ed5723dbb48bb938e094e138a6183456ce773f10215914aa23",
-      "lines": 29,
+      "sha256": "7b4fde8e59f2b0a02a1c978cbe4be94cc479fb0a17940b3de25e671a4d0fff4f",
+      "lines": 33,
       "read_status": "read",
-      "read_sha256": "4d230d4a769b92ed5723dbb48bb938e094e138a6183456ce773f10215914aa23"
+      "read_sha256": "7b4fde8e59f2b0a02a1c978cbe4be94cc479fb0a17940b3de25e671a4d0fff4f"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -155,10 +155,10 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "bdb506be81b71856c81e65a6c86e39dc07bc8c6057913a324b696f32fbecdc81",
-      "lines": 57,
+      "sha256": "a5b30f88ba3105c23f83d9b7e6d6b218a9cbd8ded63e2e056343696898ee670f",
+      "lines": 61,
       "read_status": "read",
-      "read_sha256": "bdb506be81b71856c81e65a6c86e39dc07bc8c6057913a324b696f32fbecdc81"
+      "read_sha256": "a5b30f88ba3105c23f83d9b7e6d6b218a9cbd8ded63e2e056343696898ee670f"
     },
     {
       "path": "docs/OPTIMIZATION.md",
@@ -259,10 +259,10 @@
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
       "kind": "narrative",
-      "sha256": "aa2198521892a1fba8ae99752000506f23d6735e4f003a9b772108c82c6087db",
+      "sha256": "e8539668b725ab0f23c2f90a4e2723e6b8f8a865ac80dee20896ceb880e4eb1f",
       "lines": 21,
       "read_status": "read",
-      "read_sha256": "aa2198521892a1fba8ae99752000506f23d6735e4f003a9b772108c82c6087db"
+      "read_sha256": "e8539668b725ab0f23c2f90a4e2723e6b8f8a865ac80dee20896ceb880e4eb1f"
     },
     {
       "path": "docs/architecture/CONTINUITY-IMPLEMENTATION.md",
@@ -275,10 +275,10 @@
     {
       "path": "docs/architecture/CRON-JOBS.md",
       "kind": "narrative",
-      "sha256": "5bfe0e74b6b1a16616c2065aa2f422426cf42bc3fdb13fa85ba042c394703bae",
-      "lines": 130,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "661be7a3ba8c781293086892644d9f264eb8d88f3f2d1046c09473e3e2b27afb",
+      "lines": 134,
+      "read_status": "read",
+      "read_sha256": "661be7a3ba8c781293086892644d9f264eb8d88f3f2d1046c09473e3e2b27afb"
     },
     {
       "path": "docs/architecture/GUI-MONITORING-POLICY.md",
@@ -2889,6 +2889,14 @@
       "read_sha256": "3a75d2ac3bcc8fa27394ea7de2f906f55f4dec93d675b3faea40fd2e6c830bbb"
     },
     {
+      "path": "docs/evidence/2026-10-24-boot-helper-client-parity.md",
+      "kind": "narrative",
+      "sha256": "752d7b58efa99430e2410cb1f957fc6af8e53d46fe560aced919b61febf62ad0",
+      "lines": 25,
+      "read_status": "read",
+      "read_sha256": "752d7b58efa99430e2410cb1f957fc6af8e53d46fe560aced919b61febf62ad0"
+    },
+    {
       "path": "docs/evidence/2026-10-24-boot-profile-catalog-reconciliation.md",
       "kind": "narrative",
       "sha256": "be9a5d59fa8bfbbae4a78fe81f76931573b7d73c0b27f4648ec6a2f4098ddd93",
@@ -2899,10 +2907,10 @@
     {
       "path": "docs/evidence/2026-10-24-client-dispatch-audit.md",
       "kind": "narrative",
-      "sha256": "3b2873ec9c39bba6c630fa9f0cb79e8f217f93bb5ce4aa10fad333bec6eb28a8",
-      "lines": 83,
+      "sha256": "7e9a472b2038f769c1bbdf559e766a50fdc7c82158cb706fb832660d6804448e",
+      "lines": 91,
       "read_status": "read",
-      "read_sha256": "3b2873ec9c39bba6c630fa9f0cb79e8f217f93bb5ce4aa10fad333bec6eb28a8"
+      "read_sha256": "7e9a472b2038f769c1bbdf559e766a50fdc7c82158cb706fb832660d6804448e"
     },
     {
       "path": "docs/evidence/2026-10-24-cron-inspection-client-parity.md",
@@ -3771,10 +3779,10 @@
     {
       "path": "docs/testing/FEATURE-MATRIX.yaml",
       "kind": "structured",
-      "sha256": "b43c74bf64308731268da14b4e91564e3d5008bc55aec35a5c81b03be80e1fa9",
-      "lines": 209,
+      "sha256": "9b2f9ec75f685561cb97ff5e976a3fbb14d18ca9a520d26981d05af7c6c8600f",
+      "lines": 239,
       "read_status": "read",
-      "read_sha256": "b43c74bf64308731268da14b4e91564e3d5008bc55aec35a5c81b03be80e1fa9"
+      "read_sha256": "9b2f9ec75f685561cb97ff5e976a3fbb14d18ca9a520d26981d05af7c6c8600f"
     },
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
@@ -3813,8 +3821,8 @@
       "kind": "narrative",
       "sha256": "b4edab1fedf505a9fd16f2c7e9d03e51ce2879f26c7283b708ae24bcd3d565ce",
       "lines": 38,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "b4edab1fedf505a9fd16f2c7e9d03e51ce2879f26c7283b708ae24bcd3d565ce"
     },
     {
       "path": "docs/testing/REBOOT-RECOVERY-GUIDE.md",

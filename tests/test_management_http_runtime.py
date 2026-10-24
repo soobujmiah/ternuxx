@@ -579,12 +579,78 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn('if($("#boot-cron-scope").checked)capabilities.push("boot.cron.manage")', ui)
         self.assertIn('session?.capabilities?.includes("boot.cron.manage")', ui)
         self.assertIn('manageBootCron(action)', ui)
+        self.assertIn('operation==="boot.cron.preview"', ui)
         self.assertEqual(management_authorization.required_capability("boot.cron.enable"), "boot.cron.manage")
         self.assertEqual(management_authorization.required_capability("boot.cron.disable"), "boot.cron.manage")
         self.assertEqual({op for op, cap in management_authorization.OPERATION_CAPABILITIES.items()
                           if cap == "boot.cron.manage"}, {"boot.cron.enable", "boot.cron.disable"})
         self.assertTrue({"boot.cron.enable", "boot.cron.disable"} <=
                         management_http_runtime._WEB_MUTATING_OPERATIONS)
+
+    def test_boot_helper_web_scope_is_opt_in_and_narrow(self) -> None:
+        ui = (ROOT / "lib" / "management_web_ui.html").read_text(encoding="utf-8")
+        self.assertIn('id="boot-helpers-scope" type="checkbox"', ui)
+        self.assertIn('if($("#boot-helpers-scope").checked)capabilities.push("boot.helpers.manage")', ui)
+        self.assertIn('session?.capabilities?.includes("boot.helpers.manage")', ui)
+        self.assertIn('operation==="boot.helpers.preview"||operation==="boot.helpers.apply"', ui)
+        self.assertIn('async function manageBootHelpers()', ui)
+        self.assertEqual(management_authorization.required_capability("boot.helpers.preview"), "boot.helpers.manage")
+        self.assertEqual(management_authorization.required_capability("boot.helpers.apply"), "boot.helpers.manage")
+        self.assertEqual({op for op, cap in management_authorization.OPERATION_CAPABILITIES.items()
+                          if cap == "boot.helpers.manage"}, {"boot.helpers.preview", "boot.helpers.apply"})
+        self.assertTrue({"boot.helpers.preview", "boot.helpers.apply"} <=
+                        management_http_runtime._WEB_MUTATING_OPERATIONS)
+
+    def test_boot_helper_web_apply_is_denied_without_opt_in_scope(self) -> None:
+        env = dict(self.env, TERNUXX_WEB_MODE="1")
+        Path(env["TERNUXX_STATE_DIR"]).mkdir(parents=True, mode=0o700)
+        Path(env["TERNUXX_STATE_DIR"]).chmod(0o700)
+        with patch.object(management_http_runtime.management_service, "dispatch") as dispatch:
+            server = management_http_runtime.build_server(port=0, bootstrap_secret=SECRET, env=env)
+            try:
+                session = server.adapter.sessions.exchange_bootstrap(
+                    SECRET, sorted(management_http_runtime.WEB_CAPABILITIES - {"boot.helpers.manage"}))
+                host = "127.0.0.1:%s" % server.port
+                body = json.dumps({"api_version": 1, "request_id": "web-no-boot-helper-scope-001",
+                    "operation": "boot.helpers.apply", "args": {"helper_id": "services", "action": "deploy",
+                        "confirmed": True, "plan_id": "a" * 32}}).encode()
+                status, _headers, response = server.adapter.handle(method="POST", path="/api/v1/operations",
+                    headers={"Host": host, "Origin": "http://" + host,
+                        "Content-Type": "application/json", "Content-Length": str(len(body)),
+                        "Authorization": "Bearer " + session.bearer_token,
+                        "X-Ternuxx-CSRF": session.csrf_token, "Idempotency-Key": "web-no-boot-helper-scope-key"},
+                    body=body)
+                self.assertEqual(status, 403)
+                self.assertEqual(json.loads(response)["error"], "permission_denied")
+                dispatch.assert_not_called()
+            finally:
+                self.assertTrue(server.close(grace_seconds=1))
+
+    def test_boot_helper_web_apply_dispatches_with_opt_in_scope(self) -> None:
+        env = dict(self.env, TERNUXX_WEB_MODE="1")
+        Path(env["TERNUXX_STATE_DIR"]).mkdir(parents=True, mode=0o700)
+        Path(env["TERNUXX_STATE_DIR"]).chmod(0o700)
+        with patch.object(management_http_runtime.management_service, "dispatch",
+                          return_value={"api_version": 1, "request_id": "web-boot-helper-result-01",
+                              "ok": True, "operation": "boot.helpers.apply", "data": {"changed": True}}) as dispatch:
+            server = management_http_runtime.build_server(port=0, bootstrap_secret=SECRET, env=env)
+            try:
+                session = server.adapter.sessions.exchange_bootstrap(SECRET, ["diagnostics.read", "boot.helpers.manage"])
+                host = "127.0.0.1:%s" % server.port
+                body = json.dumps({"api_version": 1, "request_id": "web-boot-helper-request-001",
+                    "operation": "boot.helpers.apply", "args": {"helper_id": "services", "action": "deploy",
+                        "confirmed": True, "plan_id": "a" * 32}}).encode()
+                status, _headers, response = server.adapter.handle(method="POST", path="/api/v1/operations",
+                    headers={"Host": host, "Origin": "http://" + host,
+                        "Content-Type": "application/json", "Content-Length": str(len(body)),
+                        "Authorization": "Bearer " + session.bearer_token,
+                        "X-Ternuxx-CSRF": session.csrf_token, "Idempotency-Key": "web-boot-helper-scope-key"},
+                    body=body)
+                self.assertEqual(status, 200, response)
+                dispatch.assert_called_once()
+                self.assertEqual(dispatch.call_args.args[0]["operation"], "boot.helpers.apply")
+            finally:
+                self.assertTrue(server.close(grace_seconds=1))
 
     def test_boot_cron_web_apply_is_denied_without_opt_in_scope(self) -> None:
         env = dict(self.env, TERNUXX_WEB_MODE="1")

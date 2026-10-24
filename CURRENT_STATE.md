@@ -2,17 +2,21 @@
 
 # Current Ternuxx state
 
-**Reviewed:** 2026-10-24 16:55 UTC. Ternuxx uses Native Termux as its host and control plane, with Debian PRoot as an optional isolated workload provider. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
+**Reviewed:** 2026-10-24 17:29 UTC. Ternuxx uses Native Termux as its host and control plane, with Debian PRoot as an optional isolated workload provider. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
 ## Live runtime
 
 Read-only checks on the Redmi Turbo 4 Pro (`25053RT47C`, Android 16, aarch64; Termux `0.119.0-beta.3`) at 2026-10-24 13:52 UTC report the Native XFCE session and Termux:X11 live on display `:1`; process/display evidence reconciles, while Android-window visibility remains unknown. No standalone Debian XFCE or Xephyr process for `:0`/`:2` was observed. `tx proot status --json` reports only the existing Debian distribution installed; the same-device fresh-alias replay test is retired into a private backup and did not replace that guest. These checks did not start or stop a desktop or guest.
+
+At 17:25 UTC, the fixed Native Termux:Boot helper status reported the installed `services` helper as previously managed (source hash differed) and `recovery` as matching. The exact source diff was limited to obsolete PRoot wording/markers; service actions were unchanged. After exact preview/apply, a fresh read-only status reported both helpers matching their source at mode `0700` and four recorded private rollback snapshots. The helper was not executed, no service was started/stopped, and no reboot was performed. Details: [boot-helper client parity and reconciliation](docs/evidence/2026-10-24-boot-helper-client-parity.md).
 
 All recorded Ternuxx PRoot sessions report stopped. A read-only process inventory also observed five defunct `proot` children under the long-running TUI process; their session ownership is unverified. They are zombies rather than executing workloads. The probe launcher now double-forks so future bounded probes are not children of long-lived clients; the focused fixture and full repository tests pass. These five older zombies remain under the active TUI, whose code was already loaded before the source fix; no signal or cleanup was attempted. Full command results and the exact observation are in the [live state reconciliation evidence](docs/evidence/2026-10-24-live-state-reconciliation.md).
 
 ## Active work
 
 A per-client source audit closed the fixed SSH service-definition deploy/rollback reach gap: TUI and GTK now use shared exact-preview flows, while Web exposes the two apply paths only through explicit opt-in `services.manage`. Focused client/security coverage and the full repository suite pass (1,048 tests). No live definition mutation was run. GTK syntax compilation passed; rendered UI acceptance remains open. See the [client dispatch audit](docs/evidence/2026-10-24-client-dispatch-audit.md).
+
+The same per-operation review then found that repository-owned Termux:Boot helper status/deploy/rollback operations were CLI-only and rollback snapshot IDs were hidden from status. TUI, GTK, and opt-in Web flows now expose exact-preview helper reconciliation, Web uses a separate narrow `boot.helpers.manage` grant, and status lists up to 40 newest snapshot metadata records. The previously-managed Native `services` helper was reconciled to current source under an exact plan; both fixed helpers now report matching source hashes. The full repository suite passes 1,062 tests. Actual boot delivery remains unqualified; see [boot-helper parity evidence](docs/evidence/2026-10-24-boot-helper-client-parity.md).
 
 The exact pinned Mesa source archive now has a reproducible file-header inventory: 8,386 candidate source files hashed, with SPDX identifiers found in 3,895. Missing headers remain `NOASSERTION`; configured build inputs, generated files, package-output mapping, and applicable shipped notices remain unaudited. The preserved upstream Actions artifact has the five split `.deb` files and package lists, but no configured Meson/Ninja build graph was found in local artifact directories. See the [inventory report](docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md) and [per-file data](docs/evidence/data/2026-10-24-p12-mesa-source-license-inventory.json).
 

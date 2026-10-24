@@ -73,6 +73,21 @@ features:
     next_action: Owner-operated reboot and read-only verification of the dedicated script outcome and scheduler identity.
     owner_decision_required: true
 
+  - id: boot.termux_helpers
+    name: Repository-owned Termux:Boot helper reconciliation
+    user_value: Inspect, deploy, or restore only the two fixed Ternuxx service and recovery startup helpers.
+    implementation_status: IMPLEMENTED
+    commercial_class: FREE_CORE
+    runtime: native_termux
+    dependencies: [official_termux_boot_app]
+    validation_status: PARTIAL
+    qualification: DETECTED
+    evidence: [../architecture/CRON-JOBS.md, ../architecture/CAPABILITY-MATRIX.md, ../../lib/boot_helpers.py, ../../tests/test_boot_helpers.py, ../../tests/test_terminal_ui.py, ../../tests/test_management_desktop_bridge.py, ../../tests/test_management_http_runtime.py]
+    release_qualified: false
+    limitations: [Helper file reconciliation is preview-first and rollback snapshots are private; actual Android cold-boot delivery remains unverified.]
+    next_action: Keep helper content/hash and rollback selection acceptance covered; verify device delivery only during an owner-operated reboot gate.
+    owner_decision_required: true
+
   - id: client.tui
     name: Interactive terminal management
     user_value: Guide Native workstation inspection and supported operations interactively.

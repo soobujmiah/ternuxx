@@ -248,6 +248,53 @@ def main(argv: list[str]) -> int:
         result = call(f"boot.cron.{argv[1]}", {"confirmed": True, "plan_id": plan_id})
         print(management_presentation.format_report(result))
         return 0 if result.get("ok") else 1
+    if action == "boot-helpers-status" and len(argv) == 1:
+        result = call("boot.helpers.status")
+        if not result.get("ok"):
+            print(management_presentation.format_report(result)); return 1
+        data = result.get("data", {})
+        for item in data.get("helpers", []):
+            print("H\t" + "\t".join(clean(item.get(key)) for key in ("id", "identity", "installed_sha256", "source_sha256", "mode")))
+        for item in data.get("snapshots", []):
+            print("S\t" + "\t".join(clean(item.get(key)) for key in ("snapshot_id", "helper_id", "created_at", "sha256", "mode")))
+        return 0
+    if action == "boot-helpers-snapshots" and len(argv) == 2 and argv[1] in {"services", "recovery"}:
+        result = call("boot.helpers.status")
+        if not result.get("ok"):
+            print(management_presentation.format_report(result)); return 1
+        for item in result.get("data", {}).get("snapshots", []):
+            if item.get("helper_id") == argv[1]:
+                print("S\t" + "\t".join(clean(item.get(key)) for key in ("snapshot_id", "created_at", "sha256", "mode")))
+        return 0
+    if action == "boot-helpers-preview" and len(argv) == 4 and argv[1] in {"services", "recovery"} and argv[2] in {"deploy", "rollback"}:
+        helper_id, helper_action, snapshot_id = argv[1], argv[2], argv[3]
+        if ((helper_action == "deploy" and snapshot_id != "-")
+                or (helper_action == "rollback" and not re.fullmatch(r"[0-9a-f]{32}", snapshot_id))):
+            print("Boot-helper target or snapshot is invalid; no change was made.", file=sys.stderr); return 2
+        args = {"helper_id": helper_id, "action": helper_action,
+                "snapshot_id": None if snapshot_id == "-" else snapshot_id}
+        result = call("boot.helpers.preview", args)
+        if not result.get("ok"):
+            print(management_presentation.format_report(result)); return 1
+        data = result.get("data", {}); plan = data.get("plan", {})
+        plan_id = plan.get("plan_id")
+        if (data.get("confirmation_required") is not True or not isinstance(plan_id, str)
+                or not re.fullmatch(r"[0-9a-f]{32}", plan_id)):
+            print(management_presentation.format_report(result)); return 0
+        print("P\t" + "\t".join((plan_id, helper_id, helper_action, snapshot_id,
+              clean(json.dumps(data, ensure_ascii=False, sort_keys=True)))))
+        return 0
+    if action == "boot-helpers-apply" and len(argv) == 5 and argv[1] in {"services", "recovery"} and argv[2] in {"deploy", "rollback"}:
+        helper_id, helper_action, plan_id, snapshot_id = argv[1], argv[2], argv[3], argv[4]
+        if (not re.fullmatch(r"[0-9a-f]{32}", plan_id)
+                or (helper_action == "deploy" and snapshot_id != "-")
+                or (helper_action == "rollback" and not re.fullmatch(r"[0-9a-f]{32}", snapshot_id))):
+            print("Boot-helper apply requires a fresh exact plan and valid target.", file=sys.stderr); return 2
+        args = {"helper_id": helper_id, "action": helper_action, "confirmed": True, "plan_id": plan_id,
+                "snapshot_id": None if snapshot_id == "-" else snapshot_id}
+        result = call("boot.helpers.apply", args)
+        print(management_presentation.format_report(result))
+        return 0 if result.get("ok") else 1
     if action == "ssh-deploy-preview" and len(argv) == 1:
         result = call("ssh.service.deploy", {"confirmed": False, "plan_id": None})
         if not result.get("ok"):

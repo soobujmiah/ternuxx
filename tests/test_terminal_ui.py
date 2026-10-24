@@ -837,6 +837,23 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertIn("enable Cron at device boot", labels)
         self.assertIn("disable Cron device-boot entrypoint", labels)
 
+    def test_boot_helpers_use_status_snapshots_and_exact_typed_plan(self) -> None:
+        status = {"ok": True, "data": {"helpers": [{"id": "services", "identity": "known-legacy"}],
+            "snapshots": []}}
+        preview = {"ok": True, "data": {"confirmation_required": True,
+                   "plan": {"plan_id": "b" * 32}}}
+        applied = {"ok": True, "data": {"changed": True}}
+        with mock.patch.object(terminal_ui, "_call", side_effect=[status, preview, applied]) as dispatch, \
+             mock.patch.object(terminal_ui, "_prompt", side_effect=["deploy", "services", "DEPLOY"]), \
+             mock.patch.object(terminal_ui, "_show_details"):
+            self.assertIs(terminal_ui._boot_helpers_action(mock.Mock()), applied)
+        self.assertEqual(dispatch.call_args_list, [
+            mock.call("boot.helpers.status"),
+            mock.call("boot.helpers.preview", {"helper_id": "services", "action": "deploy", "snapshot_id": None}),
+            mock.call("boot.helpers.apply", {"helper_id": "services", "action": "deploy", "snapshot_id": None,
+                "confirmed": True, "plan_id": "b" * 32}),
+        ])
+
     def test_cli_tui_no_longer_exposes_raw_operation_json_prompt(self) -> None:
         source = (ROOT / "lib" / "terminal_ui.py").read_text()
         self.assertNotIn("JSON arguments", source)

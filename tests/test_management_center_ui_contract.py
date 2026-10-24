@@ -66,6 +66,13 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
             with self.subTest(contract=contract):
                 self.assertIn(contract, SOURCE + BRIDGE)
 
+    def test_gtk_boot_helpers_selects_exact_helper_and_rollback_snapshot(self):
+        for contract in ("boot-helpers-status", "boot-helpers-snapshots", "boot-helpers-preview",
+                         "boot-helpers-apply", "boot_helpers_button", "Select the exact rollback snapshot",
+                         "Review the exact boot-helper target, contents, and hashes"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, SOURCE + BRIDGE)
+
     def test_curated_native_app_client_uses_saved_preview_and_exact_confirmation(self):
         for contract in ("software.curated-apps", "software-preview", "software-apply",
                          "software-run", "HOME-relative file or directory path",

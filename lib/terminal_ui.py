@@ -550,7 +550,7 @@ def _manage_logs(screen: "curses._CursesWindow") -> dict[str, object]:
 
 def _boot_action(screen: "curses._CursesWindow") -> dict[str, object]:
     """Guide a preview-first Native Termux startup-profile change."""
-    choice = _prompt(screen, "Startup: status, preview, enable, disable (blank cancels)").lower()
+    choice = _prompt(screen, "Startup: status, preview, enable, disable, helpers (blank cancels)").lower()
     if choice == "status":
         return _call("boot.profile.status")
     if choice == "preview":
@@ -577,6 +577,8 @@ def _boot_action(screen: "curses._CursesWindow") -> dict[str, object]:
         if _prompt(screen, "Disable only the Ternuxx-managed startup profile? type yes").lower() != "yes":
             return {"ok": False, "error": {"code": "cancelled"}}
         return _call("boot.disable", {"confirmed": True})
+    if choice == "helpers":
+        return _boot_helpers_action(screen)
     return {"ok": False, "error": {"code": "cancelled"}}
 
 
@@ -603,6 +605,49 @@ def _boot_cron_action(screen: "curses._CursesWindow") -> dict[str, object]:
         return {"ok": False, "error": {"code": "cancelled"}}
     return _call(f"boot.cron.{action}", {
         "confirmed": True, "plan_id": plan.get("plan_id")})
+
+
+def _boot_helpers_action(screen: "curses._CursesWindow") -> dict[str, object]:
+    """Inspect or reconcile only the two repository-owned boot helper files."""
+    status = _call("boot.helpers.status")
+    if not status.get("ok"):
+        return status
+    _show_details(screen, status)
+    choice = _prompt(screen, "Boot helpers: status, deploy, rollback (blank cancels)").lower()
+    if choice == "status":
+        return status
+    if choice not in {"deploy", "rollback"}:
+        return {"ok": False, "error": {"code": "cancelled"}}
+    helper_id = _prompt(screen, "Helper ID: services or recovery").lower()
+    if helper_id not in {"services", "recovery"}:
+        return {"ok": False, "error": {"code": "invalid_boot_helper"}}
+    snapshot_id = None
+    if choice == "rollback":
+        available = [item for item in status.get("data", {}).get("snapshots", [])
+                     if item.get("helper_id") == helper_id]
+        if not available:
+            return {"ok": False, "error": {"code": "boot_helper_snapshot_unavailable"}}
+        choices = "\n".join(f"{item.get('snapshot_id')} · {item.get('created_at')} · {item.get('sha256')}"
+                             for item in available)
+        snapshot_id = _prompt(screen, "Snapshot ID for " + helper_id + ":\n" + choices)
+        if not any(item.get("snapshot_id") == snapshot_id for item in available):
+            return {"ok": False, "error": {"code": "invalid_boot_helper_snapshot"}}
+    preview = _call("boot.helpers.preview", {"helper_id": helper_id, "action": choice,
+                        "snapshot_id": snapshot_id})
+    if not preview.get("ok"):
+        return preview
+    data = preview.get("data", {})
+    plan = data.get("plan", {}) if isinstance(data, dict) else {}
+    plan_id = plan.get("plan_id")
+    if (data.get("confirmation_required") is not True or not isinstance(plan_id, str)
+            or not re.fullmatch(r"[0-9a-f]{32}", plan_id)):
+        return preview
+    _show_details(screen, preview)
+    word = choice.upper()
+    if _prompt(screen, f"Apply this exact boot-helper {choice}? type {word}").strip().upper() != word:
+        return {"ok": False, "error": {"code": "cancelled"}}
+    return _call("boot.helpers.apply", {"helper_id": helper_id, "action": choice,
+        "snapshot_id": snapshot_id, "confirmed": True, "plan_id": plan_id})
 
 
 def _cron_scheduler_action(screen: "curses._CursesWindow") -> dict[str, object]:
@@ -709,6 +754,8 @@ def _available_action_labels(resource: dict[str, Any]) -> list[str]:
                                             ("boot.cron.preview", "preview Cron boot setup/removal"),
                                             ("boot.cron.enable", "enable Cron at device boot"),
                                             ("boot.cron.disable", "disable Cron device-boot entrypoint")) if op in operations)
+    elif resource_id == "boot.termux.profile" and "boot.helpers.status" in operations:
+        labels.append("inspect, deploy, or roll back the two Ternuxx-owned boot helpers")
     elif resource_id == "recovery.native-state" and "recovery.status" in operations:
         labels.extend(("view operation history", "list/inspect backups", "create backup", "preview/apply restore and rollback",
                        "reconcile unresolved operations", "check reboot continuity", "prepare and verify continuity checkpoints"))

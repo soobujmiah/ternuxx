@@ -70,6 +70,11 @@ class BootHelperTests(unittest.TestCase):
         backup = self.state / "boot/helpers/snapshots" / f"services-{snapshot}.bin"
         self.assertEqual(backup.read_bytes(), original)
         self.assertEqual(backup.stat().st_mode & 0o777, 0o600)
+        status = boot_helpers.status(home=self.home, state_dir=self.state, source_root=self.source_root)
+        self.assertEqual(status["snapshot_count"], 1)
+        self.assertEqual(status["snapshots"][0]["snapshot_id"], snapshot)
+        self.assertEqual(status["snapshots"][0]["helper_id"], "services")
+        self.assertEqual(status["snapshots"][0]["mode"], "0700")
         rollback = self.call_preview("services", "rollback", snapshot, NOW + dt.timedelta(seconds=2))
         restored = self.call_apply(rollback, "services", "rollback", snapshot, NOW + dt.timedelta(seconds=3))
         self.assertTrue(restored["changed"])

@@ -54,6 +54,32 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
         dispatch.assert_called_once_with("ssh.service.deploy", {"confirmed": False, "plan_id": None})
         self.assertIn("P\t" + "a" * 64, output.getvalue())
 
+    def test_boot_helpers_bridge_accepts_only_exact_snapshot_plan(self):
+        preview = {"plan": {"plan_id": "b" * 32}, "confirmation_required": True,
+                   "before": "old helper", "after": "new helper"}
+        with mock.patch.object(bridge, "call", side_effect=[{"ok": True, "data": preview},
+                {"ok": True, "data": {"changed": True}}]) as dispatch, redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["boot-helpers-preview", "recovery", "rollback", "c" * 32]), 0)
+            self.assertIn("P\t" + "b" * 32 + "\trecovery\trollback\t" + "c" * 32, output.getvalue())
+            self.assertEqual(bridge.main(["boot-helpers-apply", "recovery", "rollback", "b" * 32, "c" * 32]), 0)
+        self.assertEqual(dispatch.call_args_list, [
+            mock.call("boot.helpers.preview", {"helper_id": "recovery", "action": "rollback", "snapshot_id": "c" * 32}),
+            mock.call("boot.helpers.apply", {"helper_id": "recovery", "action": "rollback", "confirmed": True,
+                "plan_id": "b" * 32, "snapshot_id": "c" * 32}),
+        ])
+
+    def test_boot_helpers_status_bridge_lists_only_typed_helper_and_snapshot_metadata(self):
+        status = {"helpers": [{"id": "services", "identity": "match", "installed_sha256": "a" * 64,
+                               "source_sha256": "a" * 64, "mode": "0700"}],
+                  "snapshots": [{"snapshot_id": "c" * 32, "helper_id": "services",
+                      "created_at": "2026-10-24T00:00:00+00:00", "sha256": "b" * 64, "mode": "0700"}]}
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": status}) as dispatch, \
+                redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["boot-helpers-status"]), 0)
+        dispatch.assert_called_once_with("boot.helpers.status")
+        self.assertIn("H\tservices\tmatch", output.getvalue())
+        self.assertIn("S\t" + "c" * 32 + "\tservices", output.getvalue())
+
         with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
             self.assertEqual(bridge.main(["ssh-deploy-apply", "confirmed", "bad-plan"]), 2)
         dispatch.assert_not_called()

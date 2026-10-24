@@ -97,6 +97,13 @@ class ManagementAuthorizationTests(unittest.TestCase):
         self.assertIn("continuity.prepare", management_sessions.MUTATING_OPERATIONS)
         self.assertIn("continuity.verify", management_sessions.MUTATING_OPERATIONS)
 
+    def test_boot_helper_changes_use_a_separate_exact_capability(self) -> None:
+        for operation in ("boot.helpers.preview", "boot.helpers.apply"):
+            self.assertEqual(management_authorization.required_capability(operation), "boot.helpers.manage")
+            self.assertFalse(management_authorization.authorize(operation, {"boot.manage"}))
+            self.assertFalse(management_authorization.authorize(operation, {"diagnostics.read"}))
+            self.assertTrue(management_authorization.authorize(operation, {"boot.helpers.manage"}))
+
     def test_grants_are_exact_and_do_not_escalate(self) -> None:
         self.assertTrue(management_authorization.authorize("ssh.inspect", {"diagnostics.read"}))
         self.assertFalse(management_authorization.authorize("ssh.service.stop", {"diagnostics.read"}))
