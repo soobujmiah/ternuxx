@@ -1,0 +1,7 @@
+event_id: commit-9f811829332d-3ff80025573e813e
+repository: soobujmiah/ternuxx
+commit: 9f811829332d985c1c04f56bb56b90f09546ac9f
+kind: commit
+occurred_at: '2026-10-24T15:26:29Z'
+status: completed
+summary: 'docs(catalog): align ADR with Native app coverage'
