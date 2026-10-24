@@ -34,7 +34,8 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          mkdir -p termux-packages/.ternuxx-mesa-evidence
+          mkdir -p termux-packages/p12-mesa-evidence
+          chmod 0777 termux-packages/p12-mesa-evidence
           python3 tools/p12_mesa_build_evidence.py instrument \
             --recipe termux-packages/packages/mesa/build.sh
           python3 - <<'PY'
@@ -64,7 +65,7 @@ jobs:
               "target_architecture": "aarch64",
               "artifact_policy": "metadata-only; built Debian archives are not uploaded",
           }
-          (checkout / ".ternuxx-mesa-evidence/build-metadata.json").write_text(
+          (checkout / "p12-mesa-evidence/build-metadata.json").write_text(
               json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8")
           PY
 
@@ -77,7 +78,7 @@ jobs:
           set -euo pipefail
           docker pull "$TERMUX_BUILDER_IMAGE_NAME"
           docker image inspect --format '{{.Id}} {{join .RepoDigests " "}}' "$TERMUX_BUILDER_IMAGE_NAME" \
-            | tee .ternuxx-mesa-evidence/builder-image.txt
+            | tee p12-mesa-evidence/builder-image.txt
           ./scripts/run-docker.sh -d ./build-package.sh -I -C -a aarch64 mesa
 
       - name: Hash package staging outputs and validate capture
@@ -87,16 +88,16 @@ jobs:
           set -euo pipefail
           python3 tools/p12_mesa_build_evidence.py package-manifests \
             --packages-dir termux-packages/output \
-            --output-dir termux-packages/.ternuxx-mesa-evidence \
+            --output-dir termux-packages/p12-mesa-evidence \
             --expected-packages mesa mesa-dev mesa-opencl-icd-rusticl mesa-vulkan-icd-freedreno mesa-vulkan-icd-swrast
-          test -s termux-packages/.ternuxx-mesa-evidence/aarch64/host/meson-targets.json
-          test -s termux-packages/.ternuxx-mesa-evidence/aarch64/host/ninja-commands.txt
-          test -s termux-packages/.ternuxx-mesa-evidence/aarch64/target/meson-targets.json
-          test -s termux-packages/.ternuxx-mesa-evidence/aarch64/target/ninja-commands.txt
+          test -s termux-packages/p12-mesa-evidence/aarch64/host/meson-targets.json
+          test -s termux-packages/p12-mesa-evidence/aarch64/host/ninja-commands.txt
+          test -s termux-packages/p12-mesa-evidence/aarch64/target/meson-targets.json
+          test -s termux-packages/p12-mesa-evidence/aarch64/target/ninja-commands.txt
           python3 - <<'PY'
           import json
           from pathlib import Path
-          root = Path("termux-packages/.ternuxx-mesa-evidence")
+          root = Path("termux-packages/p12-mesa-evidence")
           packages = json.loads((root / "package-staging-manifests.json").read_text())["packages"]
           assert len(packages) == 5, f"expected five split packages, found {len(packages)}"
           for label in ("host", "target"):
@@ -110,6 +111,6 @@ jobs:
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.2
         with:
           name: p12-mesa-build-evidence-${{ github.run_id }}
-          path: termux-packages/.ternuxx-mesa-evidence/
+          path: termux-packages/p12-mesa-evidence/
           if-no-files-found: warn
           retention-days: 30

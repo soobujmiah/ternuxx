@@ -36,6 +36,8 @@ termux_step_post_configure() {
         self.assertIn('[[ "${TERNUXX_MESA_BUILD_CAPTURE:-0}" == "1" ]] || return 0', text)
         self.assertIn('_ternuxx_capture_meson "$TERMUX_PKG_HOSTBUILD_DIR/build" host', text)
         self.assertIn('_ternuxx_capture_meson "$TERMUX_PKG_BUILDDIR" target', text)
+        self.assertIn('p12-mesa-evidence/${TERMUX_ARCH}/${role}', text)
+        self.assertNotIn('.ternuxx-mesa-evidence', text)
         self.assertIn('ninja -C "$build_dir" -t commands', text)
         self.assertIn('--targets > "$evidence_dir/meson-targets.json"', text)
 

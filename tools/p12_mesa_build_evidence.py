@@ -19,7 +19,7 @@ _HELPER = r'''# TERNUXX P12 build-evidence capture (audit only)
 _ternuxx_capture_meson() {
 	[[ "${TERNUXX_MESA_BUILD_CAPTURE:-0}" == "1" ]] || return 0
 	local build_dir="$1" role="$2"
-	local evidence_dir="$TERMUX_SCRIPTDIR/.ternuxx-mesa-evidence/${TERMUX_ARCH}/${role}"
+	local evidence_dir="$TERMUX_SCRIPTDIR/p12-mesa-evidence/${TERMUX_ARCH}/${role}"
 	mkdir -p "$evidence_dir"
 	"$TERMUX_MESON" introspect "$build_dir" --projectinfo > "$evidence_dir/meson-projectinfo.json"
 	"$TERMUX_MESON" introspect "$build_dir" --targets > "$evidence_dir/meson-targets.json"
