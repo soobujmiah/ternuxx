@@ -2939,7 +2939,7 @@
     {
       "path": "docs/evidence/2026-10-24-github-actions-pin-review.md",
       "kind": "narrative",
-      "sha256": "28981b3a44cf9cfd05311ed27078da4ea55a556c5f6e0d6e70f96de27298db45",
+      "sha256": "3cae0d3a8d5c9685b3de06a774c8c3431de662bacfbc28816fb38debfef1b3f7",
       "lines": 18,
       "read_status": "pending",
       "read_sha256": null
