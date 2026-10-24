@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 529,
-  "read_count": 167,
+  "document_count": 531,
+  "read_count": 168,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "5eec9abaa60f9777906270137bbec997aee7e115c0e0f3e5ba54f826611949d6",
-      "lines": 35,
+      "sha256": "778ac682382a9740ebfc2931c5dae17b2a489582375e901def89fa0e01d8f7e3",
+      "lines": 37,
       "read_status": "read",
-      "read_sha256": "5eec9abaa60f9777906270137bbec997aee7e115c0e0f3e5ba54f826611949d6"
+      "read_sha256": "778ac682382a9740ebfc2931c5dae17b2a489582375e901def89fa0e01d8f7e3"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -3241,6 +3241,14 @@
       "read_sha256": "d234b6a7579d30ca2c9593544be612e122571afe00257a2edc827660afb879da"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-three-backend-guard-cancel.md",
+      "kind": "narrative",
+      "sha256": "e4e1b07cb9fd29de92b748c9d8e6b5a2e6fac80ee037a61183f77a38762a750a",
+      "lines": 21,
+      "read_status": "read",
+      "read_sha256": "e4e1b07cb9fd29de92b748c9d8e6b5a2e6fac80ee037a61183f77a38762a750a"
+    },
+    {
       "path": "docs/evidence/2026-10-24-p4-managed-icd-migration.md",
       "kind": "narrative",
       "sha256": "f2b3db3490e32425c3d0fb888bce2cb813bb1f492fd895dcaeabefdab52f9c2d",
@@ -3535,6 +3543,14 @@
       "lines": 157,
       "read_status": "read",
       "read_sha256": "9676f37216f2e94e2fcc64b6da94c4b2d17614ccc494a864acb776a491bd9923"
+    },
+    {
+      "path": "docs/evidence/data/2026-10-24-p12-three-backend-guard-cancel-1832z.json",
+      "kind": "structured",
+      "sha256": "45bd195060fe89804f3d3e984c847d5207bc1f2ce9f5dc5312d48c6656193ea5",
+      "lines": 119,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/web-reconcile-visual/report.json",

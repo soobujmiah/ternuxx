@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "provider": "native-termux",
+  "platform": {
+    "system": "Android",
+    "release": "16",
+    "machine": "aarch64",
+    "prefix": "/data/data/com.termux/files/usr"
+  },
+  "prompt_suite_id": "arithmetic-operators-v1",
+  "scheduled_case_ids": ["addition-2-plus-2-v1"],
+  "max_tokens": 8,
+  "requested_runs": 1,
+  "guards": {
+    "cpu_c": 60,
+    "gpu_c": 60,
+    "htp_c": 60,
+    "battery_c": 45,
+    "socd_c": 70,
+    "minimum_memavailable_mib": 2048,
+    "note": "Conservative run guards, not OEM-rated limits."
+  },
+  "attempts": [
+    {
+      "observed_at": "2026-10-24T18:31:55.488174+00:00",
+      "command": "python3 tools/native_accel_qualify.py --backend cpu --runs 1 --max-tokens 8 --timeout 90 --idle-seconds 0",
+      "backend": "cpu",
+      "preflight": {
+        "cpu_c": 58.1,
+        "gpu_c": 45.5,
+        "htp_c": 47.9,
+        "battery_c": 41.43,
+        "socd_c": 54.0,
+        "memavailable_kib": 3954080
+      },
+      "completed_runs": 0,
+      "ok": false,
+      "run": {
+        "status": "guard_cancelled",
+        "elapsed_seconds": 0.467,
+        "exit_code": -2,
+        "peak_llama_cli_rss_kib": 0,
+        "minimum_memavailable_kib": 3918252,
+        "thermal_samples": [
+          {"cpu_c": 52.1, "gpu_c": 46.3, "htp_c": 47.5, "battery_c": 41.42, "socd_c": 54.0, "memavailable_kib": 3950324},
+          {"cpu_c": 61.3, "gpu_c": 46.3, "htp_c": 48.3, "battery_c": 41.44, "socd_c": 54.0, "memavailable_kib": 3918252}
+        ],
+        "before": {"cpu_c": 53.3, "gpu_c": 46.3, "htp_c": 47.5, "battery_c": 41.43, "socd_c": 54.0, "memavailable_kib": 3953812},
+        "after": {"cpu_c": 54.9, "gpu_c": 46.7, "htp_c": 48.3, "battery_c": 41.42, "socd_c": 54.0, "memavailable_kib": 3952984},
+        "new_llama_cli_pids_remaining": [],
+        "error": "cpu=61.3 C reached guard 60 C"
+      }
+    },
+    {
+      "observed_at": "2026-10-24T18:32:13.186796+00:00",
+      "command": "python3 tools/native_accel_qualify.py --backend vulkan --runs 1 --max-tokens 8 --timeout 90 --idle-seconds 0",
+      "backend": "vulkan",
+      "preflight": {
+        "cpu_c": 56.1,
+        "gpu_c": 45.5,
+        "htp_c": 47.1,
+        "battery_c": 41.44,
+        "socd_c": 54.0,
+        "memavailable_kib": 3958028
+      },
+      "completed_runs": 0,
+      "ok": false,
+      "run": {
+        "status": "guard_cancelled",
+        "elapsed_seconds": 0.47,
+        "exit_code": -2,
+        "peak_llama_cli_rss_kib": 13852,
+        "minimum_memavailable_kib": 3925584,
+        "thermal_samples": [
+          {"cpu_c": 53.7, "gpu_c": 45.5, "htp_c": 47.9, "battery_c": 41.45, "socd_c": 54.0, "memavailable_kib": 3955048},
+          {"cpu_c": 60.5, "gpu_c": 45.9, "htp_c": 47.5, "battery_c": 41.46, "socd_c": 54.0, "memavailable_kib": 3925584}
+        ],
+        "before": {"cpu_c": 54.1, "gpu_c": 45.5, "htp_c": 47.1, "battery_c": 41.45, "socd_c": 54.0, "memavailable_kib": 3958036},
+        "after": {"cpu_c": 54.1, "gpu_c": 46.3, "htp_c": 47.9, "battery_c": 41.45, "socd_c": 54.0, "memavailable_kib": 3950900},
+        "new_llama_cli_pids_remaining": [],
+        "error": "cpu=60.5 C reached guard 60 C"
+      }
+    },
+    {
+      "observed_at": "2026-10-24T18:32:21.199552+00:00",
+      "command": "python3 tools/native_accel_qualify.py --backend npu --runs 1 --max-tokens 8 --timeout 90 --idle-seconds 0",
+      "backend": "npu",
+      "preflight": {
+        "cpu_c": 57.7,
+        "gpu_c": 46.3,
+        "htp_c": 47.9,
+        "battery_c": 41.49,
+        "socd_c": 54.0,
+        "memavailable_kib": 3945324
+      },
+      "completed_runs": 0,
+      "ok": false,
+      "run": {
+        "status": "guard_cancelled",
+        "elapsed_seconds": 0.456,
+        "exit_code": -2,
+        "peak_llama_cli_rss_kib": 0,
+        "minimum_memavailable_kib": 3917384,
+        "thermal_samples": [
+          {"cpu_c": 53.6, "gpu_c": 46.3, "htp_c": 48.7, "battery_c": 41.49, "socd_c": 54.0, "memavailable_kib": 3944308},
+          {"cpu_c": 62.1, "gpu_c": 47.5, "htp_c": 49.1, "battery_c": 41.49, "socd_c": 54.0, "memavailable_kib": 3917384}
+        ],
+        "before": {"cpu_c": 55.3, "gpu_c": 46.7, "htp_c": 47.9, "battery_c": 41.49, "socd_c": 54.0, "memavailable_kib": 3945068},
+        "after": {"cpu_c": 56.1, "gpu_c": 47.1, "htp_c": 48.7, "battery_c": 41.49, "socd_c": 54.0, "memavailable_kib": 3950956},
+        "new_llama_cli_pids_remaining": [],
+        "error": "cpu=62.1 C reached guard 60 C"
+      }
+    }
+  ],
+  "owner_reported_use_context": {
+    "activities": ["MLBB", "YouTube", "phone calls"],
+    "timing_and_causal_relation_to_samples": "not established"
+  }
+}
