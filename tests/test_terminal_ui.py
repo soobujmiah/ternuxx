@@ -417,6 +417,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertIn("reconcile unresolved operations", labels)
         self.assertIn("check reboot continuity", labels)
         self.assertIn("prepare and verify continuity checkpoints", labels)
+        self.assertIn("prepare and verify detailed reboot qualifications", labels)
         with mock.patch.object(terminal_ui, "_choose", return_value="continuity"), \
                 mock.patch.object(terminal_ui, "_call", return_value={"ok": True}) as dispatch:
             self.assertEqual(terminal_ui._recovery_action(object()), {"ok": True})
@@ -445,6 +446,25 @@ class TerminalUISharedServiceTests(unittest.TestCase):
             self.assertTrue(result["ok"])
             args = {"test_id": reference} if operation.endswith("prepare") else {"checkpoint_id": reference}
             dispatch.assert_has_calls([mock.call(preview_op, args), mock.call(operation, {**args, "confirmed": True, "plan_id": plan["plan_id"]})])
+
+    def test_reboot_qualification_actions_preview_generated_evidence_and_require_confirmation(self) -> None:
+        plan = {"plan_id": "f" * 64, "details": {"baseline": {"ssh": {"sshd_process": "unknown"}}}}
+        for choice, operation, preview_op, prompt, test_id in (
+            ("reboot-test-prepare", "continuity.prepare-reboot-test",
+             "continuity.prepare-reboot-test.preview", "CREATE REBOOT TEST RECORD", "native-boot-check"),
+            ("reboot-test-verify", "continuity.verify-reboot-test",
+             "continuity.verify-reboot-test.preview", "VERIFY REBOOT TEST", "native-boot-check"),
+        ):
+            args = {"test_id": test_id}
+            with self.subTest(choice=choice), \
+                    mock.patch.object(terminal_ui, "_choose", return_value=choice), \
+                    mock.patch.object(terminal_ui, "_prompt", side_effect=[test_id, prompt]), \
+                    mock.patch.object(terminal_ui, "_show_details"), \
+                    mock.patch.object(terminal_ui, "_call", side_effect=[{"ok": True, "data": plan}, {"ok": True}]) as dispatch:
+                result = terminal_ui._recovery_action(object())
+            self.assertTrue(result["ok"])
+            dispatch.assert_has_calls([mock.call(preview_op, args),
+                                       mock.call(operation, {**args, "confirmed": True, "plan_id": plan["plan_id"]})])
 
     def test_recovery_apply_actions_review_exact_plan_and_select_only_unresolved_for_resolution(self) -> None:
         operation = {"operation_id": "c" * 32, "kind": "service.start", "status": "needs_recovery"}

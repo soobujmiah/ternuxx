@@ -35,10 +35,11 @@ rs=restart, st=status, ck=check, inf=info, doc=doctor, mg=mng.
 Options: --json, --verbose, --quiet, --help
 Install and recovery changes require an exact preview plan. Remote access is
 disabled by default.
-Detailed reboot-test evidence is CLI-only: `tx reboot prepare` previews a
-private NOT_READY record and requires the exact typed confirmation, or
-`--yes --plan-id ID`; `tx reboot verify` follows the same workflow. Neither
-operation reboots Android or resumes work.
+`tx reboot prepare --test-id ID` collects conservative repository metadata and
+unknown service/boot evidence, previews a private NOT_READY record, then needs
+the exact typed confirmation or `--yes --plan-id ID`. `tx reboot verify` uses
+the same preview/confirmation flow. Neither operation reboots Android or
+resumes work.
 EOF
       ;;
     proot|db|pgui|virgl)

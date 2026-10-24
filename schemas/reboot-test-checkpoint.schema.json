@@ -130,18 +130,18 @@
             },
             "branch": {
               "type": "string",
-              "pattern": "^[A-Za-z0-9_.-]{1,128}$"
+              "pattern": "^[A-Za-z0-9_.-]{1,128}(/[A-Za-z0-9_.-]{1,128})*$"
             },
             "commit": {
               "type": "string",
               "pattern": "^(unknown|[a-fA-F0-9]{7,64})$"
             },
             "modified_paths": {
-              "type": "integer",
+              "type": ["integer", "null"],
               "minimum": 0
             },
             "untracked_paths": {
-              "type": "integer",
+              "type": ["integer", "null"],
               "minimum": 0
             }
           }
@@ -258,13 +258,13 @@
           ],
           "properties": {
             "cli_available": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "launcher_acquire_request": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "launcher_global_release_request": {
-              "type": "boolean"
+              "type": ["boolean", "null"]
             },
             "ownership": {
               "enum": [

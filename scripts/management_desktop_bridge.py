@@ -595,6 +595,27 @@ def main(argv: list[str]) -> int:
             print("Continuity preview returned an invalid plan."); return 1
         print("P\t" + plan_id + "\t" + clean(json.dumps(data, sort_keys=True)))
         return 0
+    if action in {"reboot-test-prepare-preview", "reboot-test-verify-preview"} and len(argv) == 2:
+        if not management_service.reboot_recovery.TEST_ID_RE.fullmatch(argv[1]):
+            print("Invalid reboot-test ID.", file=sys.stderr); return 2
+        operation = ("continuity.prepare-reboot-test.preview" if action == "reboot-test-prepare-preview"
+                     else "continuity.verify-reboot-test.preview")
+        result = call(operation, {"test_id": argv[1]})
+        if not result.get("ok"):
+            print(management_presentation.format_report(result)); return 1
+        data = result.get("data", {}); plan_id = data.get("plan_id")
+        if not isinstance(plan_id, str) or not re.fullmatch(r"[0-9a-f]{64}", plan_id):
+            print("Reboot-test preview returned an invalid plan."); return 1
+        print("P\t" + plan_id + "\t" + clean(json.dumps(data, sort_keys=True)))
+        return 0
+    if action in {"reboot-test-prepare-apply", "reboot-test-verify-apply"} and len(argv) == 4 and argv[3] == "confirmed":
+        test_id, plan_id = argv[1], argv[2]
+        if not management_service.reboot_recovery.TEST_ID_RE.fullmatch(test_id) or not re.fullmatch(r"[0-9a-f]{64}", plan_id):
+            print("Reboot-test preview is invalid; create a new preview.", file=sys.stderr); return 2
+        operation = ("continuity.prepare-reboot-test" if action == "reboot-test-prepare-apply"
+                     else "continuity.verify-reboot-test")
+        result = call(operation, {"test_id": test_id, "confirmed": True, "plan_id": plan_id})
+        print(management_presentation.format_report(result)); return 0 if result.get("ok") else 1
     if action in {"continuity-prepare-apply", "continuity-verify-apply"} and len(argv) == 4 and argv[3] == "confirmed":
         reference, plan_id = argv[1], argv[2]
         is_prepare = action == "continuity-prepare-apply"

@@ -13,7 +13,9 @@ import os
 from pathlib import Path
 import re
 import secrets
+import shutil
 import stat
+import subprocess
 import sys
 import time
 import uuid
@@ -63,6 +65,46 @@ def _root(home: str | os.PathLike[str], state_dir: str | os.PathLike[str]) -> Pa
     return continuity._private_root(home, state_dir) / "continuity" / "reboot-tests"
 
 
+def default_baseline(*, repository_root: str | os.PathLike[str], termux_version: str,
+                     git: str = "git") -> dict[str, object]:
+    """Collect a conservative, read-only Native baseline for interactive clients."""
+    root = Path(repository_root)
+    branch = commit = "unknown"
+    modified_count: int | None = None
+    untracked_count: int | None = None
+    try:
+        resolved_root = root.resolve(strict=True)
+        commit = subprocess.check_output([git, "-C", str(resolved_root), "rev-parse", "HEAD"], text=True,
+                                         stderr=subprocess.DEVNULL).strip()
+        branch = subprocess.check_output([git, "-C", str(resolved_root), "branch", "--show-current"], text=True,
+                                         stderr=subprocess.DEVNULL).strip() or "detached"
+        status = subprocess.check_output([git, "-C", str(resolved_root), "status", "--porcelain=v1",
+                                          "--untracked-files=all", "-z"], stderr=subprocess.DEVNULL)
+        entries = [item for item in status.split(b"\0") if item]
+        untracked_count = sum(item.startswith(b"??") for item in entries)
+        modified_count = len(entries) - untracked_count
+    except (OSError, subprocess.CalledProcessError):
+        pass
+    return {
+        "native": {"termux_version": termux_version or "unknown"},
+        "repository": {"id": "soobujmiah/ternuxx", "branch": branch, "commit": commit,
+                       "modified_paths": modified_count, "untracked_paths": untracked_count},
+        "stage": "native-reboot-qualification",
+        "references": ["AI_ASSISTANT.md", "docs/testing/REBOOT-RECOVERY-GUIDE.md",
+                       "docs/PHASE-STATUS.md"],
+        "ssh": {"sshd_process": "unknown", "auth_modes": ["unknown"], "config_syntax": "unknown",
+                "socket_binding": "unverified", "boot_policy": "unknown"},
+        "termux_boot": {"app": "unknown", "script_directory": "unknown", "startup_policy": "unknown"},
+        "wake_lock": {"cli_available": shutil.which("termux-wake-lock") is not None,
+                       "launcher_acquire_request": None, "launcher_global_release_request": None,
+                       "ownership": "unknown"},
+        "required_postboot_checks": sorted(CHECKS),
+        "recovery_instructions": ["Open Native Termux and inspect boot and SSH readiness manually."],
+        "rollback_instructions": ["Preserve the private checkpoint and follow its owner-reviewed recovery instructions."],
+        "next_action": "Review evidence; use Android power controls only after explicit owner approval.",
+    }
+
+
 def _plan_id(action: str, details: dict[str, object], private_identity: str) -> str:
     payload = {"action": action, "details": details, "private_identity": private_identity}
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
@@ -96,6 +138,7 @@ def prepare_preview(*, home: str | os.PathLike[str], state_dir: str | os.PathLik
     ).hexdigest()
     details: dict[str, object] = {
         "test_id": test_id,
+        "baseline": baseline,
         "baseline_sha256": baseline_digest,
         "record_path": str(target),
         "readiness": "NOT_READY",
@@ -168,11 +211,12 @@ def _check_evidence(evidence: object, *, allow_historical: bool = False) -> dict
         raise RecoveryError("repository evidence is invalid")
     if not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}/[A-Za-z0-9_.-]{1,128}", str(repository["id"])):
         raise RecoveryError("repository identity is invalid")
-    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}", str(repository["branch"])):
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}(?:/[A-Za-z0-9_.-]{1,128})*", str(repository["branch"])):
         raise RecoveryError("repository branch is invalid")
     if not continuity.COMMIT_RE.fullmatch(str(repository["commit"])):
         raise RecoveryError("repository commit is invalid")
-    if any(type(repository[key]) is not int or repository[key] < 0 for key in ("modified_paths", "untracked_paths")):
+    if any(repository[key] is not None and (type(repository[key]) is not int or repository[key] < 0)
+           for key in ("modified_paths", "untracked_paths")):
         raise RecoveryError("repository path counts are invalid")
     if not isinstance(evidence["stage"], str) or not evidence["stage"] or len(evidence["stage"]) > 160:
         raise RecoveryError("verified stage label is invalid")
@@ -194,7 +238,8 @@ def _check_evidence(evidence: object, *, allow_historical: bool = False) -> dict
         raise RecoveryError("Termux:Boot metadata contains an unsupported value")
     if not isinstance(wake, dict) or set(wake) != {"cli_available", "launcher_acquire_request", "launcher_global_release_request", "ownership"}:
         raise RecoveryError("Wake Lock metadata is invalid")
-    if any(type(wake[key]) is not bool for key in ("cli_available", "launcher_acquire_request", "launcher_global_release_request")) or wake["ownership"] not in ENUMS["wake_lock_ownership"]:
+    if any(wake[key] is not None and type(wake[key]) is not bool
+           for key in ("cli_available", "launcher_acquire_request", "launcher_global_release_request")) or wake["ownership"] not in ENUMS["wake_lock_ownership"]:
         raise RecoveryError("Wake Lock evidence contains an unsupported value")
     required = evidence["required_postboot_checks"]
     accepted_checks = CHECKS | (HISTORICAL_CHECKS if allow_historical else set())

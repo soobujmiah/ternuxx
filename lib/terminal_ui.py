@@ -758,7 +758,8 @@ def _available_action_labels(resource: dict[str, Any]) -> list[str]:
         labels.append("inspect, deploy, or roll back the two Ternuxx-owned boot helpers")
     elif resource_id == "recovery.native-state" and "recovery.status" in operations:
         labels.extend(("view operation history", "list/inspect backups", "create backup", "preview/apply restore and rollback",
-                       "reconcile unresolved operations", "check reboot continuity", "prepare and verify continuity checkpoints"))
+                       "reconcile unresolved operations", "check reboot continuity", "prepare and verify continuity checkpoints",
+                       "prepare and verify detailed reboot qualifications"))
     elif resource_id == "automation.cron-registry":
         if {"cron.scheduler.start", "cron.scheduler.stop"} <= operations:
             labels.append("check, start, or stop Cron scheduler")
@@ -1155,6 +1156,8 @@ def _recovery_action(screen: "curses._CursesWindow") -> dict[str, object]:
         ("continuity", "Check reboot-continuity status"),
         ("checkpoint-prepare", "Prepare a continuity checkpoint"),
         ("checkpoint-verify", "Verify a saved checkpoint"),
+        ("reboot-test-prepare", "Prepare a detailed reboot qualification"),
+        ("reboot-test-verify", "Verify a reboot qualification"),
     ])
     if choice == "status":
         return _call("recovery.status")
@@ -1194,6 +1197,38 @@ def _recovery_action(screen: "curses._CursesWindow") -> dict[str, object]:
         if _prompt(screen, "Type VERIFY CHECKPOINT to record this observation").strip() != "VERIFY CHECKPOINT":
             return {"ok": False, "error": {"code": "cancelled"}}
         return _call("continuity.verify", {**args, "confirmed": True, "plan_id": plan_id})
+    if choice == "reboot-test-prepare":
+        test_id = _prompt(screen, "Unique reboot-test ID (letters, numbers, dot, underscore, colon, hyphen)")
+        if not test_id:
+            return {"ok": False, "error": {"code": "cancelled"}}
+        args = {"test_id": test_id.strip()}
+        preview = _call("continuity.prepare-reboot-test.preview", args)
+        if not preview.get("ok"):
+            return preview
+        plan = preview.get("data", {})
+        plan_id = plan.get("plan_id") if isinstance(plan, dict) else None
+        if not isinstance(plan_id, str):
+            return {"ok": False, "error": {"code": "invalid_reboot_test_preview"}}
+        _show_details(screen, preview)
+        if _prompt(screen, "Type CREATE REBOOT TEST RECORD to write this private NOT_READY record").strip() != "CREATE REBOOT TEST RECORD":
+            return {"ok": False, "error": {"code": "cancelled"}}
+        return _call("continuity.prepare-reboot-test", {**args, "confirmed": True, "plan_id": plan_id})
+    if choice == "reboot-test-verify":
+        test_id = _prompt(screen, "Reboot-test ID to verify")
+        if not test_id:
+            return {"ok": False, "error": {"code": "cancelled"}}
+        args = {"test_id": test_id.strip()}
+        preview = _call("continuity.verify-reboot-test.preview", args)
+        if not preview.get("ok"):
+            return preview
+        plan = preview.get("data", {})
+        plan_id = plan.get("plan_id") if isinstance(plan, dict) else None
+        if not isinstance(plan_id, str):
+            return {"ok": False, "error": {"code": "invalid_reboot_test_preview"}}
+        _show_details(screen, preview)
+        if _prompt(screen, "Type VERIFY REBOOT TEST to record this evidence-only check").strip() != "VERIFY REBOOT TEST":
+            return {"ok": False, "error": {"code": "cancelled"}}
+        return _call("continuity.verify-reboot-test", {**args, "confirmed": True, "plan_id": plan_id})
     if choice == "create":
         name = _prompt(screen, "Backup name (letters, numbers, dot, dash, underscore; max 64)")
         if not name:

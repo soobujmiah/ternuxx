@@ -353,13 +353,19 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
             finally:
                 self.assertTrue(server.close(grace_seconds=3))
 
-    def test_web_checkpoint_capability_does_not_authorize_reboot_qualification(self) -> None:
+    def test_web_checkpoint_and_reboot_qualification_use_separate_scoped_capabilities(self) -> None:
         ui = (ROOT / "lib" / "management_web_ui.html").read_text(encoding="utf-8")
         self.assertIn('"continuity.checkpoint.manage"', ui)
         self.assertIn("continuity.checkpoint.manage", management_http_runtime.WEB_CAPABILITIES)
         self.assertNotIn("continuity.manage", management_http_runtime.WEB_CAPABILITIES)
+        self.assertIn('"continuity.reboot-test.manage"', ui)
+        self.assertIn("continuity.reboot-test.manage", management_http_runtime.WEB_CAPABILITIES)
         self.assertIn('"continuity.prepare.preview"', ui)
         self.assertIn('"continuity.verify.preview"', ui)
+        self.assertIn('"continuity.prepare-reboot-test.preview"', ui)
+        self.assertIn('"continuity.verify-reboot-test.preview"', ui)
+        self.assertIn("continuity.prepare-reboot-test", management_http_runtime._WEB_MUTATING_OPERATIONS)
+        self.assertIn("continuity.verify-reboot-test", management_http_runtime._WEB_MUTATING_OPERATIONS)
 
     def test_web_mode_exposes_scoped_desktop_monitoring_and_managed_ssh_8023_mutations(self) -> None:
         env = dict(self.env, TERNUXX_WEB_MODE="1")

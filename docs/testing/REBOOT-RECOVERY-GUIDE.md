@@ -6,7 +6,7 @@ Ternuxx recovery runs in Native Termux. It records state and readiness; it does 
 
 1. Keep the Termux app and current desktop open until you have saved work and checked the current [phase status](../PHASE-STATUS.md).
 2. Read the current private recovery state with `tx reboot status` and `tx boot status`. Do not copy checkpoint IDs, nonces, boot IDs, credentials, or private logs into Git, screenshots, or chat.
-3. If a dedicated reboot qualification has been approved, prepare a new unique test with `tx reboot prepare --test-id ID --baseline-json JSON`. The command previews a private `NOT_READY` record and asks for the exact phrase `CREATE REBOOT TEST RECORD`. For a reviewed automation flow, pass `--yes --plan-id ID` from the current preview. In JSON mode the command only previews; it never applies implicitly. Never reuse an old test ID. Preparing it does not authorize a reboot.
+3. If a dedicated reboot qualification has been approved, prepare a new unique test with `tx reboot prepare --test-id ID`. Ternuxx records the current Git branch/commit/worktree counts and labels SSH, Termux:Boot, and Wake Lock facts `unknown` unless supplied in an explicit `--baseline-json JSON`. Review the complete preview, including its baseline, before proceeding. The command asks for the exact phrase `CREATE REBOOT TEST RECORD`; reviewed automation can pass `--yes --plan-id ID` from that preview. In JSON mode the command only previews; it never applies implicitly. Never reuse an old test ID. Preparing it does not authorize a reboot.
 4. Use Android's normal power menu. Ternuxx must not call a shell reboot command.
 
 ## After Android starts
@@ -22,7 +22,7 @@ tx reboot status
 
 For a previously prepared, unique test, run `tx reboot verify TEST_ID`. Review its preview and type `VERIFY REBOOT TEST`; reviewed automation can use `--yes --plan-id ID` from the current preview. Then inspect `tx reboot resume-info TEST_ID`. Verification is evidence only. A changed boot ID, observer event, service status, and authenticated SSH check establish different facts; do not treat one as proof of the others. `NOT_READY`, `unknown`, or partial status means the gate remains open. Never invoke the boot observer manually to simulate Termux:Boot delivery.
 
-Detailed reboot-test preparation and verification remain CLI-only. The TUI, Web and GTK checkpoint screens manage the simpler task checkpoint lifecycle; they do not collect the full reboot-test baseline. Web also has no grant for the broader `continuity.manage` capability. Keep this boundary until a dedicated scoped capability and complete owner-mediated forms exist in each client.
+The TUI, Web and GTK clients use the same shared preview/apply operations and the conservative generated baseline. They do not infer SSH, Termux:Boot, or Wake Lock state; those values remain explicitly unknown until the owner supplies or verifies them.
 
 ## If managed SSH is unavailable
 

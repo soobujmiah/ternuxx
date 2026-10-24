@@ -1134,15 +1134,18 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                                          expected_record_sha256=preview["details"]["record_sha256"])
         elif operation in {"continuity.prepare-reboot-test.preview", "continuity.prepare-reboot-test"}:
             reboot_boot_id = args.get("boot_id") or continuity.read_boot_id()
+            baseline = args.get("baseline") if "baseline" in args else reboot_recovery.default_baseline(
+                repository_root=Path(__file__).resolve().parents[1],
+                termux_version=process_env.get("TERMUX_VERSION", "unknown"))
             preview = reboot_recovery.prepare_preview(home=home, state_dir=state_dir, test_id=args["test_id"],
-                                                       evidence=args["baseline"], boot_id=reboot_boot_id)
+                                                       evidence=baseline, boot_id=reboot_boot_id)
             if operation.endswith(".preview"):
                 data = preview
             else:
                 if args.get("confirmed") is not True or args.get("plan_id") != preview["plan_id"]:
                     return _error(request_id, "confirmation_required", "reboot-test preparation requires confirmed=true and the exact plan_id from preview")
                 data = reboot_recovery.prepare(home=home, state_dir=state_dir, test_id=args["test_id"],
-                                               evidence=args["baseline"], boot_id=reboot_boot_id)
+                                               evidence=baseline, boot_id=reboot_boot_id)
         elif operation in {"continuity.verify-reboot-test.preview", "continuity.verify-reboot-test"}:
             reboot_boot_id = args.get("current_boot_id") or continuity.read_boot_id()
             preview = reboot_recovery.verify_preview(home=home, state_dir=state_dir, test_id=args["test_id"],
@@ -1746,17 +1749,6 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         payload = {"owner": args.owner, "persistent": args.persistent}
     elif args.operation in {"continuity.prepare-reboot-test.preview", "continuity.prepare-reboot-test"}:
-        try:
-            baseline = json.loads(args.baseline_json or "")
-        except json.JSONDecodeError:
-            baseline = None
-        if not args.test_id or not isinstance(baseline, dict):
-            response = _error(request_id, "invalid_arguments", "--test-id and a valid --baseline-json object are required")
-            if args.json:
-                print(json.dumps(response, sort_keys=True))
-            else:
-                print("Ternuxx operation failed [invalid_arguments]: reboot-test evidence is missing or invalid", file=sys.stderr)
-            return 1
         if not args.test_id:
             response = _error(request_id, "invalid_arguments", "--test-id is required")
             if args.json:
@@ -1769,13 +1761,22 @@ def main(argv: list[str] | None = None) -> int:
                 response = _error(request_id, "invalid_arguments", "reboot-test preview does not accept apply flags")
                 print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
                 return 1
-            payload = {"test_id": args.test_id, "baseline": baseline}
         else:
             if not args.yes or not args.plan_id:
                 response = _error(request_id, "confirmation_required", "reboot-test preparation apply requires --yes and the exact --plan-id")
                 print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
                 return 1
-            payload = {"test_id": args.test_id, "baseline": baseline, "confirmed": True, "plan_id": args.plan_id}
+        payload = {"test_id": args.test_id}
+        if args.baseline_json is not None:
+            try:
+                baseline = json.loads(args.baseline_json)
+            except json.JSONDecodeError:
+                response = _error(request_id, "invalid_arguments", "--baseline-json must contain a valid JSON value")
+                print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+                return 1
+            payload["baseline"] = baseline
+        if not args.operation.endswith(".preview"):
+            payload.update({"confirmed": True, "plan_id": args.plan_id})
     elif args.operation in {"continuity.verify-reboot-test.preview", "continuity.verify-reboot-test"}:
         if not args.test_id:
             response = _error(request_id, "invalid_arguments", "--test-id is required")

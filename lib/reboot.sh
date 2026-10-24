@@ -26,16 +26,18 @@ nt_cmd_reboot() {
           *) nt_fail "Unknown reboot prepare option: $1"; return 2 ;;
         esac
       done
-      [ -n "$test_id" ] && [ -n "$baseline" ] || { nt_fail "Usage: tx reboot prepare --test-id ID --baseline-json JSON [--yes --plan-id ID]"; return 2; }
+      [ -n "$test_id" ] || { nt_fail "Usage: tx reboot prepare --test-id ID [--baseline-json JSON] [--yes --plan-id ID]"; return 2; }
+      local prepare_args=(--test-id "$test_id")
+      [ -n "$baseline" ] && prepare_args+=(--baseline-json "$baseline")
       if [ "$confirmed" -eq 1 ] || [ -n "$plan_id" ]; then
         [ "$confirmed" -eq 1 ] && [ -n "$plan_id" ] || { nt_fail "Apply requires both --yes and the exact preview --plan-id"; return 2; }
-        _nt_management_call --operation continuity.prepare-reboot-test --test-id "$test_id" --baseline-json "$baseline" --yes --plan-id "$plan_id"
+        _nt_management_call --operation continuity.prepare-reboot-test "${prepare_args[@]}" --yes --plan-id "$plan_id"
       else
         if [ "$TERNUXX_JSON" = "1" ]; then
-          _nt_management_call --operation "$preview_op" --test-id "$test_id" --baseline-json "$baseline"
+          _nt_management_call --operation "$preview_op" "${prepare_args[@]}"
           return $?
         fi
-        response=$(TERNUXX_JSON=1 _nt_management_call --operation "$preview_op" --test-id "$test_id" --baseline-json "$baseline") || return $?
+        response=$(TERNUXX_JSON=1 _nt_management_call --operation "$preview_op" "${prepare_args[@]}") || return $?
         printf '%s\n' "$response"
         local current_plan
         current_plan=$(printf '%s' "$response" | python3 -c 'import json,sys; print(json.load(sys.stdin)["data"]["plan_id"])') || return 1
@@ -43,7 +45,7 @@ nt_cmd_reboot() {
         printf 'Type CREATE REBOOT TEST RECORD to continue: '
         local answer=""; IFS= read -r answer
         [ "$answer" = "CREATE REBOOT TEST RECORD" ] || { nt_fail "Confirmation did not match; no record was created"; return 2; }
-        _nt_management_call --operation continuity.prepare-reboot-test --test-id "$test_id" --baseline-json "$baseline" --yes --plan-id "$current_plan"
+        _nt_management_call --operation continuity.prepare-reboot-test "${prepare_args[@]}" --yes --plan-id "$current_plan"
       fi
       ;;
     verify)

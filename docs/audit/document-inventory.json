@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 532,
-  "read_count": 170,
+  "document_count": 534,
+  "read_count": 169,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "bf75daf2d44be984c7f3b92b994941c7086c9ad153c3df6b624db6562bbcc93a",
-      "lines": 37,
+      "sha256": "45fa5e448e2568043541676aa9d4a77371201eea7fab4a8fc788fd584cba53ab",
+      "lines": 43,
       "read_status": "read",
-      "read_sha256": "bf75daf2d44be984c7f3b92b994941c7086c9ad153c3df6b624db6562bbcc93a"
+      "read_sha256": "45fa5e448e2568043541676aa9d4a77371201eea7fab4a8fc788fd584cba53ab"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -267,10 +267,10 @@
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
       "kind": "narrative",
-      "sha256": "e8539668b725ab0f23c2f90a4e2723e6b8f8a865ac80dee20896ceb880e4eb1f",
+      "sha256": "ca3705ad1ddde7c0f4a6b940f5cad6db8d3b8a39ba348e1497bab8f63f1b057b",
       "lines": 21,
-      "read_status": "read",
-      "read_sha256": "e8539668b725ab0f23c2f90a4e2723e6b8f8a865ac80dee20896ceb880e4eb1f"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/architecture/CONTINUITY-IMPLEMENTATION.md",
@@ -3153,6 +3153,14 @@
       "read_sha256": "4689653fbd7be474462ad5af52a1d66f8f79aca9671667cd618d1e2c76d0ac75"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-mesa-capture-command-failure.md",
+      "kind": "narrative",
+      "sha256": "b3f676f91fed896bb69faea4740ae036b95cf9e4ed5a893a13d3a3de05327439",
+      "lines": 17,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md",
       "kind": "narrative",
       "sha256": "5de37498697ec85df672867479b58478f184b1e15ce42f05890abdec41ac0c15",
@@ -3375,6 +3383,14 @@
       "lines": 40,
       "read_status": "pending",
       "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-25-reboot-test-client-parity.md",
+      "kind": "narrative",
+      "sha256": "2fddf4d583c9cf5b9f244f79ac2feefb134572b0a48c416aac1a19feaf2fcfc9",
+      "lines": 21,
+      "read_status": "read",
+      "read_sha256": "2fddf4d583c9cf5b9f244f79ac2feefb134572b0a48c416aac1a19feaf2fcfc9"
     },
     {
       "path": "docs/evidence/P0-foundation.md",
@@ -3867,10 +3883,10 @@
     {
       "path": "docs/testing/REBOOT-RECOVERY-GUIDE.md",
       "kind": "narrative",
-      "sha256": "a0179f9b80bd8fe3924c2e35494801ddd66f730b15199ce8afab200540ea13bf",
-      "lines": 41,
-      "read_status": "read",
-      "read_sha256": "a0179f9b80bd8fe3924c2e35494801ddd66f730b15199ce8afab200540ea13bf"
+      "sha256": "29c52b770e130a0027cb7e7341f03900bf5f181659c678b88f4ca6d52a371d47",
+      "lines": 43,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/testing/reports/2026-10-24-native-profile-25053RT47C.md",
@@ -4155,7 +4171,7 @@
     {
       "path": "schemas/reboot-test-checkpoint.schema.json",
       "kind": "structured",
-      "sha256": "afd0715eb7dfb8411e55d670484626f91b2af770d139cf7b355e763fb8cf6b6c",
+      "sha256": "40fd9d5e4b6337cddccab8ce9ba8857099c33c4349f12300cd59c79522a2fe47",
       "lines": 554,
       "read_status": "pending",
       "read_sha256": null

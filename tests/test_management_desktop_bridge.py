@@ -230,6 +230,28 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
             self.assertEqual(bridge.main(["continuity-verify-apply", "a" * 32, "bad", "confirmed"]), 2)
         dispatch.assert_not_called()
 
+    def test_reboot_test_bridge_uses_shared_preview_and_exact_confirmation(self):
+        plan_id = "f" * 64
+        for action, operation in (("reboot-test-prepare-preview", "continuity.prepare-reboot-test.preview"),
+                                  ("reboot-test-verify-preview", "continuity.verify-reboot-test.preview")):
+            with self.subTest(action=action), mock.patch.object(bridge, "call", return_value={
+                    "ok": True, "data": {"plan_id": plan_id, "details": {"baseline": {}}}}) as dispatch, \
+                    redirect_stdout(StringIO()) as output:
+                self.assertEqual(bridge.main([action, "native-boot-check"]), 0)
+            dispatch.assert_called_once_with(operation, {"test_id": "native-boot-check"})
+            self.assertEqual(output.getvalue().strip().split("\t", 2)[:2], ["P", plan_id])
+        for action, operation in (("reboot-test-prepare-apply", "continuity.prepare-reboot-test"),
+                                  ("reboot-test-verify-apply", "continuity.verify-reboot-test")):
+            with self.subTest(action=action), mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch, \
+                    redirect_stdout(StringIO()):
+                self.assertEqual(bridge.main([action, "native-boot-check", plan_id, "confirmed"]), 0)
+            dispatch.assert_called_once_with(operation, {"test_id": "native-boot-check", "confirmed": True,
+                                                         "plan_id": plan_id})
+        for action in ("reboot-test-prepare-preview", "reboot-test-verify-preview"):
+            with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+                self.assertEqual(bridge.main([action, "../invalid"]), 2)
+            dispatch.assert_not_called()
+
     def test_backup_create_preview_and_apply_use_exact_saved_plan(self):
         plan = {"plan_id": "a" * 64, "entries": [{"path": "profile", "present": True}]}
         with mock.patch.object(bridge, "call", return_value={"ok": True, "data": plan}) as dispatch, redirect_stdout(StringIO()) as output:

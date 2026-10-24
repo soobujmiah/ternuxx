@@ -832,6 +832,26 @@ class ManagementServiceTests(unittest.TestCase):
             ]), 0)
         self.assertEqual(dispatch.call_args.args[0]["args"]["plan_id"], "a" * 64)
 
+    def test_reboot_interactive_preview_generates_readonly_conservative_baseline(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="ternuxx-reboot-default-baseline-") as temp:
+            home = Path(temp) / "home"
+            home.mkdir()
+            env = {**NATIVE_ENV, "HOME": str(home), "TERNUXX_STATE_DIR": str(home / ".state")}
+            preview = management_service.dispatch(request("continuity.prepare-reboot-test.preview", {
+                "test_id": "interactive-check",
+            }), env=env)
+            self.assertTrue(preview["ok"], preview)
+            baseline = preview["data"]["details"]["baseline"]
+            self.assertEqual(baseline["native"]["termux_version"], "test")
+            self.assertEqual(baseline["repository"]["id"], "soobujmiah/ternuxx")
+            self.assertRegex(baseline["repository"]["commit"], r"^[0-9a-f]{40}$")
+            self.assertEqual(baseline["ssh"]["sshd_process"], "unknown")
+            self.assertEqual(baseline["termux_boot"]["startup_policy"], "unknown")
+            self.assertIsNone(baseline["wake_lock"]["launcher_acquire_request"])
+            self.assertIsNone(baseline["wake_lock"]["launcher_global_release_request"])
+            self.assertTrue(preview["data"]["read_only"])
+            self.assertFalse((home / ".state/continuity/reboot-tests/interactive-check.json").exists())
+
     def test_ssh_autostart_policy_routes_status_preview_and_apply_through_shared_service(self) -> None:
         with tempfile.TemporaryDirectory(prefix="ssh-autostart-service-") as temp:
             home = Path(temp) / "home"; home.mkdir(mode=0o700, parents=True)

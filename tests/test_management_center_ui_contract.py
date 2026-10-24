@@ -131,6 +131,20 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
                          '"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}"'):
             self.assertIn(contract, BRIDGE)
 
+    def test_gtk_reboot_qualification_uses_shared_preview_and_apply_actions(self):
+        for contract in ("reboot_test_prepare_button", "reboot_test_verify_button",
+                         "Prepare reboot qualification", "Verify reboot qualification",
+                         "reboot-test-prepare-preview", "reboot-test-verify-preview",
+                         "reboot-test-prepare-apply", "reboot-test-verify-apply",
+                         "private NOT_READY evidence record", "does not reboot"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, SOURCE + BRIDGE)
+        for contract in ('"continuity.prepare-reboot-test.preview"',
+                         '"continuity.verify-reboot-test.preview"',
+                         '"continuity.prepare-reboot-test"', '"continuity.verify-reboot-test"'):
+            with self.subTest(operation=contract):
+                self.assertIn(contract, BRIDGE)
+
     def test_cron_scheduler_controls_use_explicit_confirmation_and_shared_bridge(self):
         for contract in ("cron_start_button", "cron_stop_button", "ask_cron_scheduler_confirmation",
                          "cron-scheduler-start", "cron-scheduler-stop", '"cron-scheduler", "start", "10"',

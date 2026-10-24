@@ -116,6 +116,16 @@ class RebootRecoveryTests(unittest.TestCase):
         record_path = self.state / "continuity/reboot-tests/shell-check.json"
         self.assertFalse(record_path.exists())
 
+        generated = subprocess.run(
+            ["bash", str(ROOT / "bin/tx"), "--json", "reboot", "prepare", "--test-id", "generated-check"],
+            env=env, text=True, capture_output=True, timeout=10, check=False,
+        )
+        self.assertEqual(generated.returncode, 0, generated.stderr)
+        generated_result = json.loads(generated.stdout)
+        self.assertTrue(generated_result["ok"])
+        self.assertEqual(generated_result["data"]["details"]["baseline"]["stage"], "native-reboot-qualification")
+        self.assertFalse((self.state / "continuity/reboot-tests/generated-check.json").exists())
+
         self.prepare()
         verify = subprocess.run(
             ["bash", str(ROOT / "bin/tx"), "--json", "reboot", "verify", "owner-reboot-check"],
