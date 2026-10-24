@@ -268,18 +268,9 @@ class LaunchCommandTests(unittest.TestCase):
         self.assertIn("optional Debian PRoot", result.stdout)
         self.assertIn("Debian: db", result.stdout)
 
-    def test_native_management_alias_and_guided_menu(self):
+    def test_native_management_alias_and_proot_help(self):
         result = self.cli("mng", "--help")
         self.assertIn("tx mng cron", result.stdout)
-        guide = self.cli("guides")
-        self.assertIn("Ternuxx Native Termux and Debian guide", guide.stdout)
-        self.assertIn("Preview Native package setup", guide.stdout)
-        self.assertIn("Open terminal management (TUI)", guide.stdout)
-        self.assertIn("Open authenticated Web management", guide.stdout)
-        self.assertIn("Open GTK management center", guide.stdout)
-        self.assertIn("Check CPU, GPU, and NPU inference status", guide.stdout)
-        self.assertIn("Inspect Debian or preview fresh guest setup", guide.stdout)
-        self.assertIn("`tx tui`, `tx web`, or `tx gui`", guide.stdout)
         proot_help = self.cli("help", "proot")
         self.assertEqual(proot_help.returncode, 0, proot_help.stderr)
         self.assertIn("tx proot sessions list", proot_help.stdout)

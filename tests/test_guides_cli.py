@@ -59,10 +59,23 @@ class GuidesCliTests(unittest.TestCase):
             self.assertIsNotNone(proc.poll(), "guide did not exit after choosing 0")
             self.assertEqual(proc.returncode, 0, output.decode(errors="replace"))
             rendered = output.decode(errors="replace")
-            self.assertIn("1) Preview Native package setup", rendered)
-            self.assertIn("8) Check CPU, GPU, and NPU inference status", rendered)
-            self.assertIn("9) Inspect Debian or preview fresh guest setup", rendered)
-            self.assertIn("12) Open GTK management center", rendered)
+            expected_choices = (
+                "1) Preview Native package setup",
+                "2) Check system health",
+                "3) Check desktop status",
+                "4) Start the Native desktop",
+                "5) Read installation guide",
+                "6) Read operations guide",
+                "7) Set up the pinned CPU model",
+                "8) Check CPU, GPU, and NPU inference status",
+                "9) Inspect Debian or preview fresh guest setup",
+                "10) Open terminal management (TUI)",
+                "11) Open authenticated Web management",
+                "12) Open GTK management center",
+            )
+            for choice in expected_choices:
+                with self.subTest(choice=choice):
+                    self.assertIn(choice, rendered)
         finally:
             if proc.poll() is None:
                 proc.kill()
