@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Pinned Mesa source-file hash and SPDX-header inventory is recorded; source-to-configured-output and notice mapping remains open.
+Corrected CPU qualification now records a guarded in-flight cancellation without claiming a pass; the pinned Mesa source-header and package inventories remain separate from the missing configured source-to-binary graph and notice mapping.
 
-**Next action:** Obtain or reproduce the exact configured Termux Mesa build for the pinned recipe, map compiled/generated inputs and shipped notices to each package, then rerun guarded CPU/Vulkan/HTP cases when preflight permits.
+**Next action:** Obtain a reproducible build of the pinned Mesa recipe with Meson introspection, Ninja compile metadata, generated-source records, and package staging manifests; resume guarded CPU/Vulkan/HTP correctness and sustained checks only when live sensor samples remain within configured limits.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -162,3 +162,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-thermal-recheck-1558-utc.md](evidence/2026-10-24-p12-thermal-recheck-1558-utc.md)
 - [docs/evidence/2026-10-24-p12-thermal-recheck-1619-utc.md](evidence/2026-10-24-p12-thermal-recheck-1619-utc.md)
 - [docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md](evidence/2026-10-24-p12-mesa-source-license-inventory.md)
+- [docs/evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md](evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md)

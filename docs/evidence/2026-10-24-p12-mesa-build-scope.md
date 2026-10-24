@@ -59,3 +59,11 @@ Build a reproducible source-file/license inventory from this exact source commit
 - `python3 tools/audit_documents.py --check`: inventory covers 520 documents, records 160 as read, and reports zero broken local links. The inventory is not a claim that every document has been reviewed.
 - `python3 tools/doc_bridge.py check --strict --project-id ternuxx README.md`: passed.
 - `python3 -m tools.repo_knowledge verify`: 0 findings; `git diff --check`: passed.
+
+## Follow-up — package artifact and build-graph availability
+
+Observed again at 2026-10-24 16:54 UTC. The pinned upstream packaging PR remained open and draft at `0219ff84b372c9d38aad4e40f448c20ec3d1588e`. Its successful aarch64 Actions run (`36377469447`, job `108786144977`) and preserved local artifact were inspected read-only. The artifact contains the five split `.deb` files, their checksums, and `built_termux-main_packages.txt`; that list names the same five packages. It does not contain a Meson build directory, `build.ninja`, `compile_commands.json`, or a per-output source manifest.
+
+The public aarch64 job log reports the package-build step and Ninja entering the Mesa host-build directory, but does not expose the configured graph or object-to-source compile commands. The candidate base package's `libgallium-26.3.0-devel.so` is a stripped aarch64 ELF (NDK r30, Build ID `28fa5f69c96e892da7146b66e1167e2090a45da0`). Thus the retained packages and public log substantiate artifact identity and package contents, but do not recover a build-specific source map. Source-file inventory and split-package path manifests remain separate evidence; neither is a substitute for configured target-to-object-to-package provenance.
+
+Next source-provenance action: obtain a build of the pinned recipe that preserves Meson introspection data, Ninja command metadata, generated-source records, and package staging manifests, then reproduce and hash that evidence before changing the package SPDX conclusions. No upstream workflow was modified or rerun, and no candidate package was installed.

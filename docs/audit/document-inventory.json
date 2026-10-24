@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 525,
-  "read_count": 163,
+  "document_count": 526,
+  "read_count": 164,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -35,10 +35,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "eac86d45492a9ce142f2a480c45e53ca064311cd16e065ba8de58f4c4ac8c542",
+      "sha256": "4d230d4a769b92ed5723dbb48bb938e094e138a6183456ce773f10215914aa23",
       "lines": 29,
       "read_status": "read",
-      "read_sha256": "eac86d45492a9ce142f2a480c45e53ca064311cd16e065ba8de58f4c4ac8c542"
+      "read_sha256": "4d230d4a769b92ed5723dbb48bb938e094e138a6183456ce773f10215914aa23"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "5772e21d597545baf64e50cfb8f45e5b949a6ae4262322e62bc3f72d8fc0e112",
-      "lines": 164,
+      "sha256": "289c6d23574ae7cb81b4bbef6788149cb216959a9dc899be87ddeca1fb28e0d4",
+      "lines": 165,
       "read_status": "read",
-      "read_sha256": "5772e21d597545baf64e50cfb8f45e5b949a6ae4262322e62bc3f72d8fc0e112"
+      "read_sha256": "289c6d23574ae7cb81b4bbef6788149cb216959a9dc899be87ddeca1fb28e0d4"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -227,10 +227,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "7d71fb78ecf6d80ea7a7ba9027f786bac005b33d502499425d989f36f93dbfb7",
+      "sha256": "443719bd280ae0359e8cee89a82fa03ab59b8d5972fb4c722e72b98670b618ff",
       "lines": 45,
       "read_status": "read",
-      "read_sha256": "7d71fb78ecf6d80ea7a7ba9027f786bac005b33d502499425d989f36f93dbfb7"
+      "read_sha256": "443719bd280ae0359e8cee89a82fa03ab59b8d5972fb4c722e72b98670b618ff"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -3081,6 +3081,14 @@
       "read_sha256": "9c7ed3eacff8c4d5b3c927acfc2bf88747f34022edaa98fb7eec771c6c612125"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md",
+      "kind": "narrative",
+      "sha256": "9714ec2351b1246bd78c8f8d588756caeb5d2cca49d8fbda0197471fe870d12f",
+      "lines": 20,
+      "read_status": "read",
+      "read_sha256": "9714ec2351b1246bd78c8f8d588756caeb5d2cca49d8fbda0197471fe870d12f"
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-cpu-qualification-guard-block.md",
       "kind": "narrative",
       "sha256": "8e77360c2e478310cf7a75ad146c316f1c2d22c838aaca66a5e7345537880473",
@@ -3115,10 +3123,10 @@
     {
       "path": "docs/evidence/2026-10-24-p12-mesa-build-scope.md",
       "kind": "narrative",
-      "sha256": "0510b6ca5ca5184c7c036d8d900725eae50750ee77eb4c10fd0551eafa0953fa",
-      "lines": 61,
+      "sha256": "5ecc5d237f8f428476f201097b2116cca64ce3bfade599b198d9852c1cbe7c90",
+      "lines": 69,
       "read_status": "read",
-      "read_sha256": "0510b6ca5ca5184c7c036d8d900725eae50750ee77eb4c10fd0551eafa0953fa"
+      "read_sha256": "5ecc5d237f8f428476f201097b2116cca64ce3bfade599b198d9852c1cbe7c90"
     },
     {
       "path": "docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md",
@@ -3787,10 +3795,10 @@
     {
       "path": "docs/testing/NATIVE-ACCEL-QUALIFICATION.md",
       "kind": "narrative",
-      "sha256": "61cbfc92ea2c50d6632fd6f23aa80a2ab96c08ae628bdf2aeaaebc0ea5982cc8",
+      "sha256": "5207be53618d01ea42e653f8728046a38f25320334a128fa316d34e5f762204e",
       "lines": 40,
       "read_status": "read",
-      "read_sha256": "61cbfc92ea2c50d6632fd6f23aa80a2ab96c08ae628bdf2aeaaebc0ea5982cc8"
+      "read_sha256": "5207be53618d01ea42e653f8728046a38f25320334a128fa316d34e5f762204e"
     },
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
@@ -3843,8 +3851,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "7be51025f38e92a520448966e7889cde4586812e36eaaf7ab1a3c461cd4873df",
-      "lines": 267,
+      "sha256": "1501454a7e89c2259bb1be5af2779bc7e96f164de8e32ecf1071ac73a46fffd1",
+      "lines": 268,
       "read_status": "pending",
       "read_sha256": null
     },
