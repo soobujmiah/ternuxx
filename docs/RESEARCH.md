@@ -311,6 +311,8 @@ Official Android performance guidance checked 2026-10-17:
 - [PowerManager thermal status](https://developer.android.com/reference/android/os/PowerManager) exposes thermal-status callbacks to Android apps on supported API levels. Ternuxx reports unavailable when no supported bridge exists; it does not read guessed vendor sysfs paths as a portable substitute.
 - [Termux services](https://github.com/termux/termux-services) supplies process supervision but not CPU/GPU clock control or Android thermal APIs.
 
+**Native Termux bridge check (2026-10-24):** The current CLI has no verified Android thermal-status/headroom interface. `termux-thermal-status` and `dumpsys` were unavailable; `termux-battery-status` exposed battery data only. The NDK `AThermal_*` calls could not link against Termux's private `libandroid.so`, while the system library's direct `dlopen` failed on `libbinder_ndk.so` in the app linker namespace. See the [device probe](evidence/2026-10-24-native-thermal-api-access-check.md). This is process/device evidence, not a claim that Android lacks the API or that another Android app context cannot use it.
+
 For this project, sustainable per-workload adaptation is the target: lower parallelism, model batch/context, render quality, or pause when measured pressure requires it. Device-specific tuning and performance claims require a comparable baseline and longer-duration workload evidence.
 
 

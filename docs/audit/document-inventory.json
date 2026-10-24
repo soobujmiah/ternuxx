@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 509,
-  "read_count": 159,
+  "document_count": 510,
+  "read_count": 160,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -35,10 +35,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "a0c434728c85bb0b6ea396ecdf22ab98928956fdbf1074cd73bb343cdd82bd84",
+      "sha256": "45a5505e04f6c35f9b75683fb1f9981416c9d1e1c3d9feb37f5120c85dd587a9",
       "lines": 23,
       "read_status": "read",
-      "read_sha256": "a0c434728c85bb0b6ea396ecdf22ab98928956fdbf1074cd73bb343cdd82bd84"
+      "read_sha256": "45a5505e04f6c35f9b75683fb1f9981416c9d1e1c3d9feb37f5120c85dd587a9"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "743bf532df681b74ae01c570b5907a9f8f77848a79bbdfeb65a92b15924c0d17",
-      "lines": 153,
+      "sha256": "c74438f1e6e9dedee354de5df1bc17ba550f6de58702bc0b8aba9b893d4fbaef",
+      "lines": 154,
       "read_status": "read",
-      "read_sha256": "743bf532df681b74ae01c570b5907a9f8f77848a79bbdfeb65a92b15924c0d17"
+      "read_sha256": "c74438f1e6e9dedee354de5df1bc17ba550f6de58702bc0b8aba9b893d4fbaef"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -219,18 +219,18 @@
     {
       "path": "docs/RESEARCH.md",
       "kind": "narrative",
-      "sha256": "4d4b803b5615c85f8c2a651cdbdf151794f9655c06cfca69705ee69a9adadfe4",
-      "lines": 334,
+      "sha256": "c6cd86bace22475d5f6a0210d85c124b9d1d4d7a8298a12fb0cd48cb4334cd78",
+      "lines": 336,
       "read_status": "read",
-      "read_sha256": "4d4b803b5615c85f8c2a651cdbdf151794f9655c06cfca69705ee69a9adadfe4"
+      "read_sha256": "c6cd86bace22475d5f6a0210d85c124b9d1d4d7a8298a12fb0cd48cb4334cd78"
     },
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "b2e7ed0e0f0a2b8e6d4d5ec48ca629a1b6570cd69b08f11af47292bca2f3696f",
+      "sha256": "07cb3f5b66547bfe5158f7eebc1cd05d7d7dd5894822fd35e4cb5e06b6e2dd55",
       "lines": 45,
       "read_status": "read",
-      "read_sha256": "b2e7ed0e0f0a2b8e6d4d5ec48ca629a1b6570cd69b08f11af47292bca2f3696f"
+      "read_sha256": "07cb3f5b66547bfe5158f7eebc1cd05d7d7dd5894822fd35e4cb5e06b6e2dd55"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -3017,6 +3017,14 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-24-native-thermal-api-access-check.md",
+      "kind": "narrative",
+      "sha256": "9304baf538c4a702bc504311a5a7f591a79c29b5051d2fa7b97d82dd30749265",
+      "lines": 31,
+      "read_status": "read",
+      "read_sha256": "9304baf538c4a702bc504311a5a7f591a79c29b5051d2fa7b97d82dd30749265"
+    },
+    {
       "path": "docs/evidence/2026-10-24-native-update-preview-lifecycle.md",
       "kind": "narrative",
       "sha256": "3a826e6be472dddcf189f669c7dce6a4dfd4fa1805ea337eeac77b86d3f63ed6",
@@ -3667,10 +3675,10 @@
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "771165ed5b7a7ed2f0e2f85df1066ba4422e861241ab779109ac7814926d1540",
-      "lines": 52,
+      "sha256": "118c4d0af7f98490d4b48ce14b38a115fc71d864eb6f58ec7d196628acd61c53",
+      "lines": 54,
       "read_status": "read",
-      "read_sha256": "771165ed5b7a7ed2f0e2f85df1066ba4422e861241ab779109ac7814926d1540"
+      "read_sha256": "118c4d0af7f98490d4b48ce14b38a115fc71d864eb6f58ec7d196628acd61c53"
     },
     {
       "path": "docs/testing/README.md",
@@ -3715,10 +3723,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "83df533b1992ad25492acb546ff348a6482495a4badf9cc4c3ad7a89725a0bdb",
-      "lines": 256,
+      "sha256": "885742f23a8226fd9d1ddd277919ece4657e8bbaad7268c6eedd992657087999",
+      "lines": 257,
       "read_status": "read",
-      "read_sha256": "83df533b1992ad25492acb546ff348a6482495a4badf9cc4c3ad7a89725a0bdb"
+      "read_sha256": "885742f23a8226fd9d1ddd277919ece4657e8bbaad7268c6eedd992657087999"
     },
     {
       "path": "requirements-dev.txt",

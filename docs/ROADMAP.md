@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and supports optional Debia
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Investigate the repeatable HTP CPU-zone rise and define a reviewed, device-specific monitored-load procedure; identify an Adreno 825-compatible Vulkan ICD with reproducible provenance, then broaden HTP model/operator checks and clean-device PRoot replay.
+**Next action:** Keep HTP experimental while evaluating a supported Android-context thermal bridge or a bounded no-automation policy; pursue reproducible Adreno 825 ICD provenance, then broaden HTP model/operator checks and clean-device PRoot replay.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

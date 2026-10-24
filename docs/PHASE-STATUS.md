@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Ten repeated 64-token Vulkan calls completed with full layer offload. Two HTP calls completed, while a supervised follow-up was interrupted at the CPU-zone guard and cleaned up correctly. The indexed official ICD rejects Adreno 825. Sustained, clean-install, and broader correctness qualification remain open.
+Ten repeated 64-token Vulkan calls completed with full offload. HTP repeat testing stopped at its conservative guard; a later active cancellation worked. The Android NDK thermal bridge is not loadable from this Native Termux CLI, and the indexed official ICD rejects Adreno 825. Sustained, clean-install, and broader correctness gates remain open.
 
-**Next action:** Investigate the repeatable HTP CPU-zone rise and define a reviewed, device-specific monitored-load procedure; identify an Adreno 825-compatible Vulkan ICD with reproducible provenance, then broaden HTP model/operator checks and clean-device PRoot replay.
+**Next action:** Keep HTP experimental while evaluating a supported Android-context thermal bridge or a bounded no-automation policy; pursue reproducible Adreno 825 ICD provenance, then broaden HTP model/operator checks and clean-device PRoot replay.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -151,3 +151,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-same-device-fresh-alias-replay.md](evidence/2026-10-24-p12-same-device-fresh-alias-replay.md)
 - [docs/evidence/2026-10-24-official-freedreno-icd-adreno825-check.md](evidence/2026-10-24-official-freedreno-icd-adreno825-check.md)
 - [docs/evidence/2026-10-24-p12-native-repeated-resource-check.md](evidence/2026-10-24-p12-native-repeated-resource-check.md)
+- [docs/evidence/2026-10-24-native-thermal-api-access-check.md](evidence/2026-10-24-native-thermal-api-access-check.md)
