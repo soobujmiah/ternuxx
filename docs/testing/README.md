@@ -34,3 +34,5 @@ With Native Runit tools already installed, run `python3 tools/check_monitor_serv
 ## Evidence and release limits
 
 [Device compatibility](DEVICE-COMPATIBILITY.md), [CPU](CPU-BASELINE.md), [GPU](GPU-ACCELERATION.md), and [NPU](NPU-ACCELERATION.md) separate detection from workload qualification. Use the [report template](reports/REPORT-TEMPLATE.md) for new tests. Synthetic tests are not physical-device evidence. Reboot or installed-package changes require a separately planned maintenance window and must preserve the active Termux session.
+
+For repeatable, guarded Native CPU/Vulkan/HTP calls, use the [Native accelerator qualification procedure](NATIVE-ACCEL-QUALIFICATION.md). Its JSON report records the observed backend, layer offload, resource samples, and cleanup checks; each physical-device run still needs its own dated evidence record.
