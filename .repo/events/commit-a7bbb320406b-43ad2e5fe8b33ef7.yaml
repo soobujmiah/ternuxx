@@ -1,0 +1,7 @@
+event_id: commit-a7bbb320406b-43ad2e5fe8b33ef7
+repository: soobujmiah/ternuxx
+commit: a7bbb320406bd193a04bdd2bdf5083c046aa2c9b
+kind: commit
+occurred_at: '2026-10-24T14:41:52Z'
+status: completed
+summary: 'fix(p12): verify exact inference answer before passing'
