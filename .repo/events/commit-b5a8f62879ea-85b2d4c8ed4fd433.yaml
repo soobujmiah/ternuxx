@@ -1,0 +1,7 @@
+event_id: commit-b5a8f62879ea-85b2d4c8ed4fd433
+repository: soobujmiah/ternuxx
+commit: b5a8f62879ea9ed8efd0fb565303cb6760c2326b
+kind: commit
+occurred_at: '2026-10-24T13:40:56Z'
+status: completed
+summary: 'docs(p12): record same-device Debian replay'
