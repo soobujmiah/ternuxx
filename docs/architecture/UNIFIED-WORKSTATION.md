@@ -200,7 +200,7 @@ Current integration status rechecked 2026-10-24: Native lifecycle/diagnostics, t
 
 ## 9. Implementation sequence and gates
 
-This sequence is a historical proposal and does not replace the current generated project roadmap or active P11 phase. It does not advance or gate current project phases.
+This sequence is a historical proposal and does not replace the current generated project roadmap or active P12 phase. It does not advance or gate current project phases.
 
 | Phase | Deliverable and gate |
 |---|---|

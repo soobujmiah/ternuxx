@@ -355,10 +355,10 @@
     {
       "path": "docs/architecture/UNIFIED-WORKSTATION.md",
       "kind": "narrative",
-      "sha256": "9ddadf0303e07c9e4f2c29c851405ea1ace9c6087948b965ceb8af4991f5ac50",
+      "sha256": "c191b365db9ee629c1eff41eaf54d6eb2bbd82a9c8cd079f9e8cf6d5ba924a0e",
       "lines": 251,
       "read_status": "read",
-      "read_sha256": "9ddadf0303e07c9e4f2c29c851405ea1ace9c6087948b965ceb8af4991f5ac50"
+      "read_sha256": "c191b365db9ee629c1eff41eaf54d6eb2bbd82a9c8cd079f9e8cf6d5ba924a0e"
     },
     {
       "path": "docs/architecture/decisions/ADR-0001-native-proot-providers.md",
