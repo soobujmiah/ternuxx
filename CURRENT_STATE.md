@@ -2,7 +2,7 @@
 
 # Current Ternuxx state
 
-**Reviewed:** 2026-10-24 17:42 UTC. Ternuxx uses Native Termux as its host and control plane, with Debian PRoot as an optional isolated workload provider. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
+**Reviewed:** 2026-10-24 17:52 UTC. Ternuxx uses Native Termux as its host and control plane, with Debian PRoot as an optional isolated workload provider. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
 ## Live runtime
 
@@ -26,7 +26,7 @@ P11 Debian PRoot source restoration and integration is complete. P12 Native CPU/
 
 Build and test results, source SHAs, and synchronization receipts are maintained in the generated [.repo status](.repo/STATUS.md). The latest local documentation checks passed the phase and feature-matrix tests, document/link/hash audit, strict README bridge validation, and `repo_knowledge verify`.
 
-A read-only Native thermal and memory recheck at 16:19 UTC measured CPU 50.5°C, GPU 46.3°C, HTP-related 47.1°C, battery 43.02°C, `socd=83°C`, and `MemAvailable=3,855,912 KiB`. The owner reported MLBB gameplay around that measurement, so it is an under-use reading rather than an idle baseline. At 16:55 UTC the qualification preflight measured `socd=64°C`; the CPU suite then cancelled in-flight at a 71.2°C CPU sample, as documented above. These are dated sensor observations and runner guards, not OEM thermal limits; see the [P12 thermal recheck](docs/evidence/2026-10-24-p12-thermal-recheck-1619-utc.md).
+A read-only Native thermal and memory recheck at 16:19 UTC measured CPU 50.5°C, GPU 46.3°C, HTP-related 47.1°C, battery 43.02°C, `socd=83°C`, and `MemAvailable=3,855,912 KiB`. The owner reported MLBB gameplay around that measurement, so it is an under-use reading rather than an idle baseline. At 16:55 UTC the qualification preflight measured `socd=64°C`; the CPU suite then cancelled in-flight at a 71.2°C CPU sample, as documented above. A fresh CPU-suite preflight at 17:50 UTC measured `socd=74°C`, above the 70°C test guard, and started no inference; the owner clarified that ordinary phone use can include MLBB, YouTube, and calls, but the timing/causal relation to that sample was not established. These are dated sensor observations and runner guards, not OEM thermal limits; see the [P12 thermal recheck](docs/evidence/2026-10-24-p12-thermal-recheck-1619-utc.md) and [17:50 CPU preflight](docs/evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md).
 
 ## Release boundary
 

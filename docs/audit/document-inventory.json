@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 528,
+  "document_count": 529,
   "read_count": 167,
   "reading_complete": false,
   "broken_local_links": [],
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "b3078573c74966f5941a2f24b85ba4d954d463fb17fddcaf468281ffbb96c15e",
+      "sha256": "0f8a8e743617c0572c51345dd623c0f73e43156e6661ed4012a5db273971f1e5",
       "lines": 35,
       "read_status": "read",
-      "read_sha256": "b3078573c74966f5941a2f24b85ba4d954d463fb17fddcaf468281ffbb96c15e"
+      "read_sha256": "0f8a8e743617c0572c51345dd623c0f73e43156e6661ed4012a5db273971f1e5"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -3099,10 +3099,10 @@
     {
       "path": "docs/evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md",
       "kind": "narrative",
-      "sha256": "9714ec2351b1246bd78c8f8d588756caeb5d2cca49d8fbda0197471fe870d12f",
-      "lines": 20,
+      "sha256": "a82cb8b544b8fba5f9f0e0eb4750f930d24ab80815145e79e700fc73faaa6df6",
+      "lines": 26,
       "read_status": "read",
-      "read_sha256": "9714ec2351b1246bd78c8f8d588756caeb5d2cca49d8fbda0197471fe870d12f"
+      "read_sha256": "a82cb8b544b8fba5f9f0e0eb4750f930d24ab80815145e79e700fc73faaa6df6"
     },
     {
       "path": "docs/evidence/2026-10-24-p12-cpu-qualification-guard-block.md",
@@ -3511,6 +3511,14 @@
       "lines": 50,
       "read_status": "read",
       "read_sha256": "74c5fdf3453becdb0e22147a6076f2d53eb60882283a140c10385c9d5c1ef358"
+    },
+    {
+      "path": "docs/evidence/data/2026-10-24-p12-cpu-preflight-1750z.json",
+      "kind": "structured",
+      "sha256": "fd6747855ca30a6ec62450bfcf0ef85f8c5711ecdb859fecd7337874c5f6d68d",
+      "lines": 49,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/data/2026-10-24-p12-mesa-source-license-inventory.json",

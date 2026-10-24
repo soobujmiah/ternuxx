@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-24T17:50:53.758260+00:00",
+  "command": "python3 tools/native_accel_qualify.py --backend cpu",
+  "provider": "native-termux",
+  "platform": {
+    "system": "Android",
+    "release": "16",
+    "machine": "aarch64",
+    "prefix": "/data/data/com.termux/files/usr"
+  },
+  "backend": "cpu",
+  "prompt_suite_id": "arithmetic-operators-v1",
+  "scheduled_case_ids": [
+    "addition-2-plus-2-v1",
+    "subtraction-9-minus-4-v1",
+    "multiplication-3-times-2-v1"
+  ],
+  "max_tokens": 8,
+  "guards": {
+    "cpu_c": 60,
+    "gpu_c": 60,
+    "htp_c": 60,
+    "battery_c": 45,
+    "socd_c": 70,
+    "minimum_memavailable_mib": 2048,
+    "note": "Conservative run guards, not OEM-rated limits."
+  },
+  "preflight": {
+    "cpu_c": 48.5,
+    "gpu_c": 42.8,
+    "htp_c": 43.6,
+    "battery_c": 39.18,
+    "socd_c": 74.0,
+    "memavailable_kib": 4573860
+  },
+  "completed_runs": 0,
+  "requested_runs": 3,
+  "inference_started": false,
+  "ok": false,
+  "error": "preflight guard failed; no inference started",
+  "issues": [
+    "socd=74.0 C reached guard 70 C"
+  ],
+  "owner_reported_device_use_context": {
+    "activities": ["MLBB", "YouTube", "phone calls"],
+    "timing_and_causal_relation_to_sensor_sample": "not established"
+  }
+}

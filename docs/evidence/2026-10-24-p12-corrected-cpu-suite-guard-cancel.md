@@ -18,3 +18,9 @@ This is a guarded cancellation, not a passing CPU result and not a preflight-onl
 
 - `python3 tools/native_accel_qualify.py --backend cpu --runs 3 --max-tokens 8 --idle-seconds 5`: structured report returned one `guard_cancelled` run, `completed_runs=0`, and `ok=false`.
 - Post-run process inventory in the report: `new_llama_cli_pids_remaining=[]`.
+
+## Follow-up preflight — 17:50 UTC
+
+A later invocation of `python3 tools/native_accel_qualify.py --backend cpu` stopped before inference because the single preflight sample reported `socd=74.0°C`, above the configured 70°C guard. CPU was 48.5°C, GPU 42.8°C, HTP 43.6°C, battery 39.18°C, and `MemAvailable` 4,573,860 KiB. It completed zero runs and returned `preflight guard failed; no inference started`; the structured report is in [`data/2026-10-24-p12-cpu-preflight-1750z.json`](data/2026-10-24-p12-cpu-preflight-1750z.json).
+
+The owner clarified that ordinary use can include MLBB, YouTube, and phone calls, which can warm the device. That is context, not a timestamped workload trace or proof that any one activity caused this sensor reading; the qualification guard was left unchanged. The preflight itself started no model call, so it did not add inference load.
