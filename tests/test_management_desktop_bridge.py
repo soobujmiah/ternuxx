@@ -26,6 +26,48 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
         env.start()
         self.addCleanup(env.stop)
 
+    def test_ssh_definition_deploy_bridge_requires_exact_sha256_preview(self):
+        plan = {"plan_id": "a" * 64, "requires_confirmation": True,
+                "diff": ["- old", "+ new"]}
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": plan}) as dispatch, \
+                redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["ssh-deploy-preview"]), 0)
+        dispatch.assert_called_once_with("ssh.service.deploy", {"confirmed": False, "plan_id": None})
+        self.assertIn("P\t" + "a" * 64, output.getvalue())
+
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["ssh-deploy-apply", "confirmed", "bad-plan"]), 2)
+        dispatch.assert_not_called()
+
+    def test_ssh_definition_rollback_bridge_filters_journal_and_checks_preview_ids(self):
+        history = {"ok": True, "data": {"operations": [
+            {"kind": "desktop.start", "status": "complete", "operation_id": "x" * 32},
+            {"kind": "service.deploy", "status": "complete", "operation_id": "a" * 32,
+             "updated_at": "now"},
+            {"kind": "service.deploy", "status": "failed", "operation_id": "b" * 32},
+        ]}}
+        with mock.patch.object(bridge, "call", return_value=history) as dispatch, \
+                redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["ssh-deploy-rollback-list"]), 0)
+        dispatch.assert_called_once_with("recovery.status")
+        self.assertIn("R\t" + "a" * 32 + "\tcomplete", output.getvalue())
+        self.assertNotIn("b" * 32, output.getvalue())
+
+        plan = {"plan_id": "c" * 64, "requires_confirmation": True}
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": plan}) as dispatch, \
+                redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["ssh-deploy-rollback-preview", "a" * 32]), 0)
+        dispatch.assert_called_once_with("ssh.service.deploy.rollback.preview", {
+            "operation_id": "a" * 32})
+        self.assertIn("P\t" + "a" * 32 + "\t" + "c" * 64, output.getvalue())
+
+        applied = {"ok": True, "data": {"status": "rolled_back"}}
+        with mock.patch.object(bridge, "call", return_value=applied) as dispatch, \
+                redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["ssh-deploy-rollback-apply", "a" * 32, "c" * 64]), 0)
+        dispatch.assert_called_once_with("ssh.service.deploy.rollback.apply", {
+            "operation_id": "a" * 32, "confirmed": True, "plan_id": "c" * 64})
+
     def test_native_environment_gate_rejects_non_termux_host(self):
         with mock.patch.dict(os.environ, {"TERMUX_VERSION": "", "PREFIX": "/usr"}), \
                 mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()), \

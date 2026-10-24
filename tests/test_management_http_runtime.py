@@ -413,11 +413,26 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
                 self.assertEqual(json.loads(response)["operation"], "ssh.service.stop")
                 self.assertEqual(dispatch.call_count, 2)
 
+                self.assertIn("services.manage", management_http_runtime.WEB_CAPABILITIES)
+                self.assertIn("ssh.service.deploy", management_http_runtime._WEB_MUTATING_OPERATIONS)
+                self.assertIn("ssh.service.deploy.rollback.apply", management_http_runtime._WEB_MUTATING_OPERATIONS)
+                dispatch.return_value = {"api_version": 1, "request_id": "web-ssh-deploy-result-001",
+                    "ok": True, "operation": "ssh.service.deploy", "data": {
+                        "service_id": "ternuxx-sshd", "changed": True,
+                        "requires_confirmation": True, "plan_id": "d" * 64,
+                        "impact": "Atomically replaces only the fixed Runit run definition."}}
                 status, _headers, response = post("ssh.service.deploy", "web-ssh-deploy-001",
                     "web-ssh-deploy-key-0001", {"confirmed": False, "plan_id": None})
-                self.assertEqual(status, 403)
-                self.assertEqual(json.loads(response)["error"], "permission_denied")
-                self.assertEqual(dispatch.call_count, 2)
+                self.assertEqual(status, 200, response)
+                self.assertEqual(json.loads(response)["operation"], "ssh.service.deploy")
+                self.assertEqual(dispatch.call_count, 3)
+
+                dispatch.return_value = {"api_version": 1, "request_id": "web-ssh-deploy-apply-result-001",
+                    "ok": True, "operation": "ssh.service.deploy", "data": {"status": "complete"}}
+                status, _headers, response = post("ssh.service.deploy", "web-ssh-deploy-apply-01",
+                    "web-ssh-deploy-apply-key", {"confirmed": True, "plan_id": "d" * 64})
+                self.assertEqual(status, 200, response)
+                self.assertEqual(dispatch.call_count, 4)
 
                 dispatch.return_value = {"api_version": 1, "request_id": "web-history-read-001",
                     "ok": True, "operation": "recovery.status", "data": {
@@ -427,7 +442,7 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
                     "web-history-key-00001", {})
                 self.assertEqual(status, 200, response)
                 self.assertEqual(json.loads(response)["operation"], "recovery.status")
-                self.assertEqual(dispatch.call_count, 3)
+                self.assertEqual(dispatch.call_count, 5)
 
                 dispatch.return_value = {"api_version": 1, "request_id": "web-timezone-result-001",
                     "ok": True, "operation": "timezone.set", "data": {"timezone": "UTC"}}
@@ -435,7 +450,7 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
                     "web-timezone-key-00001", {"timezone": "UTC"})
                 self.assertEqual(status, 200, response)
                 self.assertEqual(json.loads(response)["operation"], "timezone.set")
-                self.assertEqual(dispatch.call_count, 4)
+                self.assertEqual(dispatch.call_count, 6)
 
                 dispatch.return_value = {"api_version": 1, "request_id": "web-cron-start-result-01",
                     "ok": True, "operation": "cron.scheduler.start", "data": {"status": "running"}}
@@ -443,7 +458,7 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
                     "web-cron-start-key-0001", {"poll_seconds": 10, "confirmed": True})
                 self.assertEqual(status, 200, response)
                 self.assertEqual(json.loads(response)["operation"], "cron.scheduler.start")
-                self.assertEqual(dispatch.call_count, 5)
+                self.assertEqual(dispatch.call_count, 7)
 
                 dispatch.return_value = {"api_version": 1, "request_id": "web-cron-create-result-01",
                     "ok": True, "operation": "cron.jobs.mutation.preview", "data": {"plan": {"plan_id": "a" * 32}}}
@@ -455,12 +470,12 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
                 dispatched = dispatch.call_args.args[0]
                 self.assertEqual(dispatched["operation"], "cron.jobs.mutation.preview")
                 self.assertEqual(dispatched["args"], typed_cron)
-                self.assertEqual(dispatch.call_count, 6)
+                self.assertEqual(dispatch.call_count, 8)
 
                 status, _headers, response = post("proot.app.launch", "web-proot-launch-01",
                     "web-proot-launch-key1", {"app_id": "files"})
                 self.assertEqual(status, 200)
-                self.assertEqual(dispatch.call_count, 7)
+                self.assertEqual(dispatch.call_count, 9)
 
                 dispatch.return_value = {"api_version": 1, "request_id": "web-failure-result-1",
                     "ok": False, "error": {"code": "desktop_operation_failed", "message": "redacted"}}
@@ -471,6 +486,38 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
                 self.assertNotIn("redacted", response.decode())
             finally:
                 self.assertTrue(server.close(grace_seconds=1))
+
+    def test_ssh_definition_deploy_is_denied_without_opt_in_web_session_scope(self) -> None:
+        env = dict(self.env, TERNUXX_WEB_MODE="1")
+        Path(env["TERNUXX_STATE_DIR"]).mkdir(parents=True, mode=0o700)
+        Path(env["TERNUXX_STATE_DIR"]).chmod(0o700)
+        with patch.object(management_http_runtime.management_service, "dispatch") as dispatch:
+            server = management_http_runtime.build_server(port=0, bootstrap_secret=SECRET, env=env)
+            try:
+                caps = sorted(management_http_runtime.WEB_CAPABILITIES - {"services.manage"})
+                session = server.adapter.sessions.exchange_bootstrap(SECRET, caps)
+                host = "127.0.0.1:%s" % server.port
+                body = json.dumps({"api_version": 1, "request_id": "web-no-service-scope-001",
+                    "operation": "ssh.service.deploy", "args": {"confirmed": False, "plan_id": None}}).encode()
+                status, _headers, response = server.adapter.handle(method="POST", path="/api/v1/operations",
+                    headers={"Host": host, "Origin": "http://" + host,
+                        "Content-Type": "application/json", "Content-Length": str(len(body)),
+                        "Authorization": "Bearer " + session.bearer_token,
+                        "X-Ternuxx-CSRF": session.csrf_token,
+                        "Idempotency-Key": "web-no-service-scope-key"}, body=body)
+                self.assertEqual(status, 403)
+                self.assertEqual(json.loads(response)["error"], "permission_denied")
+                dispatch.assert_not_called()
+            finally:
+                self.assertTrue(server.close(grace_seconds=1))
+
+    def test_service_definition_scope_is_opt_in_and_controls_actions(self) -> None:
+        ui = (ROOT / "lib" / "management_web_ui.html").read_text(encoding="utf-8")
+        self.assertIn('id="ssh-definition-scope" type="checkbox"', ui)
+        self.assertIn('if($("#ssh-definition-scope").checked)capabilities.push("services.manage")', ui)
+        self.assertIn('session?.capabilities?.includes("services.manage")', ui)
+        self.assertIn("Review and deploy SSH service definition", ui)
+        self.assertIn("Restore previous SSH service definition", ui)
 
         page = (ROOT / "lib" / "management_web_ui.html").read_text()
         self.assertIn('id="categories"', page)

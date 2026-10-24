@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 525,
-  "read_count": 164,
+  "read_count": 163,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -35,10 +35,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "68342880d49820f6b2e1541ec26550439bd38c75d82a5f0490b0bcb6b0bc7ca7",
-      "lines": 27,
+      "sha256": "eac86d45492a9ce142f2a480c45e53ca064311cd16e065ba8de58f4c4ac8c542",
+      "lines": 29,
       "read_status": "read",
-      "read_sha256": "68342880d49820f6b2e1541ec26550439bd38c75d82a5f0490b0bcb6b0bc7ca7"
+      "read_sha256": "eac86d45492a9ce142f2a480c45e53ca064311cd16e065ba8de58f4c4ac8c542"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -155,10 +155,10 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "9333cad3c2bacb01399b3643133bb17e8ebfe0c565c10b12e0456b65019dd558",
+      "sha256": "bdb506be81b71856c81e65a6c86e39dc07bc8c6057913a324b696f32fbecdc81",
       "lines": 57,
       "read_status": "read",
-      "read_sha256": "9333cad3c2bacb01399b3643133bb17e8ebfe0c565c10b12e0456b65019dd558"
+      "read_sha256": "bdb506be81b71856c81e65a6c86e39dc07bc8c6057913a324b696f32fbecdc81"
     },
     {
       "path": "docs/OPTIMIZATION.md",
@@ -259,10 +259,10 @@
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
       "kind": "narrative",
-      "sha256": "0f3531037a97d6d4f3b452ad819b1384f4c5535ef2e7fac1ed26b0b7f784165b",
+      "sha256": "aa2198521892a1fba8ae99752000506f23d6735e4f003a9b772108c82c6087db",
       "lines": 21,
       "read_status": "read",
-      "read_sha256": "0f3531037a97d6d4f3b452ad819b1384f4c5535ef2e7fac1ed26b0b7f784165b"
+      "read_sha256": "aa2198521892a1fba8ae99752000506f23d6735e4f003a9b772108c82c6087db"
     },
     {
       "path": "docs/architecture/CONTINUITY-IMPLEMENTATION.md",
@@ -347,10 +347,10 @@
     {
       "path": "docs/architecture/SSH-LIFECYCLE.md",
       "kind": "narrative",
-      "sha256": "05d7979ffe34ee07b8cd8960e70466d71565d33fc1b81b9b3cfa442507880981",
+      "sha256": "7a8bbcab0ffadfe6819d9db1d9f7d1b77ff8db2f1ba708dc0f9ee56a82385b9f",
       "lines": 55,
       "read_status": "read",
-      "read_sha256": "05d7979ffe34ee07b8cd8960e70466d71565d33fc1b81b9b3cfa442507880981"
+      "read_sha256": "7a8bbcab0ffadfe6819d9db1d9f7d1b77ff8db2f1ba708dc0f9ee56a82385b9f"
     },
     {
       "path": "docs/architecture/UNIFIED-WORKSTATION.md",
@@ -2899,10 +2899,10 @@
     {
       "path": "docs/evidence/2026-10-24-client-dispatch-audit.md",
       "kind": "narrative",
-      "sha256": "2a7e25210812c59a9381929c9788fb682496195abe1ba4253dc9f5c9ba0af14d",
-      "lines": 75,
+      "sha256": "3b2873ec9c39bba6c630fa9f0cb79e8f217f93bb5ce4aa10fad333bec6eb28a8",
+      "lines": 83,
       "read_status": "read",
-      "read_sha256": "2a7e25210812c59a9381929c9788fb682496195abe1ba4253dc9f5c9ba0af14d"
+      "read_sha256": "3b2873ec9c39bba6c630fa9f0cb79e8f217f93bb5ce4aa10fad333bec6eb28a8"
     },
     {
       "path": "docs/evidence/2026-10-24-cron-inspection-client-parity.md",
@@ -3123,10 +3123,10 @@
     {
       "path": "docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md",
       "kind": "narrative",
-      "sha256": "613dcde3adee2e08df8c105745d1482d86dfa14e88a999273bf32e17c34b0d93",
-      "lines": 29,
-      "read_status": "read",
-      "read_sha256": "613dcde3adee2e08df8c105745d1482d86dfa14e88a999273bf32e17c34b0d93"
+      "sha256": "5de37498697ec85df672867479b58478f184b1e15ce42f05890abdec41ac0c15",
+      "lines": 27,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-24-p12-multi-case-runner.md",
@@ -3763,10 +3763,10 @@
     {
       "path": "docs/testing/FEATURE-MATRIX.yaml",
       "kind": "structured",
-      "sha256": "6af16e78a616126d8677f5a4e3ed3a207adb70c47cade9d00481f74fad8e9c2e",
+      "sha256": "b43c74bf64308731268da14b4e91564e3d5008bc55aec35a5c81b03be80e1fa9",
       "lines": 209,
       "read_status": "read",
-      "read_sha256": "6af16e78a616126d8677f5a4e3ed3a207adb70c47cade9d00481f74fad8e9c2e"
+      "read_sha256": "b43c74bf64308731268da14b4e91564e3d5008bc55aec35a5c81b03be80e1fa9"
     },
     {
       "path": "docs/testing/GPU-ACCELERATION.md",

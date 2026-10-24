@@ -4,7 +4,7 @@
 
 typedef struct { gchar *id, *category, *name, *status, *availability, *description, *operations; } Resource;
 typedef struct { GtkWidget *window, *category_list, *resource_list, *details, *notice, *search, *action_scroll;
-                 GtkWidget *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_wakelock_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
+                 GtkWidget *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
                  *monitor_interval, *monitor_unit, *monitor_focus, *monitor_launch,
                  *proot_box, *proot_help, *proot_setup_help, *proot_app_entry, *proot_shortcut_entry, *proot_sync_rollback_entry, *proot_session_entry,
                  *proot_replay_alias_entry, *proot_replay_backup_entry, *proot_replay_retire_button,
@@ -24,6 +24,9 @@ static void run_bridge_full(Center *c, const gchar *action, const gchar *arg1, c
                             const gchar *arg6, const gchar *arg7);
 static void ask_ssh_confirmation(Center *c, const gchar *preview_action, const gchar *plan_id, const gchar *impact);
 static void ask_ssh_rollback_confirmation(Center *c, const gchar *rollback_id, const gchar *plan_id, const gchar *effect);
+static void ask_ssh_deploy_confirmation(Center *c, const gchar *plan_id, const gchar *summary);
+static void ask_ssh_deploy_rollback_confirmation(Center *c, const gchar *operation_id, const gchar *plan_id, const gchar *summary);
+static void ssh_deploy_rollback_choice(GObject *source, GAsyncResult *result, gpointer user_data);
 static void choose_graphics_api(GtkButton *button, gpointer data);
 static void ask_terminal_service_confirmation(Center *c, const gchar *plan_id, const gchar *action, const gchar *impact);
 static void open_debian_terminal(GtkButton *button, gpointer data);
@@ -58,6 +61,8 @@ static void generate_ssh_key(GtkButton *button, gpointer data);
 static void ssh_client_key_preview(GtkButton *button, gpointer data);
 static void ask_ssh_client_key_confirmation(Center *c, const gchar *name, const gchar *plan_id, const gchar *path, const gchar *impact);
 static void change_ssh_autostart(GtkButton *button, gpointer data);
+static void deploy_ssh_definition(GtkButton *button, gpointer data);
+static void rollback_ssh_definition(GtkButton *button, gpointer data);
 static void change_ssh_wakelock(GtkButton *button, gpointer data);
 static void ask_ssh_wakelock_confirmation(Center *c, const gchar *enabled, const gchar *plan_id, const gchar *effect);
 static void change_ssh_wakelock(GtkButton *button, gpointer data) {
@@ -243,6 +248,57 @@ static void request_done(GObject *source, GAsyncResult *result, gpointer user_da
                     && (g_strcmp0(f[2], "true") == 0 || g_strcmp0(f[2], "false") == 0) && f[3]) {
                 g_strchomp(f[3]); ask_ssh_autostart_confirmation(c, f[2], f[1], f[3]);
             } else gtk_label_set_text(GTK_LABEL(c->notice), "SSH startup preference preview was invalid.");
+            g_strfreev(f);
+        } else if (g_strcmp0(request->action, "ssh-deploy-preview") == 0 && stdout_text && g_str_has_prefix(stdout_text, "P\t")) {
+            gchar **f = g_strsplit(stdout_text, "\t", 3);
+            if (f[1] && g_regex_match_simple("^[0-9a-f]{64}$", f[1], 0, 0) && f[2]) {
+                g_strchomp(f[2]); ask_ssh_deploy_confirmation(c, f[1], f[2]);
+            } else gtk_label_set_text(GTK_LABEL(c->notice), "SSH definition preview was invalid; no change was made.");
+            g_strfreev(f);
+        } else if (g_strcmp0(request->action, "ssh-deploy-rollback-list") == 0 && stdout_text) {
+            gchar **lines = g_strsplit(stdout_text, "\n", -1);
+            GPtrArray *ids = g_ptr_array_new_with_free_func(g_free);
+            GPtrArray *labels = g_ptr_array_new_with_free_func(g_free);
+            for (guint i = 0; lines[i]; i++) {
+                gchar **f = g_strsplit(lines[i], "\t", 4);
+                if (g_strcmp0(f[0], "R") == 0 && f[1] && f[2]
+                        && g_regex_match_simple("^[0-9a-f]{32}$", f[1], 0, 0)) {
+                    g_ptr_array_add(ids, g_strdup(f[1]));
+                    g_ptr_array_add(labels, g_strdup_printf("%s · %s", f[2], f[3] ? f[3] : ""));
+                }
+                g_strfreev(f);
+            }
+            g_strfreev(lines);
+            if (ids->len == 0) {
+                gtk_label_set_text(GTK_LABEL(c->notice), "No completed SSH definition deployments are available to restore.");
+            } else {
+                gchar **choices = g_new0(gchar *, labels->len + 2);
+                choices[0] = g_strdup("Cancel");
+                GString *message = g_string_new("Choose a saved SSH service-definition deployment:");
+                GString *joined = g_string_new(NULL);
+                for (guint i = 0; i < ids->len; i++) {
+                    choices[i + 1] = g_strdup_printf("%u. %s", i + 1, (gchar *)g_ptr_array_index(labels, i));
+                    g_string_append_printf(message, "\n\n%u. %s", i + 1, (gchar *)g_ptr_array_index(labels, i));
+                    if (i) g_string_append_c(joined, ',');
+                    g_string_append(joined, g_ptr_array_index(ids, i));
+                }
+                GtkAlertDialog *dialog = gtk_alert_dialog_new("%s", message->str);
+                gtk_alert_dialog_set_buttons(dialog, (const char * const *)choices);
+                gtk_alert_dialog_set_default_button(dialog, 0);
+                Request *select = g_new0(Request, 1); select->center = c;
+                select->action = g_strdup("ssh-deploy-rollback-select");
+                select->resource_id = g_string_free(joined, FALSE);
+                gtk_alert_dialog_choose(dialog, GTK_WINDOW(c->window), NULL, ssh_deploy_rollback_choice, select);
+                gtk_label_set_text(GTK_LABEL(c->notice), "Choose the exact saved SSH definition to review.");
+                g_object_unref(dialog); g_string_free(message, TRUE); g_strfreev(choices);
+            }
+            g_ptr_array_unref(ids); g_ptr_array_unref(labels);
+        } else if (g_strcmp0(request->action, "ssh-deploy-rollback-preview") == 0 && stdout_text && g_str_has_prefix(stdout_text, "P\t")) {
+            gchar **f = g_strsplit(stdout_text, "\t", 4);
+            if (f[1] && g_regex_match_simple("^[0-9a-f]{32}$", f[1], 0, 0)
+                    && f[2] && g_regex_match_simple("^[0-9a-f]{64}$", f[2], 0, 0) && f[3]) {
+                g_strchomp(f[3]); ask_ssh_deploy_rollback_confirmation(c, f[1], f[2], f[3]);
+            } else gtk_label_set_text(GTK_LABEL(c->notice), "SSH definition rollback preview was invalid; no change was made.");
             g_strfreev(f);
         } else if (g_strcmp0(request->action, "ssh-key-rollback-list") == 0 && stdout_text && g_str_has_prefix(stdout_text, "R\t")) {
             gchar **lines = g_strsplit(stdout_text, "\n", -1);
@@ -436,6 +492,8 @@ static void request_done(GObject *source, GAsyncResult *result, gpointer user_da
             gtk_label_set_text(GTK_LABEL(c->notice), "Native recovery key created. Review the public-key path in the result, then enroll it separately if needed.");
         else if (success && g_strcmp0(request->action,"ssh-autostart-apply")==0)
             run_bridge(c,"ssh-autostart-status",NULL,NULL,NULL,NULL,NULL);
+        else if (success && (g_strcmp0(request->action,"ssh-deploy-apply")==0 || g_strcmp0(request->action,"ssh-deploy-rollback-apply")==0))
+            run_bridge(c,"inspect","network.ssh.managed-8023",NULL,NULL,NULL,NULL);
         else if (success && g_strcmp0(request->action,"ssh-wakelock-apply")==0)
             run_bridge(c,"ssh-wakelock-status",NULL,NULL,NULL,NULL,NULL);
         else if (success && g_strcmp0(request->action,"set-monitor")==0)
@@ -653,13 +711,15 @@ static void show_resource(Center *c, Resource *r) {
     gtk_widget_set_visible(c->ssh_rollback_button, managed_ssh);
     gtk_widget_set_visible(c->ssh_generate_button, managed_ssh);
     gtk_widget_set_visible(c->ssh_autostart_button, managed_ssh);
+    gtk_widget_set_visible(c->ssh_deploy_button, managed_ssh);
+    gtk_widget_set_visible(c->ssh_deploy_rollback_button, managed_ssh);
     gtk_widget_set_visible(c->ssh_wakelock_button, wakelock);
     gtk_widget_set_visible(c->graphics_select_button, g_strcmp0(r->id, "graphics.native") == 0);
     if (graphics) { gtk_button_set_label(GTK_BUTTON(c->start_button), "Graphics status"); gtk_button_set_label(GTK_BUTTON(c->stop_button), "Verify OpenGL"); }
     else if (proot_workloads) { gtk_button_set_label(GTK_BUTTON(c->start_button), "Debian status"); gtk_button_set_label(GTK_BUTTON(c->stop_button), "Guest sessions"); }
     else { gtk_button_set_label(GTK_BUTTON(c->start_button), managed_ssh ? "Start managed SSH (8023)" : "Start desktop"); gtk_button_set_label(GTK_BUTTON(c->stop_button), managed_ssh ? "Stop managed SSH (8023)" : "Stop desktop"); }
     gtk_widget_set_visible(c->monitor_box, monitor);
-    GtkWidget *action_buttons[] = {c->start_button, c->stop_button, c->ssh_restart_button, c->ssh_keys_button, c->ssh_enroll_button, c->ssh_revoke_button, c->ssh_rollback_button, c->ssh_generate_button, c->ssh_autostart_button, c->ssh_wakelock_button, c->graphics_select_button,
+    GtkWidget *action_buttons[] = {c->start_button, c->stop_button, c->ssh_restart_button, c->ssh_keys_button, c->ssh_enroll_button, c->ssh_revoke_button, c->ssh_rollback_button, c->ssh_generate_button, c->ssh_autostart_button, c->ssh_deploy_button, c->ssh_deploy_rollback_button, c->ssh_wakelock_button, c->graphics_select_button,
         c->graphics_api_button, c->history_button, c->desktop_log_button, c->logs_button,
         c->audit_logs_button, c->cron_button, c->cron_history_button, c->cron_manage_button,
         c->cron_start_button, c->cron_stop_button, c->timezone_set_button, c->software_button, c->ai_model_install_button, c->ai_model_remove_button, c->ai_run_button, c->ai_gpu_status_button, c->ai_gpu_run_button, c->ai_npu_status_button, c->ai_npu_install_button, c->ai_npu_run_button, c->terminal_service_button, c->terminal_open_button,
@@ -760,6 +820,10 @@ static void confirmed_action(GObject *source, GAsyncResult *result, gpointer use
             run_bridge(request->center, "ssh-client-key-apply", "confirmed", request->resource_id, request->plan_id, NULL, NULL);
         else if (g_strcmp0(request->action, "ssh-autostart-apply") == 0)
             run_bridge(request->center, "ssh-autostart-apply", "confirmed", request->resource_id, request->plan_id, NULL, NULL);
+        else if (g_strcmp0(request->action, "ssh-deploy-apply") == 0)
+            run_bridge(request->center, "ssh-deploy-apply", "confirmed", request->plan_id, NULL, NULL, NULL);
+        else if (g_strcmp0(request->action, "ssh-deploy-rollback-apply") == 0)
+            run_bridge(request->center, "ssh-deploy-rollback-apply", request->resource_id, request->plan_id, NULL, NULL, NULL);
         else if (g_strcmp0(request->action, "ssh-wakelock-apply") == 0)
             run_bridge(request->center, "ssh-wakelock-apply", "confirmed", request->resource_id, request->plan_id, NULL, NULL);
         else if (g_strcmp0(request->action, "shortcut-apply") == 0)
@@ -1569,6 +1633,30 @@ static void ask_ssh_autostart_confirmation(Center *c, const gchar *enabled,
     gtk_label_set_text(GTK_LABEL(c->notice), "Reviewing SSH automatic-start preference");
     g_object_unref(dialog); g_free(message);
 }
+static void ask_ssh_deploy_confirmation(Center *c, const gchar *plan_id, const gchar *summary) {
+    gchar *message = g_strdup_printf("Review this exact SSH service-definition deployment?\n\n%s\n\nOnly the fixed Ternuxx Runit run definition will be atomically replaced. The current sshd process will keep running; manual SSH 8022 and SSH configuration are untouched.", summary);
+    GtkAlertDialog *dialog = gtk_alert_dialog_new("%s", message);
+    const char *choices[] = {"Cancel", "Deploy definition", NULL};
+    gtk_alert_dialog_set_buttons(dialog, choices); gtk_alert_dialog_set_default_button(dialog, 0);
+    Request *request = g_new0(Request, 1); request->center = c;
+    request->action = g_strdup("ssh-deploy-apply"); request->plan_id = g_strdup(plan_id);
+    gtk_alert_dialog_choose(dialog, GTK_WINDOW(c->window), NULL, confirmed_action, request);
+    gtk_label_set_text(GTK_LABEL(c->notice), "Reviewing exact SSH service definition and backup");
+    g_object_unref(dialog); g_free(message);
+}
+static void ask_ssh_deploy_rollback_confirmation(Center *c, const gchar *operation_id,
+                                                  const gchar *plan_id, const gchar *summary) {
+    gchar *message = g_strdup_printf("Review this exact SSH service-definition rollback?\n\n%s\n\nOnly the prior fixed Runit run definition will be restored. The current sshd process will keep running; manual SSH 8022 and SSH configuration are untouched.", summary);
+    GtkAlertDialog *dialog = gtk_alert_dialog_new("%s", message);
+    const char *choices[] = {"Cancel", "Restore definition", NULL};
+    gtk_alert_dialog_set_buttons(dialog, choices); gtk_alert_dialog_set_default_button(dialog, 0);
+    Request *request = g_new0(Request, 1); request->center = c;
+    request->action = g_strdup("ssh-deploy-rollback-apply");
+    request->resource_id = g_strdup(operation_id); request->plan_id = g_strdup(plan_id);
+    gtk_alert_dialog_choose(dialog, GTK_WINDOW(c->window), NULL, confirmed_action, request);
+    gtk_label_set_text(GTK_LABEL(c->notice), "Reviewing exact SSH definition rollback");
+    g_object_unref(dialog); g_free(message);
+}
 static void ask_ssh_key_confirmation(Center *c, const gchar *action, const gchar *subject,
                                      const gchar *plan_id, const gchar *fingerprint) {
     gboolean enroll = g_strcmp0(action, "ssh-key-add-preview") == 0;
@@ -1601,6 +1689,26 @@ static void ssh_rollback_choice(GObject *source, GAsyncResult *result, gpointer 
 }
 static void restore_ssh_key(GtkButton *button, gpointer data) {
     (void)button; run_bridge(data, "ssh-key-rollback-list", NULL, NULL, NULL, NULL, NULL);
+}
+static void ssh_deploy_rollback_choice(GObject *source, GAsyncResult *result, gpointer user_data) {
+    GtkAlertDialog *dialog = GTK_ALERT_DIALOG(source); Request *request = user_data; GError *error = NULL;
+    int choice = gtk_alert_dialog_choose_finish(dialog, result, &error);
+    if (!error && choice > 0) {
+        gchar **ids = g_strsplit(request->resource_id ? request->resource_id : "", ",", -1);
+        guint index = (guint)(choice - 1);
+        if (index < g_strv_length(ids) && g_regex_match_simple("^[0-9a-f]{32}$", ids[index], 0, 0))
+            run_bridge(request->center, "ssh-deploy-rollback-preview", ids[index], NULL, NULL, NULL, NULL);
+        else gtk_label_set_text(GTK_LABEL(request->center->notice), "Selected SSH definition record is invalid.");
+        g_strfreev(ids);
+    } else if (error) { gtk_label_set_text(GTK_LABEL(request->center->notice), error->message); g_clear_error(&error); }
+    else gtk_label_set_text(GTK_LABEL(request->center->notice), "SSH definition rollback cancelled.");
+    g_free(request->action); g_free(request->resource_id); g_free(request->detail_id); g_free(request->plan_id); g_free(request);
+}
+static void deploy_ssh_definition(GtkButton *button, gpointer data) {
+    (void)button; run_bridge(data, "ssh-deploy-preview", NULL, NULL, NULL, NULL, NULL);
+}
+static void rollback_ssh_definition(GtkButton *button, gpointer data) {
+    (void)button; run_bridge(data, "ssh-deploy-rollback-list", NULL, NULL, NULL, NULL, NULL);
 }
 static void ask_ssh_rollback_confirmation(Center *c, const gchar *rollback_id,
                                           const gchar *plan_id, const gchar *effect) {
@@ -1736,12 +1844,14 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     c->ssh_rollback_button=gtk_button_new_with_label("Restore previous SSH key change..."); gtk_widget_set_visible(c->ssh_rollback_button,FALSE);
     c->ssh_generate_button=gtk_button_new_with_label("Create Native recovery key..."); gtk_widget_set_visible(c->ssh_generate_button,FALSE);
     c->ssh_autostart_button=gtk_button_new_with_label("Set SSH start with Termux services..."); gtk_widget_set_visible(c->ssh_autostart_button,FALSE);
+    c->ssh_deploy_button=gtk_button_new_with_label("Review and deploy SSH service definition..."); gtk_widget_set_visible(c->ssh_deploy_button,FALSE);
+    c->ssh_deploy_rollback_button=gtk_button_new_with_label("Restore previous SSH service definition..."); gtk_widget_set_visible(c->ssh_deploy_rollback_button,FALSE);
     c->ssh_wakelock_button=gtk_button_new_with_label("Set managed SSH keep-awake preference..."); gtk_widget_set_visible(c->ssh_wakelock_button,FALSE);
     c->graphics_select_button=gtk_button_new_with_label("Select backend (KGSL experimental)"); gtk_widget_set_visible(c->graphics_select_button,FALSE);
     c->graphics_api_button=gtk_button_new_with_label("Verify graphics API…"); gtk_widget_set_visible(c->graphics_api_button,FALSE);
     g_object_set_data(G_OBJECT(c->start_button),"start",GINT_TO_POINTER(TRUE)); g_object_set_data(G_OBJECT(c->stop_button),"start",GINT_TO_POINTER(FALSE));
     gtk_widget_set_visible(c->start_button,FALSE); gtk_widget_set_visible(c->stop_button,FALSE);
-    GtkWidget *base_actions[]={c->start_button,c->stop_button,c->ssh_restart_button,c->ssh_keys_button,c->ssh_enroll_button,c->ssh_revoke_button,c->ssh_rollback_button,c->ssh_generate_button,c->ssh_autostart_button,c->ssh_wakelock_button,c->graphics_select_button,c->graphics_api_button,c->history_button,c->desktop_log_button,c->logs_button,c->audit_logs_button};
+    GtkWidget *base_actions[]={c->start_button,c->stop_button,c->ssh_restart_button,c->ssh_keys_button,c->ssh_enroll_button,c->ssh_revoke_button,c->ssh_rollback_button,c->ssh_generate_button,c->ssh_autostart_button,c->ssh_deploy_button,c->ssh_deploy_rollback_button,c->ssh_wakelock_button,c->graphics_select_button,c->graphics_api_button,c->history_button,c->desktop_log_button,c->logs_button,c->audit_logs_button};
     for (guint i=0;i<G_N_ELEMENTS(base_actions);i++) gtk_box_append(GTK_BOX(actions),base_actions[i]);
     c->cron_button=gtk_button_new_with_label("View saved Cron jobs"); gtk_widget_set_visible(c->cron_button,FALSE); gtk_box_append(GTK_BOX(actions),c->cron_button);
     c->cron_history_button=gtk_button_new_with_label("View Cron execution history"); gtk_widget_set_visible(c->cron_history_button,FALSE); gtk_box_append(GTK_BOX(actions),c->cron_history_button);
@@ -1832,7 +1942,7 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     g_signal_connect(c->proot_replay_restore_button,"clicked",G_CALLBACK(proot_replay_restore_clicked),c);
     g_signal_connect(c->proot_replay_cancel_button,"clicked",G_CALLBACK(proot_replay_cancel_clicked),c);
     g_signal_connect(c->proot_replay_apply_button,"clicked",G_CALLBACK(proot_replay_apply_clicked),c);
-    g_signal_connect(c->category_list,"row-selected",G_CALLBACK(category_selected),c); g_signal_connect(c->resource_list,"row-selected",G_CALLBACK(resource_selected),c); g_signal_connect(c->search,"search-changed",G_CALLBACK(search_changed),c); g_signal_connect(c->start_button,"clicked",G_CALLBACK(confirm_action),c); g_signal_connect(c->stop_button,"clicked",G_CALLBACK(confirm_action),c); g_signal_connect(c->ssh_restart_button,"clicked",G_CALLBACK(confirm_action),c); g_signal_connect(c->ssh_keys_button,"clicked",G_CALLBACK(show_ssh_keys),c); g_signal_connect(c->ssh_enroll_button,"clicked",G_CALLBACK(enroll_ssh_key),c); g_signal_connect(c->ssh_revoke_button,"clicked",G_CALLBACK(revoke_ssh_key),c); g_signal_connect(c->ssh_rollback_button,"clicked",G_CALLBACK(restore_ssh_key),c); g_signal_connect(c->ssh_generate_button,"clicked",G_CALLBACK(generate_ssh_key),c); g_signal_connect(c->ssh_autostart_button,"clicked",G_CALLBACK(change_ssh_autostart),c); g_signal_connect(c->ssh_wakelock_button,"clicked",G_CALLBACK(change_ssh_wakelock),c); g_signal_connect(c->graphics_select_button,"clicked",G_CALLBACK(select_graphics),c); g_signal_connect(c->graphics_api_button,"clicked",G_CALLBACK(choose_graphics_api),c); g_signal_connect(c->history_button,"clicked",G_CALLBACK(show_history),c); g_signal_connect(c->desktop_log_button,"clicked",G_CALLBACK(show_desktop_log),c); g_signal_connect(c->logs_button,"clicked",G_CALLBACK(show_cron_log),c); g_signal_connect(c->audit_logs_button,"clicked",G_CALLBACK(show_management_log),c); g_signal_connect(c->cron_button,"clicked",G_CALLBACK(show_cron_jobs),c); g_signal_connect(c->cron_history_button,"clicked",G_CALLBACK(show_cron_history),c); g_signal_connect(c->cron_manage_button,"clicked",G_CALLBACK(show_cron_form),c); g_signal_connect(c->cron_start_button,"clicked",G_CALLBACK(cron_scheduler_start),c); g_signal_connect(c->cron_stop_button,"clicked",G_CALLBACK(cron_scheduler_stop),c); g_signal_connect(c->cron_inspect_button,"clicked",G_CALLBACK(inspect_cron_reference),c); g_signal_connect(c->cron_next_button,"clicked",G_CALLBACK(inspect_cron_reference),c); g_signal_connect(c->cron_execution_button,"clicked",G_CALLBACK(inspect_cron_reference),c); g_signal_connect(c->recovery_status_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->backup_list_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->continuity_status_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->continuity_prepare_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->continuity_verify_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->backup_inspect_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->backup_create_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->restore_apply_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->restore_preview_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->operation_inspect_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->rollback_preview_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->rollback_apply_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->recovery_resolve_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->timezone_set_button,"clicked",G_CALLBACK(set_timezone),c); g_signal_connect(save,"clicked",G_CALLBACK(save_monitor),c);
+    g_signal_connect(c->category_list,"row-selected",G_CALLBACK(category_selected),c); g_signal_connect(c->resource_list,"row-selected",G_CALLBACK(resource_selected),c); g_signal_connect(c->search,"search-changed",G_CALLBACK(search_changed),c); g_signal_connect(c->start_button,"clicked",G_CALLBACK(confirm_action),c); g_signal_connect(c->stop_button,"clicked",G_CALLBACK(confirm_action),c); g_signal_connect(c->ssh_restart_button,"clicked",G_CALLBACK(confirm_action),c); g_signal_connect(c->ssh_keys_button,"clicked",G_CALLBACK(show_ssh_keys),c); g_signal_connect(c->ssh_enroll_button,"clicked",G_CALLBACK(enroll_ssh_key),c); g_signal_connect(c->ssh_revoke_button,"clicked",G_CALLBACK(revoke_ssh_key),c); g_signal_connect(c->ssh_rollback_button,"clicked",G_CALLBACK(restore_ssh_key),c); g_signal_connect(c->ssh_generate_button,"clicked",G_CALLBACK(generate_ssh_key),c); g_signal_connect(c->ssh_autostart_button,"clicked",G_CALLBACK(change_ssh_autostart),c); g_signal_connect(c->ssh_deploy_button,"clicked",G_CALLBACK(deploy_ssh_definition),c); g_signal_connect(c->ssh_deploy_rollback_button,"clicked",G_CALLBACK(rollback_ssh_definition),c); g_signal_connect(c->ssh_wakelock_button,"clicked",G_CALLBACK(change_ssh_wakelock),c); g_signal_connect(c->graphics_select_button,"clicked",G_CALLBACK(select_graphics),c); g_signal_connect(c->graphics_api_button,"clicked",G_CALLBACK(choose_graphics_api),c); g_signal_connect(c->history_button,"clicked",G_CALLBACK(show_history),c); g_signal_connect(c->desktop_log_button,"clicked",G_CALLBACK(show_desktop_log),c); g_signal_connect(c->logs_button,"clicked",G_CALLBACK(show_cron_log),c); g_signal_connect(c->audit_logs_button,"clicked",G_CALLBACK(show_management_log),c); g_signal_connect(c->cron_button,"clicked",G_CALLBACK(show_cron_jobs),c); g_signal_connect(c->cron_history_button,"clicked",G_CALLBACK(show_cron_history),c); g_signal_connect(c->cron_manage_button,"clicked",G_CALLBACK(show_cron_form),c); g_signal_connect(c->cron_start_button,"clicked",G_CALLBACK(cron_scheduler_start),c); g_signal_connect(c->cron_stop_button,"clicked",G_CALLBACK(cron_scheduler_stop),c); g_signal_connect(c->cron_inspect_button,"clicked",G_CALLBACK(inspect_cron_reference),c); g_signal_connect(c->cron_next_button,"clicked",G_CALLBACK(inspect_cron_reference),c); g_signal_connect(c->cron_execution_button,"clicked",G_CALLBACK(inspect_cron_reference),c); g_signal_connect(c->recovery_status_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->backup_list_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->continuity_status_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->continuity_prepare_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->continuity_verify_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->backup_inspect_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->backup_create_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->restore_apply_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->restore_preview_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->operation_inspect_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->rollback_preview_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->rollback_apply_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->recovery_resolve_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->timezone_set_button,"clicked",G_CALLBACK(set_timezone),c); g_signal_connect(save,"clicked",G_CALLBACK(save_monitor),c);
     load_catalog(c); gtk_window_present(GTK_WINDOW(c->window));
     return TRUE;
 }

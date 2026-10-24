@@ -305,6 +305,10 @@ def _managed_ssh_action(screen: "curses._CursesWindow", resource: dict[str, Any]
         choices.append(("revoke", "Remove an authorized key"))
     if "ssh.keys.rollback.list" in operations:
         choices.append(("rollback", "Restore a previous SSH key change"))
+    if "ssh.service.deploy" in operations:
+        choices.append(("deploy", "Review and deploy the managed SSH service definition"))
+    if "ssh.service.deploy.rollback.preview" in operations:
+        choices.append(("deploy-rollback", "Restore a previous SSH service definition"))
     action = _choose(screen, "Managed SSH · port 8023", choices)
     if action == "keys":
         return _call("ssh.keys.list")
@@ -338,6 +342,50 @@ def _managed_ssh_action(screen: "curses._CursesWindow", resource: dict[str, Any]
         if result.get("ok"):
             _call("ssh.keys.list")
         return result
+    if action == "deploy":
+        preview = _call("ssh.service.deploy", {"confirmed": False, "plan_id": None})
+        if not preview.get("ok"):
+            return preview
+        plan = preview.get("data", {})
+        _show_details(screen, plan)
+        plan_id = plan.get("plan_id") if isinstance(plan, dict) else None
+        if not isinstance(plan, dict) or plan.get("requires_confirmation") is not True or not isinstance(plan_id, str):
+            return preview
+        answer = _prompt(screen, "Deploy this exact fixed Runit definition? The current sshd will keep running; type yes")
+        if answer.lower() != "yes":
+            return {"ok": False, "error": {"code": "cancelled"}}
+        return _call("ssh.service.deploy", {"confirmed": True, "plan_id": plan_id})
+    if action == "deploy-rollback":
+        history = _call("recovery.status")
+        if not history.get("ok"):
+            return history
+        records = history.get("data", {}).get("operations", [])
+        eligible = [record for record in records if isinstance(record, dict)
+                    and record.get("kind") == "service.deploy"
+                    and record.get("status") in {"complete", "needs_recovery"}
+                    and isinstance(record.get("operation_id"), str)]
+        if not eligible:
+            _show_details(screen, {"message": "No completed SSH service-definition deployment is available to restore."})
+            return history
+        selected = _choose(screen, "Select an SSH service-definition deployment",
+            [(str(i), f"{record.get('status')} · {record.get('updated_at', '')} · {record['operation_id']}")
+             for i, record in enumerate(eligible)])
+        if not isinstance(selected, str) or not selected.isdigit() or int(selected) >= len(eligible):
+            return {"ok": False, "error": {"code": "cancelled"}}
+        operation_id = eligible[int(selected)]["operation_id"]
+        preview = _call("ssh.service.deploy.rollback.preview", {"operation_id": operation_id})
+        if not preview.get("ok"):
+            return preview
+        plan = preview.get("data", {})
+        _show_details(screen, plan)
+        plan_id = plan.get("plan_id") if isinstance(plan, dict) else None
+        if not isinstance(plan, dict) or plan.get("requires_confirmation") is not True or not isinstance(plan_id, str):
+            return preview
+        answer = _prompt(screen, "Restore the exact pre-deployment Runit definition? The running sshd will not restart; type yes")
+        if answer.lower() != "yes":
+            return {"ok": False, "error": {"code": "cancelled"}}
+        return _call("ssh.service.deploy.rollback.apply", {
+            "operation_id": operation_id, "confirmed": True, "plan_id": plan_id})
     if action == "autostart":
         current = _call("ssh.service.autostart.status")
         if not current.get("ok"):

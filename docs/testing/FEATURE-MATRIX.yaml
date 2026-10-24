@@ -54,8 +54,8 @@ features:
     qualification: DETECTED
     evidence: [../architecture/MANAGEMENT-API.md, ../architecture/CAPABILITY-MATRIX.md, ../evidence/2026-10-24-client-dispatch-audit.md, ../../lib/management_service.py, ../../tests/test_management_service.py]
     release_qualified: false
-    limitations: [The inspected client routes share typed backend operations; per-operation reach, visual/accessibility parity, and release qualification remain open.]
-    next_action: Resolve the documented SSH definition deploy/rollback reach gap, then finish per-operation UI behavior review.
+    limitations: [The inspected client routes share typed backend operations; rendered/accessibility parity and release qualification remain open.]
+    next_action: Finish per-operation UI behavior review, GTK build/render acceptance, and clean-device replay.
     owner_decision_required: false
 
   - id: client.tui
@@ -70,7 +70,7 @@ features:
     evidence: [../../lib/terminal_ui.py, ../../tests/test_terminal_ui.py, ../OPERATIONS.md]
     release_qualified: false
     limitations: [The Native workflow is fixture-tested; accessibility and complete action parity need review.]
-    next_action: Audit TUI actions against the catalog; resolve the CLI-only SSH definition deploy/rollback gap.
+    next_action: Audit TUI actions against the catalog; complete accessibility review and clean-device replay.
     owner_decision_required: false
 
   - id: client.web
@@ -85,7 +85,7 @@ features:
     evidence: [../../lib/management_web_ui.html, ../../lib/management_http_runtime.py, ../../tests/test_management_http_runtime.py]
     release_qualified: false
     limitations: [Authentication, scoped operations, and reload/reconnect contracts have tests; browser-rendered login, catalog, and live Debian status passed on-device. Narrow-screen/accessibility review and complete per-operation reach acceptance remain open.]
-    next_action: Review the intentional SSH deployment deny against a dedicated session-scope policy; finish per-operation reach and narrow-screen/accessibility acceptance.
+    next_action: Finish per-operation reach and narrow-screen/accessibility acceptance, including the opt-in SSH definition scope.
     owner_decision_required: false
 
   - id: client.gtk
@@ -100,7 +100,7 @@ features:
     evidence: [../../apps/management-center/management-center.c, ../../tests/test_management_center_ui_contract.py]
     release_qualified: false
     limitations: [The GTK client requires GTK4 and VTE GTK4 development files; guided fresh-guest setup is CLI-only. GTK bridge, guest lifecycle actions, and bounded inference have source/fixture coverage; complete per-operation reach, native-display visual review, and accessibility remain open.]
-    next_action: Resolve the SSH definition deploy/rollback reach gap, then finish per-operation GTK reach, native-display visual, and accessibility acceptance.
+    next_action: Complete per-operation GTK reach, native-display visual, and accessibility acceptance.
     owner_decision_required: false
 
   - id: desktop.native

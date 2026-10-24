@@ -221,6 +221,56 @@ def main(argv: list[str]) -> int:
             "enabled": enabled, "confirmed": True, "plan_id": plan_id})
         print(management_presentation.format_report(result))
         return 0 if result.get("ok") else 1
+    if action == "ssh-deploy-preview" and len(argv) == 1:
+        result = call("ssh.service.deploy", {"confirmed": False, "plan_id": None})
+        if not result.get("ok"):
+            print(management_presentation.format_report(result)); return 1
+        data = result.get("data", {})
+        plan_id = data.get("plan_id")
+        if data.get("requires_confirmation") is not True or not isinstance(plan_id, str) or not re.fullmatch(r"[0-9a-f]{64}", plan_id):
+            print(management_presentation.format_report(result)); return 0
+        print("P\t" + plan_id + "\t" + clean(json.dumps(data, ensure_ascii=False, sort_keys=True)))
+        return 0
+    if action == "ssh-deploy-apply" and len(argv) == 3 and argv[1] == "confirmed":
+        plan_id = argv[2]
+        if not re.fullmatch(r"[0-9a-f]{64}", plan_id):
+            print("SSH definition preview expired; create a new preview."); return 2
+        result = call("ssh.service.deploy", {"confirmed": True, "plan_id": plan_id})
+        print(management_presentation.format_report(result))
+        return 0 if result.get("ok") else 1
+    if action == "ssh-deploy-rollback-list" and len(argv) == 1:
+        result = call("recovery.status")
+        if not result.get("ok"):
+            print(management_presentation.format_report(result)); return 1
+        records = result.get("data", {}).get("operations", [])
+        for record in records:
+            if (isinstance(record, dict) and record.get("kind") == "service.deploy"
+                    and record.get("status") in {"complete", "needs_recovery"}
+                    and isinstance(record.get("operation_id"), str)
+                    and re.fullmatch(r"[0-9a-f]{32}", record["operation_id"])):
+                print("R\t" + record["operation_id"] + "\t" + clean(record.get("status"))
+                      + "\t" + clean(record.get("updated_at")))
+        return 0
+    if action == "ssh-deploy-rollback-preview" and len(argv) == 2 and re.fullmatch(r"[0-9a-f]{32}", argv[1]):
+        operation_id = argv[1]
+        result = call("ssh.service.deploy.rollback.preview", {"operation_id": operation_id})
+        if not result.get("ok"):
+            print(management_presentation.format_report(result)); return 1
+        data = result.get("data", {})
+        plan_id = data.get("plan_id")
+        if data.get("requires_confirmation") is not True or not isinstance(plan_id, str) or not re.fullmatch(r"[0-9a-f]{64}", plan_id):
+            print(management_presentation.format_report(result)); return 0
+        print("P\t" + operation_id + "\t" + plan_id + "\t"
+              + clean(json.dumps(data, ensure_ascii=False, sort_keys=True)))
+        return 0
+    if action == "ssh-deploy-rollback-apply" and len(argv) == 3:
+        operation_id, plan_id = argv[1:]
+        if not re.fullmatch(r"[0-9a-f]{32}", operation_id) or not re.fullmatch(r"[0-9a-f]{64}", plan_id):
+            print("SSH definition rollback preview expired; create a new preview."); return 2
+        result = call("ssh.service.deploy.rollback.apply", {
+            "operation_id": operation_id, "confirmed": True, "plan_id": plan_id})
+        print(management_presentation.format_report(result))
+        return 0 if result.get("ok") else 1
     if action == "ssh-wakelock-status" and len(argv) == 1:
         result = call("wakelock.ssh-policy.status")
         if not result.get("ok"):

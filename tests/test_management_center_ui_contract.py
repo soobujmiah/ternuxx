@@ -159,6 +159,25 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
             with self.subTest(contract=contract):
                 self.assertIn(contract, BRIDGE)
 
+    def test_gtk_ssh_definition_deploy_and_rollback_use_exact_preview_plans(self):
+        for contract in ("ssh_deploy_button", "ssh_deploy_rollback_button",
+                         "Review and deploy SSH service definition",
+                         "Restore previous SSH service definition",
+                         "ssh-deploy-preview", "ssh-deploy-apply",
+                         "ssh-deploy-rollback-list", "ssh-deploy-rollback-preview",
+                         "ssh-deploy-rollback-apply", "^[0-9a-f]{64}$",
+                         "The current sshd process will keep running"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, SOURCE)
+        for contract in ('action == "ssh-deploy-preview"',
+                         'action == "ssh-deploy-apply"',
+                         'action == "ssh-deploy-rollback-list"',
+                         'action == "ssh-deploy-rollback-preview"',
+                         'action == "ssh-deploy-rollback-apply"',
+                         '"ssh.service.deploy.rollback.apply"'):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, BRIDGE)
+
 
 if __name__ == "__main__":
     unittest.main()

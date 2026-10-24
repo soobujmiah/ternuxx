@@ -592,6 +592,45 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertIn("public-key login only; password login is disabled", labels)
         self.assertIn("start SSH 8023 (preview)", labels)
 
+    def test_managed_ssh_definition_deploy_requires_exact_preview_confirmation(self) -> None:
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "network.ssh.managed-8023")
+        preview = {"ok": True, "data": {"requires_confirmation": True,
+                   "plan_id": "d" * 64, "diff": ["- old", "+ new"]}}
+        applied = {"ok": True, "data": {"status": "complete"}}
+        with mock.patch.object(terminal_ui, "_choose", return_value="deploy"), \
+             mock.patch.object(terminal_ui, "_prompt", return_value="yes"), \
+             mock.patch.object(terminal_ui, "_show_details"), \
+             mock.patch.object(terminal_ui, "_call", side_effect=[preview, applied]) as dispatch:
+            self.assertIs(terminal_ui._managed_ssh_action(object(), resource), applied)
+        self.assertEqual(dispatch.call_args_list, [
+            mock.call("ssh.service.deploy", {"confirmed": False, "plan_id": None}),
+            mock.call("ssh.service.deploy", {"confirmed": True, "plan_id": "d" * 64}),
+        ])
+
+    def test_managed_ssh_definition_rollback_selects_only_its_own_journal_records(self) -> None:
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "network.ssh.managed-8023")
+        history = {"ok": True, "data": {"operations": [
+            {"kind": "desktop.start", "status": "complete", "operation_id": "x" * 32},
+            {"kind": "service.deploy", "status": "complete", "operation_id": "a" * 32},
+            {"kind": "service.deploy", "status": "failed", "operation_id": "b" * 32},
+        ]}}
+        preview = {"ok": True, "data": {"requires_confirmation": True,
+                   "plan_id": "e" * 64, "operation_id": "a" * 32}}
+        applied = {"ok": True, "data": {"status": "rolled_back"}}
+        with mock.patch.object(terminal_ui, "_choose", side_effect=["deploy-rollback", "0"]), \
+             mock.patch.object(terminal_ui, "_prompt", return_value="yes"), \
+             mock.patch.object(terminal_ui, "_show_details"), \
+             mock.patch.object(terminal_ui, "_call", side_effect=[history, preview, applied]) as dispatch:
+            self.assertIs(terminal_ui._managed_ssh_action(object(), resource), applied)
+        self.assertEqual(dispatch.call_args_list, [
+            mock.call("recovery.status"),
+            mock.call("ssh.service.deploy.rollback.preview", {"operation_id": "a" * 32}),
+            mock.call("ssh.service.deploy.rollback.apply", {
+                "operation_id": "a" * 32, "confirmed": True, "plan_id": "e" * 64}),
+        ])
+
     def test_managed_ssh_key_inventory_is_read_only(self) -> None:
         resource = next(item for item in management_service.management_catalog.RESOURCES
                         if item["id"] == "network.ssh.managed-8023")
