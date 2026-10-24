@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 519,
-  "read_count": 152,
+  "document_count": 520,
+  "read_count": 160,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -35,10 +35,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "4b4f07efe19c22a7710ef285c47e98a58dad78813435b88df01fdf3ad2219fc1",
-      "lines": 24,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "fd6d9ee4c79ff0d7582a7c155a7bc3a4e1b824419323756a498a84758fc1236b",
+      "lines": 26,
+      "read_status": "read",
+      "read_sha256": "fd6d9ee4c79ff0d7582a7c155a7bc3a4e1b824419323756a498a84758fc1236b"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "abc8d6071bf8e61d69d096ca366d1b56e65a90a4cd90855cc5bc456568cb51b1",
-      "lines": 160,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "c0c88055ed70b3aab2fed533240b8e46fa9d509da34a887ef4ae243feb33e22a",
+      "lines": 161,
+      "read_status": "read",
+      "read_sha256": "c0c88055ed70b3aab2fed533240b8e46fa9d509da34a887ef4ae243feb33e22a"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -227,10 +227,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "47c0a8172318f26b7d1dc73155faff7d89851f49ef2f48f585443e4690168065",
+      "sha256": "c8ef9b2ef241e1db8353a6b03bc42a8ec4da5d039c2e65dc4ad54f1fad47bd40",
       "lines": 45,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "c8ef9b2ef241e1db8353a6b03bc42a8ec4da5d039c2e65dc4ad54f1fad47bd40"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -3077,8 +3077,8 @@
       "kind": "narrative",
       "sha256": "8e77360c2e478310cf7a75ad146c316f1c2d22c838aaca66a5e7345537880473",
       "lines": 27,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "8e77360c2e478310cf7a75ad146c316f1c2d22c838aaca66a5e7345537880473"
     },
     {
       "path": "docs/evidence/2026-10-24-p12-guarded-htp-repeat-check.md",
@@ -3105,6 +3105,14 @@
       "read_sha256": "0193434cb7b47ab2a5652ab9737b6dc35808c6e371a2390a379268ed83b4d0fc"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-mesa-build-scope.md",
+      "kind": "narrative",
+      "sha256": "0510b6ca5ca5184c7c036d8d900725eae50750ee77eb4c10fd0551eafa0953fa",
+      "lines": 61,
+      "read_status": "read",
+      "read_sha256": "0510b6ca5ca5184c7c036d8d900725eae50750ee77eb4c10fd0551eafa0953fa"
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-multi-case-runner.md",
       "kind": "narrative",
       "sha256": "13bc8a9d486e938c0ab1f9c72752c94f9280bc8421bf5eb08e38ae927e95ede0",
@@ -3125,8 +3133,8 @@
       "kind": "narrative",
       "sha256": "5da625d41be2e98fe6c5ad1910ab3691d8852b2b8730f210c49acf47d8d3735e",
       "lines": 26,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "5da625d41be2e98fe6c5ad1910ab3691d8852b2b8730f210c49acf47d8d3735e"
     },
     {
       "path": "docs/evidence/2026-10-24-p12-native-mesa-package-sbom.spdx.json",
@@ -3741,8 +3749,8 @@
       "kind": "narrative",
       "sha256": "61cbfc92ea2c50d6632fd6f23aa80a2ab96c08ae628bdf2aeaaebc0ea5982cc8",
       "lines": 40,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "61cbfc92ea2c50d6632fd6f23aa80a2ab96c08ae628bdf2aeaaebc0ea5982cc8"
     },
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
@@ -3795,10 +3803,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "3f06c166c2f5c407288dc29e149ed3c5bd94d28f04545167712327bc8e5265e4",
-      "lines": 263,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "9074ddc20d3a3f36dbf12eb0cc03c0b2b5b75ef38aa517e5ed74f2c581d75cac",
+      "lines": 264,
+      "read_status": "read",
+      "read_sha256": "9074ddc20d3a3f36dbf12eb0cc03c0b2b5b75ef38aa517e5ed74f2c581d75cac"
     },
     {
       "path": "requirements-dev.txt",

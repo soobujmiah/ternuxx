@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-A package-level SPDX 2.3 inventory/generator records the five Mesa .deb hashes and control metadata; 5 focused and 1033 full repository tests pass, and artifact hashes match. It leaves file analysis false and conclusions NOASSERTION. Latest SoC read is 82 C above the 70 C guard; live inference remains blocked, while source-component licensing, complete notices, durable Bionic source, and clean-install replay remain open.
+Package-level SPDX records five Mesa archives; the pinned recipe and subpackage manifests now map enabled Gallium/Vulkan/OpenCL targets to package boundaries, but file-level licensing and source-to-binary mapping remain open. The latest CPU, Vulkan, and HTP guarded runs each stopped before inference at socd=84 C against the 70 C guard; repository tests and CI remain green.
 
-**Next action:** Map packaged Mesa binaries to enabled source components and complete file-level license/notice review while the device remains above the 70 C guard. When every sensor is below its guard, run the multi-case CPU/Vulkan/HTP suite; then complete sustained HTP checks and clean-install replay from a durable audited Bionic build.
+**Next action:** Build a reproducible source-file license inventory from the exact Mesa source commit and map compiled source, binaries, and shipped notices from configured build outputs. When every required sensor is below its guard, rerun corrected CPU/Vulkan/HTP arithmetic qualification, then sustained HTP checks and clean-install replay from durable audited Bionic inputs.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -158,3 +158,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-native-artifact-release-recheck.md](evidence/2026-10-24-p12-native-artifact-release-recheck.md)
 - [docs/evidence/2026-10-24-p12-multi-case-runner.md](evidence/2026-10-24-p12-multi-case-runner.md)
 - [docs/evidence/2026-10-24-p12-native-mesa-package-inventory.md](evidence/2026-10-24-p12-native-mesa-package-inventory.md)
+- [docs/evidence/2026-10-24-p12-mesa-build-scope.md](evidence/2026-10-24-p12-mesa-build-scope.md)
