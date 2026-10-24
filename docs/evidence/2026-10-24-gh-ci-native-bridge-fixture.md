@@ -32,12 +32,11 @@ relevant GitHub host condition. `python3 -m tools.repo_knowledge verify` reporte
 `python3 tools/doc_bridge.py check --strict --project-id ternuxx README.md`
 passed, and `git diff --check` passed.
 
-The correction and later parity updates are present only in the local worktree
-at this review point. GitHub run `40059254710` tested the prior `e5f1c5a`
-source: its validation job completed, but the repository-state sync job
-recorded the failed test status and failed intentionally. The new local
-host-like pass is not remote CI evidence; publish the reviewed source changes
-and require a successful GitHub run before calling remote CI green.
+GitHub run `40096355236` validated source `d3a2cae744540c09ac9d291d68c7d299e39651a2`.
+Repository verification, the strict README bridge check, 1,017 tests in
+43.663 seconds, the CLI help/preview contract, and deterministic-state sync
+all passed. The earlier run `40059254710` records the pre-correction failure
+on `e5f1c5a` and remains historical evidence.
 
 ## Latest regression after guide and documentation audit
 
@@ -57,6 +56,7 @@ contract in 113.652 seconds. The working tree was dirty and based on
 - Focused verification: `python3 -m unittest discover -s tests -p 'test_management_desktop_bridge.py'` — 53 passed.
 - Native full verification: `bash scripts/repo_test.sh` — 1,000 Python tests and CLI help/preview contract passed before the additional lifecycle regression test.
 - Latest host-like full verification: `env -u TERMUX_VERSION -u PREFIX -u LD_LIBRARY_PATH bash scripts/repo_test.sh` — 1,017 Python tests in 94.697 seconds and CLI help/preview contract passed.
+- GitHub verification: run `40096355236` — all 1,017 tests passed in 43.663 seconds and workflow conclusion was `success`.
 - Repository checks: deterministic knowledge verification reported 0 findings; strict README bridge validation and `git diff --check` passed.
 
 ## Acceptance criteria

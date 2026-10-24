@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and supports optional Debia
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Publish reviewed source changes and verify GitHub Actions; continue controlled CPU/Vulkan/HTP correctness checks with memory and thermal observation, then qualify experimental Vulkan ICD clean-install provenance and sustained HTP stability/model coverage.
+**Next action:** Continue controlled CPU/Vulkan/HTP correctness checks with memory and thermal observation; qualify experimental Vulkan ICD clean-install provenance and sustained HTP stability/model coverage.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Current host-like Native worktree passes 1,017 tests in 94.697 seconds; replay-guest lifecycle parity covers CLI/TUI/Web/GTK with 168 focused tests. Bounded CPU/Vulkan/HTP offload is verified; sustained qualification and clean Vulkan provenance remain open.
+Host-like Native suite passes 1,017 tests in 94.697 seconds; GitHub run 40096355236 passes all 1,017 tests, bridge and state checks. Replay-guest lifecycle parity covers CLI/TUI/Web/GTK with 168 focused tests. Bounded CPU/Vulkan/HTP offload is verified; sustained qualification and clean Vulkan provenance remain open.
 
-**Next action:** Publish reviewed source changes and verify GitHub Actions; continue controlled CPU/Vulkan/HTP correctness checks with memory and thermal observation, then qualify experimental Vulkan ICD clean-install provenance and sustained HTP stability/model coverage.
+**Next action:** Continue controlled CPU/Vulkan/HTP correctness checks with memory and thermal observation; qualify experimental Vulkan ICD clean-install provenance and sustained HTP stability/model coverage.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

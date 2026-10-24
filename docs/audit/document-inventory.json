@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 505,
-  "read_count": 137,
+  "read_count": 143,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -29,8 +29,8 @@
       "kind": "narrative",
       "sha256": "ae9e775790d6403b1396ddfc47e01fc716345e5446efdd55bcfceb28ff0bbe11",
       "lines": 37,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "ae9e775790d6403b1396ddfc47e01fc716345e5446efdd55bcfceb28ff0bbe11"
     },
     {
       "path": "CURRENT_STATE.md",
@@ -171,18 +171,18 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "2721af76b77355ef2f2ca48cf065d0f32c0d5d46b8f40064f499b183e2ad59c3",
+      "sha256": "a07597e6a01aa93b0565fc30023b1f5ec77e54eedd9e4a51ae4fd2470bd40622",
       "lines": 149,
       "read_status": "read",
-      "read_sha256": "2721af76b77355ef2f2ca48cf065d0f32c0d5d46b8f40064f499b183e2ad59c3"
+      "read_sha256": "a07597e6a01aa93b0565fc30023b1f5ec77e54eedd9e4a51ae4fd2470bd40622"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
       "kind": "narrative",
       "sha256": "188b4b55192c611c23d5c9155d6e97dab9742c23241cf8e09b4568cb7e5625a1",
       "lines": 9,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "188b4b55192c611c23d5c9155d6e97dab9742c23241cf8e09b4568cb7e5625a1"
     },
     {
       "path": "docs/PROOT-GPU.md",
@@ -227,7 +227,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "e18caa5fbcba9c9b9cc2088affa1c17e96012d905dc38f98bbde6102c0d6b227",
+      "sha256": "2705e7c7c3b10ad253c4f1b39d607cfbce6f8dcf0e98915f1720861ef861583b",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -365,16 +365,16 @@
       "kind": "narrative",
       "sha256": "2b84b3002d7581424b42596679e31c598607c040ca34a4167fcc960603d15bf9",
       "lines": 42,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "2b84b3002d7581424b42596679e31c598607c040ca34a4167fcc960603d15bf9"
     },
     {
       "path": "docs/architecture/decisions/ADR-0002-workload-verified-acceleration.md",
       "kind": "narrative",
       "sha256": "ce3aefd395568a5f4be8c7327a08d6e89eac33a8d02ff5c64e4d50dfca0aaa62",
       "lines": 38,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "ce3aefd395568a5f4be8c7327a08d6e89eac33a8d02ff5c64e4d50dfca0aaa62"
     },
     {
       "path": "docs/architecture/decisions/ADR-0003-deterministic-state-and-skb-return.md",
@@ -437,8 +437,8 @@
       "kind": "narrative",
       "sha256": "3df34ef402cbe1ac80d739da643f1b0c073e49ceb77fb6edd181150f5502e840",
       "lines": 56,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "3df34ef402cbe1ac80d739da643f1b0c073e49ceb77fb6edd181150f5502e840"
     },
     {
       "path": "docs/architecture/decisions/ADR-0011-unified-ssh-lifecycle.md",
@@ -493,8 +493,8 @@
       "kind": "narrative",
       "sha256": "c79c313861b8e0afb5cafaa196843e1188d50eb6b7a2de77b8a1811e3fa80502",
       "lines": 31,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "c79c313861b8e0afb5cafaa196843e1188d50eb6b7a2de77b8a1811e3fa80502"
     },
     {
       "path": "docs/architecture/history/2026-10-22-capability-matrix.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "d8687c58bd2ab092554a4ff8d8ecc7d76f1cace50e8a7acbb3a05074d92261de",
+      "sha256": "ffc0361eb86c339ce2fea0e6cc748dd452b137b83b47539363c4c408bcff36d0",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "d8687c58bd2ab092554a4ff8d8ecc7d76f1cace50e8a7acbb3a05074d92261de"
+      "read_sha256": "ffc0361eb86c339ce2fea0e6cc748dd452b137b83b47539363c4c408bcff36d0"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
@@ -2931,10 +2931,10 @@
     {
       "path": "docs/evidence/2026-10-24-gh-ci-native-bridge-fixture.md",
       "kind": "narrative",
-      "sha256": "d6f6af793eb84b362f1330c64ffc64a5d33b2f4d4dbadc48e64d9f4ed62be756",
+      "sha256": "73d8c023496eea15e708f479f3c34e98a2e29a8cb59b13361a09d2890c1d7bc5",
       "lines": 68,
       "read_status": "read",
-      "read_sha256": "d6f6af793eb84b362f1330c64ffc64a5d33b2f4d4dbadc48e64d9f4ed62be756"
+      "read_sha256": "73d8c023496eea15e708f479f3c34e98a2e29a8cb59b13361a09d2890c1d7bc5"
     },
     {
       "path": "docs/evidence/2026-10-24-gtk-replay-guest-source-restoration.md",
@@ -3683,7 +3683,7 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "0e6cedc9a33c91c6bda9e21d26f255633067e983853073c82111459204238b1e",
+      "sha256": "17128c986decf9f027f88f362df7e860c4633b51f3252dcbfdf5bccfc04e8940",
       "lines": 252,
       "read_status": "pending",
       "read_sha256": null
