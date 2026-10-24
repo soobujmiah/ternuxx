@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 505,
-  "read_count": 144,
+  "read_count": 146,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -195,10 +195,10 @@
     {
       "path": "docs/PROOT-GUI-DISPLAY0.md",
       "kind": "narrative",
-      "sha256": "f77870b8ff21397372d3e12a19f0bb3f7a16066f61c942f438bfb5dda627abaf",
+      "sha256": "288c34c9fddbd62767ceb10406bddb05e0e305ed9a078e2d63a7c1c7d4796df4",
       "lines": 7,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "288c34c9fddbd62767ceb10406bddb05e0e305ed9a078e2d63a7c1c7d4796df4"
     },
     {
       "path": "docs/PROOT-SHARED-X11.md",
@@ -355,10 +355,10 @@
     {
       "path": "docs/architecture/UNIFIED-WORKSTATION.md",
       "kind": "narrative",
-      "sha256": "2ef95c3c59e3a21b08c81d981d9f915054a592e1ae23c36e3e72af72d7e75d7e",
+      "sha256": "9ddadf0303e07c9e4f2c29c851405ea1ace9c6087948b965ceb8af4991f5ac50",
       "lines": 251,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "9ddadf0303e07c9e4f2c29c851405ea1ace9c6087948b965ceb8af4991f5ac50"
     },
     {
       "path": "docs/architecture/decisions/ADR-0001-native-proot-providers.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "e6523d954fc87b60f8e8e9c537c8aa4cecf49d7e7f3be759fc3befe329986999",
+      "sha256": "772bbe37713659aa42d96beac11d0206ea45c969b37047c06f9fcfc225561739",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "e6523d954fc87b60f8e8e9c537c8aa4cecf49d7e7f3be759fc3befe329986999"
+      "read_sha256": "772bbe37713659aa42d96beac11d0206ea45c969b37047c06f9fcfc225561739"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
