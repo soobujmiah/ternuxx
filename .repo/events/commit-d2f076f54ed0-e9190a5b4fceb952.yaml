@@ -1,0 +1,7 @@
+event_id: commit-d2f076f54ed0-e9190a5b4fceb952
+repository: soobujmiah/ternuxx
+commit: d2f076f54ed07ec69a984e4dbb14855dc49ce8c7
+kind: commit
+occurred_at: '2026-10-24T14:11:15Z'
+status: completed
+summary: 'docs(p12): record guarded HTP cancellation follow-up'
