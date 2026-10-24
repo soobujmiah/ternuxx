@@ -3,18 +3,18 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 531,
-  "read_count": 168,
+  "document_count": 532,
+  "read_count": 170,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
     {
       "path": ".github/workflows/p12-mesa-build-evidence.yml",
       "kind": "structured",
-      "sha256": "9054725df7a36fa3e97e63225b1cfbd2d4663f436074e64683e3247e4666823e",
-      "lines": 116,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "0db2438c28d7c34cebf27b7d6e4c23cf2c746ddfbd806c346f9d7a2a637d2bd7",
+      "lines": 128,
+      "read_status": "read",
+      "read_sha256": "0db2438c28d7c34cebf27b7d6e4c23cf2c746ddfbd806c346f9d7a2a637d2bd7"
     },
     {
       "path": ".github/workflows/repo-contract.yml",
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "778ac682382a9740ebfc2931c5dae17b2a489582375e901def89fa0e01d8f7e3",
+      "sha256": "2a1a86bf7d9884e4e4ff12169cb3db53762cb9ee642a7ccf39d2bd820c53c1ce",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "778ac682382a9740ebfc2931c5dae17b2a489582375e901def89fa0e01d8f7e3"
+      "read_sha256": "2a1a86bf7d9884e4e4ff12169cb3db53762cb9ee642a7ccf39d2bd820c53c1ce"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -3145,6 +3145,14 @@
       "read_sha256": "5ecc5d237f8f428476f201097b2116cca64ce3bfade599b198d9852c1cbe7c90"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-mesa-capture-apparmor-deny.md",
+      "kind": "narrative",
+      "sha256": "4689653fbd7be474462ad5af52a1d66f8f79aca9671667cd618d1e2c76d0ac75",
+      "lines": 32,
+      "read_status": "read",
+      "read_sha256": "4689653fbd7be474462ad5af52a1d66f8f79aca9671667cd618d1e2c76d0ac75"
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md",
       "kind": "narrative",
       "sha256": "5de37498697ec85df672867479b58478f184b1e15ce42f05890abdec41ac0c15",
@@ -3835,10 +3843,10 @@
     {
       "path": "docs/testing/NATIVE-ACCEL-QUALIFICATION.md",
       "kind": "narrative",
-      "sha256": "2d21e1c6473730183335567443f94c702342a390cc348beedfb448d8289ded2b",
+      "sha256": "fd47931e205578490789fabd601af8faed6ff8f31a212d9e9a81647b01dbe18a",
       "lines": 46,
       "read_status": "read",
-      "read_sha256": "2d21e1c6473730183335567443f94c702342a390cc348beedfb448d8289ded2b"
+      "read_sha256": "fd47931e205578490789fabd601af8faed6ff8f31a212d9e9a81647b01dbe18a"
     },
     {
       "path": "docs/testing/NPU-ACCELERATION.md",

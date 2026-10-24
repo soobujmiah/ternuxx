@@ -35,7 +35,6 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p termux-packages/p12-mesa-evidence
-          chmod 0777 termux-packages/p12-mesa-evidence
           python3 tools/p12_mesa_build_evidence.py instrument \
             --recipe termux-packages/packages/mesa/build.sh
           python3 - <<'PY'
@@ -73,13 +72,26 @@ jobs:
         working-directory: termux-packages
         env:
           TERMUX_BUILDER_IMAGE_NAME: ghcr.io/termux/package-builder@sha256:e2de051a518d8b188c59c4a1ecf357d373b9ccf48d6c06d7681fdc3f61a77287
-          TERMUX_DOCKER_EXEC_EXTRA_ARGS: --env TERNUXX_MESA_BUILD_CAPTURE=1
+          CONTAINER_NAME: termux-p12-mesa-provenance
+          TERMUX_DOCKER_EXEC_EXTRA_ARGS: --env TERNUXX_MESA_BUILD_CAPTURE=1 --env TERNUXX_MESA_EVIDENCE_DIR=/home/builder/p12-mesa-evidence
         run: |
           set -euo pipefail
           docker pull "$TERMUX_BUILDER_IMAGE_NAME"
           docker image inspect --format '{{.Id}} {{join .RepoDigests " "}}' "$TERMUX_BUILDER_IMAGE_NAME" \
             | tee p12-mesa-evidence/builder-image.txt
+          set +e
           ./scripts/run-docker.sh -d ./build-package.sh -I -C -a aarch64 mesa
+          build_status=$?
+          set -e
+          if docker cp "$CONTAINER_NAME:/home/builder/p12-mesa-evidence/." p12-mesa-evidence/; then
+            echo "Copied builder-home capture to the workflow artifact directory."
+          elif [ "$build_status" -eq 0 ]; then
+            echo "Mesa build passed but its evidence capture directory was not available." >&2
+            exit 1
+          else
+            echo "No builder-home evidence directory was available after the failed build." >&2
+          fi
+          exit "$build_status"
 
       - name: Hash package staging outputs and validate capture
         env:
