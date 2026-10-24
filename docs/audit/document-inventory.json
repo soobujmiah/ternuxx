@@ -3,11 +3,19 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 527,
+  "document_count": 528,
   "read_count": 167,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
+    {
+      "path": ".github/workflows/p12-mesa-build-evidence.yml",
+      "kind": "structured",
+      "sha256": "977ed1b394a9afb403334b88363cd58cf9120e3ba4268fd44b510fa640e76300",
+      "lines": 115,
+      "read_status": "pending",
+      "read_sha256": null
+    },
     {
       "path": ".github/workflows/repo-contract.yml",
       "kind": "structured",
@@ -35,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "7b4fde8e59f2b0a02a1c978cbe4be94cc479fb0a17940b3de25e671a4d0fff4f",
-      "lines": 33,
+      "sha256": "b3078573c74966f5941a2f24b85ba4d954d463fb17fddcaf468281ffbb96c15e",
+      "lines": 35,
       "read_status": "read",
-      "read_sha256": "7b4fde8e59f2b0a02a1c978cbe4be94cc479fb0a17940b3de25e671a4d0fff4f"
+      "read_sha256": "b3078573c74966f5941a2f24b85ba4d954d463fb17fddcaf468281ffbb96c15e"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -3803,10 +3811,10 @@
     {
       "path": "docs/testing/NATIVE-ACCEL-QUALIFICATION.md",
       "kind": "narrative",
-      "sha256": "5207be53618d01ea42e653f8728046a38f25320334a128fa316d34e5f762204e",
-      "lines": 40,
+      "sha256": "2d21e1c6473730183335567443f94c702342a390cc348beedfb448d8289ded2b",
+      "lines": 46,
       "read_status": "read",
-      "read_sha256": "5207be53618d01ea42e653f8728046a38f25320334a128fa316d34e5f762204e"
+      "read_sha256": "2d21e1c6473730183335567443f94c702342a390cc348beedfb448d8289ded2b"
     },
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
