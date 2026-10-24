@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Expanded pinned Mesa source/build-input inventory to 9,376 hashed files. The configured host/target graph is captured and all 1,567 Mesa source-tree paths match the inventory; package staging is being rerun. One-case CPU/Vulkan/HTP checks pass, but repeated correctness and sustained qualification remain open; the latest CPU repeat cancelled at its unchanged 60°C guard.
+Mesa configured source graph is mapped to the expanded 9,376-file inventory; corrected package staging is running. Fresh guarded CPU, Vulkan, and HTP repeats all cancelled at the unchanged 60°C CPU guard before any case completed; single-case checks remain the only current correctness passes.
 
-**Next action:** Complete Mesa run 40125903141 and verify the five split-package manifests; map generated/external inputs and applicable notices. Resume three-case CPU/Vulkan/HTP checks only while live guards remain satisfied.
+**Next action:** Finish Mesa run 40125903141 and verify package manifests and source/license attribution. Resume repeated backend qualification only while the unchanged live guards pass; broaden HTP coverage and validate a reproducible experimental Vulkan install path.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -163,3 +163,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-thermal-recheck-1619-utc.md](evidence/2026-10-24-p12-thermal-recheck-1619-utc.md)
 - [docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md](evidence/2026-10-24-p12-mesa-source-license-inventory.md)
 - [docs/evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md](evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md)
+- [docs/evidence/2026-10-24-p12-three-backend-qualification-guard-cancel-2001z.md](evidence/2026-10-24-p12-three-backend-qualification-guard-cancel-2001z.md)

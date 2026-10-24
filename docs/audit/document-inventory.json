@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 538,
-  "read_count": 171,
+  "document_count": 539,
+  "read_count": 172,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "a08f52f99d40165bfce9d1c8f7e5d2d2620e835b66082450c2602f1f7eb8f3e1",
-      "lines": 47,
+      "sha256": "99c4191667c884cad57cae726f5ed031a5e71376e6b8f127f5fb61e432cc0b7c",
+      "lines": 29,
       "read_status": "read",
-      "read_sha256": "a08f52f99d40165bfce9d1c8f7e5d2d2620e835b66082450c2602f1f7eb8f3e1"
+      "read_sha256": "99c4191667c884cad57cae726f5ed031a5e71376e6b8f127f5fb61e432cc0b7c"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -179,8 +179,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "81673ec2c693af7a6effb740aa307f306e86e6aea208b9c80b865df5a7a29cae",
-      "lines": 165,
+      "sha256": "8fb844768e843e10e6c4622d6d89ad4d244e4ba3fafe7d96920e311bf55e4b35",
+      "lines": 166,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -235,7 +235,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "2ed5de77a9cde8f2be45c02732c8233a39539d31b8526b0652f6a778cdc53474",
+      "sha256": "620acd601d6dd559689125f8d90b724ad24b0ac17258c3ad160dd10abeb5dd02",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "d250840351ad6c960256ffba807c84610bab4e096d64f08f443a84141a92ca6d",
+      "sha256": "7ef297ae9f557352478be817ccbe03e55b29cdb9d83e3d1c85ce34958e2e7bc2",
       "lines": 46,
       "read_status": "read",
-      "read_sha256": "d250840351ad6c960256ffba807c84610bab4e096d64f08f443a84141a92ca6d"
+      "read_sha256": "7ef297ae9f557352478be817ccbe03e55b29cdb9d83e3d1c85ce34958e2e7bc2"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
@@ -3289,6 +3289,14 @@
       "read_sha256": "e4e1b07cb9fd29de92b748c9d8e6b5a2e6fac80ee037a61183f77a38762a750a"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-three-backend-qualification-guard-cancel-2001z.md",
+      "kind": "narrative",
+      "sha256": "93e908773c5a7074892eb1acea958d39c2056d33973478c257121fc231e62915",
+      "lines": 35,
+      "read_status": "read",
+      "read_sha256": "93e908773c5a7074892eb1acea958d39c2056d33973478c257121fc231e62915"
+    },
+    {
       "path": "docs/evidence/2026-10-24-p4-managed-icd-migration.md",
       "kind": "narrative",
       "sha256": "f2b3db3490e32425c3d0fb888bce2cb813bb1f492fd895dcaeabefdab52f9c2d",
@@ -3947,8 +3955,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "3711eabdd221eb3f22cefd9fe1299c06a8c38c26013bbd0c688893966c52851d",
-      "lines": 268,
+      "sha256": "1a7db7e86bc56fb6d52799040840c1d5693cb99b81569c2f0c2b0c4b573638dd",
+      "lines": 269,
       "read_status": "pending",
       "read_sha256": null
     },
