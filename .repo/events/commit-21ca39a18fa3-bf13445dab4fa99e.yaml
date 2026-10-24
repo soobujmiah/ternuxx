@@ -1,0 +1,7 @@
+event_id: commit-21ca39a18fa3-bf13445dab4fa99e
+repository: soobujmiah/ternuxx
+commit: 21ca39a18fa3e723a2f973795b8498b49445fc3c
+kind: commit
+occurred_at: '2026-10-24T17:31:40Z'
+status: completed
+summary: 'feat(management): manage boot helpers across clients'
