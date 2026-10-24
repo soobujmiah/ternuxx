@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 516,
+  "document_count": 517,
   "read_count": 152,
   "reading_complete": false,
   "broken_local_links": [],
@@ -171,8 +171,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "5cbbf9836c1bf7ae82a2b8557b7f4e15c08f320ed41b60283a75143b77399544",
-      "lines": 158,
+      "sha256": "5630e3866bc525dbb54be77755c629c452592b9ac156d3bd0075ae0baf41408d",
+      "lines": 159,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -227,7 +227,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "9e62427d41f448e303e61e99a0e3f0abde1debd4f09d8b7da7f3a953f9e1083d",
+      "sha256": "9b2010a73a7ee26daf725c130320660e0ea6da12c7a489c7de2cc90c516701a1",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -3105,6 +3105,14 @@
       "read_sha256": "0193434cb7b47ab2a5652ab9737b6dc35808c6e371a2390a379268ed83b4d0fc"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-multi-case-runner.md",
+      "kind": "narrative",
+      "sha256": "13bc8a9d486e938c0ab1f9c72752c94f9280bc8421bf5eb08e38ae927e95ede0",
+      "lines": 26,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-native-artifact-release-recheck.md",
       "kind": "narrative",
       "sha256": "fd0d5b4abfe965ad7e73b3286aac99bb83fb18d46000c231b0aed255dea81b0d",
@@ -3715,7 +3723,7 @@
     {
       "path": "docs/testing/NATIVE-ACCEL-QUALIFICATION.md",
       "kind": "narrative",
-      "sha256": "7585a57f94316e9f886e3f59866579f52131bede1247449794bb53bdc1794b37",
+      "sha256": "61cbfc92ea2c50d6632fd6f23aa80a2ab96c08ae628bdf2aeaaebc0ea5982cc8",
       "lines": 40,
       "read_status": "pending",
       "read_sha256": null
@@ -3771,8 +3779,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "3ca249f038a5da0635e5d953933a9c9bf6bb6e5f24c21d3cc26cf6be0bba402f",
-      "lines": 261,
+      "sha256": "7bccfc15d6ec2fafdc5ad6394784175cda731c7d4d5b4ca2806e1f0148adc170",
+      "lines": 262,
       "read_status": "pending",
       "read_sha256": null
     },

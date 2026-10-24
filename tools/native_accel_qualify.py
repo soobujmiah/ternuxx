@@ -11,14 +11,39 @@ import re
 import signal
 import subprocess
 import time
+from dataclasses import dataclass
 from datetime import datetime, timezone
 
 ROOT = Path(__file__).resolve().parents[1]
 TX = ROOT / "tx"
 BACKENDS = {"cpu", "vulkan", "npu"}
-PROMPT = "2 + 2? Reply with one digit."
-PROMPT_ID = "arithmetic-two-plus-two-v1"
-EXPECTED_ANSWER = re.compile(r"(?:2\s*\+\s*2\s*=\s*)?4[.!]?\Z")
+
+
+@dataclass(frozen=True)
+class QualificationCase:
+    case_id: str
+    prompt: str
+    expression: str
+    answer: str
+
+
+PROMPT_SUITE_ID = "arithmetic-operators-v1"
+QUALIFICATION_CASES = (
+    QualificationCase("addition-2-plus-2-v1", "2 + 2? Reply with one digit.", r"2\s*\+\s*2", "4"),
+    QualificationCase("subtraction-9-minus-4-v1", "9 - 4? Reply with one digit.", r"9\s*-\s*4", "5"),
+    QualificationCase("multiplication-3-times-2-v1", "3 * 2? Reply with one digit.", r"3\s*\*\s*2", "6"),
+)
+
+
+def qualification_case_for_run(index: int) -> QualificationCase:
+    if index < 1:
+        raise ValueError("run index must be positive")
+    return QUALIFICATION_CASES[(index - 1) % len(QUALIFICATION_CASES)]
+
+
+def _answer_pattern(case: QualificationCase) -> re.Pattern[str]:
+    expression = rf"(?:{case.expression}\s*=\s*)?"
+    return re.compile(expression + re.escape(case.answer) + r"[.!]?\Z")
 
 
 def read_temperatures(root: Path = Path("/sys/class/thermal")) -> dict[str, float]:
@@ -72,7 +97,8 @@ def resource_violations(snapshot: dict[str, float | int | None], limits: dict[st
     return issues
 
 
-def parse_result(stdout: str, backend: str) -> tuple[bool, dict[str, object] | None, str | None]:
+def parse_result(stdout: str, backend: str,
+                 case: QualificationCase = QUALIFICATION_CASES[0]) -> tuple[bool, dict[str, object] | None, str | None]:
     try:
         envelope = json.loads(stdout)
     except (json.JSONDecodeError, TypeError):
@@ -96,12 +122,12 @@ def parse_result(stdout: str, backend: str) -> tuple[bool, dict[str, object] | N
         if (type(delegated) is not int or type(total) is not int or delegated <= 0 or delegated != total
                 or data.get("silent_fallback") is not False):
             return False, data, "HTP result did not prove complete offload with fallback disabled"
-    elif data.get("gpu_layers") != 0:
-        return False, data, "CPU result reported nonzero GPU layers"
+    elif type(data.get("gpu_layers")) is not int or data["gpu_layers"] != 0:
+        return False, data, "CPU result did not report integer zero GPU layers"
     if not isinstance(data.get("output"), str) or not data["output"].strip():
         return False, data, "inference returned empty output"
-    if not EXPECTED_ANSWER.fullmatch(data["output"].strip()):
-        return False, data, "inference did not match the expected answer 4"
+    if not _answer_pattern(case).fullmatch(data["output"].strip()):
+        return False, data, f"inference did not match the expected answer {case.answer} for {case.case_id}"
     return True, data, None
 
 
@@ -145,7 +171,9 @@ def _render_report(args: argparse.Namespace, rows: list[dict[str, object]],
                      "machine": platform.machine(), "prefix": os.environ.get("PREFIX")},
         "provider": "native-termux",
         "backend": args.backend,
-        "prompt_id": PROMPT_ID,
+        "prompt_suite_id": PROMPT_SUITE_ID,
+        "scheduled_case_ids": [qualification_case_for_run(index).case_id
+                                for index in range(1, args.runs + 1)],
         "max_tokens": args.max_tokens,
         "guards": {**limits, "minimum_memavailable_mib": minimum_mem_kib // 1024,
                    "note": "Conservative test guards selected for this run; not OEM-rated limits."},
@@ -154,6 +182,20 @@ def _render_report(args: argparse.Namespace, rows: list[dict[str, object]],
         "requested_runs": args.runs,
         "runs": rows,
     }
+
+
+def _preflight_failure_report(args: argparse.Namespace, reason: str,
+                              snapshot: dict[str, float | int | None],
+                              limits: dict[str, float], minimum_mem_kib: int,
+                              *, issues: list[str] | None = None,
+                              pids: list[int] | None = None) -> dict[str, object]:
+    report = _render_report(args, [], snapshot, limits, minimum_mem_kib)
+    report.update({"ok": False, "error": reason, "snapshot": snapshot})
+    if issues is not None:
+        report["issues"] = issues
+    if pids is not None:
+        report["pids"] = pids
+    return report
 
 
 def _stop_process(proc: subprocess.Popen[str], sig: int, grace: float) -> None:
@@ -187,26 +229,34 @@ def run(args: argparse.Namespace) -> int:
     required_sensor = {"cpu": "cpu", "vulkan": "gpu", "npu": "htp"}[args.backend]
     preflight = _snapshot()
     if "cpu" not in preflight or required_sensor not in preflight:
-        print(json.dumps({"ok": False, "error": f"required {required_sensor}/CPU thermal zone is unavailable",
-                          "snapshot": preflight}), flush=True)
+        report = _preflight_failure_report(
+            args, f"required {required_sensor}/CPU thermal zone is unavailable", preflight,
+            limits, minimum_mem_kib)
+        print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
         return 2
     issues = resource_violations(preflight, limits, minimum_mem_kib)
     if issues:
-        print(json.dumps({"ok": False, "error": "preflight guard failed; no inference started",
-                          "issues": issues, "snapshot": preflight}), flush=True)
+        report = _preflight_failure_report(
+            args, "preflight guard failed; no inference started", preflight,
+            limits, minimum_mem_kib, issues=issues)
+        print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
         return 2
     baseline_pids = process_snapshot()
     if baseline_pids:
-        print(json.dumps({"ok": False, "error": "an existing llama-cli process is running; refusing to interfere",
-                          "pids": sorted(baseline_pids)}), flush=True)
+        report = _preflight_failure_report(
+            args, "an existing llama-cli process is running; refusing to interfere", preflight,
+            limits, minimum_mem_kib, pids=sorted(baseline_pids))
+        print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
         return 2
 
     rows: list[dict[str, object]] = []
     for index in range(1, args.runs + 1):
+        case = qualification_case_for_run(index)
         before = _snapshot()
         issues = resource_violations(before, limits, minimum_mem_kib)
         if issues:
-            rows.append({"run": index, "status": "guard_blocked", "issues": issues, "before": before})
+            rows.append({"run": index, "case_id": case.case_id, "status": "guard_blocked",
+                         "issues": issues, "before": before})
             break
         command = [str(TX), "ai", "run", "--backend", args.backend,
                    "--max-tokens", str(args.max_tokens)]
@@ -221,7 +271,7 @@ def run(args: argparse.Namespace) -> int:
             break
         assert proc.stdin is not None
         try:
-            proc.stdin.write(PROMPT + "\n")
+            proc.stdin.write(case.prompt + "\n")
             proc.stdin.close()
         except (BrokenPipeError, OSError) as exc:
             _stop_process(proc, signal.SIGINT, 8)
@@ -267,12 +317,12 @@ def run(args: argparse.Namespace) -> int:
         elif return_code != 0:
             status, error, data = "failed", f"tx exited {return_code}: {stderr.strip()[:500]}", None
         else:
-            passed, data, error = parse_result(stdout, args.backend)
+            passed, data, error = parse_result(stdout, args.backend, case)
             status = "passed" if passed else "failed"
         if new_pids:
             status = "orphaned_inference"
             error = f"new llama-cli process(es) remain after tx exit: {new_pids}"
-        row: dict[str, object] = {"run": index, "status": status, "elapsed_seconds": elapsed,
+        row: dict[str, object] = {"run": index, "case_id": case.case_id, "status": status, "elapsed_seconds": elapsed,
             "exit_code": return_code, "peak_llama_cli_rss_kib": peak_rss_kib,
             "minimum_memavailable_kib": peak_memavailable, "thermal_samples": samples,
             "before": before, "after": after, "new_llama_cli_pids_remaining": new_pids}
@@ -291,7 +341,9 @@ def run(args: argparse.Namespace) -> int:
                 sample = _snapshot()
                 issues = resource_violations(sample, limits, minimum_mem_kib)
                 if issues:
-                    rows.append({"run": index + 1, "status": "guard_blocked_after_idle",
+                    rows.append({"run": index + 1,
+                                 "case_id": qualification_case_for_run(index + 1).case_id,
+                                 "status": "guard_blocked_after_idle",
                                  "issues": issues, "before": sample})
                     break
                 time.sleep(min(0.5, idle_end - time.monotonic()))
@@ -334,7 +386,9 @@ def main(argv: list[str] | None = None) -> int:
     if not 256 <= args.minimum_mem_mib <= 65536:
         parser().error("--minimum-mem-mib must be between 256 and 65536")
     if args.preview:
-        print(json.dumps({"backend": args.backend, "prompt_id": PROMPT_ID,
+        print(json.dumps({"backend": args.backend, "prompt_suite_id": PROMPT_SUITE_ID,
+                          "scheduled_case_ids": [qualification_case_for_run(index).case_id
+                                                  for index in range(1, args.runs + 1)],
                           "runs": args.runs, "max_tokens": args.max_tokens,
                           "timeout_seconds": args.timeout, "idle_seconds": args.idle_seconds,
                           "test_guards_c": {"cpu": args.cpu_stop_c, "gpu": args.gpu_stop_c,

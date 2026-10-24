@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The existing Native Mesa bundle and five package checksums verify, but its source is an open draft PR with an expiring artifact; package licensing is multi-component and no complete component inventory/SBOM exists. Corrected exact-answer inference runner remains unit-tested; device reruns are guard-blocked. Sustained and clean-install gates remain open.
+A fixed three-case addition/subtraction/multiplication suite is implemented; 10 focused and 1028 full repository tests pass. CPU/Vulkan/HTP preflights report zero runs at socd=79 C against the 70 C guard, so the new cases remain live-unverified. Durable Bionic Mesa source, full license inventory/SBOM, and clean-install replay remain open.
 
-**Next action:** When device sensors are below all conservative guards, rerun exact-answer CPU/Vulkan/HTP qualification. Then broaden HTP correctness/resource checks and establish a durable, auditable Bionic-compatible source/build with complete notices/SBOM and clean-install replay.
+**Next action:** When all live sensors are below the configured guards, run the full multi-case suite separately on CPU, Vulkan, and HTP. Then complete sustained HTP correctness/resource checks and an auditable Bionic Mesa source, component notices/SBOM, and clean-install replay.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -156,3 +156,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-guarded-htp-repeat-check.md](evidence/2026-10-24-p12-guarded-htp-repeat-check.md)
 - [docs/evidence/2026-10-24-p12-cpu-qualification-guard-block.md](evidence/2026-10-24-p12-cpu-qualification-guard-block.md)
 - [docs/evidence/2026-10-24-p12-native-artifact-release-recheck.md](evidence/2026-10-24-p12-native-artifact-release-recheck.md)
+- [docs/evidence/2026-10-24-p12-multi-case-runner.md](evidence/2026-10-24-p12-multi-case-runner.md)

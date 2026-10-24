@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and supports optional Debia
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** When device sensors are below all conservative guards, rerun exact-answer CPU/Vulkan/HTP qualification. Then broaden HTP correctness/resource checks and establish a durable, auditable Bionic-compatible source/build with complete notices/SBOM and clean-install replay.
+**Next action:** When all live sensors are below the configured guards, run the full multi-case suite separately on CPU, Vulkan, and HTP. Then complete sustained HTP correctness/resource checks and an auditable Bionic Mesa source, component notices/SBOM, and clean-install replay.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

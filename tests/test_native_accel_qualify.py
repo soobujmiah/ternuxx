@@ -1,9 +1,19 @@
 import json
+from argparse import Namespace
 from pathlib import Path
 import tempfile
 import unittest
 
-from tools.native_accel_qualify import parse_result, process_snapshot, read_memavailable_kib, read_temperatures, resource_violations
+from tools.native_accel_qualify import (
+    QUALIFICATION_CASES,
+    _preflight_failure_report,
+    parse_result,
+    process_snapshot,
+    qualification_case_for_run,
+    read_memavailable_kib,
+    read_temperatures,
+    resource_violations,
+)
 
 
 class NativeAccelQualificationTests(unittest.TestCase):
@@ -59,6 +69,12 @@ class NativeAccelQualificationTests(unittest.TestCase):
                    "gpu_total_layers": 29, "output": "4"}}
         self.assertFalse(parse_result(json.dumps(partial), "vulkan")[0])
 
+    def test_cpu_pass_requires_an_explicit_integer_zero_gpu_layers(self):
+        for value in (None, False, 1):
+            with self.subTest(gpu_layers=value):
+                result = {"ok": True, "data": {"backend": "CPU", "gpu_layers": value, "output": "4"}}
+                self.assertFalse(parse_result(json.dumps(result), "cpu")[0])
+
     def test_all_backends_require_the_exact_known_answer(self):
         cases = (
             ("cpu", {"backend": "CPU", "gpu_layers": 0}),
@@ -74,6 +90,40 @@ class NativeAccelQualificationTests(unittest.TestCase):
                 passed, _, error = parse_result(json.dumps(wrong), backend)
                 self.assertFalse(passed)
                 self.assertIn("expected answer 4", error)
+
+    def test_default_suite_covers_addition_subtraction_and_multiplication(self):
+        self.assertEqual([qualification_case_for_run(index).case_id for index in range(1, 4)],
+                         [case.case_id for case in QUALIFICATION_CASES])
+        self.assertEqual(qualification_case_for_run(4), QUALIFICATION_CASES[0])
+        cases = (
+            (QUALIFICATION_CASES[0], "2 + 2 = 4."),
+            (QUALIFICATION_CASES[1], "9 - 4 = 5."),
+            (QUALIFICATION_CASES[2], "3 * 2 = 6."),
+        )
+        backend_data = {
+            "cpu": {"backend": "CPU", "gpu_layers": 0},
+            "vulkan": {"backend": "Vulkan", "gpu_layers": 29, "gpu_total_layers": 29},
+            "npu": {"backend": "Hexagon HTP", "npu_layers": 29, "total_layers": 29,
+                    "silent_fallback": False},
+        }
+        for backend, data in backend_data.items():
+            for case, answer in cases:
+                with self.subTest(backend=backend, case=case.case_id):
+                    valid = {"ok": True, "data": {**data, "output": answer}}
+                    invalid = {"ok": True, "data": {**data, "output": "The answer is wrong."}}
+                    self.assertTrue(parse_result(json.dumps(valid), backend, case)[0])
+                    self.assertFalse(parse_result(json.dumps(invalid), backend, case)[0])
+
+    def test_guard_report_keeps_suite_and_scheduled_cases_without_claiming_runs(self):
+        args = Namespace(backend="vulkan", max_tokens=8, runs=3)
+        report = _preflight_failure_report(
+            args, "preflight guard failed; no inference started", {"socd": 78.0},
+            {"socd": 70.0}, 2 * 1024 * 1024, issues=["socd=78.0 C reached guard 70.0 C"])
+        self.assertFalse(report["ok"])
+        self.assertEqual(report["completed_runs"], 0)
+        self.assertEqual(report["runs"], [])
+        self.assertEqual(report["prompt_suite_id"], "arithmetic-operators-v1")
+        self.assertEqual(report["scheduled_case_ids"], [case.case_id for case in QUALIFICATION_CASES])
 
     def test_htp_pass_requires_full_offload_and_no_silent_fallback(self):
         base = {"backend": "Hexagon HTP", "npu_layers": 29, "total_layers": 29,
