@@ -3843,10 +3843,10 @@
     {
       "path": "docs/testing/NATIVE-ACCEL-QUALIFICATION.md",
       "kind": "narrative",
-      "sha256": "fd47931e205578490789fabd601af8faed6ff8f31a212d9e9a81647b01dbe18a",
+      "sha256": "7e80c45b1c37854131e27cd855528442108d1b162ebacebc68c55f4c90b170cb",
       "lines": 46,
       "read_status": "read",
-      "read_sha256": "fd47931e205578490789fabd601af8faed6ff8f31a212d9e9a81647b01dbe18a"
+      "read_sha256": "7e80c45b1c37854131e27cd855528442108d1b162ebacebc68c55f4c90b170cb"
     },
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
