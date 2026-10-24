@@ -1,0 +1,7 @@
+event_id: commit-1cc5bae7b20d-541e363355439cec
+repository: soobujmiah/ternuxx
+commit: 1cc5bae7b20ddf95265c0bfe4e4ebdaab1ebc66d
+kind: commit
+occurred_at: '2026-10-24T17:43:00Z'
+status: completed
+summary: 'build(audit): capture pinned Mesa provenance'
