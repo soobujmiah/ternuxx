@@ -1,0 +1,7 @@
+event_id: commit-8cb7295fee5b-d54c4963dbf93481
+repository: soobujmiah/ternuxx
+commit: 8cb7295fee5b664762bca8653d9240a5a47a8f2c
+kind: commit
+occurred_at: '2026-10-24T16:14:14Z'
+status: completed
+summary: 'fix(management): consolidate ssh inspection route'
