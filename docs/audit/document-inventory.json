@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "32d4bcb618f791959f7e7e8bba8cbe96786ab2c25e93ec0c05151aaf1480c12d",
+      "sha256": "d951488d228f69829ec1b490b49716d05b9c6ac561a47e0430c3eabbc40a7d23",
       "lines": 150,
       "read_status": "read",
-      "read_sha256": "32d4bcb618f791959f7e7e8bba8cbe96786ab2c25e93ec0c05151aaf1480c12d"
+      "read_sha256": "d951488d228f69829ec1b490b49716d05b9c6ac561a47e0430c3eabbc40a7d23"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -3075,10 +3075,10 @@
     {
       "path": "docs/evidence/2026-10-24-p12-thermal-observation.md",
       "kind": "narrative",
-      "sha256": "0b1d888a1fe229fad9c5b8ad625f30f43e5c33b39243638737270e3dedd9029f",
-      "lines": 23,
+      "sha256": "909ad666cc36412abbb053283f95771b98206a22d9aabaacb231a6b7aa4d1fde",
+      "lines": 31,
       "read_status": "read",
-      "read_sha256": "0b1d888a1fe229fad9c5b8ad625f30f43e5c33b39243638737270e3dedd9029f"
+      "read_sha256": "909ad666cc36412abbb053283f95771b98206a22d9aabaacb231a6b7aa4d1fde"
     },
     {
       "path": "docs/evidence/2026-10-24-p4-managed-icd-migration.md",

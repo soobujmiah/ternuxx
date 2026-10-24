@@ -21,3 +21,11 @@ The device thermal-zone labels were read alongside temperatures; the high value 
 ## Later read-only temperature check
 
 After source review and the host-like repository suite, `tx ai status`, `tx ai devices`, and `tx ai npu status` again reported the pinned CPU model, Vulkan0 Adreno 825, and experimental HTP0 SM8735 runtime available. A later read-only sysfs sample reported CPU zones up to 68.8°C, GPU zones up to 55.9°C, HTP-related zones up to 59.8°C, `socd` 60.0°C, and battery 42.0°C. No inference was started because the device had not returned to a cool, stable state. These values are a dated snapshot, not a device-wide limit; the sensors do not establish sustained qualification.
+
+## Later bounded repeatability check
+
+At 2026-10-24 19:12 +06:00, a fresh read-only preflight reported the pinned Qwen3 0.6B model, Vulkan0 Adreno 825, and experimental HTP0 SM8735 runtime available. Before inference, CPU zones peaked at 50.5°C, GPU zones at 44.4°C, HTP-related `nsphv` zones at 45.1°C, and battery at 40.9°C. A short CPU run raised the observed CPU-zone maximum to 61.7°C; after 30 seconds idle, readable CPU/GPU/HTP sensor maxima returned to 46.5°C/42.4°C/43.2°C. Testing continued one route at a time.
+
+Two bounded runs per route used the same prompt, `2 + 2? Reply with one digit.`, and eight-token cap. All six returned `2 + 2 = 4.` with exit 0. CPU selected CPU with zero GPU layers (2.639s and 2.749s). Vulkan selected `Vulkan0` and reported 29/29 layers offloaded (2.676s and 3.566s). Experimental NPU selected `HTP0`, reported 29/29 NPU layers, a 319.96 MiB NPU model buffer, and `silent_fallback=false` (4.935s and 5.139s). After the final run, readable sensor maxima were CPU 46.9°C, GPU 44.4°C, HTP-related 45.1°C, and battery 38.9°C. `/proc/meminfo` then reported 4,842,244 kB `MemAvailable` and 9,308,516 kB `SwapFree`.
+
+This establishes repeatable short known-answer execution for the pinned model on these three routes under the observed session state. It does not establish sustained load, peak process memory, concurrent workload behavior, broader model/operator coverage, a clean-install Vulkan ICD path, or HTP release qualification. Sensor labels and readings are preserved as observed; no device-wide thermal threshold is inferred.
