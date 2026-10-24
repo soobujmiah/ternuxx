@@ -1,0 +1,7 @@
+event_id: commit-4de254e965e6-2878e4f99e1e63ae
+repository: soobujmiah/ternuxx
+commit: 4de254e965e6192dfbc163804c01467862fe259a
+kind: commit
+occurred_at: '2026-10-24T18:05:36Z'
+status: completed
+summary: 'fix(ci): make Mesa evidence capture writable'
