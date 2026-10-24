@@ -21,12 +21,18 @@ _ternuxx_capture_meson() {
 	local build_dir="$1" role="$2"
 	local evidence_root="${TERNUXX_MESA_EVIDENCE_DIR:-$HOME/p12-mesa-evidence}"
 	local evidence_dir="$evidence_root/${TERMUX_ARCH}/${role}"
+	local -a meson_command=()
+	read -r -a meson_command <<< "$TERMUX_MESON"
+	if [[ ${#meson_command[@]} -eq 0 ]]; then
+		echo "TERMUX_MESON is empty; cannot capture Meson evidence" >&2
+		return 1
+	fi
 	mkdir -p "$evidence_dir"
-	"$TERMUX_MESON" introspect "$build_dir" --projectinfo > "$evidence_dir/meson-projectinfo.json"
-	"$TERMUX_MESON" introspect "$build_dir" --targets > "$evidence_dir/meson-targets.json"
-	"$TERMUX_MESON" introspect "$build_dir" --buildoptions > "$evidence_dir/meson-buildoptions.json"
-	"$TERMUX_MESON" introspect "$build_dir" --dependencies > "$evidence_dir/meson-dependencies.json"
-	"$TERMUX_MESON" introspect "$build_dir" --tests > "$evidence_dir/meson-tests.json"
+	"${meson_command[@]}" introspect "$build_dir" --projectinfo > "$evidence_dir/meson-projectinfo.json"
+	"${meson_command[@]}" introspect "$build_dir" --targets > "$evidence_dir/meson-targets.json"
+	"${meson_command[@]}" introspect "$build_dir" --buildoptions > "$evidence_dir/meson-buildoptions.json"
+	"${meson_command[@]}" introspect "$build_dir" --dependencies > "$evidence_dir/meson-dependencies.json"
+	"${meson_command[@]}" introspect "$build_dir" --tests > "$evidence_dir/meson-tests.json"
 	ninja -C "$build_dir" -t commands > "$evidence_dir/ninja-commands.txt"
 	ninja -C "$build_dir" -t targets all > "$evidence_dir/ninja-targets.txt"
 	cp "$build_dir/build.ninja" "$evidence_dir/build.ninja"

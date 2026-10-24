@@ -3,8 +3,11 @@ from __future__ import annotations
 import base64
 import io
 import json
+import os
 from pathlib import Path
 import stat
+import subprocess
+import sys
 import tarfile
 import tempfile
 import unittest
@@ -41,6 +44,46 @@ termux_step_post_configure() {
         self.assertNotIn('.ternuxx-mesa-evidence', text)
         self.assertIn('ninja -C "$build_dir" -t commands', text)
         self.assertIn('--targets > "$evidence_dir/meson-targets.json"', text)
+        self.assertIn('read -r -a meson_command <<< "$TERMUX_MESON"', text)
+
+    def test_capture_executes_termux_meson_command_and_arguments_as_words(self) -> None:
+        instrument_recipe(self.recipe)
+        build = self.root / "build"
+        build.mkdir()
+        (build / "build.ninja").write_text("# fixture\n", encoding="utf-8")
+        fake_meson = self.root / "fake_meson.py"
+        fake_meson.write_text(
+            "import json, os, sys\n"
+            "with open(os.environ['MESON_CALLS'], 'a', encoding='utf-8') as out:\n"
+            " out.write(json.dumps(sys.argv[1:]) + '\\n')\n"
+            "print('{}')\n", encoding="utf-8",
+        )
+        fake_bin = self.root / "bin"
+        fake_bin.mkdir()
+        fake_ninja = fake_bin / "ninja"
+        fake_ninja.write_text("#!/bin/sh\necho fixture\n", encoding="utf-8")
+        fake_ninja.chmod(0o700)
+        calls = self.root / "meson-calls.jsonl"
+        env = {
+            **os.environ,
+            "TERNUXX_MESA_BUILD_CAPTURE": "1",
+            "TERNUXX_MESA_EVIDENCE_DIR": str(self.root / "evidence"),
+            "TERMUX_MESON": f"{sys.executable} {fake_meson}",
+            "TERMUX_ARCH": "aarch64",
+            "TERMUX_PKG_SRCDIR": str(Path(__file__).resolve().parents[1]),
+            "MESON_CALLS": str(calls),
+            "PATH": f"{fake_bin}:{os.environ.get('PATH', '')}",
+            "BUILD_DIR": str(build),
+        }
+        result = subprocess.run(
+            ["bash", "-c", 'source "$1"; _ternuxx_capture_meson "$BUILD_DIR" host', "bash", str(self.recipe)],
+            env=env, text=True, capture_output=True, timeout=10, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        invocations = [json.loads(line) for line in calls.read_text(encoding="utf-8").splitlines()]
+        self.assertEqual(len(invocations), 5)
+        self.assertEqual(invocations[0][:2], ["introspect", str(build)])
+        self.assertEqual(invocations[1][-1], "--targets")
 
     def test_instrumentation_is_idempotent(self) -> None:
         instrument_recipe(self.recipe)
