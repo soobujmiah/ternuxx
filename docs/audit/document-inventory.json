@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 513,
+  "document_count": 514,
   "read_count": 155,
   "reading_complete": false,
   "broken_local_links": [],
@@ -35,7 +35,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "726f423e241397151bdcb66cc1f7312a680584b696cc74da005ebd8089fb1435",
+      "sha256": "4b4f07efe19c22a7710ef285c47e98a58dad78813435b88df01fdf3ad2219fc1",
       "lines": 24,
       "read_status": "pending",
       "read_sha256": null
@@ -171,8 +171,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "e6bbe7c6608db7571384c3aa8b1d25a49b396d493daa65cec006fd2c94243f61",
-      "lines": 156,
+      "sha256": "3f90859beffb067ae7839181a7f9fd9f20b12aa2e7ada241fb9cab589b184519",
+      "lines": 157,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -227,7 +227,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "70ba1d924c21ea7fe8f7489b2780508dc0c8b94562bde50eb0990a6da9d46376",
+      "sha256": "cad69eee8bb49197ff832d55cfbe7c5f7c4b754d8ec3c678febcc10972ef3e54",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -3065,18 +3065,26 @@
       "read_sha256": "9c7ed3eacff8c4d5b3c927acfc2bf88747f34022edaa98fb7eec771c6c612125"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-cpu-qualification-guard-block.md",
+      "kind": "narrative",
+      "sha256": "89b47e6799f0e14a4619f5d9626968ffddc2eb19198c8347027fcb9119fdc802",
+      "lines": 21,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-guarded-htp-repeat-check.md",
       "kind": "narrative",
-      "sha256": "d5312c4d7e493208d1431f7a5f936a584af4b56a0ab572956839e504cf698d30",
-      "lines": 27,
+      "sha256": "b1b1841b90337fc69b96292db8ec44bfc9aa1ad3f3f93ff359e324962a214aa4",
+      "lines": 29,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-24-p12-guarded-vulkan-repeat-check.md",
       "kind": "narrative",
-      "sha256": "336eedd3f1846af3fbd947d0f3e212bbd57ed3b3a938bab98c5a4811faec2d04",
-      "lines": 27,
+      "sha256": "bf5465037cb0a9774bd5c3e5db5ffc34b7b7a76c2688dd7014049fe87a9e1d02",
+      "lines": 29,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3691,7 +3699,7 @@
     {
       "path": "docs/testing/NATIVE-ACCEL-QUALIFICATION.md",
       "kind": "narrative",
-      "sha256": "69f6b1e89d7f788cd427254fedb50c01d6292fad8cbeb819a83cac6bcdfb6145",
+      "sha256": "d8b68aca830e06f4e8b58a96c930e136e77553836897c2a534e4985ebb210b03",
       "lines": 40,
       "read_status": "pending",
       "read_sha256": null
@@ -3747,8 +3755,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "cdd37d4dcde668ead34d8c454054e0ccd3260a2694b78fc3e466578c750310f9",
-      "lines": 259,
+      "sha256": "afe7631e3fd23b1c9976c4ca7aa3d11e2b0644ecf3dcfdef9b4f0ff8bdc3706c",
+      "lines": 260,
       "read_status": "pending",
       "read_sha256": null
     },

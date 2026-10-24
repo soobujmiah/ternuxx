@@ -18,10 +18,12 @@ The default known-answer prompt was `2 + 2? Reply with one digit.`. The runner w
 
 ## Evidence
 
+**Qualification limit discovered during audit:** the runner version used for this observation required non-empty output but did not compare it with the expected answer. The raw answer text was intentionally omitted from the report, so this record proves backend selection, full offload, resource sampling, and process cleanup only. Do not use it as answer-correctness acceptance; rerun with the corrected validator before claiming known-answer qualification.
+
 The runner exited 0 with `ok=true`; all three calls passed on `HTP0`, each reporting **29/29 HTP layers**, `silent_fallback=false`, and a 319.96 MiB HTP model buffer. Per-call wrapper times were 5.971s, 5.960s and 6.029s. Peak visible `llama-cli` RSS was 177,588 KiB. Per-call minimum sampled `MemAvailable` was 4,469,232 KiB, 4,465,120 KiB and 4,484,836 KiB (lowest: approximately 4.26 GiB). No new `llama-cli` process remained after any call.
 
 Preflight sampled CPU 46.1°C, GPU 40.8°C, HTP 41.2°C, battery 39.66°C, SoC 69°C and `MemAvailable` 5,113,600 KiB. All calls and guarded idle intervals completed without triggering a stop guard.
 
 ## Limits and next gate
 
-This is a short repeated check of one pinned model on one device. The HTP path remains experimental. It does not establish sustained thermal stability, broad model/operator correctness, OEM thermal limits, clean-install reproducibility, or release readiness. P12 remains open; see the [qualification procedure](../testing/NATIVE-ACCEL-QUALIFICATION.md) and [Vulkan repeat result](2026-10-24-p12-guarded-vulkan-repeat-check.md).
+This is a short repeated check of one pinned model on one device, and this runner version did not verify the answer. The HTP path remains experimental. It does not establish answer correctness, sustained thermal stability, broad model/operator correctness, OEM thermal limits, clean-install reproducibility, or release readiness. P12 remains open; see the [qualification procedure](../testing/NATIVE-ACCEL-QUALIFICATION.md) and [Vulkan repeat result](2026-10-24-p12-guarded-vulkan-repeat-check.md).

@@ -59,6 +59,22 @@ class NativeAccelQualificationTests(unittest.TestCase):
                    "gpu_total_layers": 29, "output": "4"}}
         self.assertFalse(parse_result(json.dumps(partial), "vulkan")[0])
 
+    def test_all_backends_require_the_exact_known_answer(self):
+        cases = (
+            ("cpu", {"backend": "CPU", "gpu_layers": 0}),
+            ("vulkan", {"backend": "Vulkan", "gpu_layers": 29, "gpu_total_layers": 29}),
+            ("npu", {"backend": "Hexagon HTP", "npu_layers": 29, "total_layers": 29,
+                     "silent_fallback": False}),
+        )
+        for backend, data in cases:
+            with self.subTest(backend=backend):
+                correct = {"ok": True, "data": {**data, "output": "2 + 2 = 4."}}
+                wrong = {"ok": True, "data": {**data, "output": "The answer is 5."}}
+                self.assertTrue(parse_result(json.dumps(correct), backend)[0])
+                passed, _, error = parse_result(json.dumps(wrong), backend)
+                self.assertFalse(passed)
+                self.assertIn("expected answer 4", error)
+
     def test_htp_pass_requires_full_offload_and_no_silent_fallback(self):
         base = {"backend": "Hexagon HTP", "npu_layers": 29, "total_layers": 29,
                 "silent_fallback": False, "output": "4"}

@@ -18,10 +18,12 @@ The runner used its default prompt, `2 + 2? Reply with one digit.`, sampled ther
 
 ## Evidence
 
+**Qualification limit discovered during audit:** the runner version used for this observation required non-empty output but did not compare it with the expected answer. The raw answer text was intentionally omitted from the report, so this record proves backend selection, full offload, resource sampling, and process cleanup only. Do not use it as answer-correctness acceptance; rerun with the corrected validator before claiming known-answer qualification.
+
 The runner exited 0 with `ok=true`; all three sequential calls passed on `Vulkan0` with the pinned model and **29/29 GPU layers**. The per-call wrapper times were 3.201s, 3.950s, and 3.615s. Peak visible `llama-cli` RSS was 242,504 KiB. Per-call minimum sampled `MemAvailable` was 4,639,832 KiB, 4,637,712 KiB, and 4,621,608 KiB (lowest: approximately 4.41 GiB). No new `llama-cli` process remained after any call.
 
 At preflight, sampled maxima were CPU 44.6°C, GPU 39.6°C, HTP 40.4°C, battery 39.16°C, and SoC 69°C; `MemAvailable` was 5,251,344 KiB. Every call and guarded idle interval completed without triggering a stop guard.
 
 ## Limits and next gate
 
-This verifies a short, repeated known-answer Vulkan path on this device under the listed observations. It does not establish sustained thermal stability, broad model/operator correctness, an upstream-supported clean ICD installation, clean-device setup, or release readiness. P12 remains open for sustained resource qualification, reproducible Adreno 825 ICD provenance, broader HTP correctness, and clean-install/replay evidence. See the [qualification procedure](../testing/NATIVE-ACCEL-QUALIFICATION.md) for the repeatable command and guard semantics.
+This verifies short repeated Vulkan backend selection, complete layer offload, and process cleanup on this device under the listed observations. It does not verify the answer, establish sustained thermal stability, broad model/operator correctness, an upstream-supported clean ICD installation, clean-device setup, or release readiness. P12 remains open for corrected known-answer reruns, sustained resource qualification, reproducible Adreno 825 ICD provenance, broader HTP correctness, and clean-install/replay evidence. See the [qualification procedure](../testing/NATIVE-ACCEL-QUALIFICATION.md) for the corrected answer check and guard semantics.

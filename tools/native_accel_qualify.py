@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import signal
 import subprocess
 import time
@@ -16,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 TX = ROOT / "tx"
 BACKENDS = {"cpu", "vulkan", "npu"}
 MAX_PROMPT_BYTES = 4096
+EXPECTED_ANSWER = re.compile(r"(?:2\s*\+\s*2\s*=\s*)?4[.!]?\Z")
 
 
 def read_temperatures(root: Path = Path("/sys/class/thermal")) -> dict[str, float]:
@@ -97,6 +99,8 @@ def parse_result(stdout: str, backend: str) -> tuple[bool, dict[str, object] | N
         return False, data, "CPU result reported nonzero GPU layers"
     if not isinstance(data.get("output"), str) or not data["output"].strip():
         return False, data, "inference returned empty output"
+    if not EXPECTED_ANSWER.fullmatch(data["output"].strip()):
+        return False, data, "inference did not match the expected answer 4"
     return True, data, None
 
 
@@ -274,6 +278,7 @@ def run(args: argparse.Namespace) -> int:
         if data:
             row["result"] = {k: v for k, v in data.items() if k != "output"}
             row["output_words"] = len(str(data.get("output", "")).split())
+            row["answer_verified"] = status == "passed"
         if error:
             row["error"] = error
         rows.append(row)

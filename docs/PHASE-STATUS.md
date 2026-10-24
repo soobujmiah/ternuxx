@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-A guarded Native Termux qualification runner is documented and tested; three repeated eight-token Vulkan and HTP calls both passed with complete 29/29 offload and no leftover inference process. HTP remains experimental and P12 sustained, provenance, broader-correctness, and clean-install gates remain open.
+Short guarded Vulkan/HTP repeats verified complete offload and cleanup, but audit found the initial runner did not check answer correctness; the corrected exact-answer validator is unit-tested. The CPU run was correctly blocked before inference at the live 70°C SoC guard. Sustained, provenance, broader-correctness, and clean-install gates remain open.
 
-**Next action:** Use the guarded runner to extend HTP correctness and resource qualification only within conservative live guards; establish supported Adreno 825 ICD provenance and clean-install replay, then review all P12 gates before completion.
+**Next action:** When a fresh live preflight is below all conservative guards, rerun exact-answer CPU/Vulkan/HTP qualification and record outputs as verified flags; then extend HTP correctness and resource checks, and resolve Adreno 825 provenance and clean-install replay.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -154,3 +154,4 @@ Evidence:
 - [docs/evidence/2026-10-24-native-thermal-api-access-check.md](evidence/2026-10-24-native-thermal-api-access-check.md)
 - [docs/evidence/2026-10-24-p12-guarded-vulkan-repeat-check.md](evidence/2026-10-24-p12-guarded-vulkan-repeat-check.md)
 - [docs/evidence/2026-10-24-p12-guarded-htp-repeat-check.md](evidence/2026-10-24-p12-guarded-htp-repeat-check.md)
+- [docs/evidence/2026-10-24-p12-cpu-qualification-guard-block.md](evidence/2026-10-24-p12-cpu-qualification-guard-block.md)
