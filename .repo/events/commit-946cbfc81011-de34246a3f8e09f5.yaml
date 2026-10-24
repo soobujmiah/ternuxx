@@ -1,0 +1,7 @@
+event_id: commit-946cbfc81011-de34246a3f8e09f5
+repository: soobujmiah/ternuxx
+commit: 946cbfc810113aa595aaa950cb649f8e2e3d08c6
+kind: commit
+occurred_at: '2026-10-24T13:26:57Z'
+status: completed
+summary: 'docs: correct thermal recovery sequence'
