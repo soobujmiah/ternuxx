@@ -166,9 +166,11 @@ class TermuxBootCronTest(unittest.TestCase):
         import management_authorization
         self.assertEqual(management_authorization.required_capability("boot.cron.status"), "diagnostics.read")
         self.assertEqual(management_authorization.required_capability("boot.cron.preview"), "diagnostics.read")
-        self.assertEqual(management_authorization.required_capability("boot.cron.enable"), "boot.manage")
+        self.assertEqual(management_authorization.required_capability("boot.cron.enable"), "boot.cron.manage")
+        self.assertEqual(management_authorization.required_capability("boot.cron.disable"), "boot.cron.manage")
         self.assertFalse(management_authorization.authorize("boot.cron.enable", {"diagnostics.read"}))
-        self.assertTrue(management_authorization.authorize("boot.cron.enable", {"boot.manage"}))
+        self.assertFalse(management_authorization.authorize("boot.cron.enable", {"boot.manage"}))
+        self.assertTrue(management_authorization.authorize("boot.cron.enable", {"boot.cron.manage"}))
 
 
 

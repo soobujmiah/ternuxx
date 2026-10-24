@@ -26,6 +26,8 @@ The CLI, TUI, authenticated Web UI, and GTK center call the same typed managemen
 
 Native audio, desktop monitoring, boot profiles, and Wake Lock controls have independent owners and state. A stop operation releases only resources whose identity matches a Ternuxx record.
 
+The optional Termux:Boot Cron entrypoint starts only the Ternuxx Cron daemon. CLI, TUI, GTK, and Web expose status/validation and exact-preview enable/disable flows; Web requires the separate opt-in `boot.cron.manage` session capability. This does not establish Android cold-boot delivery, which remains unverified.
+
 ## Packages and updates
 
 `tx install preview` and `tx install update preview` show the exact Native Termux package transaction. Apply only the reviewed plan ID. If a package operation fails partway, inspect APT output/history and create a fresh preview; Ternuxx does not claim an automatic package rollback.

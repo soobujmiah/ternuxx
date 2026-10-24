@@ -4,7 +4,7 @@
 
 typedef struct { gchar *id, *category, *name, *status, *availability, *description, *operations; } Resource;
 typedef struct { GtkWidget *window, *category_list, *resource_list, *details, *notice, *search, *action_scroll;
-                 GtkWidget *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
+                 GtkWidget *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *boot_cron_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
                  *monitor_interval, *monitor_unit, *monitor_focus, *monitor_launch,
                  *proot_box, *proot_help, *proot_setup_help, *proot_app_entry, *proot_shortcut_entry, *proot_sync_rollback_entry, *proot_session_entry,
                  *proot_replay_alias_entry, *proot_replay_backup_entry, *proot_replay_retire_button,
@@ -64,9 +64,28 @@ static void change_ssh_autostart(GtkButton *button, gpointer data);
 static void deploy_ssh_definition(GtkButton *button, gpointer data);
 static void rollback_ssh_definition(GtkButton *button, gpointer data);
 static void change_ssh_wakelock(GtkButton *button, gpointer data);
+static void manage_boot_cron(GtkButton *button, gpointer data);
+static void boot_cron_choice(GObject *source, GAsyncResult *result, gpointer user_data);
 static void ask_ssh_wakelock_confirmation(Center *c, const gchar *enabled, const gchar *plan_id, const gchar *effect);
 static void change_ssh_wakelock(GtkButton *button, gpointer data) {
     (void)button; run_bridge(data, "ssh-wakelock-status", NULL, NULL, NULL, NULL, NULL);
+}
+static void boot_cron_choice(GObject *source, GAsyncResult *result, gpointer user_data) {
+    Center *c = user_data; GError *error = NULL;
+    gint choice = gtk_alert_dialog_choose_finish(GTK_ALERT_DIALOG(source), result, &error);
+    if (error) { gtk_label_set_text(GTK_LABEL(c->notice), error->message); g_clear_error(&error); return; }
+    if (choice == 0) run_bridge(c, "boot-cron-status", NULL, NULL, NULL, NULL, NULL);
+    else if (choice == 1) run_bridge(c, "boot-cron-validate", NULL, NULL, NULL, NULL, NULL);
+    else if (choice == 2) run_bridge(c, "boot-cron-preview", "enable", NULL, NULL, NULL, NULL);
+    else if (choice == 3) run_bridge(c, "boot-cron-preview", "disable", NULL, NULL, NULL, NULL);
+}
+static void manage_boot_cron(GtkButton *button, gpointer data) {
+    (void)button; Center *c = data;
+    const char *choices[] = {"Check status", "Validate setup", "Enable at boot…", "Disable at boot…", "Cancel", NULL};
+    GtkAlertDialog *dialog = gtk_alert_dialog_new("Termux:Boot Cron startup");
+    gtk_alert_dialog_set_buttons(dialog, choices); gtk_alert_dialog_set_default_button(dialog, 4);
+    gtk_alert_dialog_choose(dialog, GTK_WINDOW(c->window), NULL, boot_cron_choice, c);
+    g_object_unref(dialog);
 }
 static void ask_ssh_wakelock_confirmation(Center *c, const gchar *enabled,
                                           const gchar *plan_id, const gchar *effect) {
@@ -463,6 +482,23 @@ static void request_done(GObject *source, GAsyncResult *result, gpointer user_da
         } else if (g_strcmp0(request->action, "terminal-service-prepare") == 0 && stdout_text && g_str_has_prefix(stdout_text, "R\t")) {
             set_text(c, "The fixed Ternuxx terminal broker is already running. No guest was started.");
             gtk_label_set_text(GTK_LABEL(c->notice), "Terminal broker is running");
+        } else if (g_strcmp0(request->action, "boot-cron-preview") == 0 && stdout_text && g_str_has_prefix(stdout_text, "P\t")) {
+            gchar **f = g_strsplit(stdout_text, "\t", 4);
+            gboolean valid = f[1] && g_regex_match_simple("^[0-9a-f]{64}$", f[1], 0, 0)
+                && f[2] && (g_strcmp0(f[2], "enable") == 0 || g_strcmp0(f[2], "disable") == 0) && f[3];
+            if (valid) {
+                g_strchomp(f[3]);
+                gchar *message = g_strdup_printf("Review this exact Termux:Boot Cron change:\n\n%s\n\nApply this preview?", f[3]);
+                GtkAlertDialog *dialog = gtk_alert_dialog_new("%s", message);
+                const char *choices[] = {"Cancel", "Apply exact change", NULL};
+                gtk_alert_dialog_set_buttons(dialog, choices); gtk_alert_dialog_set_default_button(dialog, 0);
+                Request *next = g_new0(Request, 1); next->center = c;
+                next->action = g_strdup("boot-cron-apply"); next->resource_id = g_strdup(f[2]); next->plan_id = g_strdup(f[1]);
+                gtk_alert_dialog_choose(dialog, GTK_WINDOW(c->window), NULL, confirmed_action, next);
+                gtk_label_set_text(GTK_LABEL(c->notice), "Reviewing exact Termux:Boot Cron preview");
+                g_object_unref(dialog); g_free(message);
+            } else gtk_label_set_text(GTK_LABEL(c->notice), "Termux:Boot preview was invalid; no change was made.");
+            g_strfreev(f);
         } else if (g_strcmp0(request->action, "monitor") == 0 && stdout_text && g_str_has_prefix(stdout_text,"M\t")) {
             gchar **f=g_strsplit(stdout_text,"\t",5);
             if(f[1]&&f[2]&&f[3]&&f[4]) {
@@ -496,6 +532,8 @@ static void request_done(GObject *source, GAsyncResult *result, gpointer user_da
             run_bridge(c,"inspect","network.ssh.managed-8023",NULL,NULL,NULL,NULL);
         else if (success && g_strcmp0(request->action,"ssh-wakelock-apply")==0)
             run_bridge(c,"ssh-wakelock-status",NULL,NULL,NULL,NULL,NULL);
+        else if (success && g_strcmp0(request->action,"boot-cron-apply")==0)
+            run_bridge(c,"boot-cron-status",NULL,NULL,NULL,NULL,NULL);
         else if (success && g_strcmp0(request->action,"set-monitor")==0)
             run_bridge(c,"monitor",NULL,NULL,NULL,NULL,NULL);
         else if (success && g_strcmp0(request->action,"cron-apply")==0)
@@ -602,6 +640,8 @@ static void show_resource(Center *c, Resource *r) {
         gui_actions = "Check status · Generate a Native recovery key · Enroll, revoke, or restore public keys · Set SSH automatic start · Start, stop, or restart managed SSH (8023)";
     else if (g_strcmp0(r->id, "native.wakelock") == 0)
         gui_actions = "Inspect Wake Lock leases · Set managed SSH keep-awake preference";
+    else if (g_strcmp0(r->id, "boot.termux.cron") == 0)
+        gui_actions = "Check status · Validate · Preview and confirm Termux:Boot Cron startup changes";
     else if (g_strcmp0(r->id, "native.gui.activity-monitor") == 0)
         gui_actions = "Review or update monitoring settings";
     else if (g_strcmp0(r->id, "recovery.native-state") == 0)
@@ -714,12 +754,13 @@ static void show_resource(Center *c, Resource *r) {
     gtk_widget_set_visible(c->ssh_deploy_button, managed_ssh);
     gtk_widget_set_visible(c->ssh_deploy_rollback_button, managed_ssh);
     gtk_widget_set_visible(c->ssh_wakelock_button, wakelock);
+    gtk_widget_set_visible(c->boot_cron_button, g_strcmp0(r->id, "boot.termux.cron") == 0);
     gtk_widget_set_visible(c->graphics_select_button, g_strcmp0(r->id, "graphics.native") == 0);
     if (graphics) { gtk_button_set_label(GTK_BUTTON(c->start_button), "Graphics status"); gtk_button_set_label(GTK_BUTTON(c->stop_button), "Verify OpenGL"); }
     else if (proot_workloads) { gtk_button_set_label(GTK_BUTTON(c->start_button), "Debian status"); gtk_button_set_label(GTK_BUTTON(c->stop_button), "Guest sessions"); }
     else { gtk_button_set_label(GTK_BUTTON(c->start_button), managed_ssh ? "Start managed SSH (8023)" : "Start desktop"); gtk_button_set_label(GTK_BUTTON(c->stop_button), managed_ssh ? "Stop managed SSH (8023)" : "Stop desktop"); }
     gtk_widget_set_visible(c->monitor_box, monitor);
-    GtkWidget *action_buttons[] = {c->start_button, c->stop_button, c->ssh_restart_button, c->ssh_keys_button, c->ssh_enroll_button, c->ssh_revoke_button, c->ssh_rollback_button, c->ssh_generate_button, c->ssh_autostart_button, c->ssh_deploy_button, c->ssh_deploy_rollback_button, c->ssh_wakelock_button, c->graphics_select_button,
+    GtkWidget *action_buttons[] = {c->start_button, c->stop_button, c->ssh_restart_button, c->ssh_keys_button, c->ssh_enroll_button, c->ssh_revoke_button, c->ssh_rollback_button, c->ssh_generate_button, c->ssh_autostart_button, c->ssh_deploy_button, c->ssh_deploy_rollback_button, c->ssh_wakelock_button, c->boot_cron_button, c->graphics_select_button,
         c->graphics_api_button, c->history_button, c->desktop_log_button, c->logs_button,
         c->audit_logs_button, c->cron_button, c->cron_history_button, c->cron_manage_button,
         c->cron_start_button, c->cron_stop_button, c->timezone_set_button, c->software_button, c->ai_model_install_button, c->ai_model_remove_button, c->ai_run_button, c->ai_gpu_status_button, c->ai_gpu_run_button, c->ai_npu_status_button, c->ai_npu_install_button, c->ai_npu_run_button, c->terminal_service_button, c->terminal_open_button,
@@ -826,6 +867,8 @@ static void confirmed_action(GObject *source, GAsyncResult *result, gpointer use
             run_bridge(request->center, "ssh-deploy-rollback-apply", request->resource_id, request->plan_id, NULL, NULL, NULL);
         else if (g_strcmp0(request->action, "ssh-wakelock-apply") == 0)
             run_bridge(request->center, "ssh-wakelock-apply", "confirmed", request->resource_id, request->plan_id, NULL, NULL);
+        else if (g_strcmp0(request->action, "boot-cron-apply") == 0)
+            run_bridge(request->center, "boot-cron-apply", request->resource_id, request->plan_id, NULL, NULL, NULL);
         else if (g_strcmp0(request->action, "shortcut-apply") == 0)
             run_bridge(request->center, "shortcut-apply", request->resource_id, request->detail_id, request->plan_id, NULL, NULL);
         else if (g_strcmp0(request->action, "proot-shortcut-apply") == 0)
@@ -1847,11 +1890,12 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     c->ssh_deploy_button=gtk_button_new_with_label("Review and deploy SSH service definition..."); gtk_widget_set_visible(c->ssh_deploy_button,FALSE);
     c->ssh_deploy_rollback_button=gtk_button_new_with_label("Restore previous SSH service definition..."); gtk_widget_set_visible(c->ssh_deploy_rollback_button,FALSE);
     c->ssh_wakelock_button=gtk_button_new_with_label("Set managed SSH keep-awake preference..."); gtk_widget_set_visible(c->ssh_wakelock_button,FALSE);
+    c->boot_cron_button=gtk_button_new_with_label("Manage Termux:Boot Cron startup..."); gtk_widget_set_visible(c->boot_cron_button,FALSE);
     c->graphics_select_button=gtk_button_new_with_label("Select backend (KGSL experimental)"); gtk_widget_set_visible(c->graphics_select_button,FALSE);
     c->graphics_api_button=gtk_button_new_with_label("Verify graphics API…"); gtk_widget_set_visible(c->graphics_api_button,FALSE);
     g_object_set_data(G_OBJECT(c->start_button),"start",GINT_TO_POINTER(TRUE)); g_object_set_data(G_OBJECT(c->stop_button),"start",GINT_TO_POINTER(FALSE));
     gtk_widget_set_visible(c->start_button,FALSE); gtk_widget_set_visible(c->stop_button,FALSE);
-    GtkWidget *base_actions[]={c->start_button,c->stop_button,c->ssh_restart_button,c->ssh_keys_button,c->ssh_enroll_button,c->ssh_revoke_button,c->ssh_rollback_button,c->ssh_generate_button,c->ssh_autostart_button,c->ssh_deploy_button,c->ssh_deploy_rollback_button,c->ssh_wakelock_button,c->graphics_select_button,c->graphics_api_button,c->history_button,c->desktop_log_button,c->logs_button,c->audit_logs_button};
+    GtkWidget *base_actions[]={c->start_button,c->stop_button,c->ssh_restart_button,c->ssh_keys_button,c->ssh_enroll_button,c->ssh_revoke_button,c->ssh_rollback_button,c->ssh_generate_button,c->ssh_autostart_button,c->ssh_deploy_button,c->ssh_deploy_rollback_button,c->ssh_wakelock_button,c->boot_cron_button,c->graphics_select_button,c->graphics_api_button,c->history_button,c->desktop_log_button,c->logs_button,c->audit_logs_button};
     for (guint i=0;i<G_N_ELEMENTS(base_actions);i++) gtk_box_append(GTK_BOX(actions),base_actions[i]);
     c->cron_button=gtk_button_new_with_label("View saved Cron jobs"); gtk_widget_set_visible(c->cron_button,FALSE); gtk_box_append(GTK_BOX(actions),c->cron_button);
     c->cron_history_button=gtk_button_new_with_label("View Cron execution history"); gtk_widget_set_visible(c->cron_history_button,FALSE); gtk_box_append(GTK_BOX(actions),c->cron_history_button);
@@ -1942,6 +1986,7 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     g_signal_connect(c->proot_replay_restore_button,"clicked",G_CALLBACK(proot_replay_restore_clicked),c);
     g_signal_connect(c->proot_replay_cancel_button,"clicked",G_CALLBACK(proot_replay_cancel_clicked),c);
     g_signal_connect(c->proot_replay_apply_button,"clicked",G_CALLBACK(proot_replay_apply_clicked),c);
+    g_signal_connect(c->boot_cron_button,"clicked",G_CALLBACK(manage_boot_cron),c);
     g_signal_connect(c->category_list,"row-selected",G_CALLBACK(category_selected),c); g_signal_connect(c->resource_list,"row-selected",G_CALLBACK(resource_selected),c); g_signal_connect(c->search,"search-changed",G_CALLBACK(search_changed),c); g_signal_connect(c->start_button,"clicked",G_CALLBACK(confirm_action),c); g_signal_connect(c->stop_button,"clicked",G_CALLBACK(confirm_action),c); g_signal_connect(c->ssh_restart_button,"clicked",G_CALLBACK(confirm_action),c); g_signal_connect(c->ssh_keys_button,"clicked",G_CALLBACK(show_ssh_keys),c); g_signal_connect(c->ssh_enroll_button,"clicked",G_CALLBACK(enroll_ssh_key),c); g_signal_connect(c->ssh_revoke_button,"clicked",G_CALLBACK(revoke_ssh_key),c); g_signal_connect(c->ssh_rollback_button,"clicked",G_CALLBACK(restore_ssh_key),c); g_signal_connect(c->ssh_generate_button,"clicked",G_CALLBACK(generate_ssh_key),c); g_signal_connect(c->ssh_autostart_button,"clicked",G_CALLBACK(change_ssh_autostart),c); g_signal_connect(c->ssh_deploy_button,"clicked",G_CALLBACK(deploy_ssh_definition),c); g_signal_connect(c->ssh_deploy_rollback_button,"clicked",G_CALLBACK(rollback_ssh_definition),c); g_signal_connect(c->ssh_wakelock_button,"clicked",G_CALLBACK(change_ssh_wakelock),c); g_signal_connect(c->graphics_select_button,"clicked",G_CALLBACK(select_graphics),c); g_signal_connect(c->graphics_api_button,"clicked",G_CALLBACK(choose_graphics_api),c); g_signal_connect(c->history_button,"clicked",G_CALLBACK(show_history),c); g_signal_connect(c->desktop_log_button,"clicked",G_CALLBACK(show_desktop_log),c); g_signal_connect(c->logs_button,"clicked",G_CALLBACK(show_cron_log),c); g_signal_connect(c->audit_logs_button,"clicked",G_CALLBACK(show_management_log),c); g_signal_connect(c->cron_button,"clicked",G_CALLBACK(show_cron_jobs),c); g_signal_connect(c->cron_history_button,"clicked",G_CALLBACK(show_cron_history),c); g_signal_connect(c->cron_manage_button,"clicked",G_CALLBACK(show_cron_form),c); g_signal_connect(c->cron_start_button,"clicked",G_CALLBACK(cron_scheduler_start),c); g_signal_connect(c->cron_stop_button,"clicked",G_CALLBACK(cron_scheduler_stop),c); g_signal_connect(c->cron_inspect_button,"clicked",G_CALLBACK(inspect_cron_reference),c); g_signal_connect(c->cron_next_button,"clicked",G_CALLBACK(inspect_cron_reference),c); g_signal_connect(c->cron_execution_button,"clicked",G_CALLBACK(inspect_cron_reference),c); g_signal_connect(c->recovery_status_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->backup_list_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->continuity_status_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->continuity_prepare_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->continuity_verify_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->backup_inspect_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->backup_create_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->restore_apply_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->restore_preview_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->operation_inspect_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->rollback_preview_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->rollback_apply_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->recovery_resolve_button,"clicked",G_CALLBACK(inspect_recovery_reference),c); g_signal_connect(c->timezone_set_button,"clicked",G_CALLBACK(set_timezone),c); g_signal_connect(save,"clicked",G_CALLBACK(save_monitor),c);
     load_catalog(c); gtk_window_present(GTK_WINDOW(c->window));
     return TRUE;

@@ -16,6 +16,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "lib"))
 import management_http_runtime  # noqa: E402
+import management_authorization  # noqa: E402
 
 
 PREFIX = "/data/data/com.termux/files/usr"
@@ -518,7 +519,6 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn('session?.capabilities?.includes("services.manage")', ui)
         self.assertIn("Review and deploy SSH service definition", ui)
         self.assertIn("Restore previous SSH service definition", ui)
-
         page = (ROOT / "lib" / "management_web_ui.html").read_text()
         self.assertIn('id="categories"', page)
         self.assertIn('id="search"', page)
@@ -572,6 +572,68 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn("applications.shortcuts.manage", page)
         self.assertIn("Preview bounded headless guest probe", page)
         self.assertIn("tx proot setup fresh-preview", page)
+
+    def test_boot_cron_web_scope_is_opt_in_and_narrow(self) -> None:
+        ui = (ROOT / "lib" / "management_web_ui.html").read_text(encoding="utf-8")
+        self.assertIn('id="boot-cron-scope" type="checkbox"', ui)
+        self.assertIn('if($("#boot-cron-scope").checked)capabilities.push("boot.cron.manage")', ui)
+        self.assertIn('session?.capabilities?.includes("boot.cron.manage")', ui)
+        self.assertIn('manageBootCron(action)', ui)
+        self.assertEqual(management_authorization.required_capability("boot.cron.enable"), "boot.cron.manage")
+        self.assertEqual(management_authorization.required_capability("boot.cron.disable"), "boot.cron.manage")
+        self.assertEqual({op for op, cap in management_authorization.OPERATION_CAPABILITIES.items()
+                          if cap == "boot.cron.manage"}, {"boot.cron.enable", "boot.cron.disable"})
+        self.assertTrue({"boot.cron.enable", "boot.cron.disable"} <=
+                        management_http_runtime._WEB_MUTATING_OPERATIONS)
+
+    def test_boot_cron_web_apply_is_denied_without_opt_in_scope(self) -> None:
+        env = dict(self.env, TERNUXX_WEB_MODE="1")
+        Path(env["TERNUXX_STATE_DIR"]).mkdir(parents=True, mode=0o700)
+        Path(env["TERNUXX_STATE_DIR"]).chmod(0o700)
+        with patch.object(management_http_runtime.management_service, "dispatch") as dispatch:
+            server = management_http_runtime.build_server(port=0, bootstrap_secret=SECRET, env=env)
+            try:
+                session = server.adapter.sessions.exchange_bootstrap(
+                    SECRET, sorted(management_http_runtime.WEB_CAPABILITIES - {"boot.cron.manage"}))
+                host = "127.0.0.1:%s" % server.port
+                body = json.dumps({"api_version": 1, "request_id": "web-no-boot-cron-scope-001",
+                    "operation": "boot.cron.enable", "args": {"confirmed": True, "plan_id": "a" * 64}}).encode()
+                status, _headers, response = server.adapter.handle(method="POST", path="/api/v1/operations",
+                    headers={"Host": host, "Origin": "http://" + host,
+                        "Content-Type": "application/json", "Content-Length": str(len(body)),
+                        "Authorization": "Bearer " + session.bearer_token,
+                        "X-Ternuxx-CSRF": session.csrf_token, "Idempotency-Key": "web-no-boot-cron-scope-key"},
+                    body=body)
+                self.assertEqual(status, 403)
+                self.assertEqual(json.loads(response)["error"], "permission_denied")
+                dispatch.assert_not_called()
+            finally:
+                self.assertTrue(server.close(grace_seconds=1))
+
+    def test_boot_cron_web_apply_dispatches_with_opt_in_scope(self) -> None:
+        env = dict(self.env, TERNUXX_WEB_MODE="1")
+        Path(env["TERNUXX_STATE_DIR"]).mkdir(parents=True, mode=0o700)
+        Path(env["TERNUXX_STATE_DIR"]).chmod(0o700)
+        with patch.object(management_http_runtime.management_service, "dispatch",
+                          return_value={"api_version": 1, "request_id": "web-boot-cron-result-01",
+                              "ok": True, "operation": "boot.cron.enable", "data": {"changed": True}}) as dispatch:
+            server = management_http_runtime.build_server(port=0, bootstrap_secret=SECRET, env=env)
+            try:
+                session = server.adapter.sessions.exchange_bootstrap(SECRET, ["diagnostics.read", "boot.cron.manage"])
+                host = "127.0.0.1:%s" % server.port
+                body = json.dumps({"api_version": 1, "request_id": "web-boot-cron-request-001",
+                    "operation": "boot.cron.enable", "args": {"confirmed": True, "plan_id": "a" * 64}}).encode()
+                status, _headers, response = server.adapter.handle(method="POST", path="/api/v1/operations",
+                    headers={"Host": host, "Origin": "http://" + host,
+                        "Content-Type": "application/json", "Content-Length": str(len(body)),
+                        "Authorization": "Bearer " + session.bearer_token,
+                        "X-Ternuxx-CSRF": session.csrf_token, "Idempotency-Key": "web-boot-cron-scope-key"},
+                    body=body)
+                self.assertEqual(status, 200, response)
+                dispatch.assert_called_once()
+                self.assertEqual(dispatch.call_args.args[0]["operation"], "boot.cron.enable")
+            finally:
+                self.assertTrue(server.close(grace_seconds=1))
 
     def test_web_console_has_bounded_mobile_layout_and_touch_navigation_rules(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()

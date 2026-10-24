@@ -221,6 +221,33 @@ def main(argv: list[str]) -> int:
             "enabled": enabled, "confirmed": True, "plan_id": plan_id})
         print(management_presentation.format_report(result))
         return 0 if result.get("ok") else 1
+    if action == "boot-cron-status" and len(argv) == 1:
+        result = call("boot.cron.status")
+        print(management_presentation.format_report(result))
+        return 0 if result.get("ok") else 1
+    if action == "boot-cron-validate" and len(argv) == 1:
+        result = call("boot.cron.validate")
+        print(management_presentation.format_report(result))
+        return 0 if result.get("ok") else 1
+    if action == "boot-cron-preview" and len(argv) == 2 and argv[1] in {"enable", "disable"}:
+        result = call("boot.cron.preview", {"action": argv[1]})
+        if not result.get("ok"):
+            print(management_presentation.format_report(result)); return 1
+        data = result.get("data", {})
+        plan_id = data.get("plan_id")
+        if (data.get("ready") is not True or data.get("requires_confirmation") is not True
+                or not isinstance(plan_id, str) or not re.fullmatch(r"[0-9a-f]{64}", plan_id)):
+            print(management_presentation.format_report(result)); return 0
+        print("P\t" + plan_id + "\t" + argv[1] + "\t"
+              + clean(json.dumps(data, ensure_ascii=False, sort_keys=True)))
+        return 0
+    if action == "boot-cron-apply" and len(argv) == 3 and argv[1] in {"enable", "disable"}:
+        plan_id = argv[2]
+        if not re.fullmatch(r"[0-9a-f]{64}", plan_id):
+            print("Cron boot preview is invalid; create a fresh preview.", file=sys.stderr); return 2
+        result = call(f"boot.cron.{argv[1]}", {"confirmed": True, "plan_id": plan_id})
+        print(management_presentation.format_report(result))
+        return 0 if result.get("ok") else 1
     if action == "ssh-deploy-preview" and len(argv) == 1:
         result = call("ssh.service.deploy", {"confirmed": False, "plan_id": None})
         if not result.get("ok"):

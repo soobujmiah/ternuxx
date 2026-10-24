@@ -580,6 +580,31 @@ def _boot_action(screen: "curses._CursesWindow") -> dict[str, object]:
     return {"ok": False, "error": {"code": "cancelled"}}
 
 
+def _boot_cron_action(screen: "curses._CursesWindow") -> dict[str, object]:
+    """Manage only the optional Termux:Boot Cron entrypoint, preview first."""
+    choice = _prompt(screen, "Cron boot: status, validate, preview enable/disable, enable, disable (blank cancels)").lower()
+    if choice == "status":
+        return _call("boot.cron.status")
+    if choice == "validate":
+        return _call("boot.cron.validate")
+    if choice not in {"preview enable", "preview disable", "enable", "disable"}:
+        return {"ok": False, "error": {"code": "cancelled"}}
+    action = choice.removeprefix("preview ")
+    preview = _call("boot.cron.preview", {"action": action})
+    if not preview.get("ok") or choice.startswith("preview "):
+        return preview
+    plan = preview.get("data", {})
+    _show_details(screen, preview)
+    if plan.get("ready") is not True:
+        return preview
+    if plan.get("requires_confirmation") is not True:
+        return preview
+    if _prompt(screen, f"Review this exact Termux:Boot Cron change and {action}? type yes").lower() != "yes":
+        return {"ok": False, "error": {"code": "cancelled"}}
+    return _call(f"boot.cron.{action}", {
+        "confirmed": True, "plan_id": plan.get("plan_id")})
+
+
 def _cron_scheduler_action(screen: "curses._CursesWindow") -> dict[str, object]:
     """Start or stop the Ternuxx scheduler only after an explicit review."""
     choice = _prompt(screen, "Cron service: status, start, stop (blank cancels)").lower()
@@ -678,6 +703,12 @@ def _available_action_labels(resource: dict[str, Any]) -> list[str]:
                                             ("boot.profile.preview", "preview startup profile"),
                                             ("boot.enable", "enable startup profile"),
                                             ("boot.disable", "disable startup profile")) if op in operations)
+    elif resource_id == "boot.termux.cron":
+        labels.extend(name for op, name in (("boot.cron.status", "check Cron boot entrypoint"),
+                                            ("boot.cron.validate", "validate Cron boot readiness"),
+                                            ("boot.cron.preview", "preview Cron boot setup/removal"),
+                                            ("boot.cron.enable", "enable Cron at device boot"),
+                                            ("boot.cron.disable", "disable Cron device-boot entrypoint")) if op in operations)
     elif resource_id == "recovery.native-state" and "recovery.status" in operations:
         labels.extend(("view operation history", "list/inspect backups", "create backup", "preview/apply restore and rollback",
                        "reconcile unresolved operations", "check reboot continuity", "prepare and verify continuity checkpoints"))
@@ -1686,6 +1717,8 @@ def _run(screen: "curses._CursesWindow") -> int:
                           {"ok": False, "error": {"code": "cancelled"}})
             elif resource["id"] == "boot.termux.profile":
                 report = _boot_action(screen)
+            elif resource["id"] == "boot.termux.cron":
+                report = _boot_cron_action(screen)
             elif resource["id"] == "native.wakelock":
                 report = _wakelock_action(screen)
             elif resource["id"] == "recovery.native-state":

@@ -819,6 +819,24 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertEqual(result, preview)
         self.assertEqual(calls, ["boot.profile.preview"])
 
+    def test_boot_cron_enable_uses_exact_preview_and_typed_confirmation(self) -> None:
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "boot.termux.cron")
+        preview = {"ok": True, "data": {"ready": True, "requires_confirmation": True,
+                   "plan_id": "d" * 64, "changes": [{"operation": "create"}]}}
+        applied = {"ok": True, "data": {"changed": True}}
+        with mock.patch.object(terminal_ui, "_prompt", side_effect=["enable", "yes"]), \
+             mock.patch.object(terminal_ui, "_show_details"), \
+             mock.patch.object(terminal_ui, "_call", side_effect=[preview, applied]) as dispatch:
+            self.assertIs(terminal_ui._boot_cron_action(mock.Mock()), applied)
+        self.assertEqual(dispatch.call_args_list, [
+            mock.call("boot.cron.preview", {"action": "enable"}),
+            mock.call("boot.cron.enable", {"confirmed": True, "plan_id": "d" * 64}),
+        ])
+        labels = terminal_ui._available_action_labels(resource)
+        self.assertIn("enable Cron at device boot", labels)
+        self.assertIn("disable Cron device-boot entrypoint", labels)
+
     def test_cli_tui_no_longer_exposes_raw_operation_json_prompt(self) -> None:
         source = (ROOT / "lib" / "terminal_ui.py").read_text()
         self.assertNotIn("JSON arguments", source)

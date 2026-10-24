@@ -59,6 +59,13 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
         self.assertIn("Ternuxx does not install it", SOURCE)
         self.assertIn("Experimental KGSL (already present)", SOURCE)
 
+    def test_gtk_termux_boot_cron_has_exact_preview_confirmation_controls(self):
+        for contract in ("boot.termux.cron", "Manage Termux:Boot Cron startup",
+                         "boot-cron-status", "boot-cron-validate", "boot-cron-preview",
+                         "boot-cron-apply", "^[0-9a-f]{64}$", "Apply exact change"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, SOURCE + BRIDGE)
+
     def test_curated_native_app_client_uses_saved_preview_and_exact_confirmation(self):
         for contract in ("software.curated-apps", "software-preview", "software-apply",
                          "software-run", "HOME-relative file or directory path",

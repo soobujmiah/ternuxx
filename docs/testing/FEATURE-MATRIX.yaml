@@ -58,6 +58,21 @@ features:
     next_action: Finish per-operation UI behavior review, GTK build/render acceptance, and clean-device replay.
     owner_decision_required: false
 
+  - id: boot.termux_cron
+    name: Optional Termux:Boot Cron entrypoint
+    user_value: Start only the Ternuxx Cron daemon after device boot when the owner opts in.
+    implementation_status: PARTIAL
+    commercial_class: NOT_READY
+    runtime: native_termux
+    dependencies: [official_termux_boot_app, ternuxx_cron_service]
+    validation_status: PARTIAL
+    qualification: DETECTED
+    evidence: [../architecture/CRON-JOBS.md, ../architecture/CAPABILITY-MATRIX.md, ../../lib/termux_boot_cron.py, ../../tests/test_termux_boot_cron.py, ../../tests/test_management_http_runtime.py, ../../tests/test_management_center_ui_contract.py]
+    release_qualified: false
+    limitations: [Client status/validation and exact-preview enable/disable paths are implemented; actual Android cold-boot delivery remains unverified.]
+    next_action: Owner-operated reboot and read-only verification of the dedicated script outcome and scheduler identity.
+    owner_decision_required: true
+
   - id: client.tui
     name: Interactive terminal management
     user_value: Guide Native workstation inspection and supported operations interactively.

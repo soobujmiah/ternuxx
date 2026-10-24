@@ -26,6 +26,25 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
         env.start()
         self.addCleanup(env.stop)
 
+    def test_boot_cron_bridge_previews_and_applies_only_exact_ready_plan(self):
+        plan = {"plan_id": "a" * 64, "ready": True, "requires_confirmation": True,
+                "changes": [{"operation": "create", "path": ".termux/boot/ternuxx-cron"}]}
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": plan}) as dispatch, \
+                redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["boot-cron-preview", "enable"]), 0)
+        dispatch.assert_called_once_with("boot.cron.preview", {"action": "enable"})
+        self.assertIn("P\t" + "a" * 64 + "\tenable", output.getvalue())
+
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()), \
+                mock.patch("sys.stderr", StringIO()):
+            self.assertEqual(bridge.main(["boot-cron-apply", "enable", "bad-plan"]), 2)
+        dispatch.assert_not_called()
+
+        applied = {"ok": True, "data": {"changed": True}}
+        with mock.patch.object(bridge, "call", return_value=applied) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["boot-cron-apply", "enable", "b" * 64]), 0)
+        dispatch.assert_called_once_with("boot.cron.enable", {"confirmed": True, "plan_id": "b" * 64})
+
     def test_ssh_definition_deploy_bridge_requires_exact_sha256_preview(self):
         plan = {"plan_id": "a" * 64, "requires_confirmation": True,
                 "diff": ["- old", "+ new"]}
