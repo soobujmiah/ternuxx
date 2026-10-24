@@ -35,10 +35,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "f6642b4d51bc595a12a9e2dcd06a703be16b69df3858e4ffd930f9820d529fbb",
+      "sha256": "b2d03d75a33226587cdd24e4a9d49442ef1e16f4594e0c48365fdac411d20417",
       "lines": 23,
       "read_status": "read",
-      "read_sha256": "f6642b4d51bc595a12a9e2dcd06a703be16b69df3858e4ffd930f9820d529fbb"
+      "read_sha256": "b2d03d75a33226587cdd24e4a9d49442ef1e16f4594e0c48365fdac411d20417"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "11d72ebc0bda8fe5be1d7e451f9788adfda83ba871d6f2fc29af755811252150",
+      "sha256": "eb8c382eb113d0b28f25bbda3df25ab1f795b43bd4592a0196d9a47d340cc611",
       "lines": 40,
       "read_status": "read",
-      "read_sha256": "11d72ebc0bda8fe5be1d7e451f9788adfda83ba871d6f2fc29af755811252150"
+      "read_sha256": "eb8c382eb113d0b28f25bbda3df25ab1f795b43bd4592a0196d9a47d340cc611"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
