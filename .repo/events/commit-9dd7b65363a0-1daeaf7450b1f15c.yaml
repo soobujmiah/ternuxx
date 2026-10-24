@@ -1,0 +1,7 @@
+event_id: commit-9dd7b65363a0-1daeaf7450b1f15c
+repository: soobujmiah/ternuxx
+commit: 9dd7b65363a0c4454a664e09cb2ca0cd57cff784
+kind: commit
+occurred_at: '2026-10-24T15:49:01Z'
+status: completed
+summary: 'docs(p12): map mesa build scope and guard recheck'
