@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternuxx
 repository: soobujmiah/ternuxx
-generated_at: '2026-10-24T13:18:09Z'
+generated_at: '2026-10-24T13:19:29Z'
 generated_by: tools/repo_knowledge collect
-version: ebca6ce
+version: cf2674d
 head:
-  commit: ebca6ced4156119d6a232b3ecd3b158625d39e08
+  commit: cf2674ddfd691bbf997742cd7d07a4a07148e00e
   branch: main
-  committed_at: '2026-10-24T13:17:03Z'
+  committed_at: '2026-10-24T13:19:29Z'
 phases:
   source: not_configured
   completed: []
@@ -43,5 +43,5 @@ last_failed_build:
   run_id: '39159994935'
 sync:
   status: ok
-  last_synced_at: '2026-10-24T13:18:09Z'
-  source: ci
+  last_synced_at: '2026-10-24T13:19:29Z'
+  source: local
