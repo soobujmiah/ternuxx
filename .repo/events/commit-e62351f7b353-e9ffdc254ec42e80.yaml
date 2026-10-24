@@ -1,0 +1,7 @@
+event_id: commit-e62351f7b353-e9ffdc254ec42e80
+repository: soobujmiah/ternuxx
+commit: e62351f7b3535b3584c6d2dccd0dc91d43c321bd
+kind: commit
+occurred_at: '2026-10-24T14:17:23Z'
+status: completed
+summary: 'docs(p12): record Native thermal API boundary'
