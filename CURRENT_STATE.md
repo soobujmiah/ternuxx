@@ -36,6 +36,8 @@ A read-only Native thermal and memory recheck at 16:19 UTC measured CPU 50.5°C,
 
 At 19:24–19:25 UTC, one guarded eight-token addition case passed on each Native backend: CPU (zero GPU layers), Vulkan0 (29/29 GPU layers), and experimental HTP0 (29/29 NPU layers, fallback disabled). Each exact answer was verified and each run left no visible `llama-cli` process. CPU peaked at 59.7°C, just below the configured 60°C stop guard. These are single-case checks only; the three-case repeated qualification remains open. See the [single-case results](docs/evidence/2026-10-24-p12-single-case-backend-check.md).
 
+At 19:40 UTC, a guarded three-case CPU suite cancelled its first in-flight addition when the CPU-zone sample reached 60.0°C. It completed zero cases and left no visible `llama-cli` process. The unchanged guard was respected; no answer or qualification pass is claimed. See the [CPU cancellation record](docs/evidence/2026-10-24-p12-cpu-suite-guard-cancel-1940z.md).
+
 At 18:31–18:32 UTC, one corrected eight-token addition call was attempted on CPU, Vulkan, and HTP. All preflights passed; each in-flight call was cancelled within 0.46–0.47 seconds when a CPU-zone sample crossed the unchanged 60°C guard (61.3°C, 60.5°C, and 62.1°C respectively). Each run completed zero cases, verified no answer, and reported no remaining `llama-cli` process; memory stayed above the 2 GiB guard. The readings do not establish a sustained temperature or a cause. See the [three-backend guarded cancellation record](docs/evidence/2026-10-24-p12-three-backend-guard-cancel.md) and its [structured measurements](docs/evidence/data/2026-10-24-p12-three-backend-guard-cancel-1832z.json).
 
 ## Release boundary

@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 536,
-  "read_count": 171,
+  "document_count": 537,
+  "read_count": 172,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "02069c4efb8553a01f38378e7389622a980b27526fe0ba99e77ecbb45382897b",
-      "lines": 45,
+      "sha256": "bd350fb15264f656ddb7d5cbf0974b8644866751b9e4d63deb0b0adde65331d8",
+      "lines": 47,
       "read_status": "read",
-      "read_sha256": "02069c4efb8553a01f38378e7389622a980b27526fe0ba99e77ecbb45382897b"
+      "read_sha256": "bd350fb15264f656ddb7d5cbf0974b8644866751b9e4d63deb0b0adde65331d8"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -3111,6 +3111,14 @@
       "lines": 27,
       "read_status": "read",
       "read_sha256": "8e77360c2e478310cf7a75ad146c316f1c2d22c838aaca66a5e7345537880473"
+    },
+    {
+      "path": "docs/evidence/2026-10-24-p12-cpu-suite-guard-cancel-1940z.md",
+      "kind": "narrative",
+      "sha256": "29b9ade8a022de6b5bdd0a10d878bcc7136ae5568fb32dae7d56c82a428739b8",
+      "lines": 11,
+      "read_status": "read",
+      "read_sha256": "29b9ade8a022de6b5bdd0a10d878bcc7136ae5568fb32dae7d56c82a428739b8"
     },
     {
       "path": "docs/evidence/2026-10-24-p12-guarded-htp-repeat-check.md",
