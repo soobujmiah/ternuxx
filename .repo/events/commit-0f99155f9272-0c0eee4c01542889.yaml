@@ -1,0 +1,7 @@
+event_id: commit-0f99155f9272-0c0eee4c01542889
+repository: soobujmiah/ternuxx
+commit: 0f99155f9272c5ca0b1f4a6a0f9dcd81536eb5c0
+kind: commit
+occurred_at: '2026-10-24T17:00:15Z'
+status: completed
+summary: 'docs(p12): record guarded cpu cancellation and build gap'
