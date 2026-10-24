@@ -1,0 +1,150 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "Ternuxx private Termux Mesa candidate package inventory 0219ff84",
+  "documentNamespace": "https://github.com/soobujmiah/ternuxx/spdxdocs/mesa-0219ff84-8b8f3dfccefd4dc3dba65a0099dc9c3efdfd6afc7f9679f3b92a2b8b781a9353",
+  "creationInfo": {
+    "creators": [
+      "Tool: Ternuxx Debian package SBOM generator 1.0"
+    ],
+    "created": "2026-10-24T15:32:42Z"
+  },
+  "comment": "Package-level inventory only. Source bundle SHA-256: 8b8f3dfccefd4dc3dba65a0099dc9c3efdfd6afc7f9679f3b92a2b8b781a9353. Package files and transitive source components were not analyzed; see per-package licenseConcluded and licenseComments.",
+  "documentDescribes": [
+    "SPDXRef-Package-mesa",
+    "SPDXRef-Package-mesa-dev",
+    "SPDXRef-Package-mesa-opencl-icd-rusticl",
+    "SPDXRef-Package-mesa-vulkan-icd-freedreno",
+    "SPDXRef-Package-mesa-vulkan-icd-swrast"
+  ],
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-mesa",
+      "name": "mesa",
+      "versionInfo": "26.3.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "licenseComments": "File-level and source-component license analysis was not performed; no package license conclusion is asserted. Declared-license basis: Termux PR #25 packages/mesa/build.sh at packaging commit 0219ff84b372c9d38aad4e40f448c20ec3d1588e sets TERMUX_PKG_LICENSE=MIT; the included Mesa license.rst warns that component licenses vary.",
+      "copyrightText": "NOASSERTION",
+      "packageFileName": "mesa_26.3.0_aarch64.deb",
+      "sourceInfo": "Mesa source: https://github.com/lfdevs/mesa-for-android-container.git commit 98f3d6229d61452cef80f8563af7c56ae599dc14; Termux packaging: https://github.com/lfdevs/termux-packages/pull/25 head 0219ff84b372c9d38aad4e40f448c20ec3d1588e",
+      "comment": "Debian architecture: aarch64. Debian Depends field: libandroid-shmem, libc++, libdrm, libglvnd, libllvm (<< 22), libwayland, libx11, libxext, libxfixes, libxshmfence, libxxf86vm, ncurses, vulkan-loader, zlib, zstd. Debian Source field: not present. Debian License field: not present.",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "1a11b410b31ff98e80915cd0a51b7f7e91f0c8a7b09c71862e8924028eff1ecb"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-mesa-dev",
+      "name": "mesa-dev",
+      "versionInfo": "26.3.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "licenseComments": "File-level and source-component license analysis was not performed; no package license conclusion is asserted. Declared-license basis: Termux PR #25 packages/mesa/build.sh at packaging commit 0219ff84b372c9d38aad4e40f448c20ec3d1588e sets TERMUX_PKG_LICENSE=MIT; the included Mesa license.rst warns that component licenses vary.",
+      "copyrightText": "NOASSERTION",
+      "packageFileName": "mesa-dev_26.3.0_all.deb",
+      "sourceInfo": "Mesa source: https://github.com/lfdevs/mesa-for-android-container.git commit 98f3d6229d61452cef80f8563af7c56ae599dc14; Termux packaging: https://github.com/lfdevs/termux-packages/pull/25 head 0219ff84b372c9d38aad4e40f448c20ec3d1588e",
+      "comment": "Debian architecture: all. Debian Depends field: libglvnd-dev. Debian Source field: not present. Debian License field: not present.",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "09c81b60186cac48dcd73ff066925f57273b1d2f327214fbd449c13c0bf1aa60"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-mesa-opencl-icd-rusticl",
+      "name": "mesa-opencl-icd-rusticl",
+      "versionInfo": "26.3.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "licenseComments": "File-level and source-component license analysis was not performed; no package license conclusion is asserted. Declared-license basis: Termux PR #25 packages/mesa/build.sh at packaging commit 0219ff84b372c9d38aad4e40f448c20ec3d1588e sets TERMUX_PKG_LICENSE=MIT; the included Mesa license.rst warns that component licenses vary.",
+      "copyrightText": "NOASSERTION",
+      "packageFileName": "mesa-opencl-icd-rusticl_26.3.0_aarch64.deb",
+      "sourceInfo": "Mesa source: https://github.com/lfdevs/mesa-for-android-container.git commit 98f3d6229d61452cef80f8563af7c56ae599dc14; Termux packaging: https://github.com/lfdevs/termux-packages/pull/25 head 0219ff84b372c9d38aad4e40f448c20ec3d1588e",
+      "comment": "Debian architecture: aarch64. Debian Depends field: clang (<< 22), libandroid-shmem, libc++, libclc, libdrm, libllvm (<< 22), zlib, zstd. Debian Source field: not present. Debian License field: not present.",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d1fea689f105fb81128be6caed3338bab40262750b3d809aa04020fcc2eba81d"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-mesa-vulkan-icd-freedreno",
+      "name": "mesa-vulkan-icd-freedreno",
+      "versionInfo": "26.3.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "licenseComments": "File-level and source-component license analysis was not performed; no package license conclusion is asserted. Declared-license basis: Termux PR #25 packages/mesa/build.sh at packaging commit 0219ff84b372c9d38aad4e40f448c20ec3d1588e sets TERMUX_PKG_LICENSE=MIT; the included Mesa license.rst warns that component licenses vary.",
+      "copyrightText": "NOASSERTION",
+      "packageFileName": "mesa-vulkan-icd-freedreno_26.3.0_aarch64.deb",
+      "sourceInfo": "Mesa source: https://github.com/lfdevs/mesa-for-android-container.git commit 98f3d6229d61452cef80f8563af7c56ae599dc14; Termux packaging: https://github.com/lfdevs/termux-packages/pull/25 head 0219ff84b372c9d38aad4e40f448c20ec3d1588e",
+      "comment": "Debian architecture: aarch64. Debian Depends field: libandroid-shmem, libc++, libdrm, libx11, libxcb, libxshmfence, libwayland, vulkan-loader-generic, zlib, zstd. Debian Source field: not present. Debian License field: not present.",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "772eb1b9ac2f689bd8659bfd0aaffcb827caca322be3441d41520831dec4cb09"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-mesa-vulkan-icd-swrast",
+      "name": "mesa-vulkan-icd-swrast",
+      "versionInfo": "26.3.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "MIT",
+      "licenseComments": "File-level and source-component license analysis was not performed; no package license conclusion is asserted. Declared-license basis: Termux PR #25 packages/mesa/build.sh at packaging commit 0219ff84b372c9d38aad4e40f448c20ec3d1588e sets TERMUX_PKG_LICENSE=MIT; the included Mesa license.rst warns that component licenses vary.",
+      "copyrightText": "NOASSERTION",
+      "packageFileName": "mesa-vulkan-icd-swrast_26.3.0_aarch64.deb",
+      "sourceInfo": "Mesa source: https://github.com/lfdevs/mesa-for-android-container.git commit 98f3d6229d61452cef80f8563af7c56ae599dc14; Termux packaging: https://github.com/lfdevs/termux-packages/pull/25 head 0219ff84b372c9d38aad4e40f448c20ec3d1588e",
+      "comment": "Debian architecture: aarch64. Debian Depends field: libandroid-shmem, libc++, libdrm, libllvm (<< 22), libx11, libxcb, libxshmfence, libwayland, ncurses, vulkan-loader-generic, zlib, zstd. Debian Source field: not present. Debian License field: not present.",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "2c67dd19b45bf69944c2185b9a5a7a60c7a48d0beea9e5d6bfb3b1e3c7decedf"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-mesa"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-mesa-dev"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-mesa-opencl-icd-rusticl"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-mesa-vulkan-icd-freedreno"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-mesa-vulkan-icd-swrast"
+    }
+  ]
+}

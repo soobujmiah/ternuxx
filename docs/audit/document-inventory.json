@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 517,
+  "document_count": 519,
   "read_count": 152,
   "reading_complete": false,
   "broken_local_links": [],
@@ -171,8 +171,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "5630e3866bc525dbb54be77755c629c452592b9ac156d3bd0075ae0baf41408d",
-      "lines": 159,
+      "sha256": "abc8d6071bf8e61d69d096ca366d1b56e65a90a4cd90855cc5bc456568cb51b1",
+      "lines": 160,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -227,7 +227,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "9b2010a73a7ee26daf725c130320660e0ea6da12c7a489c7de2cc90c516701a1",
+      "sha256": "47c0a8172318f26b7d1dc73155faff7d89851f49ef2f48f585443e4690168065",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -3121,6 +3121,22 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-native-mesa-package-inventory.md",
+      "kind": "narrative",
+      "sha256": "5da625d41be2e98fe6c5ad1910ab3691d8852b2b8730f210c49acf47d8d3735e",
+      "lines": 26,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-24-p12-native-mesa-package-sbom.spdx.json",
+      "kind": "structured",
+      "sha256": "81280db25f583738b04a8549f9e8507415a6cad7ff721f84fa495781cce3ebf2",
+      "lines": 150,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-native-repeated-resource-check.md",
       "kind": "narrative",
       "sha256": "3c6419b46127a6fb5b96a24a109137eb26b17d672d2b8f5ced2862cd2cc817af",
@@ -3587,7 +3603,7 @@
     {
       "path": "docs/readiness/LEGAL-IP.md",
       "kind": "narrative",
-      "sha256": "fb9e273e44c9329d91fda730ee2e618635fa7ea46c6112059d598fe47d6a8a91",
+      "sha256": "066f94ea7ad6bdde02aa847b9d017b0c9a13fe8b105dd67d4b57f99499523fd1",
       "lines": 59,
       "read_status": "pending",
       "read_sha256": null
@@ -3707,7 +3723,7 @@
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "008609dcec0616dd266633a21689ab59e6c1ae7000b4b1795e7930c65db23804",
+      "sha256": "9eaec8517d0924984705a762f39c7f804b88d820a5ce65d7cdf144dc81bf564a",
       "lines": 36,
       "read_status": "pending",
       "read_sha256": null
@@ -3779,8 +3795,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "7bccfc15d6ec2fafdc5ad6394784175cda731c7d4d5b4ca2806e1f0148adc170",
-      "lines": 262,
+      "sha256": "3f06c166c2f5c407288dc29e149ed3c5bd94d28f04545167712327bc8e5265e4",
+      "lines": 263,
       "read_status": "pending",
       "read_sha256": null
     },

@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-A fixed three-case addition/subtraction/multiplication suite is implemented; 10 focused and 1028 full repository tests pass. CPU/Vulkan/HTP preflights report zero runs at socd=79 C against the 70 C guard, so the new cases remain live-unverified. Durable Bionic Mesa source, full license inventory/SBOM, and clean-install replay remain open.
+A package-level SPDX 2.3 inventory/generator records the five Mesa .deb hashes and control metadata; 5 focused and 1033 full repository tests pass, and artifact hashes match. It leaves file analysis false and conclusions NOASSERTION. Latest SoC read is 82 C above the 70 C guard; live inference remains blocked, while source-component licensing, complete notices, durable Bionic source, and clean-install replay remain open.
 
-**Next action:** When all live sensors are below the configured guards, run the full multi-case suite separately on CPU, Vulkan, and HTP. Then complete sustained HTP correctness/resource checks and an auditable Bionic Mesa source, component notices/SBOM, and clean-install replay.
+**Next action:** Map packaged Mesa binaries to enabled source components and complete file-level license/notice review while the device remains above the 70 C guard. When every sensor is below its guard, run the multi-case CPU/Vulkan/HTP suite; then complete sustained HTP checks and clean-install replay from a durable audited Bionic build.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -157,3 +157,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-cpu-qualification-guard-block.md](evidence/2026-10-24-p12-cpu-qualification-guard-block.md)
 - [docs/evidence/2026-10-24-p12-native-artifact-release-recheck.md](evidence/2026-10-24-p12-native-artifact-release-recheck.md)
 - [docs/evidence/2026-10-24-p12-multi-case-runner.md](evidence/2026-10-24-p12-multi-case-runner.md)
+- [docs/evidence/2026-10-24-p12-native-mesa-package-inventory.md](evidence/2026-10-24-p12-native-mesa-package-inventory.md)
