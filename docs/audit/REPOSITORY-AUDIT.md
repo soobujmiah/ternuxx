@@ -2,7 +2,7 @@
 
 **Status:** in progress; this report is a current checkpoint, not a completion claim.
 **Reviewed:** 2026-10-24 19:38 UTC. **Source HEAD:** `2937ff0dab9b6c3107f9efa398b5a2ab110f870a`. The latest host-like repository gate passes 1,077 tests and the CLI help contract. Repository source, tests, and read-only Native checks govern current behavior.
-The earlier Native-only audit is preserved in [history](../history/REPOSITORY-AUDIT-pre-native-only-2026-10-24.md). Repository source, tests, and read-only Native checks govern current behavior.
+The earlier Native-only audit is preserved in [history](../history/REPOSITORY-AUDIT-pre-native-only-2026-10-24.md).
 
 ## Product and implementation
 
@@ -37,7 +37,7 @@ The generated document inventory contains 536 documents; 171 are marked read aft
 
 ## Remaining project gates
 
-- P12 remains active: sustained CPU/Vulkan/HTP memory and thermal qualification; a reproducible experimental Vulkan ICD clean-install path; and broader HTP model/operator coverage. The latest six-run check establishes short repeatability only.
+- P12 remains active: sustained CPU/Vulkan/HTP memory and thermal qualification; a reproducible experimental Vulkan ICD clean-install path; and broader HTP model/operator coverage. The earlier six-run check establishes short repeatability only; the newer one-case checks do not replace it.
 - The full per-operation client-reach review, clean-device PRoot setup replay, visual/accessibility acceptance, cold-boot behavior, and SSH exposure decision remain open as described by the [capability matrix](../architecture/CAPABILITY-MATRIX.md) and [known limitations](../testing/KNOWN-LIMITATIONS.md). Operation authorization and Web-session read-only/CSRF classification are exhaustive and covered by regression tests; actual client action reach remains a separate audit.
 - No project license is selected. Provenance review, SBOM, signing, and release approval remain open; internal phase progress does not authorize publication.
 
