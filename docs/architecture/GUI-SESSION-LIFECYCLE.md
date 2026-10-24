@@ -1,6 +1,6 @@
 # Native GUI session lifecycle
 
-Ternuxx owns only the Native Termux desktop session that it starts and records in its private schema-v2 `session.json`. Debian/PRoot session management has been retired; dated guest records are historical.
+Native desktop lifecycle is managed in Native Termux. Debian PRoot GUI sessions are a separate optional provider with their own scoped lifecycle records and process identity; stopping one must not stop the Native desktop or an unverified owner session. Current commands and acceptance limits are in the [operations guide](../OPERATIONS.md#debian-proot-guest) and [P11 evidence](../evidence/2026-10-24-p11-proot-source-restoration-audit.md). The schema-v2 Native `session.json` described below applies only to Native desktop sessions.
 
 ## Shared operation path
 

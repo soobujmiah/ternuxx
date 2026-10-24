@@ -2,7 +2,7 @@
 
 **Reviewed:** 2026-10-17. Website build, account creation, domain purchase and deployment are not authorized or performed.
 
-> **Planning snapshot, not active scope.** No website work was authorized. The owner later selected Native Termux-only Ternuxx; references below to PRoot, hybrid, multi-provider features, or related marketing pages are superseded. Current implementation status is in the [Native capability matrix](../testing/FEATURE-MATRIX.yaml).
+> **Planning snapshot, not active scope.** No website work was authorized. Ternuxx currently uses Native Termux as host/control plane with optional Debian PRoot workloads. The product direction and supported claims in this older proposal may be stale; use the [current capability matrix](../testing/FEATURE-MATRIX.yaml) and [phase status](../PHASE-STATUS.md).
 
 ## Website purpose and truth boundary
 
@@ -14,8 +14,8 @@ At audit time there is no product-site source in this repository and GitHub Page
 
 | Route | Job and key content | Evidence / CTA | SEO/content gate |
 |---|---|---|---|
-| `/` | One-sentence product explanation; Native-only architecture diagram; current phase; limitations; a real owner-approved screenshot only if available | Source, roadmap, docs; CTA: read install status | First screen must say this is in development until a qualified release exists |
-| `/product/` | Product boundaries, execution-provider architecture, CLI/API model | Architecture and ADRs | No “all-in-one hybrid” present-tense claim until implemented |
+| `/` | One-sentence product explanation; Native Termux host/control plane with optional Debian PRoot workloads; current phase and limitations; a real owner-approved screenshot only if available | Source, roadmap, docs; CTA: read install status | First screen must say this is in development until a qualified release exists |
+| `/product/` | Product boundaries, Native/PRoot execution-provider architecture, CLI/API model | Architecture and ADRs | Distinguish implemented Native and optional PRoot workflows from unimplemented broader orchestration; avoid unsupported “all-in-one” claims |
 | `/features/` | Machine-readable free/premium/service catalog rendered into status cards | Canonical [`docs/testing/FEATURE-MATRIX.yaml`](../testing/FEATURE-MATRIX.yaml); each feature has evidence link | No generic CPU/GPU/NPU claim; separate process contexts; commercial class does not imply shipping |
 | `/compatibility/` | Tested Native device/runtime matrix, known failures, date, compatibility labels | [`docs/testing/DEVICE-COMPATIBILITY.md`](../testing/DEVICE-COMPATIBILITY.md) and accepted reports | `unknown` remains visible; distinguish silicon detection from workload qualification |
 | `/acceleration/` | Filterable CPU/GPU/NPU report index and charts generated only from accepted raw benchmark records | Canonical reports under [`docs/testing/reports/`](../testing/reports/README.md) and linked methodology | No zero-filled “not tested” points, synthetic device charts, upstream numbers presented as Ternuxx results, or chart without report/hash |
@@ -84,9 +84,9 @@ No website exists, so this is a target keyword-to-page map, not search-volume re
 |---|---|---|---|---|
 | Home | “Termux mobile workstation”, “Ternuxx Android workstation” | Honest current status, provider architecture and actual supported workflow | Start here → current install status | Each release |
 | Install | “Termux XFCE install”, “Termux:X11 desktop setup” | Reproducible, versioned steps, preview and exact failure recovery | Supported release only | Each package/runtime change |
-| Compatibility | “Linux desktop on Android”, “Termux GPU Adreno”, “Termux GPU Adreno” | Exact device, Android/Termux/driver/workload, result and limitation | Evidence and issue form | Each new test; stale evidence flagged |
+| Compatibility | “Linux desktop on Android”, “Termux GPU Adreno” | Exact device, Android/Termux/driver/workload, result and limitation | Evidence and issue form | Each new test; stale evidence flagged |
 | Native workstation | “Termux mobile workstation”, “Termux:X11 XFCE on Android” | Show the exact supported Native profile and verified workflows | Architecture/docs | Each release |
-| Local AI | “local AI on Android Termux”, “NPU Termux” | Explain backend evidence and failed/unverified results | Evidence only | On runtime/model research change |
+| Local AI | “local AI on Android Termux”, “NPU Termux” | Explain bounded CPU/Vulkan/experimental HTP evidence and remaining limits | Evidence only | On runtime/model research change |
 | Bangla guide | “Termux e Linux desktop”, “Android phone e Debian PRoot” | Natural Bangla instructions, same technical truth as English | Install/docs | Match English release |
 | Services | “Termux setup help Bangladesh”, “Linux on Android support” | Real service scope, location/timezone, exclusions and confirmed availability | Minimal contact route | Monthly after launch |
 

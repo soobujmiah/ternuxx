@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  Ternuxx — Native Termux-first workstation CLI
+#  Ternuxx — Native Termux host and optional Debian PRoot workstation CLI
 #
-#  Native Termux is the product runtime; PRoot guests are not supported.
+#  Native Termux owns services and control; Debian guest apps use the PRoot provider.
 #
 #  Copyright (c) 2026 Sobuj Miah (@soobujmiah)
 #  License: not yet selected; see README.md.
@@ -87,16 +87,7 @@ _nt_dispatch() {
   case "$cmd" in h) cmd=help ;; esac
   if [ "$cmd" = help ]; then _nt_use help && nt_help "\${1:-}"; return 0; fi
 
-  case "$cmd" in
-    proot|pgui|db|virgl|terminal)
-      local removed_message="PRoot support was retired. Use 'tx help' for Native Termux commands and 'tx guides' for the interactive setup path."
-      if [ "$TERNUXX_JSON" = "1" ]; then
-        nt_json_object "error" "feature_removed" "message" "$removed_message" "command" "$cmd"
-      else
-        nt_warn "$removed_message"
-      fi
-      return 2 ;;
-  esac
+
 
   if declare -F "nt_cmd_${cmd}" >/dev/null 2>&1; then
     "nt_cmd_${cmd}" "$@"
@@ -108,17 +99,19 @@ _nt_dispatch() {
     guides)
       local choice="" repo_root="${_NT_BIN_DIR%/bin}"
       while :; do
-        printf '%s\n' '' 'Ternuxx Native Termux guide' \
+        printf '%s\n' '' 'Ternuxx Native Termux and Debian guide' \
           '  1) Preview Native package setup' \
           '  2) Check system health' \
           '  3) Check desktop status' \
           '  4) Start the Native desktop' \
           '  5) Read installation guide' \
           '  6) Read operations guide' \
-          '  7) Native CPU inference setup' \
-          '  8) Open terminal management (TUI)' \
-          '  9) Open authenticated Web management' \
-          ' 10) Open GTK management center' \
+          '  7) Set up the pinned CPU model' \
+          '  8) Check CPU, GPU, and NPU inference status' \
+          '  9) Inspect Debian or preview fresh guest setup' \
+          ' 10) Open terminal management (TUI)' \
+          ' 11) Open authenticated Web management' \
+          ' 12) Open GTK management center' \
           '  0) Exit'
         [ -t 0 ] || { printf '%s\n' 'Interactive menu needs a terminal. Run `tx help`, `tx install preview`, `tx tui`, `tx web`, or `tx gui`.'; return 0; }
         read -r -p 'Choose an item: ' choice || return 0
@@ -134,11 +127,24 @@ _nt_dispatch() {
               if command -v less >/dev/null 2>&1; then less "$guide"; else cat "$guide"; fi
             else printf 'Guide file not found: %s\n' "$guide" >&2; return 1; fi ;;
           7) "$_NT_BIN_DIR/tx" ai setup; return $? ;;
-          8) "$_NT_BIN_DIR/tx" tui; return $? ;;
-          9) "$_NT_BIN_DIR/tx" web; return $? ;;
-          10) "$_NT_BIN_DIR/tx" gui; return $? ;;
+          8)
+            local result=0
+            "$_NT_BIN_DIR/tx" ai status || result=1
+            "$_NT_BIN_DIR/tx" ai devices || result=1
+            "$_NT_BIN_DIR/tx" ai npu status || result=1
+            return "$result" ;;
+          9)
+            local guest_user=""
+            "$_NT_BIN_DIR/tx" proot status || return $?
+            read -r -p 'New Debian guest username for a read-only setup preview (Enter to skip): ' guest_user || return 0
+            [ -n "$guest_user" ] || return 0
+            "$_NT_BIN_DIR/tx" proot setup fresh-preview --user "$guest_user"
+            return $? ;;
+          10) "$_NT_BIN_DIR/tx" tui; return $? ;;
+          11) "$_NT_BIN_DIR/tx" web; return $? ;;
+          12) "$_NT_BIN_DIR/tx" gui; return $? ;;
           0) return 0 ;;
-          *) printf '%s\n' 'Please choose 0 through 10.' ;;
+          *) printf '%s\n' 'Please choose 0 through 12.' ;;
         esac
       done
       ;;
@@ -148,6 +154,8 @@ _nt_dispatch() {
     app)                       lib_map="management" ;;
     graphics)                   lib_map="desktop" ;;
     gui)                       lib_map="launch" ;;
+    proot|pgui|db)             lib_map="proot" ;;
+    terminal)                   lib_map="terminal" ;;
     tui)                        lib_map="tui" ;;
     web)                        lib_map="management" ;;
     checkpoint)                lib_map="continuity" ;;

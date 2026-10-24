@@ -15,6 +15,102 @@ import terminal_ui
 
 class TerminalUISharedServiceTests(unittest.TestCase):
 
+    def test_replay_guest_action_uses_exact_retirement_and_restore_plans(self):
+        alias, backup_id, plan_id = "ternuxx-replay-p4", "b" * 32, "a" * 64
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "proot.replay-guests")
+        self.assertIn("preview and retire or restore an exact replay guest",
+                      terminal_ui._available_action_labels(resource))
+        for action, preview_op, apply_op, args, payload, confirmation in (
+            ("retire", "proot.setup.retire.preview", "proot.setup.retire.apply",
+             {"alias": alias}, {"alias": alias, "confirmed": True, "plan_id": plan_id}, "RETIRE"),
+            ("restore", "proot.setup.restore.preview", "proot.setup.restore.apply",
+             {"alias": alias, "backup_id": backup_id},
+             {"alias": alias, "backup_id": backup_id, "confirmed": True, "plan_id": plan_id}, "RESTORE"),
+        ):
+            preview = {"ok": True, "data": {"plan_id": plan_id, "operation": {
+                "alias": alias, "backup_id": backup_id if action == "restore" else None,
+                "confirmation_required": True, "impact": "Exact reversible directory move."}}}
+            applied = {"ok": True, "data": {"status": "retired" if action == "retire" else "restored"}}
+            prompt_values = [alias, confirmation] if action == "retire" else [alias, backup_id, confirmation]
+            with self.subTest(action=action), \
+                    mock.patch.object(terminal_ui, "_choose", return_value=action), \
+                    mock.patch.object(terminal_ui, "_prompt", side_effect=prompt_values), \
+                    mock.patch.object(terminal_ui, "_show_details"), \
+                    mock.patch.object(terminal_ui, "_call", side_effect=[preview, applied]) as dispatch:
+                self.assertIs(terminal_ui._manage_replay_guest(object()), applied)
+            dispatch.assert_has_calls([mock.call(preview_op, args), mock.call(apply_op, payload)])
+
+    def test_replay_guest_tui_rejects_invalid_alias_before_preview(self):
+        with mock.patch.object(terminal_ui, "_choose", return_value="retire"), \
+                mock.patch.object(terminal_ui, "_prompt", return_value="debian"), \
+                mock.patch.object(terminal_ui, "_call") as dispatch:
+            result = terminal_ui._manage_replay_guest(object())
+        self.assertEqual(result["error"]["code"], "invalid_replay_alias")
+        dispatch.assert_not_called()
+
+    def test_replay_guest_tui_refuses_apply_when_preview_target_does_not_match(self):
+        alias = "ternuxx-replay-p4"
+        preview = {"ok": True, "data": {"plan_id": "a" * 64, "operation": {
+            "alias": "ternuxx-replay-other", "confirmation_required": True}}}
+        with mock.patch.object(terminal_ui, "_choose", return_value="retire"), \
+                mock.patch.object(terminal_ui, "_prompt", return_value=alias), \
+                mock.patch.object(terminal_ui, "_call", return_value=preview) as dispatch, \
+                mock.patch.object(terminal_ui, "_show_details"):
+            result = terminal_ui._manage_replay_guest(object())
+        self.assertEqual(result["error"]["code"], "invalid_guest_lifecycle_preview")
+        dispatch.assert_called_once_with("proot.setup.retire.preview", {"alias": alias})
+
+    def test_proot_shortcut_action_uses_preview_exact_confirmation_and_apply(self):
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "proot.debian.workloads")
+        inventory = {"ok": True, "data": {"items": [
+            {"id": "gedit", "name": "Text editor", "shortcut_state": "absent"},
+            {"id": "thunar", "name": "File manager", "shortcut_state": "conflict"},
+        ]}}
+        preview = {"ok": True, "data": {"changed": True, "plan_id": "plan-exact"}}
+        applied = {"ok": True, "data": {"status": "applied"}}
+        with mock.patch.object(terminal_ui, "_choose", side_effect=["shortcuts", "gedit"]), \
+                mock.patch.object(terminal_ui, "_call", side_effect=[inventory, preview, applied]) as dispatch, \
+                mock.patch.object(terminal_ui, "_prompt", return_value="ADD SHORTCUT"), \
+                mock.patch.object(terminal_ui, "_show_details"):
+            self.assertIs(terminal_ui._proot_workload_action(object(), resource), applied)
+        dispatch.assert_has_calls([
+            mock.call("proot.shortcuts.list"),
+            mock.call("proot.shortcuts.preview", {"action": "add", "app_id": "gedit"}),
+            mock.call("proot.shortcuts.apply", {"action": "add", "app_id": "gedit",
+                "confirmed": True, "plan_id": "plan-exact"}),
+        ])
+
+    def test_proot_shortcut_sync_and_rollback_require_exact_reviewed_plans(self):
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "proot.debian.workloads")
+        sync_preview = {"ok": True, "data": {"changed": True, "plan_id": "sync-plan"}}
+        sync_result = {"ok": True, "data": {"status": "applied"}}
+        with mock.patch.object(terminal_ui, "_choose", return_value="shortcut-sync"), \
+                mock.patch.object(terminal_ui, "_call", side_effect=[sync_preview, sync_result]) as dispatch, \
+                mock.patch.object(terminal_ui, "_prompt", return_value="SYNC SHORTCUTS"), \
+                mock.patch.object(terminal_ui, "_show_details"):
+            self.assertIs(terminal_ui._proot_workload_action(object(), resource), sync_result)
+        dispatch.assert_has_calls([mock.call("proot.shortcuts.sync.preview"),
+            mock.call("proot.shortcuts.sync.apply", {"confirmed": True, "plan_id": "sync-plan"})])
+
+        rollback_list = {"ok": True, "data": {"rollbacks": [
+            {"rollback_id": "r" * 32, "status": "applied", "integrity": "valid", "entry_count": 2}]}}
+        rollback_preview = {"ok": True, "data": {"requires_confirmation": True, "plan_id": "rollback-plan"}}
+        rollback_result = {"ok": True, "data": {"status": "rolled_back"}}
+        with mock.patch.object(terminal_ui, "_choose", side_effect=["shortcut-rollback", "r" * 32]), \
+                mock.patch.object(terminal_ui, "_call", side_effect=[rollback_list, rollback_preview, rollback_result]) as dispatch, \
+                mock.patch.object(terminal_ui, "_prompt", return_value="ROLLBACK SHORTCUTS"), \
+                mock.patch.object(terminal_ui, "_show_details"):
+            self.assertIs(terminal_ui._proot_workload_action(object(), resource), rollback_result)
+        dispatch.assert_has_calls([
+            mock.call("proot.shortcuts.sync.rollback.list"),
+            mock.call("proot.shortcuts.sync.rollback.preview", {"rollback_id": "r" * 32}),
+            mock.call("proot.shortcuts.sync.rollback.apply", {"rollback_id": "r" * 32,
+                "confirmed": True, "plan_id": "rollback-plan"}),
+        ])
+
     def test_stop_preview_preserves_signal_name_for_people(self):
         report=management_presentation.format_report({"ok":True,"data":{
             "signal":"SIGHUP","impact":"Hang up one owned terminal."}})
@@ -102,6 +198,60 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertIn("run a bounded CPU prompt", labels)
         self.assertIn("inference.cpu.status", terminal_ui.READ_WITHOUT_ARGUMENTS)
 
+    def test_vulkan_inference_actions_are_explicit_and_shared(self) -> None:
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "inference.gpu.local")
+        labels = terminal_ui._available_action_labels(resource)
+        self.assertIn("list Vulkan inference devices", labels)
+        self.assertIn("run a bounded Vulkan prompt", labels)
+        self.assertIn("inference.gpu.status", terminal_ui.READ_WITHOUT_ARGUMENTS)
+        result = {"ok": True, "data": {"available": False, "devices": []}}
+        with mock.patch.object(terminal_ui, "_call", return_value=result) as dispatch:
+            self.assertIs(terminal_ui._call("inference.gpu.status"), result)
+        dispatch.assert_called_once_with("inference.gpu.status")
+
+    def test_native_hexagon_actions_preview_runtime_and_require_explicit_htp_run(self) -> None:
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "inference.npu.local")
+        labels = terminal_ui._available_action_labels(resource)
+        self.assertIn("check HTP0 runtime and device", labels)
+        self.assertIn("preview Snapdragon runtime install", labels)
+        self.assertIn("run a bounded experimental HTP prompt", labels)
+        inventory = {"ok": True, "data": {"available": True}}
+        result = {"ok": True, "data": {"backend": "HTP0", "gpu_layers": 29}}
+        with mock.patch.object(terminal_ui, "_choose", return_value="run"), \
+                mock.patch.object(terminal_ui, "_call", side_effect=[inventory, result]) as dispatch, \
+                mock.patch.object(terminal_ui, "_prompt", side_effect=["hello", "RUN"]):
+            self.assertIs(terminal_ui._npu_inference_action(object(), resource), result)
+        dispatch.assert_has_calls([mock.call("inference.npu.status"), mock.call("inference.npu.run", {
+            "prompt": "hello", "max_tokens": 64})])
+
+    def test_vulkan_run_selects_an_enumerated_device_before_confirmation(self) -> None:
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "inference.gpu.local")
+        inventory = {"ok": True, "data": {"available": True, "devices": [
+            {"id": "Vulkan0", "name": "Adreno A"}, {"id": "Vulkan1", "name": "Adreno B"}]}}
+        result = {"ok": True, "data": {"backend": "Vulkan", "gpu_layers": 20}}
+        with mock.patch.object(terminal_ui, "_choose", side_effect=["run", "Vulkan1"]), \
+                mock.patch.object(terminal_ui, "_call", side_effect=[inventory, result]) as dispatch, \
+                mock.patch.object(terminal_ui, "_prompt", side_effect=["hello", "RUN"]):
+            self.assertIs(terminal_ui._gpu_inference_action(object(), resource), result)
+        dispatch.assert_has_calls([mock.call("inference.gpu.status"), mock.call("inference.gpu.run", {
+            "prompt": "hello", "max_tokens": 64, "device_id": "Vulkan1"})])
+
+    def test_vulkan_run_stops_when_no_device_is_enumerated(self) -> None:
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "inference.gpu.local")
+        inventory = {"ok": True, "data": {"available": False, "devices": [], "reason": "backend absent"}}
+        with mock.patch.object(terminal_ui, "_choose", return_value="run"), \
+                mock.patch.object(terminal_ui, "_call", return_value=inventory) as dispatch, \
+                mock.patch.object(terminal_ui, "_prompt") as prompt:
+            result = terminal_ui._gpu_inference_action(object(), resource)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"]["code"], "gpu_unavailable")
+        dispatch.assert_called_once_with("inference.gpu.status")
+        prompt.assert_not_called()
+
     def test_only_unargumented_read_operations_are_inspectable(self) -> None:
         self.assertIn("desktop.status", terminal_ui.READ_WITHOUT_ARGUMENTS)
         self.assertNotIn("desktop.start", terminal_ui.READ_WITHOUT_ARGUMENTS)
@@ -126,6 +276,11 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertFalse(any("start" in item or "stop" in item for item in manual_actions))
         self.assertTrue(any("status" in item for item in manual_actions))
 
+        proot = next(item for item in management_service.management_catalog.RESOURCES
+                     if item["id"] == "proot.debian.workloads")
+        self.assertIn("preview and manage Debian app shortcuts",
+                      terminal_ui._available_action_labels(proot))
+
     def test_graphics_action_labels_are_native_only(self) -> None:
         native = next(item for item in management_service.management_catalog.RESOURCES
                       if item["id"] == "graphics.native")
@@ -133,6 +288,86 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertIn("select backend (KGSL experimental)", labels)
         self.assertIn("verify Vulkan", labels)
         self.assertFalse(any("Debian" in label or "PRoot" in label for label in labels))
+
+    def test_proot_login_guidance_uses_installed_guest_without_setup_prompt(self) -> None:
+        resource = {"supported_operations": ["proot.status"]}
+        installed = {"ok": True, "data": {"installed_distributions": ["debian"]}}
+        with mock.patch.object(terminal_ui, "_choose", return_value="login"), \
+                mock.patch.object(terminal_ui, "_call", return_value=installed) as dispatch:
+            result = terminal_ui._proot_workload_action(object(), resource)
+        self.assertEqual(result["data"]["guest_status"], "installed")
+        self.assertIn("run `tx db`", result["data"]["next_step"])
+        self.assertNotIn("fresh-preview", result["data"]["next_step"])
+        dispatch.assert_called_once_with("proot.status")
+
+    def test_proot_login_guidance_offers_setup_only_when_guest_is_missing(self) -> None:
+        resource = {"supported_operations": ["proot.status"]}
+        missing = {"ok": True, "data": {"installed_distributions": []}}
+        with mock.patch.object(terminal_ui, "_choose", return_value="login"), \
+                mock.patch.object(terminal_ui, "_call", return_value=missing):
+            result = terminal_ui._proot_workload_action(object(), resource)
+        self.assertEqual(result["data"]["guest_status"], "missing")
+        self.assertIn("tx proot setup fresh-preview", result["data"]["next_step"])
+        self.assertIn("tx proot setup fresh-install --yes --plan-id PLAN_ID", result["data"]["next_step"])
+        self.assertIn("hidden prompts", result["data"]["next_step"])
+
+    def test_proot_stop_uses_only_verified_running_sessions_and_exact_preview(self) -> None:
+        resource = {"supported_operations": ["proot.sessions.list", "proot.stop.preview", "proot.stop"]}
+        session_id = "proot-" + "a" * 32
+        inventory = {"ok": True, "data": {"sessions": [
+            {"session_id": session_id, "profile": "debian-interactive", "state": "running",
+             "ownership": "ternuxx_verified"},
+            {"session_id": "proot-" + "b" * 32, "state": "running", "ownership": "unverified"},
+            {"session_id": "proot-" + "c" * 32, "state": "stopped", "ownership": "ternuxx_verified"}]}}
+        preview = {"ok": True, "data": {"plan_id": "plan-" + "d" * 24, "impact": "Stop one managed guest."}}
+        result = {"ok": True, "data": {"state": "stopped"}}
+        with mock.patch.object(terminal_ui, "_choose", side_effect=["stop", session_id]) as choose, \
+                mock.patch.object(terminal_ui, "_call", side_effect=[inventory, preview, result]) as dispatch, \
+                mock.patch.object(terminal_ui, "_prompt", return_value="STOP"), \
+                mock.patch.object(terminal_ui, "_show_details"):
+            self.assertIs(terminal_ui._proot_workload_action(object(), resource), result)
+        options = choose.call_args.args[2]
+        self.assertEqual([item[0] for item in options], [session_id])
+        dispatch.assert_has_calls([mock.call("proot.sessions.list"),
+            mock.call("proot.stop.preview", {"session_id": session_id}),
+            mock.call("proot.stop", {"session_id": session_id, "confirmed": True,
+                                      "plan_id": preview["data"]["plan_id"]})])
+
+    def test_proot_reconcile_inspects_then_applies_only_exact_exit_proof_plan(self) -> None:
+        resource = {"supported_operations": ["proot.sessions.list", "proot.recovery.inspect",
+            "proot.recovery.reconcile.preview", "proot.recovery.reconcile"]}
+        session_id, plan_id = "proot-" + "a" * 32, "plan-" + "b" * 64
+        inventory = {"ok": True, "data": {"sessions": [
+            {"session_id": session_id, "profile": "debian-interactive", "state": "failed"}]}}
+        inspection = {"ok": True, "data": {"status": "unverified", "signal_allowed": False}}
+        preview = {"ok": True, "data": {"plan_id": plan_id, "evidence": "process_absent",
+                                          "action": "mark_exited_without_signal"}}
+        result = {"ok": True, "data": {"state": "stopped", "signal_sent": False}}
+        with mock.patch.object(terminal_ui, "_choose", side_effect=["reconcile", session_id]), \
+                mock.patch.object(terminal_ui, "_call", side_effect=[inventory, inspection, preview, result]) as dispatch, \
+                mock.patch.object(terminal_ui, "_prompt", return_value="RECONCILE"), \
+                mock.patch.object(terminal_ui, "_show_details"):
+            self.assertIs(terminal_ui._proot_workload_action(object(), resource), result)
+        dispatch.assert_has_calls([mock.call("proot.sessions.list"),
+            mock.call("proot.recovery.inspect", {"session_id": session_id}),
+            mock.call("proot.recovery.reconcile.preview", {"session_id": session_id}),
+            mock.call("proot.recovery.reconcile", {"session_id": session_id,
+                "confirmed": True, "plan_id": plan_id})])
+
+    def test_proot_reconcile_without_positive_exit_proof_is_inspection_only(self) -> None:
+        resource = {"supported_operations": ["proot.sessions.list", "proot.recovery.inspect",
+            "proot.recovery.reconcile.preview", "proot.recovery.reconcile"]}
+        session_id = "proot-" + "c" * 32
+        inventory = {"ok": True, "data": {"sessions": [{"session_id": session_id, "state": "running"}]}}
+        preview = {"ok": True, "data": {"plan_id": None, "action": "retain_record_no_signal",
+                                          "signal_allowed": False}}
+        with mock.patch.object(terminal_ui, "_choose", side_effect=["reconcile", session_id]), \
+                mock.patch.object(terminal_ui, "_call", side_effect=[inventory,
+                    {"ok": True, "data": {"status": "owned_live"}}, preview]) as dispatch, \
+                mock.patch.object(terminal_ui, "_show_details"), mock.patch.object(terminal_ui, "_prompt") as prompt:
+            self.assertIs(terminal_ui._proot_workload_action(object(), resource), preview)
+        self.assertEqual(dispatch.call_count, 3)
+        prompt.assert_not_called()
 
     def test_cron_resource_exposes_preview_apply_action_and_shared_reads(self) -> None:
         resource = next(item for item in management_service.management_catalog.RESOURCES
@@ -181,6 +416,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertIn("preview/apply restore and rollback", labels)
         self.assertIn("reconcile unresolved operations", labels)
         self.assertIn("check reboot continuity", labels)
+        self.assertIn("prepare and verify continuity checkpoints", labels)
         with mock.patch.object(terminal_ui, "_choose", return_value="continuity"), \
                 mock.patch.object(terminal_ui, "_call", return_value={"ok": True}) as dispatch:
             self.assertEqual(terminal_ui._recovery_action(object()), {"ok": True})
@@ -193,6 +429,22 @@ class TerminalUISharedServiceTests(unittest.TestCase):
                 ]) as dispatch:
             self.assertEqual(terminal_ui._recovery_action(object())["data"]["action"], "restore_preview")
         self.assertEqual(dispatch.call_args_list, [mock.call("backup.list"), mock.call("restore.preview", {"backup_id": backup_id})])
+
+    def test_continuity_checkpoint_actions_preview_then_require_exact_typed_confirmation(self) -> None:
+        plan = {"plan_id": "e" * 64, "details": {"outcome": "same_boot"}}
+        for choice, operation, preview_op, prompt, reference in (
+            ("checkpoint-prepare", "continuity.prepare", "continuity.prepare.preview", "CREATE CHECKPOINT", "release-audit"),
+            ("checkpoint-verify", "continuity.verify", "continuity.verify.preview", "VERIFY CHECKPOINT", "a" * 32),
+        ):
+            with self.subTest(choice=choice), \
+                    mock.patch.object(terminal_ui, "_choose", return_value=choice), \
+                    mock.patch.object(terminal_ui, "_prompt", side_effect=[reference, prompt]), \
+                    mock.patch.object(terminal_ui, "_show_details"), \
+                    mock.patch.object(terminal_ui, "_call", side_effect=[{"ok": True, "data": plan}, {"ok": True}]) as dispatch:
+                result = terminal_ui._recovery_action(object())
+            self.assertTrue(result["ok"])
+            args = {"test_id": reference} if operation.endswith("prepare") else {"checkpoint_id": reference}
+            dispatch.assert_has_calls([mock.call(preview_op, args), mock.call(operation, {**args, "confirmed": True, "plan_id": plan["plan_id"]})])
 
     def test_recovery_apply_actions_review_exact_plan_and_select_only_unresolved_for_resolution(self) -> None:
         operation = {"operation_id": "c" * 32, "kind": "service.start", "status": "needs_recovery"}

@@ -23,7 +23,7 @@ class GuidesCliTests(unittest.TestCase):
             timeout=5,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Ternuxx Native Termux guide", result.stdout)
+        self.assertIn("Ternuxx Native Termux and Debian guide", result.stdout)
         self.assertIn("Interactive menu needs a terminal", result.stdout)
         self.assertIn("tx install preview", result.stdout)
 
@@ -60,7 +60,9 @@ class GuidesCliTests(unittest.TestCase):
             self.assertEqual(proc.returncode, 0, output.decode(errors="replace"))
             rendered = output.decode(errors="replace")
             self.assertIn("1) Preview Native package setup", rendered)
-            self.assertIn("10) Open GTK management center", rendered)
+            self.assertIn("8) Check CPU, GPU, and NPU inference status", rendered)
+            self.assertIn("9) Inspect Debian or preview fresh guest setup", rendered)
+            self.assertIn("12) Open GTK management center", rendered)
         finally:
             if proc.poll() is None:
                 proc.kill()

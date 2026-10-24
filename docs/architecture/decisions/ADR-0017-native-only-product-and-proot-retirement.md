@@ -1,8 +1,11 @@
 # ADR-0017: Native Termux-only product and PRoot retirement
 
+> **Historical decision:** This temporary direction was later reversed on 2026-10-24 when the owner reauthorized Debian PRoot support. P11 is the current restoration and acceptance phase. This ADR records the earlier removal authorization and completed snapshot; it is not the current product direction.
+
 - **Date:** 2026-10-24
-- **Status:** Accepted owner direction; implementation and live retirement in progress
+- **Status:** Reversed by later owner direction; retained as a historical record
 - **Supersedes:** Current product choices in ADR-0001, ADR-0010, ADR-0015, and PRoot/hybrid portions of the roadmap
+- **Reversed by:** Owner reauthorization of Debian PRoot support, tracked in P11
 
 ## Decision
 

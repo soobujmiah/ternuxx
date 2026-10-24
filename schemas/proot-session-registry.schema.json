@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soobujmiah.github.io/ternuxx/schemas/proot-session-registry.schema.json",
+  "title": "Ternuxx PRoot session registry schema v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "sessions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 3
+    },
+    "sessions": {
+      "type": "array",
+      "maxItems": 256,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "schema_version",
+          "session_id",
+          "profile",
+          "profile_version",
+          "purpose",
+          "mode",
+          "rootfs",
+          "rootfs_device",
+          "rootfs_inode",
+          "launcher",
+          "launcher_device",
+          "launcher_inode",
+          "pid",
+          "process_start",
+          "process_group",
+          "marker",
+          "expected_argv",
+          "working_directory",
+          "environment_profile",
+          "created_at",
+          "state",
+          "last_verified_at",
+          "transitions",
+          "last_exit_code"
+        ],
+        "properties": {
+          "schema_version": {
+            "const": 3
+          },
+          "session_id": {
+            "type": "string",
+            "pattern": "^proot-[0-9a-f]{32}$"
+          },
+          "profile": {
+            "enum": [
+              "isolated-probe",
+              "debian-interactive"
+            ]
+          },
+          "profile_version": {
+            "const": 1
+          },
+          "purpose": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "mode": {
+            "enum": [
+              "background",
+              "foreground-tty"
+            ]
+          },
+          "rootfs": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "rootfs_device": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rootfs_inode": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "launcher": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "launcher_device": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "launcher_inode": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pid": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "process_start": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "process_group": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "marker": {
+            "type": "string",
+            "pattern": "^TERNUXX_PROOT_SESSION=[0-9a-f]{32}$"
+          },
+          "expected_argv": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "maxLength": 256
+            },
+            "maxItems": 32
+          },
+          "working_directory": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "environment_profile": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "created_at": {
+            "type": "string",
+            "maxLength": 512
+          },
+          "state": {
+            "enum": [
+              "starting",
+              "running",
+              "stopping",
+              "stopped",
+              "failed",
+              "unknown",
+              "unverified"
+            ]
+          },
+          "last_verified_at": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "maxLength": 512
+          },
+          "transitions": {
+            "type": "array",
+            "maxItems": 128,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "state",
+                "at",
+                "source"
+              ],
+              "properties": {
+                "state": {
+                  "enum": [
+                    "starting",
+                    "running",
+                    "stopping",
+                    "stopped",
+                    "failed",
+                    "unknown",
+                    "unverified"
+                  ]
+                },
+                "at": {
+                  "type": "string",
+                  "maxLength": 128
+                },
+                "source": {
+                  "type": "string",
+                  "maxLength": 128
+                }
+              }
+            }
+          },
+          "last_exit_code": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": -255,
+            "maximum": 255
+          }
+        }
+      }
+    }
+  }
+}

@@ -32,14 +32,15 @@ for entry in Path("/proc").iterdir():
         if not stat.S_ISREG(state_info.st_mode) or state_info.st_mode & 0o077:
             continue
         state=json.loads(state_path.read_text(encoding="utf-8"))
-        if state.get("owner")!="ternuxx" or state.get("provider")!="native":
+        if state.get("owner")!="ternuxx" or state.get("provider") not in ("native", "proot"):
             continue
         role=state.get("supervisor",{})
         if (state.get("status")!="running" or role.get("pid")!=pid
             or role.get("command_marker")!=script.name or role.get("start_ticks")!=ticks(pid)):
             continue
         valid=True
-        for name,marker in (("x11","termux-x11"),("desktop","xfce4-session")):
+        desktop_marker = "xfce4-session" if state.get("provider") == "native" else "proot-display0"
+        for name,marker in (("x11","termux-x11"),("desktop",desktop_marker)):
             item=state.get(name,{})
             child=item.get("pid")
             if (not isinstance(child,int) or item.get("command_marker")!=marker

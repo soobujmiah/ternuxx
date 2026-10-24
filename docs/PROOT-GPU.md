@@ -1,7 +1,14 @@
-# Retired PRoot documentation
+# Debian PRoot graphics evidence
 
-This page is an archive pointer. Ternuxx is Native Termux-only; PRoot guest code, package operations, and lifecycle controls have been removed. Do not use historical commands or setup steps.
+Debian PRoot graphics run in a separate userspace from Native Termux. Historical Zink/Turnip renderer observations establish only the named guest process and display at the recorded time; they do not qualify Native rendering or inference. Current P11 evidence confirms that Debian Vulkan can enumerate the Adreno 825 through Turnip. A separate live X11 capture showed the XFCE desktop and About window on `:0`. With Termux:X11 fullscreen enabled, the screen reported `752x1630`; the About window fit and visibly reported Zink Vulkan on Adreno 825. This proves the observed frame and those labels for this session, not sustained rendering or AI acceleration.
 
-- [Preserved historical snapshot](history/PROOT-GPU-pre-native-only-2026-10-24.md)
+For the active standalone desktop, `tx pgui graphics verify` checks that the managed Debian GUI is running on `:0`, then attempts GLES context creation, GLX renderer/direct-rendering inspection, and Vulkan device enumeration inside the Debian guest. The 2026-10-24 live run reported GLES 3.2 with Zink over Vulkan/Adreno 825 Turnip, GLX `Accelerated: yes`, and Vulkan Adreno 825 Turnip devices alongside llvmpipe. This proves context creation and device enumeration for that session only; it does not prove presented frames, visual correctness, sustained performance, or inference offload.
+
+## Legacy Turnip ICD migration
+
+Older Ternuxx guest setup used a legacy ICD path. The Native CLI provides a narrowly scoped, reversible migration for the exact recognized configuration in the installed Debian guest; TUI, Web, and GTK do not apply it directly. First run `tx proot setup icd-migrate-preview --alias debian` and inspect the exact source/destination, rootfs identity, content hash, and backup plan. Apply only with `tx proot setup icd-migrate --alias debian --yes --plan-id PLAN_ID`. The command refuses while a managed guest session or any PRoot process using that rootfs is active; it also refuses unexpected source contents or an occupied destination. To reverse a completed migration, inspect `tx proot setup icd-rollback-preview --operation-id MIGRATION_ID`, then apply the exact rollback plan with `icd-rollback --operation-id MIGRATION_ID --yes --plan-id PLAN_ID`. It moves the verified file and retains a private byte-for-byte backup; it does not install packages or claim that the renderer is accelerated.
+
+- [Current PRoot restoration and live checks](evidence/2026-10-24-p11-proot-source-restoration-audit.md)
+- [Current Native GPU qualification](testing/GPU-ACCELERATION.md)
+- [Dated historical graphics research](RESEARCH.md#9-existing-ternux-proot-graphics-path)
 - [Current product scope](PRODUCT-VISION.md)
-- [Owner-directed removal and live verification](evidence/2026-10-24-native-only-proot-removal-audit.md)

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 from datetime import datetime, timezone
 import fcntl
 import json
@@ -216,6 +217,7 @@ def verify(
     state_dir: str | os.PathLike[str],
     checkpoint_id: str,
     current_boot_id: str | None = None,
+    expected_record_sha256: str | None = None,
 ) -> dict[str, object]:
     if not re.fullmatch(r"[a-f0-9]{32}", checkpoint_id):
         raise CheckpointError("invalid checkpoint ID")
@@ -258,6 +260,9 @@ def verify(
         raise CheckpointError("checkpoint contains an invalid pending test ID")
     if len(set(task["pending_tests"])) != len(task["pending_tests"]):
         raise CheckpointError("checkpoint contains duplicate pending test IDs")
+    record_digest = hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    if expected_record_sha256 is not None and not secrets.compare_digest(record_digest, expected_record_sha256):
+        raise CheckpointError("checkpoint changed after preview; create a new verification preview")
     previous = record.get("previous_boot_id")
     if current_boot_id is None:
         current_boot_id = read_boot_id()
@@ -283,6 +288,7 @@ def verify(
         "outcome": outcome,
         "task_state": (record.get("task") or {}).get("state") if isinstance(record.get("task"), dict) else "unknown",
         "pending_tests": (record.get("task") or {}).get("pending_tests", []) if isinstance(record.get("task"), dict) else [],
+        "record_sha256": record_digest,
         "service_readiness": "not_collected",
         "automatic_resume": False,
     }
@@ -293,6 +299,96 @@ def verify(
     if not report_path.exists():
         _atomic_write(report_path, verification, exclusive=True)
     return {"checkpoint_id": checkpoint_id, "test_id": record.get("test_id"), "outcome": outcome, "automatic_resume": False}
+
+
+
+def _plan_id(action: str, payload: dict[str, object]) -> str:
+    encoded = json.dumps({"action": action, "payload": payload}, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def prepare_preview(*, home: str | os.PathLike[str], state_dir: str | os.PathLike[str], test_id: str,
+                    repository: str = "soobujmiah/ternuxx", commit: str = "unknown",
+                    worktree_state: str = "unknown", task_state: str = "prepared",
+                    pending_tests: list[str] | None = None,
+                    next_safe_action: str = "owner_verify_after_reboot", boot_id: str | None = None) -> dict[str, object]:
+    """Validate checkpoint inputs and return a stable, non-writing plan."""
+    if not TEST_ID_RE.fullmatch(test_id):
+        raise CheckpointError("invalid test ID")
+    if not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}/[A-Za-z0-9_.-]{1,128}", repository):
+        raise CheckpointError("repository must be an owner/repository identifier")
+    if not COMMIT_RE.fullmatch(commit) or worktree_state not in {"clean", "dirty", "unknown"}:
+        raise CheckpointError("repository metadata is invalid")
+    if task_state not in TASK_STATES or next_safe_action not in NEXT_ACTIONS:
+        raise CheckpointError("task state or next safe action is invalid")
+    pending = pending_tests or []
+    if len(pending) > 128 or any(not isinstance(item, str) or not TEST_ID_RE.fullmatch(item) for item in pending) or len(set(pending)) != len(pending):
+        raise CheckpointError("pending test list is invalid")
+    if boot_id is None:
+        boot_id = read_boot_id()
+    if boot_id is not None:
+        try:
+            boot_id = str(uuid.UUID(boot_id))
+        except (ValueError, TypeError) as exc:
+            raise CheckpointError("boot identifier is malformed") from exc
+    root = _private_root(home, state_dir)
+    details = {"test_id": test_id, "repository": repository, "commit": commit.lower() if commit != "unknown" else commit,
+               "worktree_state": worktree_state, "task_state": task_state, "pending_tests": list(pending),
+               "next_safe_action": next_safe_action, "boot_id": boot_id,
+               "checkpoint_directory": str(root / "continuity" / "checkpoints"), "automatic_resume": False}
+    return {"plan_id": _plan_id("continuity.prepare", details), "action": "create_private_checkpoint",
+            "details": details, "read_only": True, "automatic_resume": False,
+            "warning": "Creates a private checkpoint record; it does not reboot or resume work."}
+
+
+def verify_preview(*, home: str | os.PathLike[str], state_dir: str | os.PathLike[str],
+                   checkpoint_id: str, current_boot_id: str | None = None) -> dict[str, object]:
+    """Validate a checkpoint and preview its evidence-only verification."""
+    if not re.fullmatch(r"[a-f0-9]{32}", checkpoint_id):
+        raise CheckpointError("invalid checkpoint ID")
+    root = _private_root(home, state_dir)
+    path = root / "continuity" / "checkpoints" / f"{checkpoint_id}.json"
+    try:
+        info = path.stat(follow_symlinks=False)
+        if path.is_symlink() or stat.S_IMODE(info.st_mode) & 0o077 or info.st_size > 128 * 1024:
+            raise CheckpointError("checkpoint file is not private or exceeds the size limit")
+        record = json.loads(path.read_text(encoding="utf-8"))
+    except CheckpointError:
+        raise
+    except (OSError, ValueError, TypeError) as exc:
+        raise CheckpointError("checkpoint is unavailable or invalid") from exc
+    if not isinstance(record, dict) or record.get("schema_version") != 1 or record.get("checkpoint_id") != checkpoint_id or not TEST_ID_RE.fullmatch(str(record.get("test_id", ""))):
+        raise CheckpointError("checkpoint identity or schema is invalid")
+    required = {"schema_version", "checkpoint_id", "test_id", "nonce", "previous_boot_id", "prepared_at", "repository", "task"}
+    task, repository = record.get("task"), record.get("repository")
+    if set(record) != required or not isinstance(record.get("nonce"), str) or len(record["nonce"]) < 32:
+        raise CheckpointError("checkpoint fields or nonce are invalid")
+    if not isinstance(task, dict) or set(task) != {"state", "pending_tests", "next_safe_action", "automatic_resume"} or task.get("state") not in TASK_STATES or task.get("next_safe_action") not in NEXT_ACTIONS or task.get("automatic_resume") is not False:
+        raise CheckpointError("checkpoint task record is invalid")
+    if (not isinstance(task.get("pending_tests"), list) or len(task["pending_tests"]) > 128
+            or any(not isinstance(item, str) or not TEST_ID_RE.fullmatch(item) for item in task["pending_tests"])
+            or len(set(task["pending_tests"])) != len(task["pending_tests"])):
+        raise CheckpointError("checkpoint pending tests are invalid")
+    if (not isinstance(repository, dict) or set(repository) != {"id", "commit", "worktree_state"}
+            or not re.fullmatch(r"[A-Za-z0-9_.-]{1,128}/[A-Za-z0-9_.-]{1,128}", str(repository.get("id", "")))
+            or not COMMIT_RE.fullmatch(str(repository.get("commit", "")))
+            or repository.get("worktree_state") not in {"clean", "dirty", "unknown"}):
+        raise CheckpointError("checkpoint repository metadata is invalid")
+    previous = record.get("previous_boot_id")
+    observed = current_boot_id if current_boot_id is not None else read_boot_id()
+    for value, label in ((previous, "checkpoint"), (observed, "current")):
+        if value is not None:
+            try:
+                uuid.UUID(value)
+            except (ValueError, TypeError) as exc:
+                raise CheckpointError(f"{label} boot identifier is malformed") from exc
+    outcome = "boot_id_unavailable" if previous is None or observed is None else ("same_boot" if previous == observed else "reboot_detected")
+    record_digest = hashlib.sha256(json.dumps(record, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    details = {"checkpoint_id": checkpoint_id, "test_id": record["test_id"], "previous_boot_id": previous,
+               "current_boot_id": observed, "outcome": outcome, "record_sha256": record_digest}
+    return {"plan_id": _plan_id("continuity.verify", details), "action": "record_continuity_observation",
+            "details": details, "read_only": True, "automatic_resume": False,
+            "warning": "Writes a verification report only; it does not reboot or resume work."}
 
 
 def _parser() -> argparse.ArgumentParser:

@@ -1,0 +1,8 @@
+event_id: test-e5f1c5a58860-5b80b7110a7af424
+repository: soobujmiah/ternuxx
+commit: e5f1c5a5886016bab2aaa0b342001d89f8ba3945
+kind: test
+occurred_at: '2026-10-24T03:40:17Z'
+status: passed
+summary: Native Termux scripts/repo_test.sh passed 1,006 Python tests in 107.110s
+  plus CLI help/preview contract.

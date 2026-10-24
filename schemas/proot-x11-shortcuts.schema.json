@@ -1,0 +1,281 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ternuxx.local/schemas/proot-x11-shortcuts.schema.json",
+  "title": "Ternuxx PRoot X11 shortcut resource and operation",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "resource_id",
+        "items",
+        "desktop_applications",
+        "read_only"
+      ],
+      "properties": {
+        "resource_id": {
+          "const": "proot.x11.shortcuts"
+        },
+        "read_only": {
+          "const": true
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "provider",
+              "shortcut_owner",
+              "shortcut_state",
+              "application_availability",
+              "read_only"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+              },
+              "name": {
+                "type": "string"
+              },
+              "provider": {
+                "const": "proot_debian"
+              },
+              "shortcut_owner": {
+                "const": "native_termux"
+              },
+              "shortcut_state": {
+                "enum": [
+                  "absent",
+                  "installed",
+                  "conflict"
+                ]
+              },
+              "application_availability": {
+                "const": "unknown"
+              },
+              "read_only": {
+                "const": true
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "desktop_applications": {
+          "type": "object",
+          "required": [
+            "status",
+            "items",
+            "diagnostics",
+            "read_only"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "available",
+                "unavailable"
+              ]
+            },
+            "read_only": {
+              "const": true
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "desktop_id",
+                  "name",
+                  "status",
+                  "shortcut_state",
+                  "shortcut_owner",
+                  "read_only"
+                ],
+                "properties": {
+                  "desktop_id": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,254}$"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "enum": [
+                      "available",
+                      "unavailable"
+                    ]
+                  },
+                  "shortcut_state": {
+                    "enum": [
+                      "absent",
+                      "installed",
+                      "modified",
+                      "conflict"
+                    ]
+                  },
+                  "shortcut_owner": {
+                    "enum": [
+                      "none",
+                      "ternuxx",
+                      "unknown"
+                    ]
+                  },
+                  "read_only": {
+                    "const": true
+                  }
+                },
+                "additionalProperties": true
+              }
+            },
+            "diagnostics": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "resource_id",
+        "provider",
+        "storage_provider",
+        "action",
+        "changed",
+        "requires_confirmation",
+        "plan_id",
+        "affected_resources",
+        "safety",
+        "name"
+      ],
+      "properties": {
+        "resource_id": {
+          "type": "string",
+          "pattern": "^proot\\.x11\\.shortcut\\."
+        },
+        "provider": {
+          "const": "proot_debian"
+        },
+        "storage_provider": {
+          "const": "native_termux"
+        },
+        "action": {
+          "enum": [
+            "add",
+            "remove"
+          ]
+        },
+        "app_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+        },
+        "changed": {
+          "type": "boolean"
+        },
+        "requires_confirmation": {
+          "type": "boolean"
+        },
+        "plan_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{24}$"
+        },
+        "affected_resources": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "provider",
+              "path",
+              "before",
+              "after"
+            ],
+            "properties": {
+              "provider": {
+                "const": "native_termux"
+              },
+              "path": {
+                "type": "string",
+                "pattern": "^\\.local/share/applications/ternuxx-proot-"
+              },
+              "before": {
+                "enum": [
+                  "absent",
+                  "present"
+                ]
+              },
+              "after": {
+                "enum": [
+                  "absent",
+                  "present"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "safety": {
+          "type": "object",
+          "required": [
+            "read_only",
+            "running_apps_stopped"
+          ],
+          "properties": {
+            "read_only": {
+              "type": "boolean"
+            },
+            "running_apps_stopped": {
+              "const": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "status": {
+          "enum": [
+            "confirmation_required",
+            "already_in_requested_state",
+            "complete"
+          ]
+        },
+        "desktop_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,254}$"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "anyOf": [
+        {
+          "required": [
+            "app_id"
+          ],
+          "not": {
+            "required": [
+              "desktop_id"
+            ]
+          }
+        },
+        {
+          "required": [
+            "desktop_id"
+          ],
+          "not": {
+            "required": [
+              "app_id"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

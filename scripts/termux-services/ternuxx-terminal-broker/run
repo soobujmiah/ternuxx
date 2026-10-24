@@ -1,0 +1,17 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# Ternuxx-owned optional PRoot terminal broker. This service never starts a guest.
+set -u
+umask 077
+PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
+HOME="${HOME:?Termux HOME is required}"
+TERMUX_VERSION="${TERMUX_VERSION:-unknown}"
+TERNUXX_STATE_DIR="${TERNUXX_STATE_DIR:-$HOME/.local/share/ternuxx}"
+LOG_DIR="$TERNUXX_STATE_DIR/log"
+LOG_FILE="$LOG_DIR/terminal-broker-runit.log"
+export PREFIX HOME TERMUX_VERSION TERNUXX_STATE_DIR
+export PATH="$PREFIX/bin:$PATH"
+mkdir -p "$LOG_DIR" || exit 1
+chmod 700 "$TERNUXX_STATE_DIR" "$LOG_DIR" 2>/dev/null || true
+exec >>"$LOG_FILE" 2>&1
+printf 'broker-service-started-at=%s pid=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$$"
+exec "$PREFIX/bin/python3" "$HOME/ternuxx/lib/terminal_broker_service.py" serve

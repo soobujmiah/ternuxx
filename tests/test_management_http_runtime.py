@@ -50,11 +50,17 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn("password login is disabled", ui)
         self.assertNotIn("Keep password recovery", ui)
 
-    def test_web_has_no_retired_proot_or_terminal_controls(self) -> None:
+    def test_web_exposes_authorized_shared_broker_terminal(self) -> None:
         ui = (ROOT / "lib" / "management_web_ui.html").read_text()
-        self.assertNotIn("proot.", ui)
-        self.assertNotIn("xterm", ui)
-        self.assertNotIn("terminal.attach", ui)
+        self.assertIn("proot.session.manage", ui)
+        self.assertIn("applications.shortcuts.manage", ui)
+        self.assertIn('id="terminal-dialog"', ui)
+        self.assertIn('/assets/xterm-6.0.0/xterm.js', ui)
+        self.assertIn('terminalCall("terminal.start.preview"', ui)
+        self.assertIn('terminalCall("terminal.output"', ui)
+        self.assertIn('terminalCall("terminal.detach"', ui)
+        self.assertNotIn("/api/v1/terminal", ui)
+        self.assertNotIn("arbitrary command", ui.lower())
 
     def test_web_resource_detail_uses_actions_instead_of_duplicate_capability_lists(self) -> None:
         ui = (ROOT / "lib" / "management_web_ui.html").read_text()
@@ -266,6 +272,88 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn('"recovery.resolve"', ui)
         self.assertIn('"recovery.rollback.apply"', ui)
 
+    def test_web_replay_guest_controls_use_narrow_capability_and_exact_preview(self) -> None:
+        ui = (ROOT / "lib" / "management_web_ui.html").read_text(encoding="utf-8")
+        for capability in ("proot.replay.manage",):
+            self.assertIn('"' + capability + '"', ui)
+            self.assertIn(capability, management_http_runtime.WEB_CAPABILITIES)
+        self.assertNotIn("proot.guest.manage", management_http_runtime.WEB_CAPABILITIES)
+        for operation in ("proot.setup.retire.preview", "proot.setup.retire.apply",
+                          "proot.setup.restore.preview", "proot.setup.restore.apply"):
+            with self.subTest(operation=operation):
+                self.assertIn(operation, management_http_runtime._WEB_MUTATING_OPERATIONS)
+        self.assertTrue({"proot.setup.icd-migrate.preview", "proot.setup.icd-migrate.apply",
+                         "proot.setup.icd-migrate.rollback.preview",
+                         "proot.setup.icd-migrate.rollback.apply"}.isdisjoint(
+                             management_http_runtime._WEB_MUTATING_OPERATIONS))
+        for contract in ("async function manageReplayGuest()", 'r.id==="proot.replay-guests"',
+                         'previewOperation="proot.setup.retire.preview"',
+                         'previewOperation="proot.setup.restore.preview"',
+                         'const preview=await run(previewOperation,previewArgs)',
+                         'operation?.alias!==target', 'operation?.confirmation_required!==true',
+                         'action==="restore"&&operation?.backup_id!==backupId',
+                         'run(applyOperation,args)', 'Type "+token+" to apply'):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, ui)
+
+    def test_web_replay_guest_mutations_require_narrow_scope_csrf_and_idempotency(self) -> None:
+        env = dict(self.env, TERNUXX_WEB_MODE="1")
+        Path(env["TERNUXX_STATE_DIR"]).mkdir(parents=True, mode=0o700)
+        Path(env["TERNUXX_STATE_DIR"]).chmod(0o700)
+        alias, plan_id = "ternuxx-replay-p4", "a" * 64
+        with patch.object(management_http_runtime.management_service, "dispatch") as dispatch:
+            server = management_http_runtime.build_server(port=0, bootstrap_secret=SECRET, env=env)
+            try:
+                session = server.adapter.sessions.exchange_bootstrap(SECRET, ["proot.replay.manage"])
+                host = "127.0.0.1:%s" % server.port
+
+                def post(operation: str, request_id: str, args: dict[str, object], *, csrf: bool = True):
+                    body = json.dumps({"api_version": 1, "request_id": request_id,
+                                       "operation": operation, "args": args}).encode()
+                    headers = {"Host": host, "Origin": "http://" + host,
+                               "Content-Type": "application/json", "Content-Length": str(len(body)),
+                               "Authorization": "Bearer " + session.bearer_token,
+                               "Idempotency-Key": "replay-key-" + request_id}
+                    if csrf:
+                        headers["X-Ternuxx-CSRF"] = session.csrf_token
+                    return server.adapter.handle(method="POST", path="/api/v1/operations",
+                                                 headers=headers, body=body)
+
+                status, _headers, body = post("proot.setup.retire.preview", "replay-preview-001",
+                    {"alias": alias}, csrf=False)
+                self.assertEqual(status, 403)
+                self.assertEqual(json.loads(body)["error"], "csrf_rejected")
+                dispatch.assert_not_called()
+
+                dispatch.return_value = {"api_version": 1, "request_id": "replay-preview-001",
+                    "ok": True, "operation": "proot.setup.retire.preview",
+                    "data": {"plan_id": plan_id, "operation": {"alias": alias}}}
+                status, _headers, body = post("proot.setup.retire.preview", "replay-preview-002",
+                    {"alias": alias})
+                self.assertEqual(status, 200, body)
+                self.assertEqual(dispatch.call_args.args[0]["operation"], "proot.setup.retire.preview")
+                self.assertEqual(dispatch.call_args.args[0]["args"], {"alias": alias})
+
+                dispatch.return_value = {"api_version": 1, "request_id": "replay-apply-001",
+                    "ok": True, "operation": "proot.setup.retire.apply",
+                    "data": {"status": "retired", "files_deleted": False}}
+                status, _headers, body = post("proot.setup.retire.apply", "replay-apply-002",
+                    {"alias": alias, "confirmed": True, "plan_id": plan_id})
+                self.assertEqual(status, 200, body)
+                self.assertEqual(dispatch.call_args.args[0]["operation"], "proot.setup.retire.apply")
+                self.assertEqual(dispatch.call_args.args[0]["args"],
+                    {"alias": alias, "confirmed": True, "plan_id": plan_id})
+            finally:
+                self.assertTrue(server.close(grace_seconds=3))
+
+    def test_web_checkpoint_capability_does_not_authorize_reboot_qualification(self) -> None:
+        ui = (ROOT / "lib" / "management_web_ui.html").read_text(encoding="utf-8")
+        self.assertIn('"continuity.checkpoint.manage"', ui)
+        self.assertIn("continuity.checkpoint.manage", management_http_runtime.WEB_CAPABILITIES)
+        self.assertNotIn("continuity.manage", management_http_runtime.WEB_CAPABILITIES)
+        self.assertIn('"continuity.prepare.preview"', ui)
+        self.assertIn('"continuity.verify.preview"', ui)
+
     def test_web_mode_exposes_scoped_desktop_monitoring_and_managed_ssh_8023_mutations(self) -> None:
         env = dict(self.env, TERNUXX_WEB_MODE="1")
         Path(env["TERNUXX_STATE_DIR"]).mkdir(parents=True, mode=0o700)
@@ -365,8 +453,8 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
 
                 status, _headers, response = post("proot.app.launch", "web-proot-launch-01",
                     "web-proot-launch-key1", {"app_id": "files"})
-                self.assertEqual(status, 403)
-                self.assertEqual(dispatch.call_count, 6)
+                self.assertEqual(status, 200)
+                self.assertEqual(dispatch.call_count, 7)
 
                 dispatch.return_value = {"api_version": 1, "request_id": "web-failure-result-1",
                     "ok": False, "error": {"code": "desktop_operation_failed", "message": "redacted"}}
@@ -385,11 +473,22 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn("window.confirm", page)
         self.assertIn("Idempotency-Key", page)
         self.assertIn("desktop.monitor.manage", page)
+        self.assertIn("proot.session.manage", page)
         self.assertIn("desktop.manage", page)
         self.assertIn("ai.local.run", page)
         self.assertIn("ai.local.manage", page)
         self.assertEqual(page.count('if(r.id==="inference.cpu.local"){'), 1)
         self.assertIn('run("inference.cpu.run"', page)
+        self.assertIn('if(r.id==="inference.gpu.local"){', page)
+        self.assertIn('run("inference.gpu.status"', page)
+        self.assertIn('run("inference.gpu.run"', page)
+        self.assertIn('if(r.id==="inference.npu.local"){', page)
+        self.assertIn('run("inference.npu.status"', page)
+        self.assertIn('run("inference.npu.runtime.preview"', page)
+        self.assertIn('run("inference.npu.runtime.apply"', page)
+        self.assertIn('run("inference.npu.run"', page)
+        self.assertIn('Type INSTALL to apply this exact preview', page)
+        self.assertIn('CPU fallback is disabled', page)
         self.assertIn('run("inference.cpu.model.preview"', page)
         self.assertIn('run("inference.cpu.model.apply"', page)
         self.assertIn("ssh.managed.lifecycle", page)
@@ -407,10 +506,19 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn("offline behavior is unverified", page)
         self.assertIn("Technical API response", page)
         self.assertNotIn("network.ssh.manual-8022", page.split("manageSsh(operation)", 1)[-1].split("function drawCategories", 1)[0])
-        self.assertNotIn("proot.", page)
-        self.assertNotIn("xterm", page)
-        self.assertNotIn("applications.launch", page)
-        self.assertNotIn("applications.shortcuts.manage", page)
+        self.assertIn("proot.session.manage", page)
+        self.assertIn("xterm", page)
+        self.assertIn('run("terminal.broker.status"', page)
+        self.assertIn("Open Debian terminal", page)
+        self.assertIn("terminal.start.preview", page)
+        self.assertIn("terminal.broker.service.status", page)
+        self.assertIn("terminal.broker.service.start.preview", page)
+        self.assertIn("terminal.broker.service.start.apply", page)
+        self.assertIn("async function prepareWebTerminalBroker", page)
+        self.assertIn("applications.launch", page)
+        self.assertIn("applications.shortcuts.manage", page)
+        self.assertIn("Preview bounded headless guest probe", page)
+        self.assertIn("tx proot setup fresh-preview", page)
 
     def test_web_console_has_bounded_mobile_layout_and_touch_navigation_rules(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()
@@ -436,6 +544,28 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn('async function inspectRecovery(kind)', page)
         self.assertIn('inspectRecovery(kind)', page)
         self.assertIn('"recovery.rollback.preview"', page)
+
+    def test_web_proot_resource_has_one_shared_status_control(self) -> None:
+        page = (ROOT / "lib" / "management_web_ui.html").read_text()
+        self.assertEqual(page.count('run("proot.status")'), 0)
+        self.assertIn('statusOp==="proot.status"?"Check Debian and PRoot status"', page)
+        self.assertIn('b.onclick=()=>run(statusOp)', page)
+
+    def test_web_proot_stop_filters_verified_running_sessions_and_uses_exact_plan(self) -> None:
+        page = (ROOT / "lib" / "management_web_ui.html").read_text()
+        self.assertIn('async function stopManagedProotSession()', page)
+        self.assertIn('item.ownership==="ternuxx_verified"&&item.state==="running"', page)
+        self.assertIn('run("proot.stop.preview",{session_id:sessionId})', page)
+        self.assertIn('run("proot.stop",{session_id:sessionId,confirmed:true,plan_id:plan.plan_id})', page)
+
+    def test_web_proot_reconciliation_requires_positive_exit_preview(self) -> None:
+        page = (ROOT / "lib" / "management_web_ui.html").read_text()
+        self.assertIn('async function reconcileManagedProotSession()', page)
+        self.assertIn('item.state!=="stopped"', page)
+        self.assertIn('run("proot.recovery.inspect",{session_id:sessionId})', page)
+        self.assertIn('run("proot.recovery.reconcile.preview",{session_id:sessionId})', page)
+        self.assertIn('!/^plan-[0-9a-f]{64}$/.test(plan.plan_id)', page)
+        self.assertIn('run("proot.recovery.reconcile",{session_id:sessionId,confirmed:true,plan_id:plan.plan_id})', page)
         self.assertIn('"continuity.status"', page)
         self.assertIn('inspectCronItem("job")', page)
         self.assertIn('previewCronRuns', page)
@@ -444,6 +574,33 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn('"cron.executions.show"', page)
         self.assertIn('b.onclick=()=>run("cron.executions.list",{limit:20})', page)
         self.assertIn('b.onclick=()=>run("timezone.list")', page)
+
+    def test_web_proot_shortcuts_use_inventory_exact_preview_and_typed_apply(self) -> None:
+        page = (ROOT / "lib" / "management_web_ui.html").read_text()
+        self.assertIn('async function manageProotShortcut()', page)
+        self.assertIn('item.shortcut_state==="absent"||item.shortcut_state==="installed"', page)
+        self.assertIn('run("proot.shortcuts.preview",{action,app_id:item.id})', page)
+        self.assertIn('const token=action==="add"?"ADD SHORTCUT":"REMOVE SHORTCUT"', page)
+        self.assertIn('run("proot.shortcuts.apply",{action,app_id:item.id,confirmed:true,plan_id:plan.plan_id})', page)
+        self.assertIn('Debian shortcuts · ', page)
+        self.assertIn('function humanReport(value){if(value?.data?.resource_id==="proot.x11.shortcuts")', page)
+
+    def test_web_proot_setup_handoff_keeps_guest_password_in_attached_terminal(self) -> None:
+        page = (ROOT / "lib" / "management_web_ui.html").read_text()
+        self.assertIn('tx proot setup fresh-preview --user NAME', page)
+        self.assertIn('tx proot setup fresh-install --yes --plan-id PLAN_ID', page)
+        self.assertIn('hidden prompts', page)
+
+    def test_web_proot_shortcut_sync_and_rollback_are_preview_confirmed(self) -> None:
+        page = (ROOT / "lib" / "management_web_ui.html").read_text()
+        for contract in ('async function syncProotShortcuts()',
+                         'run("proot.shortcuts.sync.preview")',
+                         'run("proot.shortcuts.sync.apply",{confirmed:true,plan_id:plan.plan_id})',
+                         'async function rollbackProotShortcutSync()',
+                         'item.integrity==="valid"&&item.status==="applied"',
+                         'run("proot.shortcuts.sync.rollback.preview",{rollback_id:rollbackId})',
+                         'run("proot.shortcuts.sync.rollback.apply",{rollback_id:rollbackId,confirmed:true,plan_id:plan.plan_id})'):
+            self.assertIn(contract, page)
         self.assertIn("timezone.status", page)
         self.assertIn("timezone.set", page)
         self.assertIn('schedule_type:scheduleType,schedule', page)

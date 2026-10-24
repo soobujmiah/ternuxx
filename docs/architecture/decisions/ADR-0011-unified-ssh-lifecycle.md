@@ -1,5 +1,5 @@
 # ADR-0011: Unified Native SSH connection and lifecycle management
-> **Scope update (2026-10-24):** This is a historical design record. ADR-0017 supersedes its PRoot/guest requirements; check the current source, [phase status](../../PHASE-STATUS.md), and [Native-only decision](ADR-0017-native-only-product-and-proot-retirement.md) for supported behavior.
+> **Scope update (2026-10-24):** ADR-0017 recorded a temporary Native-only direction, later reversed when the owner reauthorized Debian PRoot support. This record remains historical; current behavior is defined by source, [P11 phase status](../../PHASE-STATUS.md), and [restoration evidence](../../evidence/2026-10-24-p11-proot-source-restoration-audit.md).
 
 - **Status:** Accepted owner requirement; implementation partial (current status reviewed 2026-10-24)
 - **Date:** 2026-10-17

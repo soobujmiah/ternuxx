@@ -193,6 +193,20 @@ def evidence_path(value: str, phase_id: str, *, completion: bool = True,
     return candidate.as_posix(), resolved
 
 
+
+def start_planned_phase(state: dict, phase_id: str) -> None:
+    if state.get("active_phase") is not None:
+        raise ValueError(f"Cannot start a phase while {state['active_phase']} is active")
+    phase = next(p for p in state["phases"] if p["id"] == phase_id)
+    if phase.get("status") != "planned":
+        raise ValueError("Only a planned phase can be started")
+    index = state["phases"].index(phase)
+    if any(p["status"] not in {"completed", "skipped"} for p in state["phases"][:index]):
+        raise ValueError("Every earlier phase must be resolved before this phase starts")
+    phase["status"] = "in_progress"
+    state["active_phase"] = phase["id"]
+
+
 def skip_optional_phase(state: dict, phase_id: str, summary: str, evidence: list[str],
                         *, skipped_on: str | None = None) -> None:
     phase = next(p for p in state["phases"] if p["id"] == phase_id)
@@ -249,6 +263,14 @@ def main() -> int:
     annotate.add_argument("--summary", required=True, help="one-line preparatory progress summary")
     annotate.add_argument("--next-action", help="next action to take when this phase becomes active")
     annotate.add_argument("--optional", action="store_true", help="mark this planned phase as explicitly skippable")
+    start = sub.add_parser("start", help="activate the next planned phase after all earlier gates are resolved")
+    start.add_argument("phase_id")
+    plan = sub.add_parser("plan", help="append a required roadmap phase and optionally activate it")
+    plan.add_argument("phase_id")
+    plan.add_argument("title")
+    plan.add_argument("--summary", required=True, help="initial evidence-backed phase status")
+    plan.add_argument("--next-action", required=True, help="first concrete phase action")
+    plan.add_argument("--start", action="store_true", help="activate this new phase now")
     skip = sub.add_parser("skip", help="skip the active optional phase with reviewed evidence")
     skip.add_argument("phase_id")
     skip.add_argument("--evidence", action="append", required=True, help="repo-relative evidence file; repeatable")
@@ -278,6 +300,25 @@ def main() -> int:
                                   clear_next_action=args.clear_next_action, reason=args.reason)
             write_all(render(state), state)
             print(f"Revised descriptive metadata for closed {args.phase_id} without changing its gate.")
+            return 0
+        if args.command == "start":
+            start_planned_phase(state, args.phase_id)
+            write_all(render(state), state)
+            print(f"Activated {args.phase_id} and refreshed generated phase documentation.")
+            return 0
+
+        if args.command == "plan":
+            if any(p["id"] == args.phase_id for p in state["phases"]):
+                raise ValueError("Phase ID already exists")
+            if any(p["status"] == "planned" for p in state["phases"]):
+                raise ValueError("Resolve existing planned phases before appending another")
+            phase = {"id": args.phase_id, "title": args.title, "status": "planned",
+                     "summary": args.summary, "evidence": [], "next_action": args.next_action}
+            state["phases"].append(phase)
+            if args.start:
+                start_planned_phase(state, args.phase_id)
+            write_all(render(state), state)
+            print(f"Added {args.phase_id} to the roadmap" + (" and activated it." if args.start else "."))
             return 0
 
         summary = args.summary.strip()

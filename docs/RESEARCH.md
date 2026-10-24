@@ -1,10 +1,10 @@
 # Research & Evidence
 
-> **Historical record, superseded 2026-10-24.** Ternuxx is Native Termux-only. PRoot implementation and operations described below have been retired and must not be used as current setup instructions. Current behavior is documented in [the product vision](PRODUCT-VISION.md), [phase status](PHASE-STATUS.md), and [Native-only retirement audit](evidence/2026-10-24-native-only-proot-removal-audit.md).
+> **Dated research record.** This file contains historical measurements and source reviews. The owner reauthorized optional Debian PRoot support on 2026-10-24 after a temporary Native-only decision. Use [current phase status](PHASE-STATUS.md), [PRoot restoration evidence](evidence/2026-10-24-p11-proot-source-restoration-audit.md), and the [capability matrix](testing/FEATURE-MATRIX.yaml) for current implementation and qualification claims.
 
 Dated source links and evidence classifications for Ternuxx design decisions.
 
-> **Historical research snapshot.** This research began on 2026-10-17 and includes the former guest-provider proposal. Ternuxx is now Native Termux-only; use the [current device matrix](testing/DEVICE-COMPATIBILITY.md), [Native capability matrix](testing/FEATURE-MATRIX.yaml), and [phase status](PHASE-STATUS.md) for current product claims. Older provider research is context, not supported behavior.
+> **Research snapshot.** This research began on 2026-10-17 and includes former provider proposals and dated device observations. Native Termux remains the host/control plane, and Debian PRoot is an optional workload provider under P11. Older observations are not proof of current runtime behavior; use the current device matrix, capability matrix, and phase status for current claims.
 
 ---
 
@@ -198,6 +198,8 @@ This section supersedes the 2026-10-17 audit snapshot. Ternuxx now verifies the 
 
 **Research date:** 2026-10-17
 
+**Current-status note (2026-10-24):** The NPU feasibility and “unknown/unverified” conclusions below are historical snapshots from before Ternuxx integrated its experimental Native SM8735 HTP path. The current implementation, exact runtime provenance, live workload evidence, and remaining qualification gates are maintained in [NPU acceleration](testing/NPU-ACCELERATION.md) and [P12 status](PHASE-STATUS.md). This research remains background for architecture and external-runtime risks; it is not the current capability authority.
+
 The product goal is a pocket mobile workstation with CPU, GPU, and NPU acceleration. This is a target, not a claim that all accelerators are currently accessible to Ternuxx. CPU is the baseline. GPU and NPU support must be demonstrated for the exact workload and process context.
 
 ### Android NPU / AI runtime evidence
@@ -231,7 +233,7 @@ These remain Ternux-repository reports for named PRoot/Android workloads, not Te
 ### CPU/GPU/NPU claims policy
 
 - CPU is the baseline, not an accelerator claim. Report actual execution backend and workload measurements.
-- Native Termux GPU and Ternux Debian PRoot GPU are separate capability records. Existing Ternux PRoot GPU functionality is preserved as a first-class opt-in route and must not be weakened to make native mode simpler.
+- Native Termux GPU and Debian PRoot GPU are separate capability records. Ternuxx has a current guest graphics route under P11; old Ternux benchmarks remain external research and do not qualify Ternuxx inference or current guest workloads.
 - Do not claim “world-class”, faster, GPU accelerated, or NPU accelerated as a measured result until comparable workloads have correctness, throughput/latency, memory, and thermal/power evidence. “World-class mobile workstation” describes the product vision.
 
 
@@ -329,4 +331,4 @@ Detailed support gate: [Native Wine and Hangover](WINE-NATIVE.md). Sources: [Ter
 
 A read-only `tx doctor --json` on Native Termux (`u0_a490`, Termux 0.119.0-beta.3, Android 16, aarch64) now reports evidence by layer: visible Android vendor files (`libQnnHtp.so`, `libcdsprpc.so`, `libadsprpc.so`, `libSNPE.so`); no visible `/dev/adsprpc-smd`, `/dev/adsprpc-smd-secure`, or `/dev/fastrpc-cdsp` nodes; and no checked `qnn-net-run`, `qnn-platform-validator`, `snpe-net-run`, or `llama-cli` in the Native command path. These bounded path/command checks do not prove the files cannot be accessed by another route. They also do not prove a loadable ABI, HTP permission, delegate selection, or NPU execution. The report explicitly keeps NPU execution unverified.
 
-The same `DISPLAY=:1 tx doctor --graphics --json` invocation observed Native `llvmpipe (LLVM 21.1.8, 128 bits)` and `VK_ERROR_INCOMPATIBLE_DRIVER`; this is separate from the live Debian PRoot `:1` Zink/Turnip Adreno 825 renderer and authenticated Native PulseAudio client path. CPU remains the Native baseline, with no Ternuxx inference runtime/model integration. No native graphics or NPU runtime, SDK, model, package, node permission, service, guest file, or Android setting was changed. Retain CPU, Zink/Turnip, VirGL and experimental NPU as distinct provider routes; do not strip the guest's currently working Zink/audio handoff in pursuit of a minimal host image.
+The same `DISPLAY=:1 tx doctor --graphics --json` invocation observed Native `llvmpipe (LLVM 21.1.8, 128 bits)` and `VK_ERROR_INCOMPATIBLE_DRIVER`; this was separate from the live Debian PRoot `:1` Zink/Turnip Adreno 825 renderer and authenticated Native PulseAudio client path. At that 2026-10-20 snapshot, CPU remained the Native inference baseline and no Ternuxx model integration existed. No native graphics or NPU runtime, SDK, model, package, node permission, service, guest file, or Android setting was changed by that check. Later P12 work integrated experimental Native HTP inference; its current status and limits are in [NPU qualification](testing/NPU-ACCELERATION.md). The historical audit recommended preserving CPU, Zink/Turnip and VirGL as distinct routes and did not assess the later HTP implementation.

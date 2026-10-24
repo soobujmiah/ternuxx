@@ -7,9 +7,71 @@ nt_cmd_ai() {
   local service="${_TN_LIB_DIR}/management_service.py" sub="${1:-status}"
   [ "$#" -gt 0 ] && shift || true
   case "$sub" in
+    runtime)
+      local backend="cpu" package="llama-cpp"
+      [ "${1:-}" = preview ] && shift || { nt_fail "Usage: tx ai runtime preview [cpu|vulkan|opencl]"; return 2; }
+      [ "$#" -le 1 ] || { nt_fail "Usage: tx ai runtime preview [cpu|vulkan|opencl]"; return 2; }
+      [ "$#" -eq 0 ] || backend="$1"
+      case "$backend" in
+        cpu) ;;
+        vulkan) package="llama-cpp llama-cpp-backend-vulkan" ;;
+        opencl) package="llama-cpp llama-cpp-backend-opencl" ;;
+        *) nt_fail "Backend must be cpu, vulkan, or opencl."; return 2 ;;
+      esac
+      command -v apt-get >/dev/null 2>&1 || { nt_fail "Termux apt-get is unavailable."; return 2; }
+      printf '%s\n' "Read-only Termux package simulation for Native llama.cpp ($backend):"
+      # Word splitting is intentional: package is built only from the fixed allowlist above.
+      apt-get -s install $package
+      ;;
     status)
       [ "$#" -eq 0 ] || { nt_fail "Usage: tx ai status"; return 2; }
       python3 "$service" --operation inference.cpu.status --json
+      ;;
+    devices)
+      [ "$#" -eq 0 ] || { nt_fail "Usage: tx ai devices"; return 2; }
+      python3 "$service" --operation inference.gpu.status --json
+      ;;
+    npu)
+      local action="${1:-status}"
+      [ "$#" -gt 0 ] && shift || true
+      case "$action" in
+        status)
+          [ "$#" -eq 0 ] || { nt_fail "Usage: tx ai npu status"; return 2; }
+          python3 "$service" --operation inference.npu.status --json
+          ;;
+        runtime)
+          local runtime_action="${1:-}"
+          [ "$#" -gt 0 ] && shift || true
+          case "$runtime_action" in
+            preview)
+              [ "$#" -eq 0 ] || { nt_fail "Usage: tx ai npu runtime preview"; return 2; }
+              python3 "$service" --operation inference.npu.runtime.preview --json
+              ;;
+            apply)
+              local plan_id="" confirm=""
+              while [ "$#" -gt 0 ]; do
+                case "$1" in
+                  --plan-id) [ "$#" -ge 2 ] || { nt_fail "--plan-id requires a preview ID"; return 2; }; plan_id="$2"; shift 2 ;;
+                  --confirm) [ "$#" -ge 2 ] || { nt_fail "--confirm requires INSTALL"; return 2; }; confirm="$2"; shift 2 ;;
+                  *) nt_fail "Unknown NPU runtime option: $1"; return 2 ;;
+                esac
+              done
+              if [ -z "$plan_id" ] && [ -t 0 ]; then
+                local preview_json
+                preview_json="$(python3 "$service" --operation inference.npu.runtime.preview --json)" || return $?
+                printf '%s\n' "$preview_json"
+                plan_id="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["data"]["plan_id"])' <<<"$preview_json")" || return 2
+                read -r -p 'Type INSTALL to fetch and verify this exact runtime: ' confirm
+              fi
+              [ -n "$plan_id" ] || { nt_fail "Run 'tx ai npu runtime preview' and pass its --plan-id."; return 2; }
+              python3 "$service" --operation inference.npu.runtime.apply --plan-id "$plan_id" \
+                --runtime-confirm "$confirm" --json
+              ;;
+            *) nt_fail "Usage: tx ai npu runtime {preview|apply}"; return 2 ;;
+          esac
+          ;;
+        *) nt_fail "Usage: tx ai npu {status|runtime preview|runtime apply}"; return 2 ;;
+      esac
       ;;
     model)
       local action="${1:-}"
@@ -75,19 +137,30 @@ nt_cmd_ai() {
       fi
       ;;
     run)
-      local max_tokens=64
-      if [ "$#" -ge 2 ] && [ "$1" = --max-tokens ]; then max_tokens="$2"; shift 2; fi
-      if [ "$#" -ne 0 ]; then nt_fail "Prompt is read from stdin to keep it out of shell history and process arguments."; return 2; fi
+      local max_tokens=64 backend=cpu device_id="" operation option prompt
+      local -a inference_args=()
+      while [ "$#" -gt 0 ]; do
+        option="$1"; shift
+        case "$option" in
+          --max-tokens) [ "$#" -gt 0 ] || { nt_fail "--max-tokens needs a number"; return 2; }; max_tokens="$1"; shift ;;
+          --backend) [ "$#" -gt 0 ] || { nt_fail "--backend needs cpu, vulkan, or npu"; return 2; }; backend="$1"; shift ;;
+          --device) [ "$#" -gt 0 ] || { nt_fail "--device needs the exact listed Vulkan device ID"; return 2; }; device_id="$1"; shift ;;
+          *) nt_fail "Prompt is read from stdin; unknown run option: $option"; return 2 ;;
+        esac
+      done
+      case "$backend" in cpu) operation=inference.cpu.run ;; vulkan) operation=inference.gpu.run ;; npu) operation=inference.npu.run ;;
+        *) nt_fail "Backend must be cpu, vulkan, or npu."; return 2 ;; esac
+      [ "$backend" = vulkan ] || [ -z "$device_id" ] || { nt_fail "--device is only valid with --backend vulkan."; return 2; }
+      [ -z "$device_id" ] || inference_args+=(--device-id "$device_id")
       if [ -t 0 ]; then
-        local prompt
         read -r -p 'Local one-line prompt (max 4096 bytes): ' prompt || return 2
-        printf '%s' "$prompt" | python3 "$service" --operation inference.cpu.run \
-          --prompt-stdin --max-tokens "$max_tokens" --json
+        printf '%s' "$prompt" | python3 "$service" --operation "$operation" --prompt-stdin \
+          --max-tokens "$max_tokens" "${inference_args[@]}" --json
       else
-        python3 "$service" --operation inference.cpu.run --prompt-stdin \
-          --max-tokens "$max_tokens" --json
+        python3 "$service" --operation "$operation" --prompt-stdin \
+          --max-tokens "$max_tokens" "${inference_args[@]}" --json
       fi
       ;;
-    *) nt_fail "Usage: tx ai {status|setup|model|run}"; return 2 ;;
+    *) nt_fail "Usage: tx ai {status|devices|npu|runtime|setup|model|run}"; return 2 ;;
   esac
 }

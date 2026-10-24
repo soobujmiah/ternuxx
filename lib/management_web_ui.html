@@ -53,8 +53,12 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 .brand-footer{max-width:1440px;margin:0 auto;padding:.7rem 1.25rem 1rem;color:var(--muted);font-size:.82rem;text-align:center}.brand-footer a{color:var(--green);text-decoration:none}.brand-footer a:hover{text-decoration:underline}
 
+.terminal-dialog{width:min(1100px,96vw);height:min(820px,92vh);max-width:96vw;max-height:92vh;padding:1rem;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:14px}.terminal-dialog::backdrop{background:#000b}.terminal-shell{height:100%;display:flex;flex-direction:column;gap:.65rem}.terminal-toolbar{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}.terminal-toolbar select{flex:1;min-width:10rem}.terminal-screen{flex:1;min-height:180px;background:#080e0b;border:1px solid var(--line);border-radius:8px;padding:.45rem;overflow:hidden}.terminal-screen .xterm{height:100%}.terminal-status{min-height:1.3rem;color:var(--muted);font-size:.85rem}@media(max-width:650px){.terminal-dialog{width:100vw;height:100dvh;max-width:100vw;max-height:100dvh;margin:0;border-radius:0;padding:.65rem}.terminal-screen{min-height:120px}}
+
 </style>
 
+<link rel="stylesheet" href="/assets/xterm-6.0.0/xterm.css">
+<script src="/assets/xterm-6.0.0/xterm.js"></script><script src="/assets/xterm-6.0.0/addon-fit.js"></script>
 </head>
 <body>
 <header><h1><span>TERN</span>UXX <span>Management Center</span></h1><button id="disconnect" hidden>Disconnect</button></header>
@@ -64,6 +68,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
 <section class="panel"><div class="heading"><div><h2 id="category-title">Overview</h2><div id="category-description" class="muted"></div></div></div><div class="summary" id="summary"></div><div class="tools"><input id="search" type="search" placeholder="Search resources" aria-label="Search resources"><select id="status"><option value="">Any availability</option><option value="implemented">Available</option><option value="partial">Partly available</option><option value="external">Externally managed</option><option value="unverified">Not verified</option><option value="unavailable">Unavailable</option><option value="planned">Planned</option></select></div><div id="resource-list" class="cards"></div><p id="notice-app" role="status" class="notice"></p></section>
 <aside class="panel detail-panel"><div class="heading"><div><h2 id="resource-title" tabindex="-1">Resource details</h2><div id="resource-subtitle" class="muted">Select a resource for status and actions.</div></div><button id="back-to-resources" class="back-to-resources">Back to list</button></div><section class="action-dock" aria-labelledby="actions-title"><h3 id="actions-title">Actions</h3><p id="action-hint" class="field-note">Select a resource to see its related controls.</p><div id="resource-actions" class="actions"></div></section><div class="resource-inspection"><div id="resource-detail" class="detail"></div><div id="result-readable" class="detail" role="status" aria-live="polite"></div><details id="monitor-panel" hidden><summary>Android Activity monitoring policy</summary><p class="muted">Eta sudhu Android Activity/focus check-er policy. Linux GUI health alada live status check diye dekhun. Default off; interval default 5 minute.</p><div class="form-grid"><label><span><input id="monitor-enabled" type="checkbox"> Enable Activity monitoring</span><span class="field-note">Background-e Termux:X11 Activity open ache kina check kore.</span></label><label>Check interval<input id="monitor-interval" type="number" min="30" max="86400" value="300"><span class="field-note">30 second theke 24 hour; default 300 second.</span></label><label>Unit<select id="monitor-unit"><option value="seconds">Seconds</option><option value="minutes">Minutes</option><option value="hours">Hours</option></select></label><label><span><input id="monitor-focus" type="checkbox"> Check Android Activity focus</span></label><label><span><input id="monitor-launch" type="checkbox"> Background-e thakle Activity request koro</span><span class="field-note">Focus checking chara ei option kaj kore na.</span></label><button id="save-monitor" class="primary">Save Activity policy</button></div></details><details id="activity-panel"><summary>Recent management activity</summary><p class="muted">Ternuxx-er operation history ekhane dekha jabe; runtime log dekhte nicher section khulun. Android and unrelated app logs ekhane dekhano hoy na.</p><button id="view-activity" class="primary">Load recent activity</button><p id="activity-note" class="muted" role="status">Activity history ekhono load hoyni.</p><div id="activity-output" class="activity-list"></div></details><details id="logs-panel"><summary>Ternuxx runtime logs</summary><p class="muted">Fixed private Ternuxx log files only. The Native desktop log may include output from apps running in XFCE. Android-wide logs and arbitrary file paths are not exposed. Reads are bounded to the latest 300 lines.</p><div class="tools"><button id="refresh-logs">Refresh sources</button><select id="log-source" aria-label="Log source"></select><button id="load-log" class="primary">Show latest lines</button></div><p id="log-note" class="muted" role="status">Log sources have not been checked.</p><pre id="log-output">No log loaded.</pre></details><details><summary>Technical API response</summary><pre id="response">No request yet.</pre></details></div></aside>
 </main>
+<dialog id="terminal-dialog" class="terminal-dialog" aria-labelledby="terminal-title"><div class="terminal-shell"><div class="heading"><div><h2 id="terminal-title">Debian terminal</h2><div id="terminal-status" class="terminal-status" role="status">Broker is not connected.</div></div><button id="terminal-close-dialog" aria-label="Detach and close terminal window">Close</button></div><div class="terminal-toolbar"><select id="terminal-session" aria-label="Ternuxx-managed Debian session"><option value="">Choose a managed session</option></select><button id="terminal-refresh-sessions">Refresh sessions</button><button id="terminal-attach-session" class="primary">Attach</button><button id="terminal-start-session">Start new Debian terminal…</button><button id="terminal-stop-session" disabled>Close guest session…</button></div><div id="terminal-screen" class="terminal-screen" aria-label="Interactive Debian terminal"></div></div></dialog>
 <div id="mobile-action-bar" class="mobile-action-bar" aria-label="Selected resource actions" hidden><button id="quick-status" hidden>Check live status</button><button id="quick-actions" class="primary">View actions</button></div>
 
 <footer class="brand-footer">Workstation in your pocket — by Sobuj Miah · <a href="https://soobujmiah.github.io/" rel="noopener noreferrer">soobujmiah.github.io</a></footer>
@@ -74,11 +79,226 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
  const $=s=>document.querySelector(s), out=$("#response"), notice=$("#notice-app"), labels={healthy:"Healthy",running:"Running",ready:"Ready",starting:"Starting",stopping:"Stopping",stopped:"Stopped",failed:"Failed",stale:"Stale",unknown:"Unknown",unsafe:"Unsafe",implemented:"Available",partial:"Some actions available",available:"Available",external:"Externally managed",unverified:"Unverified",unavailable:"Unavailable",planned:"Planned"};
  const safe=v=>typeof v==="string"?v:"Unknown", statusLabel=v=>labels[v]||safe(v).replaceAll("_"," ");
  function humanValue(v){if(typeof v==="boolean")return v?"On":"Off";if(v===null||v===undefined)return "Not reported";if(typeof v!=="string")return String(v);if(v.includes("/"))return v;const words={"running_idle":"Ready; monitoring is off","configuration-managed":"Policy managed by Ternuxx","not-queried":"Not checked yet","query-required":"Check live status","not-probed":"Not checked yet","not-implemented":"Not available yet","not-applicable":"Not applicable","not-configured":"Not configured","ternuxx_verified":"Verified as managed by Ternuxx","configuration-managed-scheduler-not-installed":"Policy saved; background checker is not installed","scheduler-not-installed":"Background checker is not installed","source-scheduler-not-installed":"Background checker is not installed","disabled-by-default":"Off by default","native-termux":"Native Termux","android-host-via-termux":"Android host through Termux","loopback":"This device only (127.0.0.1)"};return words[v]||statusLabel(v).replaceAll("-"," ")}
- function humanReport(value){const lines=[],hidden=/password|private[_ ]?key|secret|token|request[_ ]?id|plan[_ ]?id|^id$/i;function walk(x,label="",depth=0){if(x&&typeof x==="object"){if(Array.isArray(x)){if(!x.length&&label)lines.push("  ".repeat(depth)+label+": None");x.forEach((item,i)=>{if(item&&typeof item==="object"){lines.push("  ".repeat(depth)+(i+1)+".");walk(item,"",depth+1)}else lines.push("  ".repeat(depth)+(i+1)+". "+humanValue(item))});return}for(const [key,item] of Object.entries(x)){if((depth===0&&(key==="api_version"||key==="operation"))||hidden.test(key))continue;if(key==="ok"){lines.push("  ".repeat(depth)+"Result: "+(item?"Complete":"Failed"));continue}const fieldNames={status:"Status",state:"State",current:"Current state",readiness:"Readiness",availability:"Availability",ownership:"Ownership",authority:"Managed by",provider:"Provider",environment:"Environment",enabled:"Enabled",running:"Running",interval_seconds:"Check interval (seconds)",boot_status:"Boot status",focus_check:"Check Activity focus",activity_launch:"Request Activity launch when missing",wakelock:"Wake Lock",message:"Details",impact:"Change impact",key_type:"Key type",fingerprint:"Fingerprint",label:"Key label",key_count:"Authorized keys",invalid_entries:"Invalid entries",permissions:"File permissions",reason:"Result",port:"Port",bind_address:"Bind address",auth_methods:"Login methods",password_authentication:"Password login",public_key_authentication:"Key login",managed_script_identity:"Managed script check",listener:"Listener",service:"Service",profile:"Startup profile",ready:"Ready for startup",blockers:"What must be fixed",actions:"Startup actions",id:"Reference",code:"Reference"};const title=fieldNames[key]||key.replaceAll("_"," ").replaceAll("."," ").replace(/\b\w/g,c=>c.toUpperCase());walk(item,title,depth+(label?1:0))}return}lines.push("  ".repeat(depth)+(label?label+": ":"")+humanValue(x))}walk(value);return lines.join("\n")||"No readable details were returned."}
+ function humanReport(value){if(value?.data?.resource_id==="proot.x11.shortcuts"){const data=value.data,fixed=(data.items||[]),dynamic=data.desktop_applications?.items||[],lines=["Debian shortcuts · "+fixed.length+" fixed, "+dynamic.length+" discovered app launchers"];for(const [title,items] of [["Fixed shortcuts",fixed],["Discovered Debian apps",dynamic]]){if(!items.length)continue;lines.push(title+":");for(const item of items){const id=item.id||item.desktop_id,name=item.name||id,state=item.shortcut_state||item.status||"unknown";lines.push("  "+id+" — "+name+": "+state)}}const diagnostics=data.desktop_applications?.diagnostics||[];if(diagnostics.length)lines.push("Discovery diagnostics: "+diagnostics.length+" (structured details are available through the API)");return lines.join("\n")}const lines=[],hidden=/password|private[_ ]?key|secret|token|request[_ ]?id|plan[_ ]?id|^id$/i;function walk(x,label="",depth=0){if(x&&typeof x==="object"){if(Array.isArray(x)){if(!x.length&&label)lines.push("  ".repeat(depth)+label+": None");x.forEach((item,i)=>{if(item&&typeof item==="object"){lines.push("  ".repeat(depth)+(i+1)+".");walk(item,"",depth+1)}else lines.push("  ".repeat(depth)+(i+1)+". "+humanValue(item))});return}for(const [key,item] of Object.entries(x)){if((depth===0&&(key==="api_version"||key==="operation"))||hidden.test(key))continue;if(key==="ok"){lines.push("  ".repeat(depth)+"Result: "+(item?"Complete":"Failed"));continue}const fieldNames={status:"Status",state:"State",current:"Current state",readiness:"Readiness",availability:"Availability",ownership:"Ownership",authority:"Managed by",provider:"Provider",environment:"Environment",enabled:"Enabled",running:"Running",interval_seconds:"Check interval (seconds)",boot_status:"Boot status",focus_check:"Check Activity focus",activity_launch:"Request Activity launch when missing",wakelock:"Wake Lock",message:"Details",impact:"Change impact",key_type:"Key type",fingerprint:"Fingerprint",label:"Key label",key_count:"Authorized keys",invalid_entries:"Invalid entries",permissions:"File permissions",reason:"Result",port:"Port",bind_address:"Bind address",auth_methods:"Login methods",password_authentication:"Password login",public_key_authentication:"Key login",managed_script_identity:"Managed script check",listener:"Listener",service:"Service",profile:"Startup profile",ready:"Ready for startup",blockers:"What must be fixed",actions:"Startup actions",id:"Reference",code:"Reference"};const title=fieldNames[key]||key.replaceAll("_"," ").replaceAll("."," ").replace(/\b\w/g,c=>c.toUpperCase());walk(item,title,depth+(label?1:0))}return}lines.push("  ".repeat(depth)+(label?label+": ":"")+humanValue(x))}walk(value);return lines.join("\n")||"No readable details were returned."}
  function reqid(){return crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)}
  async function post(path,body,headers={}){const response=await fetch(path,{method:"POST",credentials:"same-origin",headers:{"Content-Type":"application/json",...headers},body:JSON.stringify(body)});let data;try{data=await response.json()}catch{throw Error("Invalid server response")};if(!response.ok)throw Error(data.error||"Request failed");return data}
  function headers(){return {"X-Ternuxx-CSRF":session.csrf_token}}
- async function run(operation,args={}){if(!session)return;const requestResourceId=selectedResource?.id;const mutations={"graphics.provider.select":"Save the Native graphics choice for future desktop starts","desktop.start":"Start the native desktop session","desktop.stop":"Stop the native desktop session and its owned children","desktop.restart":"Stop the native desktop and start it again"};if(mutations[operation]){const scope=operation==="graphics.provider.select"?"KGSL is experimental, must already be extracted, and this will not install files or change the running desktop.":"Ternuxx will operate only its verified owned GUI session.";if(!window.confirm(mutations[operation]+"? "+scope+" Continue?"))return;}notice.textContent="Working…";try{const h=headers();if(mutations[operation]||(operation.startsWith("ssh.keys.")||operation.startsWith("ssh.client-key.")||operation.startsWith("ssh.service.autostart."))||operation==="desktop.monitor.configure"||operation==="ssh.service.start"||operation==="ssh.service.stop"||operation==="ssh.service.restart"||operation==="cron.jobs.mutation.preview"||operation==="cron.jobs.mutation.apply"||operation==="cron.scheduler.start"||operation==="cron.scheduler.stop"||operation==="timezone.set"||operation==="backup.create"||operation==="restore.apply"||operation==="recovery.resolve"||operation==="recovery.rollback.apply"||operation==="inference.cpu.model.apply"||operation==="inference.cpu.run"||operation==="software.app.preview"||operation==="software.app.apply")h["Idempotency-Key"]=reqid();const result=await post("/api/v1/operations",{api_version:1,request_id:reqid(),operation,args},h);const isCatalog=operation==="management.catalog";if(isCatalog||selectedResource?.id===requestResourceId){out.textContent=isCatalog?"Catalog loaded. Select a resource to view its available actions.":JSON.stringify(result,null,2);const readable=$("#result-readable");if(readable)readable.textContent=isCatalog&&result.ok?"Loaded "+(result.data?.resources?.length||0)+" resources across "+(result.data?.categories?.length||0)+" categories.":humanReport(result);}notice.textContent=result.ok?"Updated from shared management service":"Operation failed";if(!result.ok)throw Error((result.error&&result.error.message)||result.error?.code||"Operation failed");if(operation==="management.catalog"){catalog=result.data;allResources=catalog.resources;drawCategories();drawResources()}if(operation==="desktop.monitor.status")fillMonitor(result.data);if(operation==="desktop.monitor.configure")await run("desktop.monitor.status");return result}catch(e){notice.textContent=e.message;return null}}
+ async function run(operation,args={},quiet=false){if(!session)return;const requestResourceId=selectedResource?.id;const mutations={"graphics.provider.select":"Save the Native graphics choice for future desktop starts","desktop.start":"Start the native desktop session","desktop.stop":"Stop the native desktop session and its owned children","desktop.restart":"Stop the native desktop and start it again"};if(mutations[operation]){const scope=operation==="graphics.provider.select"?"KGSL is experimental, must already be extracted, and this will not install files or change the running desktop.":"Ternuxx will operate only its verified owned GUI session.";if(!window.confirm(mutations[operation]+"? "+scope+" Continue?"))return;}notice.textContent="Working…";try{const h=headers();if(mutations[operation]||(operation.startsWith("ssh.keys.")||operation.startsWith("ssh.client-key.")||operation.startsWith("ssh.service.autostart."))||operation==="desktop.monitor.configure"||operation==="ssh.service.start"||operation==="ssh.service.stop"||operation==="ssh.service.restart"||operation==="cron.jobs.mutation.preview"||operation==="cron.jobs.mutation.apply"||operation==="cron.scheduler.start"||operation==="cron.scheduler.stop"||operation==="timezone.set"||operation==="backup.create"||operation==="restore.apply"||operation==="recovery.resolve"||operation==="recovery.rollback.apply"||operation==="inference.cpu.model.apply"||operation==="inference.cpu.run"||operation==="inference.gpu.run"||operation==="inference.npu.runtime.apply"||operation==="inference.npu.run"||operation==="software.app.preview"||operation==="software.app.apply"||operation.startsWith("proot.")||operation.startsWith("terminal."))h["Idempotency-Key"]=reqid();const result=await post("/api/v1/operations",{api_version:1,request_id:reqid(),operation,args},h);const isCatalog=operation==="management.catalog";if(!quiet&&(isCatalog||selectedResource?.id===requestResourceId)){out.textContent=isCatalog?"Catalog loaded. Select a resource to view its available actions.":JSON.stringify(result,null,2);const readable=$("#result-readable");if(readable)readable.textContent=isCatalog&&result.ok?"Loaded "+(result.data?.resources?.length||0)+" resources across "+(result.data?.categories?.length||0)+" categories.":humanReport(result);}if(!quiet)notice.textContent=result.ok?"Updated from shared management service":"Operation failed";if(!result.ok)throw Error((result.error&&result.error.message)||result.error?.code||"Operation failed");if(operation==="management.catalog"){catalog=result.data;allResources=catalog.resources;drawCategories();drawResources()}if(operation==="desktop.monitor.status")fillMonitor(result.data);if(operation==="desktop.monitor.configure")await run("desktop.monitor.status");return result}catch(e){if(!quiet)notice.textContent=e.message;return null}}
+ let webTerminal=null,webFit=null,webLease=null,webPollTimer=0,webInputTimer=0,webInputBuffer="",webPollBusy=false;
+ function terminalNote(message){const target=$("#terminal-status");if(target)target.textContent=message}
+ async function terminalCall(operation,args={}){
+  const response=await run(operation,args,true);
+  if(!response?.ok)throw Error(response?.error?.message||response?.error?.code||"Terminal operation failed");
+  const data=response.data||{};
+  if(data.ok===false)throw Error(data.error||"Terminal operation failed");
+  return data.result||data;
+ }
+ function initWebTerminal(){
+  if(webTerminal)return;
+  if(!window.Terminal||!window.FitAddon){terminalNote("Terminal renderer could not load. Refresh the page and try again.");return}
+  webTerminal=new Terminal({cursorBlink:true,convertEol:false,scrollback:3000,fontSize:14,allowProposedApi:false,theme:{background:"#080e0b",foreground:"#e6f1e9",cursor:"#b8ed77",selectionBackground:"#345943"}});
+  webFit=new FitAddon.FitAddon();webTerminal.loadAddon(webFit);webTerminal.open($("#terminal-screen"));
+  webTerminal.onData(data=>{webInputBuffer+=data;if(!webInputTimer)webInputTimer=setTimeout(flushWebTerminalInput,220)});
+  new ResizeObserver(()=>{if(!webLease||!webFit)return;try{webFit.fit();terminalCall("terminal.resize",{session_id:webLease.session_id,generation:webLease.generation,attachment_id:webLease.attachment_id,columns:webTerminal.cols,rows:webTerminal.rows}).catch(error=>terminalNote(error.message))}catch{}}).observe($("#terminal-screen"));
+ }
+ async function flushWebTerminalInput(){
+  webInputTimer=0;if(!webLease||!webInputBuffer)return;
+  const encoded=new TextEncoder().encode(webInputBuffer);webInputBuffer="";
+  for(let offset=0;offset<encoded.length;offset+=3000){
+   const bytes=encoded.slice(offset,offset+3000);let binary="";
+   for(const byte of bytes)binary+=String.fromCharCode(byte);
+   try{await terminalCall("terminal.input",{session_id:webLease.session_id,generation:webLease.generation,attachment_id:webLease.attachment_id,data_base64:btoa(binary)})}
+   catch(error){terminalNote(error.message);return}
+  }
+ }
+ async function pollWebTerminal(){
+  if(!webLease||webPollBusy)return;webPollBusy=true;
+  try{
+   const result=await terminalCall("terminal.output",{session_id:webLease.session_id,generation:webLease.generation,attachment_id:webLease.attachment_id,after_sequence:webLease.cursor||0});
+   if(result.truncated)webTerminal.write("\r\n[Some terminal output was skipped while disconnected.]\r\n");
+   for(const chunk of result.chunks||[]){const raw=atob(chunk.data_base64),bytes=Uint8Array.from(raw,c=>c.charCodeAt(0));webTerminal.write(new TextDecoder().decode(bytes));webLease.cursor=chunk.sequence}
+   if(Number.isInteger(result.next_sequence)&&result.next_sequence>(webLease.cursor||0))webLease.cursor=result.next_sequence;
+  }catch(error){terminalNote(error.message);stopWebTerminalPolling()}
+  finally{webPollBusy=false;if(webLease)webPollTimer=setTimeout(pollWebTerminal,400)}
+ }
+ function stopWebTerminalPolling(){if(webPollTimer){clearTimeout(webPollTimer);webPollTimer=0}}
+ async function attachWebTerminal(sessionId,lease=null){
+  if(!lease)lease=await terminalCall("terminal.attach",{session_id:sessionId});
+  webLease={...lease,cursor:0};initWebTerminal();
+  if(!webTerminal){await terminalCall("terminal.detach",{session_id:lease.session_id,generation:lease.generation,attachment_id:lease.attachment_id});webLease=null;return}
+  webFit.fit();webTerminal.reset();
+  await terminalCall("terminal.resize",{session_id:lease.session_id,generation:lease.generation,attachment_id:lease.attachment_id,columns:webTerminal.cols,rows:webTerminal.rows});
+  $("#terminal-stop-session").disabled=false;
+  terminalNote("Connected to managed Debian terminal "+sessionId.slice(-8)+". Press Ctrl-] to detach.");
+  webTerminal.focus();pollWebTerminal();
+ }
+ async function refreshWebTerminalSessions(){
+  terminalNote("Checking Ternuxx-managed sessions…");const response=await run("proot.sessions.list",{},true);if(!response?.ok){terminalNote("Could not inspect Debian sessions. Check the API response.");return}
+  const select=$("#terminal-session");select.replaceChildren(new Option("Choose a managed session",""));
+  for(const item of response.data?.sessions||[]){if(item.profile!=="debian-interactive"||item.state!=="running"||item.ownership!=="ternuxx_verified")continue;select.append(new Option("Debian "+item.session_id.slice(-8)+" · "+statusLabel(item.state),item.session_id))}
+  terminalNote(select.options.length>1?"Verified managed sessions are ready to attach.":"No verified Ternuxx interactive session is available. Start one with a fresh preview.");
+ }
+ async function stopManagedProotSession(){
+  const inventory=await run("proot.sessions.list");
+  if(!inventory?.ok)return;
+  const sessions=(inventory.data?.sessions||[]).filter(item=>item&&item.ownership==="ternuxx_verified"&&item.state==="running"&&typeof item.session_id==="string");
+  if(!sessions.length){notice.textContent="No verified running Ternuxx guest session is available to stop.";return}
+  const menu=sessions.map((item,index)=>(index+1)+". "+(item.profile||"guest")+" · "+item.session_id).join("\n");
+  const answer=window.prompt("Choose a verified running session by number:\n"+menu);
+  if(answer===null)return;
+  const index=Number(answer)-1;
+  if(!Number.isInteger(index)||index<0||index>=sessions.length){notice.textContent="Choose one of the listed session numbers.";return}
+  const sessionId=sessions[index].session_id;
+  const preview=await run("proot.stop.preview",{session_id:sessionId});
+  const plan=preview?.data;
+  if(!preview?.ok||typeof plan?.plan_id!=="string")return;
+  if(window.prompt("Review the exact session plan above. Type STOP to end only this verified Ternuxx session.\n\nImpact: "+String(plan.impact||"Stop the selected managed guest session."))!=="STOP")return;
+  await run("proot.stop",{session_id:sessionId,confirmed:true,plan_id:plan.plan_id});
+ }
+ async function reconcileManagedProotSession(){
+  const inventory=await run("proot.sessions.list");
+  if(!inventory?.ok)return;
+  const sessions=(inventory.data?.sessions||[]).filter(item=>item&&item.state!=="stopped"&&typeof item.session_id==="string");
+  if(!sessions.length){notice.textContent="No unfinished Ternuxx guest session record needs inspection.";return}
+  const menu=sessions.map((item,index)=>(index+1)+". "+(item.profile||"guest")+" · "+(item.state||"unknown")+" · "+item.session_id).join("\n");
+  const answer=window.prompt("Choose an unfinished guest session by number:\n"+menu);
+  if(answer===null)return;
+  const index=Number(answer)-1;
+  if(!Number.isInteger(index)||index<0||index>=sessions.length){notice.textContent="Choose one of the listed session numbers.";return}
+  const sessionId=sessions[index].session_id;
+  const inspection=await run("proot.recovery.inspect",{session_id:sessionId});
+  if(!inspection?.ok)return;
+  const preview=await run("proot.recovery.reconcile.preview",{session_id:sessionId});
+  const plan=preview?.data;
+  if(!preview?.ok||typeof plan?.plan_id!=="string"||!/^plan-[0-9a-f]{64}$/.test(plan.plan_id))return;
+  if(window.prompt("Review the inspection and exact plan above. This changes the session record only after exit is proven. Type RECONCILE.")!=="RECONCILE")return;
+  await run("proot.recovery.reconcile",{session_id:sessionId,confirmed:true,plan_id:plan.plan_id});
+ }
+ async function manageProotShortcut(){
+  const inventory=await run("proot.shortcuts.list");
+  if(!inventory?.ok)return;
+  const items=(inventory.data?.items||[]).filter(item=>item&&typeof item.id==="string"&&(item.shortcut_state==="absent"||item.shortcut_state==="installed"));
+  if(!items.length){notice.textContent="No safe Debian shortcut changes are available.";return}
+  const menu=items.map((item,index)=>(index+1)+". "+(item.shortcut_state==="absent"?"Add":"Remove")+" · "+(item.name||item.id)+" ("+item.id+")").join("\n");
+  const answer=window.prompt("Choose a listed shortcut by number. Conflicts and edited files are excluded:\n"+menu);
+  if(answer===null)return;
+  const index=Number(answer)-1;
+  if(!Number.isInteger(index)||index<0||index>=items.length){notice.textContent="Choose one of the listed shortcut numbers.";return}
+  const item=items[index],action=item.shortcut_state==="absent"?"add":"remove";
+  const preview=await run("proot.shortcuts.preview",{action,app_id:item.id});
+  const plan=preview?.data;
+  if(!preview?.ok||typeof plan?.plan_id!=="string"||plan.changed!==true)return;
+  const token=action==="add"?"ADD SHORTCUT":"REMOVE SHORTCUT";
+  if(window.prompt("Review the exact Native launcher change above. Type "+token+" to apply.")!==token)return;
+  await run("proot.shortcuts.apply",{action,app_id:item.id,confirmed:true,plan_id:plan.plan_id});
+ }
+ async function manageReplayGuest(){
+  const action=window.prompt("Choose replay guest action: retire or restore","retire");
+  if(action===null)return;
+  if(action!=="retire"&&action!=="restore"){notice.textContent="Choose retire or restore.";return}
+  const alias=window.prompt("Exact receipt-backed alias (ternuxx-replay-NAME):");
+  if(alias===null)return;
+  const target=alias.trim();
+  if(!/^ternuxx-replay-[a-z0-9][a-z0-9-]{0,31}$/.test(target)){notice.textContent="Enter an exact Ternuxx replay alias.";return}
+  let backupId="",previewOperation,previewArgs;
+  if(action==="retire"){
+   previewOperation="proot.setup.retire.preview";previewArgs={alias:target};
+  }else{
+   const input=window.prompt("Retirement backup ID (32 lowercase hexadecimal characters):");
+   if(input===null)return;backupId=input.trim();
+   if(!/^[0-9a-f]{32}$/.test(backupId)){notice.textContent="Enter the exact 32-character retirement backup ID.";return}
+   previewOperation="proot.setup.restore.preview";previewArgs={alias:target,backup_id:backupId};
+  }
+  const preview=await run(previewOperation,previewArgs),plan=preview?.data;
+  const operation=plan?.operation;
+  if(!preview?.ok)return;
+  if(typeof plan?.plan_id!=="string"||!/^[0-9a-f]{64}$/.test(plan.plan_id)
+      ||operation?.alias!==target||operation?.confirmation_required!==true
+      ||(action==="restore"&&operation?.backup_id!==backupId)){
+   notice.textContent="The preview did not identify the exact replay guest target; no change was made.";return
+  }
+  const effect=String(operation.impact||"Review the exact replay guest plan above.");
+  const token=action==="retire"?"RETIRE":"RESTORE";
+  if(window.prompt("Review alias "+target+" and this impact: "+effect+". Retirement keeps the same directory and deletes no guest files. Type "+token+" to apply.")!==token)return;
+  const applyOperation=action==="retire"?"proot.setup.retire.apply":"proot.setup.restore.apply";
+  const args={alias:target,confirmed:true,plan_id:plan.plan_id};
+  if(action==="restore")args.backup_id=backupId;
+  await run(applyOperation,args);
+ }
+ async function syncProotShortcuts(){
+  const preview=await run("proot.shortcuts.sync.preview"),plan=preview?.data;
+  if(!preview?.ok||typeof plan?.plan_id!=="string"||plan.changed!==true)return;
+  if(window.prompt("Review every listed launcher change above. Type SYNC SHORTCUTS to apply this exact plan.")!=="SYNC SHORTCUTS")return;
+  await run("proot.shortcuts.sync.apply",{confirmed:true,plan_id:plan.plan_id});
+ }
+ async function rollbackProotShortcutSync(){
+  const inventory=await run("proot.shortcuts.sync.rollback.list");
+  if(!inventory?.ok)return;
+  const entries=(inventory.data?.rollbacks||[]).filter(item=>item&&item.integrity==="valid"&&item.status==="applied"&&typeof item.rollback_id==="string");
+  if(!entries.length){notice.textContent="No valid applied shortcut sync can be restored.";return}
+  const menu=entries.map((item,index)=>(index+1)+". "+(item.created_at||"unknown time")+" · "+(item.entry_count||0)+" launchers · "+item.rollback_id).join("\n");
+  const answer=window.prompt("Choose an applied sync by number:\n"+menu);
+  if(answer===null)return;
+  const index=Number(answer)-1;
+  if(!Number.isInteger(index)||index<0||index>=entries.length){notice.textContent="Choose one of the listed sync numbers.";return}
+  const rollbackId=entries[index].rollback_id;
+  const preview=await run("proot.shortcuts.sync.rollback.preview",{rollback_id:rollbackId}),plan=preview?.data;
+  if(!preview?.ok||typeof plan?.plan_id!=="string"||plan.requires_confirmation!==true)return;
+  if(window.prompt("Review these exact launcher restores above. Type ROLLBACK SHORTCUTS to apply.")!=="ROLLBACK SHORTCUTS")return;
+  await run("proot.shortcuts.sync.rollback.apply",{rollback_id:rollbackId,confirmed:true,plan_id:plan.plan_id});
+ }
+ async function attachSelectedWebTerminal(){
+  const sessionId=$("#terminal-session").value;if(!sessionId){terminalNote("Choose a verified managed session first.");return}
+  try{terminalNote("Attaching to the verified session…");await attachWebTerminal(sessionId)}catch(error){terminalNote(error.message)}
+ }
+ async function prepareWebTerminalBroker(){
+  const state=await run("terminal.broker.service.status",{},true);
+  if(!state?.ok)throw Error(state?.error?.message||"Could not inspect the terminal broker service.");
+  if(state.data?.installed===true&&state.data?.status==="running")return;
+  const action=state.data?.installed===true?"start":"install";
+  const previewOperation="terminal.broker.service."+action+".preview";
+  const applyOperation="terminal.broker.service."+action+".apply";
+  const preview=await run(previewOperation,{},true),plan=preview?.data;
+  if(!preview?.ok||typeof plan?.plan_id!=="string")throw Error(preview?.error?.message||"Could not create an exact broker service preview.");
+  const effect=String(plan.impact||"Changes only the fixed Ternuxx terminal broker Runit service.");
+  if(!window.confirm("Review this exact broker service plan.\n\nAction: "+action.toUpperCase()+"\nImpact: "+effect+"\n\nThis does not start a Debian guest."))throw Error("Broker service change cancelled.");
+  const applied=await run(applyOperation,{confirmed:true,plan_id:plan.plan_id},true);
+  if(!applied?.ok)throw Error(applied?.error?.message||"Broker service change failed.");
+  const live=await run("terminal.broker.status",{},true);
+  if(!live?.ok)throw Error("Broker service action completed but live broker status is unavailable.");
+ }
+ async function startWebTerminal(){
+  try{
+   terminalNote("Checking the fixed Native terminal broker service…");await prepareWebTerminalBroker();
+   terminalNote("Creating an exact Debian login preview…");const preview=await terminalCall("terminal.start.preview");const plan=preview.plan;
+   if(!plan||typeof plan.plan_id!=="string"||plan.profile!=="debian-interactive"||typeof plan.alias!=="string"||typeof plan.rootfs!=="string"){terminalNote("The broker returned no valid start plan.");return}
+   const impact=String(plan.impact||"Starts one fixed-profile Debian interactive session.");
+   if(!window.confirm("Review the exact Ternuxx Debian terminal plan.\n\nProfile: Interactive Debian\nGuest: "+plan.alias+"\nRootfs: "+plan.rootfs+"\nImpact: "+impact+"\n\nNo terminal starts unless you confirm."))return;
+   terminalNote("Starting the confirmed Debian session…");
+   const started=await terminalCall("terminal.start",{confirmed:true,plan_id:plan.plan_id});
+   $("#terminal-session").append(new Option("Debian "+started.session_id.slice(-8)+" · Running",started.session_id));$("#terminal-session").value=started.session_id;
+   await attachWebTerminal(started.session_id,started);
+  }catch(error){terminalNote(error.message)}
+ }
+ async function closeWebTerminalSession(){
+  if(!webLease)return;
+  try{
+   const preview=await terminalCall("terminal.close.preview",{session_id:webLease.session_id,generation:webLease.generation,attachment_id:webLease.attachment_id});const plan=preview.plan;
+   if(!plan||plan.ownership!=="ternuxx_verified"||plan.signal!=="SIGHUP"||typeof plan.scope!=="string"){terminalNote("No verified terminal close plan was returned.");return}
+   if(!window.confirm("Close this exact Ternuxx-managed Debian session?\n\nSession: "+String(plan.session_id||webLease.session_id)+"\nSignal: "+plan.signal+"\nImpact: "+String(plan.impact||"Hang up this owned terminal.")))return;
+   const result=await terminalCall("terminal.close",{session_id:webLease.session_id,generation:webLease.generation,attachment_id:webLease.attachment_id,confirmed:true,plan_id:plan.plan_id});
+   if(result.state==="stopped"){webLease=null;stopWebTerminalPolling();$("#terminal-stop-session").disabled=true;terminalNote("Managed Debian session stopped.")}
+  }catch(error){terminalNote(error.message)}
+ }
+ async function detachWebTerminal(){
+  const lease=webLease;webLease=null;stopWebTerminalPolling();
+  if(webInputTimer){clearTimeout(webInputTimer);webInputTimer=0}webInputBuffer="";$("#terminal-stop-session").disabled=true;
+  if(lease)try{await terminalCall("terminal.detach",{session_id:lease.session_id,generation:lease.generation,attachment_id:lease.attachment_id})}catch{}
+  terminalNote("Detached; the Debian session keeps running.");
+ }
+ async function closeWebTerminalDialog(){await detachWebTerminal();const dialog=$("#terminal-dialog");if(dialog.open)dialog.close()}
+ function openTerminalDialog(){$("#terminal-dialog").showModal();initWebTerminal();if(webFit)setTimeout(()=>webFit.fit(),40);refreshWebTerminalSessions()}
+
  async function setTimezonePreference(){
   const current=await run("timezone.status");if(!current?.ok)return;
   const listed=await run("timezone.list");if(!listed?.ok)return;
@@ -157,6 +377,20 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
   if(kind==="status"){await run("recovery.status");return}
   if(kind==="backups"){await run("backup.list");return}
   if(kind==="continuity"){await run("continuity.status");return}
+  if(kind==="checkpoint-prepare"){
+   const testId=window.prompt("Checkpoint test ID (letters, numbers, dot, underscore, colon, hyphen)");if(testId===null||!testId.trim())return;
+   const args={test_id:testId.trim()},preview=await run("continuity.prepare.preview",args);if(!preview?.ok)return;
+   const plan=preview.data;if(!plan||typeof plan.plan_id!=="string"){notice.textContent="Invalid checkpoint preview; nothing was written.";return}
+   if(window.prompt("Review private checkpoint metadata. Type CREATE CHECKPOINT to save:\n"+JSON.stringify(plan,null,2))!=="CREATE CHECKPOINT")return;
+   await run("continuity.prepare",{...args,confirmed:true,plan_id:plan.plan_id});return;
+  }
+  if(kind==="checkpoint-verify"){
+   const checkpointId=window.prompt("Enter the exact 32-character checkpoint ID");if(checkpointId===null||!checkpointId.trim())return;
+   const args={checkpoint_id:checkpointId.trim()},preview=await run("continuity.verify.preview",args);if(!preview?.ok)return;
+   const plan=preview.data;if(!plan||typeof plan.plan_id!=="string"){notice.textContent="Invalid verification preview; no report was written.";return}
+   if(window.prompt("Review boot observation. Type VERIFY CHECKPOINT to record it:\n"+JSON.stringify(plan,null,2))!=="VERIFY CHECKPOINT")return;
+   await run("continuity.verify",{...args,confirmed:true,plan_id:plan.plan_id});return;
+  }
   if(kind==="backup"||kind==="restore"){
    const listed=await run("backup.list");if(!listed?.ok)return;
    const rows=listed.data?.backups||[];if(!rows.length){notice.textContent="No configuration backups are available.";return}
@@ -337,13 +571,35 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
   if(!r){title.textContent="Resource details";sub.textContent="Select a resource for status and actions.";syncQuickActions();return}
   const operations=r.supported_operations||[];
   title.textContent=r.name;sub.textContent=statusLabel(r.status)+" · "+humanValue(r.provider);
+  if(r.id==="proot.replay-guests"){
+   const needed=["proot.setup.retire.preview","proot.setup.retire.apply","proot.setup.restore.preview","proot.setup.restore.apply"];
+   if(needed.every(op=>operations.includes(op))){const b=document.createElement("button");b.className="primary";b.textContent="Preview replay guest retirement or restore…";b.onclick=manageReplayGuest;actions.append(b)}
+  }
+  if(r.id==="proot.debian.workloads"){
+   if(operations.includes("proot.profiles.list")){const b=document.createElement("button");b.textContent="List supported guest profiles";b.onclick=()=>run("proot.profiles.list");actions.append(b)}
+   if(operations.includes("proot.sessions.list")){const b=document.createElement("button");b.textContent="Inspect guest sessions";b.onclick=()=>run("proot.sessions.list");actions.append(b)}
+   if(operations.includes("proot.stop.preview")&&operations.includes("proot.stop")){const b=document.createElement("button");b.textContent="Stop a managed guest session…";b.onclick=stopManagedProotSession;actions.append(b)}
+   if(operations.includes("proot.recovery.inspect")&&operations.includes("proot.recovery.reconcile.preview")&&operations.includes("proot.recovery.reconcile")){const b=document.createElement("button");b.textContent="Inspect/reconcile an exited session…";b.onclick=reconcileManagedProotSession;actions.append(b)}
+   if(operations.includes("proot.start.preview")&&operations.includes("proot.start")){const b=document.createElement("button");b.textContent="Preview bounded headless guest probe";b.onclick=async()=>{const p=await run("proot.start.preview",{profile:"isolated-probe"});const plan=p?.data?.plan_id;if(!plan)return;if(window.prompt("Read the exact session plan above. Type RUN to start this bounded Debian probe.")!=="RUN")return;await run("proot.start",{profile:"isolated-probe",confirmed:true,plan_id:plan,timeout_seconds:300})};actions.append(b)}
+   if(operations.includes("proot.app.launch")){const b=document.createElement("button");b.textContent="Launch an allowlisted Debian app…";b.onclick=async()=>{const r0=await run("proot.shortcuts.list");const items=r0?.data?.items||[];const menu=items.map(x=>x.id+" — "+x.name).join("\n");if(!menu)return;const id=window.prompt("Available fixed Debian app IDs:\n"+menu);if(id&&items.some(x=>x.id===id))await run("proot.app.launch",{app_id:id})};actions.append(b)}
+   if(operations.includes("proot.shortcuts.list")&&operations.includes("proot.shortcuts.preview")&&operations.includes("proot.shortcuts.apply")){const b=document.createElement("button");b.textContent="Add or remove a Debian app shortcut…";b.onclick=manageProotShortcut;actions.append(b)}
+   if(operations.includes("proot.shortcuts.sync.preview")&&operations.includes("proot.shortcuts.sync.apply")){const b=document.createElement("button");b.textContent="Synchronize Debian app shortcuts…";b.onclick=syncProotShortcuts;actions.append(b)}
+   if(operations.includes("proot.shortcuts.sync.rollback.list")&&operations.includes("proot.shortcuts.sync.rollback.preview")&&operations.includes("proot.shortcuts.sync.rollback.apply")){const b=document.createElement("button");b.textContent="Restore a previous shortcut sync…";b.onclick=rollbackProotShortcutSync;actions.append(b)}
+   const note=document.createElement("p");note.className="field-note";note.textContent="Fresh guest setup runs in an attached Native Termux terminal so the guest sudo password stays in hidden prompts: run `tx proot setup fresh-preview --user NAME`, review the exact plan, then `tx proot setup fresh-install --yes --plan-id PLAN_ID`. After setup, `tx db` opens the guest. Existing guests are preserved.";detail.append(note)
+  }
+  if(r.id==="proot.interactive-terminal-broker"){
+   if(operations.includes("terminal.broker.service.status")){const status=document.createElement("button");status.className="primary";status.textContent="Check broker service";status.dataset.statusAction="true";status.onclick=()=>run("terminal.broker.service.status");actions.append(status)}
+   if(operations.includes("terminal.broker.service.start.preview")&&operations.includes("terminal.broker.service.start.apply")){const service=document.createElement("button");service.textContent="Prepare broker service…";service.onclick=async()=>{try{await prepareWebTerminalBroker();await run("terminal.broker.service.status")}catch(error){terminalNote(error.message)}};actions.append(service)}
+   if(operations.includes("terminal.start.preview")&&operations.includes("terminal.start")){const open=document.createElement("button");open.textContent="Open Debian terminal";open.onclick=openTerminalDialog;actions.append(open)}
+   const note=document.createElement("p");note.className="field-note";note.textContent="The optional broker uses a fixed Debian login profile. Service registration/start and guest login each require their own reviewed preview; detach leaves a running guest untouched.";detail.append(note)
+  }
   if(r.id==="native.wakelock"&&operations.includes("wakelock.ssh-policy.preview")&&operations.includes("wakelock.ssh-policy.apply")){
    const b=document.createElement("button");b.textContent="Set managed SSH keep-awake preference";b.onclick=manageSshWakeLock;actions.append(b)
   }
   if(r.id==="network.ssh.managed-8023"){const help=document.createElement("details"),summary=document.createElement("summary"),note=document.createElement("p");help.className="field-note";summary.textContent="SSH login help";note.textContent="This service accepts public-key login only; password login is disabled. The authorized-key list belongs to the shared Termux account and may also authorize development SSH 8022. Keep each private key with its client. For a local client, use the displayed 8023 endpoint and your enrolled public key. You can generate a Native recovery key, then enroll its public key for both ports.";help.append(summary,note);detail.append(help)}
   for(const [k,v] of [["Authority",r.ownership?.authority],["Ownership",r.ownership?.status],["Environment",r.environment],["Current state",r.state?.current],["Readiness",r.state?.readiness],["Boot",r.boot?.status]])detail.append(line(k,v));
-  const statusOp=operations.find(x=>["desktop.status","desktop.monitor.status","ssh.inspect","native.ssh.status","boot.status","boot.profile.status","recovery.status","doctor.report","cron.status","timezone.status","wakelock.status","boot.cron.status",].includes(x));
-  if(statusOp){const b=document.createElement("button");b.className="primary";b.textContent="Check live status";b.dataset.statusAction="true";b.onclick=()=>run(statusOp);actions.append(b)}
+  const statusOp=operations.find(x=>["desktop.status","desktop.monitor.status","ssh.inspect","native.ssh.status","boot.status","boot.profile.status","recovery.status","doctor.report","cron.status","timezone.status","wakelock.status","boot.cron.status","proot.status","terminal.broker.status",].includes(x));
+  if(statusOp){const b=document.createElement("button");b.className="primary";b.textContent=statusOp==="proot.status"?"Check Debian and PRoot status":"Check live status";b.dataset.statusAction="true";b.onclick=()=>run(statusOp);actions.append(b)}
   for(const [op,label] of [["desktop.start","Start"],["desktop.stop","Stop"],["desktop.restart","Restart"]])if(operations.includes(op)){const b=document.createElement("button");b.textContent=label+" desktop";b.onclick=()=>run(op);actions.append(b)}
   if(r.id==="network.ssh.managed-8023"){
    if(operations.includes("ssh.keys.list")){const b=document.createElement("button");b.textContent="View shared SSH key fingerprints";b.onclick=()=>run("ssh.keys.list");actions.append(b)}
@@ -369,13 +625,22 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
    const remove=document.createElement("button");remove.textContent="Preview model removal…";remove.onclick=()=>manageCpuModel("remove");actions.append(remove);
    const execute=document.createElement("button");execute.textContent="Run bounded CPU prompt…";execute.onclick=()=>{const prompt=window.prompt("One-line prompt (max 4096 UTF-8 bytes). It is sent to the local runtime; offline behavior is unverified.");if(prompt!==null&&prompt.trim())run("inference.cpu.run",{prompt,max_tokens:64})};actions.append(execute);
   }
+  if(r.id==="inference.gpu.local"){
+   const status=document.createElement("button");status.className="primary";status.textContent="List Vulkan inference devices";status.dataset.statusAction="true";status.onclick=()=>run("inference.gpu.status");actions.append(status);
+   const execute=document.createElement("button");execute.textContent="Run bounded Vulkan prompt…";execute.onclick=async()=>{const inventory=await run("inference.gpu.status");if(!inventory?.ok)return;const devices=inventory.data?.devices||[];if(!devices.length){notice.textContent=inventory.data?.reason||"No Vulkan inference device is available.";return}let device_id=devices[0].id;if(devices.length>1){const listing=devices.map(x=>`${x.id} — ${x.name}`).join("\n");device_id=window.prompt("Choose one listed Vulkan device ID:\n"+listing,device_id);if(device_id===null)return;if(!devices.some(x=>x.id===device_id)){notice.textContent="Choose an exact device ID from the list.";return}}const prompt=window.prompt("One-line prompt (max 4096 UTF-8 bytes). This explicitly targets "+device_id+" and fails unless GPU-layer offload is verified.");if(prompt!==null&&prompt.trim())run("inference.gpu.run",{prompt,max_tokens:64,device_id})};actions.append(execute);
+  }
+  if(r.id==="inference.npu.local"){
+   const status=document.createElement("button");status.className="primary";status.textContent="Check HTP0 runtime and device";status.dataset.statusAction="true";status.onclick=()=>run("inference.npu.status");actions.append(status);
+   const install=document.createElement("button");install.textContent="Preview or install pinned Snapdragon runtime…";install.onclick=async()=>{const preview=await run("inference.npu.runtime.preview");if(!preview?.ok)return;const plan=preview.data||{};out.textContent=JSON.stringify(plan,null,2);const size=Math.round((plan.archive_size_bytes||0)/1048576);const detail=(plan.release||"pinned release")+" · "+(plan.asset||"asset")+(size?" · "+size+" MiB":"")+" · SHA-256 "+(plan.sha256||"unknown");if(window.confirm("Install this exact experimental MIT Snapdragon runtime into Ternuxx private app storage?\n\n"+detail+"\n\nNo system/vendor files will be copied or changed.")&&window.prompt("Type INSTALL to apply this exact preview") === "INSTALL")await run("inference.npu.runtime.apply",{plan_id:plan.plan_id,confirmed:true})};actions.append(install);
+   const execute=document.createElement("button");execute.textContent="Run bounded experimental HTP prompt…";execute.onclick=async()=>{const inventory=await run("inference.npu.status");if(!inventory?.ok)return;if(!inventory.data?.available){notice.textContent=inventory.data?.reason||"HTP0 is unavailable.";return}const prompt=window.prompt("One-line prompt (max 4096 UTF-8 bytes). This explicitly targets HTP0, requires full layer offload, and has no CPU fallback.");if(prompt!==null&&prompt.trim()&&window.confirm("Run this bounded experimental prompt on HTP0? CPU fallback is disabled."))run("inference.npu.run",{prompt,max_tokens:64})};actions.append(execute);
+  }
   if(r.id==="native.gui.activity-monitor"){const b=document.createElement("button");b.textContent="Refresh Activity policy";b.onclick=()=>run("desktop.monitor.status");actions.append(b);run("desktop.monitor.status")}
   if(r.id==="native.timezone"){
    if(operations.includes("timezone.list")){const b=document.createElement("button");b.textContent="List available timezones";b.onclick=()=>run("timezone.list");actions.append(b)}
    if(operations.includes("timezone.set")){const b=document.createElement("button");b.textContent="Set Ternuxx timezone preference…";b.onclick=()=>setTimezonePreference();actions.append(b)}
   }
   if(r.id==="recovery.native-state"){
-   for(const [kind,label,operation] of [["status","View operation history","recovery.status"],["backups","List configuration backups","backup.list"],["create","Create backup…","backup.create"],["backup","Inspect a backup…","backup.inspect"],["restore","Preview a restore…","restore.preview"],["apply-restore","Restore from backup…","restore.preview"],["operation","Inspect an operation…","recovery.inspect"],["rollback","Preview restore rollback…","recovery.rollback.preview"],["apply-rollback","Apply restore rollback…","recovery.rollback.apply"],["resolve","Reconcile unresolved operation…","recovery.resolve"],["continuity","Check reboot continuity","continuity.status"]]){
+   for(const [kind,label,operation] of [["status","View operation history","recovery.status"],["backups","List configuration backups","backup.list"],["create","Create backup…","backup.create"],["backup","Inspect a backup…","backup.inspect"],["restore","Preview a restore…","restore.preview"],["apply-restore","Restore from backup…","restore.preview"],["operation","Inspect an operation…","recovery.inspect"],["rollback","Preview restore rollback…","recovery.rollback.preview"],["apply-rollback","Apply restore rollback…","recovery.rollback.apply"],["resolve","Reconcile unresolved operation…","recovery.resolve"],["continuity","Check reboot continuity","continuity.status"],["checkpoint-prepare","Prepare continuity checkpoint…","continuity.prepare.preview"],["checkpoint-verify","Verify checkpoint…","continuity.verify.preview"]]){
     if(!operations.includes(operation))continue;const b=document.createElement("button");b.textContent=label;b.onclick=()=>["status","backups","continuity"].includes(kind)?run(operation):inspectRecovery(kind);actions.append(b)
    }
   }
@@ -448,7 +713,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
  async function loadLog(){const source_id=$("#log-source").value,note=$("#log-note"),output=$("#log-output");if(!source_id){note.textContent="Select an available log source.";return}note.textContent="Reading bounded log tail...";output.textContent="";const result=await run("management.logs.read",{source_id,limit:300});if(!result?.ok){note.textContent="Log read failed. Check Technical API response.";return}const data=result.data||{};output.textContent=(data.lines||[]).join("\n")||"Log is empty.";note.textContent=data.status==="missing"?"Log file is not present.":"Showing "+(data.lines||[]).length+" lines"+(data.truncated?" from a bounded tail.":".")}
  function fillMonitor(data){$("#monitor-enabled").checked=!!data.enabled;$("#monitor-interval").value=data.interval_seconds||300;$("#monitor-unit").value="seconds";$("#monitor-focus").checked=!!data.focus_check;$("#monitor-launch").checked=!!data.activity_launch}
  function showApplication(sessionData){session=sessionData;$("#secret").value="";$("#login").hidden=true;$("#app").hidden=false;$("#disconnect").hidden=false}
- async function connect(){const note=$("#notice");note.textContent="Connecting…";try{const result=await post("/api/v1/session",{bootstrap_secret:$("#secret").value,capabilities:["diagnostics.read","remote_policy.read","continuity.read","desktop.manage","desktop.monitor.manage","ssh.managed.lifecycle","ssh.credentials.read","ssh.credentials.manage","graphics.manage","cron.manage","cron.scheduler.manage","timezone.manage","wakelock.policy.manage","ai.local.run","ai.local.manage","software.manage","state.backup","state.restore","recovery.manage"]});showApplication(result.session);await run("management.catalog")}catch(e){note.textContent=e.message}}
+ async function connect(){const note=$("#notice");note.textContent="Connecting…";try{const result=await post("/api/v1/session",{bootstrap_secret:$("#secret").value,capabilities:["diagnostics.read","remote_policy.read","continuity.read","continuity.checkpoint.manage","proot.session.manage","proot.replay.manage","applications.launch","applications.shortcuts.manage","desktop.manage","desktop.monitor.manage","ssh.managed.lifecycle","ssh.credentials.read","ssh.credentials.manage","graphics.manage","cron.manage","cron.scheduler.manage","timezone.manage","wakelock.policy.manage","ai.local.run","ai.local.manage","software.manage","state.backup","state.restore","recovery.manage"]});showApplication(result.session);await run("management.catalog")}catch(e){note.textContent=e.message}}
  async function restoreSession(){try{const result=await post("/api/v1/session/reconnect",{});showApplication(result.session);await run("management.catalog")}catch{}}
  $("#view-activity").onclick=loadActivity;
  $("#refresh-logs").onclick=refreshLogs;
@@ -458,12 +723,20 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
  $("#search").oninput=drawResources;
  $("#status").onchange=drawResources;
  document.querySelectorAll("[data-op]").forEach(button=>button.onclick=()=>run(button.dataset.op));
+ $("#terminal-close-dialog").onclick=closeWebTerminalDialog;
+ $("#terminal-refresh-sessions").onclick=refreshWebTerminalSessions;
+ $("#terminal-attach-session").onclick=attachSelectedWebTerminal;
+ $("#terminal-start-session").onclick=startWebTerminal;
+ $("#terminal-stop-session").onclick=closeWebTerminalSession;
+ $("#terminal-dialog").addEventListener("close",()=>{if(webLease)detachWebTerminal()});
+ document.addEventListener("keydown",event=>{if(event.ctrlKey&&event.key==="]"&&webLease){event.preventDefault();detachWebTerminal()}});
  $("#save-monitor").onclick=async()=>{
   const value=Number($("#monitor-interval").value),unit=$("#monitor-unit").value,factor={seconds:1,minutes:60,hours:3600}[unit];
   if(!Number.isInteger(value)||value*factor<30||value*factor>86400){notice.textContent="Interval must be between 30 seconds and 24 hours.";return}
   await run("desktop.monitor.configure",{enabled:$("#monitor-enabled").checked,interval_value:value,unit,focus_check:$("#monitor-focus").checked,activity_launch:$("#monitor-launch").checked});
  };
  $("#disconnect").onclick=async()=>{
+  await detachWebTerminal();
   if(session){try{await post("/api/v1/session/revoke",{},headers())}catch{}}
   location.reload();
  };

@@ -2,7 +2,7 @@
 
 **Owner direction recorded:** 2026-10-18
 **Architecture:** [ADR-0004](decisions/ADR-0004-three-interfaces-shared-management.md)
-**Status:** Historical implementation plan, superseded by the Native-only decision on 2026-10-24. The former PRoot actions and multi-provider requirement below are retired and are not current product guidance. For current implementation use [the Native API contract](MANAGEMENT-API.md), [client capability matrix](CAPABILITY-MATRIX.md), and [phase status](../PHASE-STATUS.md).
+**Status:** Archived planning snapshot, not current implementation status. A Native-only decision temporarily retired the PRoot path on 2026-10-24; the owner later reauthorized Debian PRoot, now tracked in P11. The historical PRoot scope below is active again where it agrees with current source and evidence. For current implementation use [the Native API contract](MANAGEMENT-API.md), [client capability matrix](CAPABILITY-MATRIX.md), [current state](../../CURRENT_STATE.md), and [phase status](../PHASE-STATUS.md).
 
 
 ## Product requirement
@@ -21,7 +21,9 @@ CLI, TUI, GTK, and authenticated Web UI should manage Ternuxx resources through 
 - X11 and Android browser clients should use the same Web UI where that works well; the X11 shell remains usable if a browser or HTTP service is unavailable.
 - APIs and graphical services start on demand. No always-on listener or GUI boot profile is implied.
 
-## Current state from source and device evidence
+## Implementation snapshot from the prior plan revision
+
+The following status bullets and milestone notes record the plan's earlier review state. Later work changed several client capabilities and phase dispositions; they are retained for history and should not be used as present-day acceptance evidence.
 
 - `lib/management_service.py` is a typed local application-service with a narrow operation allowlist. Many P3 operations use it, but the CLI/API coverage is incomplete.
 - `lib/management_authorization.py`, `lib/management_sessions.py`, the HTTP adapter/server, and the foreground runtime provide default-deny scopes, one-use session bootstrap, loopback/origin guards, bounded requests, and graceful drain.
@@ -57,9 +59,9 @@ Expose one provider-scoped configuration area at a time (first GUI-app shortcuts
 
 Provide guided setup, optional provider selection, dependency previews, application catalog, progress, and rollback through the same services. Validate user comprehension and operation parity across CLI, Android browser, and native X11. Preserve CLI-only use and off-by-default GUI/boot behavior.
 
-## Current disposition
+## Disposition at the prior plan revision
 
-The M1 domain registry and Doctor service entry are implemented; M1 remains incomplete because several domain adapters and broader cross-client workflows remain. Bounded PRoot session lifecycle, replay-guest operations, and recovery are now implemented for exact Ternuxx-owned targets; they do not qualify external guest ownership, same-rootfs concurrency, or full client parity. The first app slice and M2 source/fixture gates pass. Web mode grants narrow, durable and CSRF-protected mutations for selected desktop, graphics, SSH/key, named-app, shortcut, Cron, PRoot-session and replay-guest actions; the ordinary API stays read-only. Web PRoot recovery reconciliation shares the typed service and changes only an exactly verified exited session record without signaling a process. TUI and GTK use the same service with typed actions and confirmations. Physical X11 manager interaction, complete browser onboarding, broad resource parity and the remaining recovery writes stay open. P4 remains active; do not infer phase completion from this source slice.
+The prior revision reported partial M1/M3 completion and open cross-client/live-acceptance gates. P4 has since closed under the temporary Native-only decision; owner authorization restored PRoot and moved current work to P11. Do not treat the old milestone status or operation lists below as current. Current gaps are maintained in the [capability matrix](CAPABILITY-MATRIX.md) and [P11 phase state](../PHASE-STATUS.md).
 
 ## Completion gates
 

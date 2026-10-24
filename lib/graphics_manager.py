@@ -110,6 +110,12 @@ def _native_env(*, home: str, state_dir: str, process_env: dict[str, str]) -> di
     return env
 
 
+def native_process_environment(*, home: str, state_dir: str,
+                               process_env: dict[str, str]) -> dict[str, str]:
+    """Return the validated Native graphics environment for another workload."""
+    return _native_env(home=home, state_dir=state_dir, process_env=process_env)
+
+
 def _renderer_accelerated(renderer: str | None) -> bool | None:
     if not renderer:
         return None

@@ -1,26 +1,25 @@
-# Current implementation and qualification limits
+# Known limitations
 
-This file records current Native Termux limits. The full phase ledger is in [phase state](../../project/phase-state.json); client reach is in the [capability matrix](../architecture/CAPABILITY-MATRIX.md); detailed audit findings are in the [current repository audit](../audit/REPOSITORY-AUDIT.md). Older guest and multi-provider reports are historical.
+**Reviewed:** 2026-10-24. This document lists support and release limits; the live session state is recorded in [CURRENT_STATE.md](../../CURRENT_STATE.md), and phase gates in [PHASE-STATUS.md](../PHASE-STATUS.md).
 
-## Native profile and runtime
+## Device and workload coverage
 
-- Direct evidence covers one Android 16/API 36, aarch64, Termux 0.119.0-beta.3 device. It does not establish support for other phones, Android versions, or Termux builds.
-- The current Native desktop reports `:1`, live supervisor/X11/XFCE, and Native audio owner. Android window visibility is still `unknown`; no cold-boot delivery is claimed from the current live check.
-- A read-only post-qualification check found both PRoot packages and executables absent and an empty PRoot-Distro containers directory. Ternuxx has no supported guest workflow.
-- The complete Native Termux fixture suite passed 724 tests in 91.761 seconds on 2026-10-24. The suite does not prove Android boot delivery, clean installation, visible GUI acceptance, or physical audio output. Doctor reports runtime availability and model state, but its read-only status does not verify the model hash; inference verifies the hash before execution.
+- Direct device qualification covers one Redmi Turbo 4 Pro / SM8735 profile with Android 16 and Termux `0.119.0-beta.3`. It does not establish compatibility with other devices, Android releases, or Termux builds.
+- CPU inference is implemented and bounded, but broader model correctness, clean installation, network isolation, and sustained memory/thermal behavior remain unqualified. See [CPU baseline](CPU-BASELINE.md).
+- Vulkan inference passes short Adreno 825 workloads with full layer-offload proof using an experimental Mesa/Freedreno ICD. The ICD does not yet have an audited, repeatable clean-install path; the result does not qualify sustained performance or general GPU support. OpenCL has no usable platform in the observed Native session. See [GPU qualification](GPU-ACCELERATION.md).
+- Experimental HTP0 inference is integrated for SM8735 using a pinned llama.cpp Snapdragon runtime. Tested short prompts are slower than CPU. Broader model/operator correctness, memory pressure, sustained thermal behavior, and clean-device installation remain open. See [NPU qualification](NPU-ACCELERATION.md).
 
-## CPU, graphics, and inference
+## Lifecycle and recovery
 
-- CPU inference is `PARTIAL`: one pinned Qwen3 0.6B Q4_0 model runs locally through CLI, TUI, Web, and GTK, with size/hash verification and bounded CPU settings. The Termux runtime package remains Termux-managed and is not installed or updated by Ternuxx. The tested package came from the configured Dan Yael mirror listed in the [Termux mirror inventory](https://github.com/termux/termux-packages/wiki/Mirrors); see [third-party notices](../readiness/THIRD-PARTY-NOTICES.md) for exact source and license notes.
-- A twenty-run Native smoke returned the deterministic expected marker each time over 63.3 seconds, with about 537 MiB peak child RSS and coarse CPU/SoC thermal reads. This does not establish a prolonged thermal soak, throttling behavior, general model quality, or broad model support. Network-isolated inference has not been verified; Android denied a network-namespace attempt.
-- The current installed stock Mesa stack rendered OpenGL through llvmpipe; its GLES verifier was unavailable and Vulkan detected no valid GPU. A separate experimental graphics candidate passed bounded GL/GLES/Vulkan checks on this device, but it has no reproducible clean-install distribution and is not release-qualified. The [stock Mesa recheck](../evidence/2026-10-24-native-stock-mesa-recheck.md) separates these results from candidate runs. Do not infer application-wide GPU or inference acceleration from those tests.
-- No GPU inference runtime or workload is implemented. No accessible Native NPU inference path or correct NPU workload is verified. Report these capabilities as unavailable.
+- Debian PRoot support and the installed Trixie guest are present. Automated fixture coverage and the one-device live checks do not equal clean-device installation qualification. Fresh setup runs in an attached Native Termux terminal so guest passwords stay in hidden prompts.
+- Native desktop cold-boot delivery and automatic recovery are not release-qualified; recorded reboot checkpoints remain `NOT_READY` and automatic resume stays disabled.
+- Native SSH and the optional Debian terminal broker have separate ownership and security boundaries. The owner-managed development SSH endpoint must be reviewed independently; listener reachability and ownership are not inferred from its configuration file. The current security finding is in [SECURITY.md](../../SECURITY.md).
+- A 2026-10-24 read-only audit saw five defunct `proot` children under the persistent TUI process while all Ternuxx session records were stopped. The bounded-probe launcher now double-forks so future processes are not children of long-lived clients; fixture coverage verifies reparenting and exact-plan stop. The five pre-existing zombies remain unverified under the still-running TUI and were left untouched. See [live state reconciliation evidence](../evidence/2026-10-24-live-state-reconciliation.md).
 
-## Client, recovery, and release
+## Release readiness
 
-- CLI, TUI, Web, and GTK use shared management operations and authorization for covered actions. Broader action parity, accessible interaction review, and complete visible acceptance remain open; a catalog entry alone does not prove a client action.
-- The latest managed-SSH and Doctor findings are device-specific. The current audit records a wildcard/password-authentication warning on a Native SSH configuration; listener ownership and external reachability remain unknown. Check `tx ssh status --json` before exposing remote access.
-- RB08 is the latest recorded owner-operated reboot qualification, but its automated checkpoint remains `NOT_READY`. The current session status does not establish Termux:Boot delivery after another reboot; do not reboot solely for an agent test.
-- The repository has no selected project license. Source provenance, a build-specific SBOM, release signing, and release approval remain open. Public source visibility is not permission to redistribute it.
+- No project license has been selected. Do not redistribute source-derived binaries or artifacts until ownership, dependency licenses, and provenance have been reviewed.
+- Public release still needs an approved license, build-specific SBOM, artifact signing and provenance, clean-device installation evidence, broader device support decisions, and the remaining workload and lifecycle gates.
+- The automated full suite validates repository behavior and fixtures. It cannot prove GUI visibility, human usability, external network reachability, physical audio, sustained accelerator performance, or cold-boot delivery.
 
-Use `UNKNOWN` when evidence is missing, `BLOCKED` for a concrete prerequisite, and `FAIL` only for an executed failed criterion. Record observed workload and viewport values instead of assuming that requested settings were achieved.
+Use [CURRENT_STATE.md](../../CURRENT_STATE.md) for current runtime observations and the [historical pre-restoration audit snapshot](../audit/REPOSITORY-AUDIT.md) for its earlier source/document review. Dated evidence remains a snapshot; recheck live behavior before operational decisions.

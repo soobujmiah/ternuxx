@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternuxx
 repository: soobujmiah/ternuxx
-generated_at: '2026-10-24T03:40:09Z'
+generated_at: '2026-10-24T11:48:08Z'
 generated_by: tools/repo_knowledge collect
-version: 7deb107
+version: e5f1c5a
 head:
-  commit: 7deb10702ba30242d6f82c65d3eb8252ab340622
+  commit: e5f1c5a5886016bab2aaa0b342001d89f8ba3945
   branch: main
-  committed_at: '2026-10-24T03:40:09Z'
+  committed_at: '2026-10-24T03:40:17Z'
 phases:
   source: not_configured
   completed: []
@@ -27,12 +27,12 @@ build:
 test:
   status: passed
   run_id: null
-  commit: 7deb10702ba30242d6f82c65d3eb8252ab340622
+  commit: e5f1c5a5886016bab2aaa0b342001d89f8ba3945
   run_attempt: '1'
-  at: '2026-10-24T03:40:09Z'
+  at: '2026-10-24T03:40:17Z'
   timestamp_source: commit
-  summary: 738 full-suite tests passed; focused TUI/Web/GTK suite 126 tests and 102
-    subtests passed after guide wording update
+  summary: 'env -u TERMUX_VERSION -u PREFIX -u LD_LIBRARY_PATH bash scripts/repo_test.sh:
+    1017 tests passed in 94.697s; CLI help contract passed'
 last_successful_build: null
 last_failed_build:
   commit: 69e378eb33247678437bda4b2de9ab25f6bcb91d
@@ -40,5 +40,5 @@ last_failed_build:
   run_id: '39159994935'
 sync:
   status: ok
-  last_synced_at: '2026-10-24T03:40:09Z'
+  last_synced_at: '2026-10-24T11:48:08Z'
   source: local

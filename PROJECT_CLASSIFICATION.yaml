@@ -32,7 +32,7 @@ capabilities:
   network_access: true
   privileged_android_apis: true
   automation: true
-  ai_inference: true # Bounded local CPU inference is implemented; GPU/NPU inference is not available. See docs/testing/FEATURE-MATRIX.yaml.
+  ai_inference: true # CPU, bounded Vulkan GPU, and experimental SM8735 HTP workloads are implemented; only named workloads/device paths are verified, and GPU/NPU remain unqualified for release. See docs/testing/FEATURE-MATRIX.yaml.
   file_import_export: true
 
 required_reviews:

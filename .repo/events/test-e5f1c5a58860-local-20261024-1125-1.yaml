@@ -1,0 +1,13 @@
+event_id: test-e5f1c5a58860-local-20261024-1125-1
+repository: soobujmiah/ternuxx
+commit: e5f1c5a5886016bab2aaa0b342001d89f8ba3945
+kind: test
+occurred_at: '2026-10-24T11:25:35Z'
+run_id: local-20261024-1125
+run_attempt: '1'
+status: passed
+summary: Native Termux env -u LD_LIBRARY_PATH bash scripts/repo_test.sh passed 1,001
+  Python tests and the CLI help/preview contract in 106.312s after HTP runtime SHA-256
+  validation hardening; worktree dirty based on e5f1c5a. Host-like run also passed
+  1,001 tests. GitHub run 40059254710 still failed on clean e5f1c5a; fixture fix remains
+  local, no remote rerun.

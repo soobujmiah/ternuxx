@@ -1,7 +1,7 @@
-# Retired PRoot documentation
+# Historical PRoot session design
 
-This page is an archive pointer. Ternuxx is Native Termux-only; PRoot guest code, package operations, and lifecycle controls have been removed. Do not use historical commands or setup steps.
+This file preserves an older session design and is not the current command reference. PRoot support was reauthorized and restored in P11. Use current operations for commands and client coverage; the older detail below may not match current implementation.
 
-- [Preserved historical snapshot](../history/PROOT-SESSIONS-pre-native-only-2026-10-24.md)
-- [Current product scope](../PRODUCT-VISION.md)
-- [Owner-directed removal and live verification](../evidence/2026-10-24-native-only-proot-removal-audit.md)
+- [Current Debian guest operations](../OPERATIONS.md#debian-proot-guest)
+- [Current P11 restoration evidence](../evidence/2026-10-24-p11-proot-source-restoration-audit.md)
+- [Preserved Native-only interval snapshot](../history/PROOT-SESSIONS-pre-native-only-2026-10-24.md)

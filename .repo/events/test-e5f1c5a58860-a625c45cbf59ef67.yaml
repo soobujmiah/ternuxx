@@ -1,0 +1,8 @@
+event_id: test-e5f1c5a58860-a625c45cbf59ef67
+repository: soobujmiah/ternuxx
+commit: e5f1c5a5886016bab2aaa0b342001d89f8ba3945
+kind: test
+occurred_at: '2026-10-24T03:40:17Z'
+status: passed
+summary: 963 Native Termux fixture tests passed in 121.773s on 2026-10-24 after four-client
+  PRoot shortcut sync/rollback parity

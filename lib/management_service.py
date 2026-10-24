@@ -20,6 +20,7 @@ import boot_profiles
 import boot_helpers
 import termux_boot_cron
 import continuity
+import desktop_session_state
 import config_recovery
 import operation_journal
 import reboot_recovery
@@ -36,9 +37,11 @@ import wakelock_manager
 import remote_access_policy
 import doctor_report
 import management_catalog
+import management_presentation
 import management_log_reader
 import graphics_manager
 import cpu_inference
+import npu_inference
 import optional_software
 import gui_monitoring
 import hermes_adapter
@@ -47,6 +50,13 @@ import cron_execution
 import cron_scheduler
 import cron_daemon
 import timezone_support
+import terminal_broker
+import fixed_service_deployment
+import proot_setup
+import proot_sessions
+import proot_diagnostics
+import proot_guest_retirement as retire_fresh_guest
+import proot_shortcuts
 
 
 
@@ -59,6 +69,12 @@ OPERATIONS = {
     "graphics.provider.verify": {"args": {"provider", "api", "display"}},
     "graphics.provider.select": {"args": {"provider", "backend", "confirmed"}},
     "inference.cpu.status": {"args": set()},
+    "inference.gpu.status": {"args": set()},
+    "inference.gpu.run": {"args": {"prompt", "max_tokens", "device_id"}},
+    "inference.npu.status": {"args": set()},
+    "inference.npu.runtime.preview": {"args": set()},
+    "inference.npu.runtime.apply": {"args": {"plan_id", "confirmed"}},
+    "inference.npu.run": {"args": {"prompt", "max_tokens"}},
     "inference.cpu.model.preview": {"args": {"action"}},
     "inference.cpu.model.apply": {"args": {"action", "plan_id", "confirmed"}},
     "inference.cpu.run": {"args": {"prompt", "max_tokens"}},
@@ -88,6 +104,52 @@ OPERATIONS = {
     "desktop.start": {"args": {"display"}},
     "desktop.stop": {"args": set()},
     "desktop.restart": {"args": {"display"}},
+    "proot.status": {"args": set()},
+    "proot.profiles.list": {"args": set()},
+    "proot.profiles.show": {"args": {"profile"}},
+    "proot.sessions.list": {"args": set()},
+    "proot.sessions.show": {"args": {"session_id"}},
+    "proot.sessions.health": {"args": {"session_id"}},
+    "proot.recovery.inspect": {"args": {"session_id"}},
+    "proot.recovery.reconcile.preview": {"args": {"session_id"}},
+    "proot.recovery.reconcile": {"args": {"session_id", "confirmed", "plan_id"}},
+    "proot.start.preview": {"args": {"profile"}},
+    "proot.start": {"args": {"profile", "confirmed", "plan_id", "timeout_seconds"}},
+    "proot.stop.preview": {"args": {"session_id"}},
+    "proot.stop": {"args": {"session_id", "confirmed", "plan_id"}},
+    "proot.app.launch": {"args": {"app_id", "desktop_id", "display"}},
+    "proot.shortcuts.sync.preview": {"args": set()},
+    "proot.shortcuts.sync.apply": {"args": {"confirmed", "plan_id"}},
+    "proot.shortcuts.sync.rollback.list": {"args": set()},
+    "proot.shortcuts.sync.rollback.preview": {"args": {"rollback_id"}},
+    "proot.shortcuts.sync.rollback.apply": {"args": {"rollback_id", "confirmed", "plan_id"}},
+    "proot.shortcuts.list": {"args": set()},
+    "proot.shortcuts.preview": {"args": {"action", "app_id", "desktop_id"}},
+    "proot.shortcuts.apply": {"args": {"action", "app_id", "desktop_id", "confirmed", "plan_id"}},
+    "proot.guest.verify": {"args": {"distro", "user", "user_source", "display", "backend"}},
+    "proot.setup.retire.preview": {"args": {"alias"}},
+    "proot.setup.retire.apply": {"args": {"alias", "confirmed", "plan_id"}},
+    "proot.setup.restore.preview": {"args": {"alias", "backup_id"}},
+    "proot.setup.restore.apply": {"args": {"alias", "backup_id", "confirmed", "plan_id"}},
+    "proot.setup.icd-migrate.preview": {"args": {"alias"}},
+    "proot.setup.icd-migrate.apply": {"args": {"alias", "confirmed", "plan_id"}},
+    "proot.setup.icd-migrate.rollback.preview": {"args": {"migration_id"}},
+    "proot.setup.icd-migrate.rollback.apply": {"args": {"migration_id", "confirmed", "plan_id"}},
+    "terminal.broker.status": {"args": set()},
+    "terminal.broker.service.status": {"args": set()},
+    "terminal.broker.service.install.preview": {"args": set()},
+    "terminal.broker.service.install.apply": {"args": {"confirmed", "plan_id"}},
+    "terminal.broker.service.start.preview": {"args": set()},
+    "terminal.broker.service.start.apply": {"args": {"confirmed", "plan_id"}},
+    "terminal.start.preview": {"args": set()},
+    "terminal.start": {"args": {"confirmed", "plan_id"}},
+    "terminal.attach": {"args": {"session_id"}},
+    "terminal.input": {"args": {"session_id", "generation", "attachment_id", "data_base64"}},
+    "terminal.resize": {"args": {"session_id", "generation", "attachment_id", "columns", "rows"}},
+    "terminal.output": {"args": {"session_id", "generation", "attachment_id", "after_sequence"}},
+    "terminal.detach": {"args": {"session_id", "generation", "attachment_id"}},
+    "terminal.close.preview": {"args": {"session_id", "generation", "attachment_id"}},
+    "terminal.close": {"args": {"session_id", "generation", "attachment_id", "confirmed", "plan_id"}},
     "doctor.report": {"args": {"graphics"}},
     "ssh.inspect": {"args": set()},
     "ssh.keys.list": {"args": set()},
@@ -141,15 +203,39 @@ OPERATIONS = {
     "wakelock.acquire": {"args": {"owner", "persistent"}},
     "wakelock.release": {"args": {"owner", "persistent"}},
     "continuity.status": {"args": {"test_id"}},
-    "continuity.prepare": {
-        "args": {"test_id", "repository", "commit", "worktree_state", "task_state", "pending_tests", "next_safe_action"},
-    },
-    "continuity.verify": {"args": {"checkpoint_id"}},
+    "continuity.prepare.preview": {"args": {"test_id", "repository", "commit", "worktree_state", "task_state", "pending_tests", "next_safe_action"}},
+    "continuity.prepare": {"args": {"test_id", "repository", "commit", "worktree_state", "task_state", "pending_tests", "next_safe_action", "confirmed", "plan_id"}},
+    "continuity.verify.preview": {"args": {"checkpoint_id"}},
+    "continuity.verify": {"args": {"checkpoint_id", "confirmed", "plan_id"}},
     "continuity.prepare-reboot-test": {"args": {"test_id", "baseline", "boot_id"}},
     "continuity.verify-reboot-test": {"args": {"test_id", "current_boot_id"}},
     "continuity.resume-info": {"args": {"test_id"}},
 }
 
+
+
+def _proot_shortcut_xdg_homes(
+    home: str, state_dir: str, process_env: dict[str, str],
+) -> tuple[str, str]:
+    """Use the active managed XFCE session's private menu directories."""
+    state_root = state_dir or os.path.join(home, ".local/share/ternuxx")
+    data_home = os.path.join(state_root, "xfce/data")
+    config_home = os.path.join(state_root, "xfce/config")
+
+    # The standalone/nested Debian desktop has its own XDG tree. Select it only
+    # while the recorded PRoot session and display identities reconcile live.
+    proot_root = os.path.join(home, ".local/share/ternuxx/proot-display0")
+    report = desktop_session_state.inspect(
+        Path(home), Path(proot_root), Path("/proc"),
+        Path(process_env.get("TMPDIR") or os.path.join(process_env["PREFIX"], "tmp")),
+    )
+    if report.get("state") == "running" and report.get("display") in {":0", ":2"}:
+        xfce_root = os.path.join(proot_root, "xfce")
+        data_home = os.path.join(xfce_root, "data")
+        config_home = os.path.join(xfce_root, "config")
+
+    return (process_env.get("XDG_DATA_HOME") or data_home,
+            process_env.get("XDG_CONFIG_HOME") or config_home)
 
 
 def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] | None = None) -> dict[str, object]:
@@ -197,14 +283,23 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             or not re.fullmatch(r"[0-9a-f]{24}", args.get("plan_id", ""))
             or args.get("confirmed") is not True):
         return _error(request_id, "confirmation_required", "model apply requires its exact preview ID and explicit confirmation")
-    if operation == "inference.cpu.run" and (
+    if operation == "inference.npu.runtime.apply" and (
+            not isinstance(args.get("plan_id"), str)
+            or not re.fullmatch(r"[0-9a-f]{24}", args.get("plan_id", ""))
+            or args.get("confirmed") is not True):
+        return _error(request_id, "confirmation_required", "NPU runtime apply requires its exact preview ID and explicit confirmation")
+    if operation in {"inference.cpu.run", "inference.gpu.run", "inference.npu.run"} and (
             not isinstance(args.get("prompt"), str)
             or not args.get("prompt", "").strip()
             or "\n" in args.get("prompt", "") or "\r" in args.get("prompt", "")
             or len(args.get("prompt", "").encode("utf-8")) > cpu_inference.MAX_PROMPT_BYTES
             or type(args.get("max_tokens", 64)) is not int
             or not 1 <= args.get("max_tokens", 64) <= cpu_inference.MAX_OUTPUT_TOKENS):
-        return _error(request_id, "invalid_arguments", "CPU inference needs a text prompt and a 1..128 token bound")
+        return _error(request_id, "invalid_arguments", "inference needs a text prompt and a 1..128 token bound")
+    if operation == "inference.gpu.run" and args.get("device_id") is not None and (
+            not isinstance(args.get("device_id"), str)
+            or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,63}", args.get("device_id", ""))):
+        return _error(request_id, "invalid_arguments", "device_id must be an exact bounded Vulkan device identifier")
     if operation == "cron.scheduler.start" and (
             set(args) - {"poll_seconds", "confirmed"} or type(args.get("poll_seconds", 5)) is not int
             or not 1 <= args.get("poll_seconds", 5) <= 60):
@@ -215,6 +310,49 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
         return _error(request_id, "confirmation_required", "scheduler stop requires explicit confirmation")
     if operation == "timezone.set" and (set(args) != {"timezone"} or not isinstance(args.get("timezone"), str)):
         return _error(request_id, "invalid_arguments", "timezone.set requires one IANA timezone name")
+    if operation in {"proot.sessions.show", "proot.sessions.health"} and (set(args) != {"session_id"} or not isinstance(args.get("session_id"), str)):
+        return _error(request_id, "invalid_arguments", "a Ternuxx session ID is required")
+    if operation in {"proot.recovery.inspect", "proot.recovery.reconcile.preview"} and (
+            set(args) != {"session_id"} or not isinstance(args.get("session_id"), str)):
+        return _error(request_id, "invalid_arguments", "a Ternuxx session ID is required")
+    if operation == "proot.recovery.reconcile" and (
+            set(args) != {"session_id", "confirmed", "plan_id"}
+            or not isinstance(args.get("session_id"), str) or args.get("confirmed") is not True
+            or not isinstance(args.get("plan_id"), str)):
+        return _error(request_id, "confirmation_required", "reconciliation requires an exact preview plan and confirmation")
+    if operation in {"proot.profiles.show", "proot.start.preview"} and (
+            set(args) != {"profile"} or not isinstance(args.get("profile"), str)):
+        return _error(request_id, "invalid_arguments", "a supported PRoot profile is required")
+    if operation == "proot.start" and (
+            set(args) != {"profile", "confirmed", "plan_id", "timeout_seconds"}
+            or not isinstance(args.get("profile"), str) or args.get("confirmed") is not True
+            or not isinstance(args.get("plan_id"), str) or type(args.get("timeout_seconds")) is not int
+            or not 30 <= args["timeout_seconds"] <= 1800):
+        return _error(request_id, "confirmation_required", "PRoot start requires a profile, exact preview plan, confirmation, and bounded timeout")
+    if operation == "proot.stop.preview" and (
+            set(args) != {"session_id"} or not isinstance(args.get("session_id"), str)):
+        return _error(request_id, "invalid_arguments", "a Ternuxx session ID is required")
+    if operation == "proot.stop" and (
+            set(args) != {"session_id", "confirmed", "plan_id"}
+            or not isinstance(args.get("session_id"), str) or args.get("confirmed") is not True
+            or not isinstance(args.get("plan_id"), str)):
+        return _error(request_id, "confirmation_required", "PRoot stop requires an exact preview plan and confirmation")
+    if operation == "proot.setup.retire.preview" and (set(args) != {"alias"} or not isinstance(args.get("alias"), str)):
+        return _error(request_id, "invalid_arguments", "retirement preview requires one exact replay alias")
+    if operation == "proot.setup.retire.apply" and (set(args) != {"alias", "confirmed", "plan_id"} or not isinstance(args.get("alias"), str) or args.get("confirmed") is not True or not isinstance(args.get("plan_id"), str)):
+        return _error(request_id, "confirmation_required", "retirement apply requires an exact preview plan and confirmation")
+    if operation == "proot.setup.restore.preview" and (set(args) != {"alias", "backup_id"} or not isinstance(args.get("alias"), str) or not isinstance(args.get("backup_id"), str)):
+        return _error(request_id, "invalid_arguments", "restore preview requires an exact replay alias and backup ID")
+    if operation == "proot.setup.restore.apply" and (set(args) != {"alias", "backup_id", "confirmed", "plan_id"} or not isinstance(args.get("alias"), str) or not isinstance(args.get("backup_id"), str) or args.get("confirmed") is not True or not isinstance(args.get("plan_id"), str)):
+        return _error(request_id, "confirmation_required", "restore apply requires an exact preview plan and confirmation")
+    if operation == "proot.setup.icd-migrate.preview" and (set(args) != {"alias"} or not isinstance(args.get("alias"), str)):
+        return _error(request_id, "invalid_arguments", "ICD migration preview requires one guest alias")
+    if operation == "proot.setup.icd-migrate.apply" and (set(args) != {"alias", "confirmed", "plan_id"} or not isinstance(args.get("alias"), str) or args.get("confirmed") is not True or not isinstance(args.get("plan_id"), str)):
+        return _error(request_id, "confirmation_required", "ICD migration apply requires the exact preview and confirmation")
+    if operation == "proot.setup.icd-migrate.rollback.preview" and (set(args) != {"migration_id"} or not isinstance(args.get("migration_id"), str)):
+        return _error(request_id, "invalid_arguments", "ICD rollback preview requires the migration ID")
+    if operation == "proot.setup.icd-migrate.rollback.apply" and (set(args) != {"migration_id", "confirmed", "plan_id"} or not isinstance(args.get("migration_id"), str) or args.get("confirmed") is not True or not isinstance(args.get("plan_id"), str)):
+        return _error(request_id, "confirmation_required", "ICD rollback apply requires the exact preview and confirmation")
     if operation == "cron.jobs.validate":
         if (set(args) not in ({"job"}, {"job_id"})
                 or ("job" in args and not isinstance(args["job"], dict))
@@ -250,6 +388,12 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
         return _error(request_id, "native_termux_required", "operation requires the native Termux shell")
     home = process_env.get("HOME", "")
     state_dir = process_env.get("TERNUXX_STATE_DIR", "")
+    if operation.startswith("proot.shortcuts."):
+        shortcut_xdg_data_home, shortcut_xdg_config_home = _proot_shortcut_xdg_homes(
+            home, state_dir, process_env,
+        )
+    else:
+        shortcut_xdg_data_home = shortcut_xdg_config_home = ""
     if not home or ((operation.startswith(("continuity.", "wakelock.", "boot.profile.", "boot.helpers.", "backup.", "restore.", "recovery.rollback.", "recovery.service.", "recovery.resolve", "ssh.service.")) or operation == "desktop.monitor.configure") and not state_dir):
         return _error(request_id, "configuration_missing", "HOME and the native state directory must be configured")
 
@@ -347,6 +491,19 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
         elif operation == "inference.cpu.status":
             data = cpu_inference.status(home=Path(home), state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
                                        prefix=process_env["PREFIX"])
+        elif operation == "inference.gpu.status":
+            data = cpu_inference.gpu_status(prefix=process_env["PREFIX"], home=Path(home),
+                                            state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
+        elif operation == "inference.npu.status":
+            data = npu_inference.status(prefix=process_env["PREFIX"], home=Path(home),
+                                        state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
+        elif operation == "inference.npu.runtime.preview":
+            data = npu_inference.preview(home=Path(home),
+                                         state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
+        elif operation == "inference.npu.runtime.apply":
+            data = npu_inference.install_runtime(plan_id=args["plan_id"], confirmed="INSTALL",
+                                                 home=Path(home),
+                                                 state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
         elif operation == "inference.cpu.model.preview":
             data = cpu_inference.preview(args.get("action", "install"), home=Path(home),
                                          state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
@@ -357,15 +514,24 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             else:
                 data = cpu_inference.remove_model(plan_id=args["plan_id"], confirmed="REMOVE",
                                                   home=Path(home), state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
-        elif operation == "inference.cpu.run":
-            data = cpu_inference.run_inference(args["prompt"], home=Path(home),
-                                               state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
-                                               prefix=process_env["PREFIX"],
-                                               max_tokens=args.get("max_tokens", 64))
+        elif operation in {"inference.cpu.run", "inference.gpu.run", "inference.npu.run"}:
+            if operation == "inference.npu.run":
+                data = npu_inference.run_inference(args["prompt"], home=Path(home),
+                    state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
+                    prefix=process_env["PREFIX"], max_tokens=args.get("max_tokens", 64))
+                backend = None
+            else:
+                backend = "vulkan" if operation == "inference.gpu.run" else "cpu"
+            if backend is not None:
+                data = cpu_inference.run_inference(args["prompt"], home=Path(home),
+                                                   state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
+                                                   prefix=process_env["PREFIX"],
+                                                   max_tokens=args.get("max_tokens", 64), backend=backend,
+                                                   device_id=args.get("device_id"))
         elif operation == "graphics.provider.status":
             provider = args.get("provider")
             if provider != "native":
-                return _error(request_id, "provider_removed", "Ternuxx supports Native Termux only")
+                return _error(request_id, "unsupported_provider", "graphics verification currently supports Native Termux only")
             data = graphics_manager.status(provider, home=home, state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"), process_env=process_env, prefix=process_env["PREFIX"])
         elif operation == "graphics.provider.select":
             if args.get("provider") != "native" or args.get("backend") not in {"kgsl-freedreno", "system"} or args.get("confirmed") is not True:
@@ -380,6 +546,227 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 return _error(request_id, "invalid_arguments", "provider, graphics API, or display is invalid")
             repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             data = graphics_manager.verify(provider, api, home=home, state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"), process_env=process_env, prefix=process_env["PREFIX"], repo_root=repo_root)
+        elif operation == "proot.status":
+            data = proot_diagnostics.inspect_installed()
+            data["ternuxx_sessions"] = proot_sessions.list_sessions(
+                state_dir or os.path.join(home, ".local/share/ternuxx"))
+        elif operation == "terminal.broker.service.status":
+            data = fixed_service_deployment.status(prefix=process_env["PREFIX"],
+                service_id=fixed_service_deployment.TERMINAL_BROKER_SERVICE_ID)
+        elif operation == "terminal.broker.service.install.preview":
+            data = fixed_service_deployment.preview_install(prefix=process_env["PREFIX"],
+                service_id=fixed_service_deployment.TERMINAL_BROKER_SERVICE_ID)
+        elif operation == "terminal.broker.service.install.apply":
+            if args.get("confirmed") is not True or not isinstance(args.get("plan_id"), str):
+                return _error(request_id, "confirmation_required", "fixed broker service install requires its exact preview and confirmation")
+            data = fixed_service_deployment.install(prefix=process_env["PREFIX"],
+                service_id=fixed_service_deployment.TERMINAL_BROKER_SERVICE_ID,
+                confirmed=True, plan_id=args["plan_id"])
+        elif operation == "terminal.broker.service.start.preview":
+            data = fixed_service_deployment.preview_start(prefix=process_env["PREFIX"],
+                service_id=fixed_service_deployment.TERMINAL_BROKER_SERVICE_ID)
+        elif operation == "terminal.broker.service.start.apply":
+            if args.get("confirmed") is not True or not isinstance(args.get("plan_id"), str):
+                return _error(request_id, "confirmation_required", "fixed broker service start requires its exact preview and confirmation")
+            data = fixed_service_deployment.start_service(prefix=process_env["PREFIX"],
+                service_id=fixed_service_deployment.TERMINAL_BROKER_SERVICE_ID,
+                confirmed=True, plan_id=args["plan_id"])
+        elif operation == "terminal.broker.status":
+            try:
+                data = terminal_broker.UnixBrokerClient(
+                    state_dir or os.path.join(home, ".local/share/ternuxx")
+                ).request("broker.status")
+                data.setdefault("component", "terminal_broker")
+                data.setdefault("provider_optional", True)
+            except terminal_broker.BrokerError:
+                data = {"component": "terminal_broker", "status": "not_running",
+                        "provider_optional": True, "pty_relay": "unavailable"}
+            try:
+                fields = dict(args)
+                session_id = fields.pop("session_id", None)
+                generation = fields.pop("generation", None)
+                attachment_id = fields.pop("attachment_id", None)
+                data = terminal_broker.UnixBrokerClient(
+                    state_dir or os.path.join(home, ".local/share/ternuxx")
+                ).request(operation, session_id=session_id, generation=generation,
+                          attachment_id=attachment_id, args=fields)
+            except terminal_broker.BrokerError as exc:
+                return _error(request_id, "terminal_operation_failed", str(exc))
+        elif operation == "proot.profiles.list":
+            data = proot_sessions.profile_inventory(prefix=process_env["PREFIX"])
+        elif operation == "proot.profiles.show":
+            data = proot_sessions.show_profile(args["profile"], prefix=process_env["PREFIX"])
+        elif operation == "proot.sessions.list":
+            data = {"sessions": proot_sessions.list_sessions(
+                state_dir or os.path.join(home, ".local/share/ternuxx"))}
+        elif operation == "proot.sessions.show":
+            data = {"session": proot_sessions.show_session(
+                state_dir or os.path.join(home, ".local/share/ternuxx"), args["session_id"])}
+        elif operation == "proot.sessions.health":
+            data = proot_sessions.session_health(
+                state_dir or os.path.join(home, ".local/share/ternuxx"), args["session_id"])
+        elif operation == "proot.recovery.inspect":
+            data = proot_sessions.inspect_recovery(
+                state_dir or os.path.join(home, ".local/share/ternuxx"), args["session_id"])
+        elif operation == "proot.recovery.reconcile.preview":
+            data = proot_sessions.preview_reconcile(
+                state_dir or os.path.join(home, ".local/share/ternuxx"), args["session_id"])
+        elif operation == "proot.recovery.reconcile":
+            data = proot_sessions.reconcile_session(
+                state_dir or os.path.join(home, ".local/share/ternuxx"), args["session_id"],
+                confirmed=args["confirmed"], plan_id=args["plan_id"])
+        elif operation == "proot.start.preview":
+            data = proot_sessions.preview_start(args["profile"], prefix=process_env["PREFIX"])
+        elif operation == "proot.start":
+            data = proot_sessions.start_profile(
+                state_dir or os.path.join(home, ".local/share/ternuxx"), prefix=process_env["PREFIX"],
+                profile=args["profile"], confirmed=args["confirmed"], plan_id=args["plan_id"],
+                timeout_seconds=args["timeout_seconds"])
+        elif operation == "proot.stop.preview":
+            data = proot_sessions.preview_stop(
+                state_dir or os.path.join(home, ".local/share/ternuxx"), args["session_id"])
+        elif operation == "proot.stop":
+            data = proot_sessions.stop_session(
+                state_dir or os.path.join(home, ".local/share/ternuxx"), args["session_id"],
+                confirmed=args["confirmed"], plan_id=args["plan_id"])
+        elif operation == "proot.app.launch":
+            app_id = args.get("app_id")
+            desktop_id = args.get("desktop_id")
+            if (isinstance(app_id, str)) == (isinstance(desktop_id, str)):
+                return _error(request_id, "invalid_arguments", "exactly one app ID or desktop ID is required")
+            display = args.get("display")
+            if display is not None and (not isinstance(display, str) or not re.fullmatch(r":[0-9]{1,2}", display)):
+                return _error(request_id, "invalid_arguments", "display must be an X11 display such as :1")
+            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            if isinstance(desktop_id, str):
+                data = proot_shortcuts.launch_desktop_application(
+                    desktop_id, prefix=process_env["PREFIX"], repo_root=repo_root,
+                    env=process_env, display=display,
+                )
+            else:
+                data = proot_shortcuts.launch(
+                    app_id, prefix=process_env["PREFIX"], repo_root=repo_root,
+                    env=process_env, display=display,
+                )
+        elif operation in {"proot.shortcuts.sync.preview", "proot.shortcuts.sync.apply"}:
+            sync_args = {
+                "home": home, "prefix": process_env["PREFIX"],
+                "repo_root": os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "xdg_data_home": shortcut_xdg_data_home,
+                "xdg_config_home": shortcut_xdg_config_home,
+            }
+            if operation.endswith(".preview"):
+                data = proot_shortcuts.preview_desktop_application_sync(**sync_args)
+            else:
+                confirmed = args.get("confirmed", False)
+                plan_id = args.get("plan_id")
+                if type(confirmed) is not bool or (plan_id is not None and not isinstance(plan_id, str)):
+                    return _error(request_id, "invalid_arguments", "sync apply requires confirmation and an exact plan ID")
+                data = proot_shortcuts.apply_desktop_application_sync(
+                    **sync_args,
+                    state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
+                    confirmed=confirmed, plan_id=plan_id,
+                )
+        elif operation == "proot.shortcuts.sync.rollback.list":
+            data = proot_shortcuts.list_desktop_application_sync_rollbacks(
+                home=home, state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
+        elif operation == "proot.shortcuts.sync.rollback.preview":
+            rollback_id = args.get("rollback_id")
+            if not isinstance(rollback_id, str):
+                return _error(request_id, "invalid_arguments", "shortcut rollback ID is required")
+            data = proot_shortcuts.preview_desktop_application_sync_rollback(
+                rollback_id, home=home, state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
+        elif operation == "proot.shortcuts.sync.rollback.apply":
+            rollback_id = args.get("rollback_id")
+            confirmed, plan_id = args.get("confirmed", False), args.get("plan_id")
+            if not isinstance(rollback_id, str) or confirmed is not True or not isinstance(plan_id, str):
+                return _error(request_id, "confirmation_required", "shortcut rollback requires its exact preview plan and confirmation")
+            data = proot_shortcuts.apply_desktop_application_sync_rollback(
+                rollback_id, home=home, state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
+                confirmed=True, plan_id=plan_id)
+        elif operation == "proot.shortcuts.list":
+            data = proot_shortcuts.list_shortcuts(
+                home=home, prefix=process_env["PREFIX"],
+                xdg_data_home=shortcut_xdg_data_home,
+                repo_root=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            )
+        elif operation in {"proot.shortcuts.preview", "proot.shortcuts.apply"}:
+            action = args.get("action")
+            app_id = args.get("app_id")
+            desktop_id = args.get("desktop_id")
+            if (not isinstance(action, str)
+                    or (isinstance(app_id, str) == isinstance(desktop_id, str))):
+                return _error(request_id, "invalid_arguments",
+                              "shortcut action and exactly one app ID or desktop ID are required")
+            shortcut_args = {
+                "action": action, "app_id": app_id, "desktop_id": desktop_id,
+                "home": home,
+                "prefix": process_env["PREFIX"],
+                "repo_root": os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                "xdg_data_home": shortcut_xdg_data_home,
+                "path": process_env.get("PATH", ""),
+            }
+            if operation == "proot.shortcuts.preview":
+                data = proot_shortcuts.preview(**shortcut_args)
+            else:
+                confirmed = args.get("confirmed", False)
+                plan_id = args.get("plan_id")
+                if type(confirmed) is not bool or (plan_id is not None and not isinstance(plan_id, str)):
+                    return _error(request_id, "invalid_arguments", "shortcut confirmation or plan ID is invalid")
+                data = proot_shortcuts.apply(
+                    **shortcut_args, state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
+                    confirmed=confirmed, plan_id=plan_id,
+                )
+        elif operation in {"proot.setup.icd-migrate.preview", "proot.setup.icd-migrate.apply",
+                           "proot.setup.icd-migrate.rollback.preview", "proot.setup.icd-migrate.rollback.apply"}:
+            common = {"repo_root": os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                      "prefix": process_env["PREFIX"], "home": home,
+                      "state_dir": state_dir or os.path.join(home, ".local/share/ternuxx")}
+            if operation == "proot.setup.icd-migrate.preview":
+                data = proot_setup.preview_icd_migration(**common, alias=args["alias"])
+            elif operation == "proot.setup.icd-migrate.apply":
+                data = proot_setup.apply_icd_migration(**common, alias=args["alias"],
+                                                       plan_id=args["plan_id"], confirmed=True)
+            elif operation == "proot.setup.icd-migrate.rollback.preview":
+                rollback_common = {key: common[key] for key in ("prefix", "home", "state_dir")}
+                data = proot_setup.preview_icd_rollback(**rollback_common, plan_id=args["migration_id"])
+            else:
+                rollback_common = {key: common[key] for key in ("prefix", "home", "state_dir")}
+                data = proot_setup.apply_icd_rollback(**rollback_common, migration_id=args["migration_id"],
+                                                      plan_id=args["plan_id"], confirmed=True)
+        elif operation in {"proot.setup.retire.preview", "proot.setup.retire.apply", "proot.setup.restore.preview", "proot.setup.restore.apply"}:
+            common = {"prefix": process_env["PREFIX"], "home": home,
+                      "state_dir": state_dir or os.path.join(home, ".local/share/ternuxx"),
+                      "alias": args["alias"]}
+            if operation == "proot.setup.retire.preview":
+                data = retire_fresh_guest.retire_preview(**common)
+            elif operation == "proot.setup.retire.apply":
+                data = retire_fresh_guest.retire_apply(**common, plan_id=args["plan_id"], confirmed=args["confirmed"])
+            elif operation == "proot.setup.restore.preview":
+                data = retire_fresh_guest.restore_preview(**common, backup_id=args["backup_id"])
+            else:
+                data = retire_fresh_guest.restore_apply(**common, backup_id=args["backup_id"], plan_id=args["plan_id"], confirmed=args["confirmed"])
+        elif operation == "proot.guest.verify":
+            source = args.get("user_source", "explicit")
+            if (not isinstance(args.get("distro"), str)
+                    or not isinstance(args.get("display"), str)
+                    or not isinstance(args.get("backend"), str)
+                    or not isinstance(source, str) or source not in {"explicit", "rootfs"}
+                    or (source == "explicit" and not isinstance(args.get("user"), str))
+                    or (source == "rootfs" and "user" in args)):
+                return _error(request_id, "invalid_arguments", "PRoot guest verification requires a supported, unambiguous profile and display/backend selection")
+            try:
+                user = args.get("user")
+                if source == "rootfs":
+                    user = proot_diagnostics.resolve_proot_guest_user(
+                        distro=args["distro"], prefix=process_env["PREFIX"],
+                    )
+                data = proot_diagnostics.verify_proot_guest(
+                    distro=args["distro"], user=user, display=args["display"], backend=args["backend"],
+                    prefix=process_env["PREFIX"],
+                )
+            except ValueError as exc:
+                return _error(request_id, "invalid_arguments", str(exc))
         elif operation == "management.catalog":
             data = management_catalog.build_catalog(
                 set(OPERATIONS), category=args.get("category"),
@@ -717,20 +1104,33 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                                                    confirmed=confirmed, plan_id=plan_id)
         elif operation == "continuity.status":
             data = reboot_recovery.status(home=home, state_dir=state_dir, test_id=args.get("test_id"))
-        elif operation == "continuity.prepare":
-            data = continuity.prepare(
-                home=home,
-                state_dir=state_dir,
-                test_id=args.get("test_id", "manual-checkpoint"),
-                repository=args.get("repository", "soobujmiah/ternuxx"),
-                commit=args.get("commit", "unknown"),
-                worktree_state=args.get("worktree_state", "unknown"),
-                task_state=args.get("task_state", "prepared"),
+        elif operation in {"continuity.prepare.preview", "continuity.prepare"}:
+            preview = continuity.prepare_preview(
+                home=home, state_dir=state_dir, test_id=args.get("test_id", "manual-checkpoint"),
+                repository=args.get("repository", "soobujmiah/ternuxx"), commit=args.get("commit", "unknown"),
+                worktree_state=args.get("worktree_state", "unknown"), task_state=args.get("task_state", "prepared"),
                 pending_tests=args.get("pending_tests", []),
-                next_safe_action=args.get("next_safe_action", "owner_verify_after_reboot"),
-            )
-        elif operation == "continuity.verify":
-            data = continuity.verify(home=home, state_dir=state_dir, checkpoint_id=args["checkpoint_id"])
+                next_safe_action=args.get("next_safe_action", "owner_verify_after_reboot"))
+            if operation.endswith(".preview"):
+                data = preview
+            else:
+                if args.get("confirmed") is not True or args.get("plan_id") != preview["plan_id"]:
+                    return _error(request_id, "confirmation_required", "checkpoint creation requires confirmed=true and the exact plan_id from preview")
+                details = preview["details"]
+                data = continuity.prepare(home=home, state_dir=state_dir, test_id=details["test_id"],
+                    repository=details["repository"], commit=details["commit"], worktree_state=details["worktree_state"],
+                    task_state=details["task_state"], pending_tests=details["pending_tests"],
+                    next_safe_action=details["next_safe_action"], boot_id=details["boot_id"])
+        elif operation in {"continuity.verify.preview", "continuity.verify"}:
+            preview = continuity.verify_preview(home=home, state_dir=state_dir, checkpoint_id=args["checkpoint_id"])
+            if operation.endswith(".preview"):
+                data = preview
+            else:
+                if args.get("confirmed") is not True or args.get("plan_id") != preview["plan_id"]:
+                    return _error(request_id, "confirmation_required", "checkpoint verification requires confirmed=true and the exact plan_id from preview")
+                data = continuity.verify(home=home, state_dir=state_dir, checkpoint_id=args["checkpoint_id"],
+                                         current_boot_id=preview["details"]["current_boot_id"],
+                                         expected_record_sha256=preview["details"]["record_sha256"])
         elif operation == "continuity.prepare-reboot-test":
             data = reboot_recovery.prepare(home=home, state_dir=state_dir, test_id=args["test_id"],
                                            evidence=args["baseline"],
@@ -742,8 +1142,8 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             data = reboot_recovery.resume_info(home=home, state_dir=state_dir, test_id=args["test_id"])
     except optional_software.SoftwareError as exc:
         return _error(request_id, "software_operation_failed", str(exc))
-    except cpu_inference.InferenceError as exc:
-        return _error(request_id, "cpu_inference_failed", str(exc))
+    except (cpu_inference.InferenceError, npu_inference.NpuInferenceError) as exc:
+        return _error(request_id, "inference_failed", str(exc))
     except boot_helpers.BootHelperError as exc:
         return _error(request_id, "boot_helper_operation_failed", str(exc))
     except timezone_support.TimezoneError as exc:
@@ -752,6 +1152,12 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
         return _error(request_id, "cron_execution_error", str(exc))
     except cron_registry.CronError as exc:
         return _error(request_id, "cron_registry_error", str(exc))
+    except fixed_service_deployment.ServiceInstallError as exc:
+        return _error(request_id, "service_failed", str(exc))
+    except retire_fresh_guest.RetirementError as exc:
+        return _error(request_id, "guest_retirement_failed", str(exc))
+    except proot_setup.SetupError as exc:
+        return _error(request_id, "proot_setup_failed", str(exc))
     except runit_deployment.DeploymentError as exc:
         return _error(request_id, "deployment_failed", str(exc))
     except ssh_key_manager.SshKeyMutationError as exc:
@@ -795,15 +1201,25 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--next-safe-action", default="owner_verify_after_reboot", choices=sorted(continuity.NEXT_ACTIONS))
     parser.add_argument("--checkpoint-id")
     parser.add_argument("--baseline-json")
+    parser.add_argument("--distro", help="supported Debian guest alias for bounded read-only verification")
+    parser.add_argument("--guest-user", "--user", dest="user",
+                        help="ordinary account name checked by the guest verifier")
+    parser.add_argument("--guest-user-from", "--user-source", dest="user_source",
+                        choices=("explicit", "rootfs"), default="explicit",
+                        help="select an explicit user name or resolve it from the installed rootfs")
     parser.add_argument("--display", choices=tuple(f":{number}" for number in range(11)))
     parser.add_argument("--provider", choices=("native",))
     parser.add_argument("--graphics-api", choices=("opengl", "gles", "vulkan"))
     parser.add_argument("--graphics-backend", choices=("kgsl-freedreno", "system"), help="KGSL is experimental and must already be extracted; selection affects future desktop starts only")
+    parser.add_argument("--backend", choices=("zink", "virgl"),
+                        help="explicit Debian PRoot graphics backend for read-only guest verification")
     parser.add_argument("--policy-stdin", action="store_true",
                         help="read a secret-free remote-access desired policy JSON object from stdin")
     parser.add_argument("--current-boot-id")
     parser.add_argument("--owner")
     parser.add_argument("--profile", choices=tuple(sorted(boot_profiles.PROFILES)))
+    parser.add_argument("--guest-profile", choices=("isolated-probe", "debian-interactive"))
+    parser.add_argument("--session-id")
     parser.add_argument("--boot-action", choices=("enable", "disable"))
     parser.add_argument("--helper-id", choices=tuple(boot_helpers.HELPERS))
     parser.add_argument("--helper-action", choices=("deploy", "rollback"))
@@ -813,6 +1229,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--backup-id")
     parser.add_argument("--operation-id")
     parser.add_argument("--rollback-id")
+    parser.add_argument("--desktop-id", help="installed visible Debian XFCE desktop-entry ID")
     parser.add_argument("--job-id")
     parser.add_argument("--mutation-action", choices=("create", "update", "remove"))
     parser.add_argument("--execution-id")
@@ -832,7 +1249,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--datetime")
     parser.add_argument("--at")
     parser.add_argument("--job-environment", choices=("native-termux",), default="native-termux")
-    parser.add_argument("--timeout-seconds", type=int, default=300)
+    parser.add_argument("--timeout-seconds", type=int, default=30)
     parser.add_argument("--max-attempts", type=int, default=1)
     parser.add_argument("--retry-delay-seconds", type=int, default=0)
     parser.add_argument("--retry-backoff", choices=("fixed", "exponential"), default="fixed")
@@ -861,16 +1278,21 @@ def _parser() -> argparse.ArgumentParser:
                         help="CPU model action for inference.cpu.model.preview/apply")
     parser.add_argument("--model-confirm", choices=("DOWNLOAD", "REMOVE"),
                         help="exact CPU model confirmation token bound to the selected action")
+    parser.add_argument("--runtime-confirm", choices=("INSTALL",),
+                        help="exact confirmation for the pinned Snapdragon HTP runtime")
     parser.add_argument("--app-id", help="curated Native software app ID")
+    parser.add_argument("--shortcut-action", choices=("add", "remove"),
+                        help="PRoot desktop shortcut action for exact-preview add/remove")
     parser.add_argument("--app-path", help="HOME-scoped file or directory path for directory-tree")
     parser.add_argument("--app-action", choices=("install", "update", "remove"),
                         help="curated app lifecycle action")
     parser.add_argument("--app-confirm", choices=("INSTALL", "UPDATE", "REMOVE"),
                         help="typed confirmation token bound to the curated app action")
     parser.add_argument("--prompt-stdin", action="store_true",
-                        help="read the CPU inference prompt from stdin, never from process arguments")
+                        help="read the inference prompt from stdin, never from process arguments")
     parser.add_argument("--max-tokens", type=int, default=64,
-                        help="maximum CPU inference output tokens (1-128)")
+                        help="maximum inference output tokens (1-128)")
+    parser.add_argument("--device-id", help="exact Vulkan inference device ID reported by inference.gpu.status")
     parser.add_argument("--yes", action="store_true")
     parser.add_argument("--persistent", action="store_true")
     ssh_wakelock_toggle = parser.add_mutually_exclusive_group()
@@ -1039,8 +1461,15 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         payload = {"app_id": args.app_id, "action": args.app_action,
                    "plan_id": args.plan_id, "confirmation": args.app_confirm}
-    elif args.operation == "inference.cpu.status":
+    elif args.operation in {"inference.cpu.status", "inference.gpu.status", "inference.npu.status",
+                            "inference.npu.runtime.preview"}:
         payload = {}
+    elif args.operation == "inference.npu.runtime.apply":
+        if not args.plan_id or args.runtime_confirm != "INSTALL" or args.model_action or args.model_confirm or args.yes:
+            response = _error(request_id, "confirmation_required", "NPU runtime apply requires an exact --plan-id and --runtime-confirm INSTALL")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"plan_id": args.plan_id, "confirmed": True}
     elif args.operation == "inference.cpu.model.preview":
         if not args.model_action or args.plan_id or args.yes or args.model_confirm:
             response = _error(request_id, "invalid_arguments", "model preview requires --model-action install|remove and accepts no apply flags")
@@ -1054,13 +1483,23 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
             return 1
         payload = {"action": args.model_action, "plan_id": args.plan_id, "confirmed": True}
-    elif args.operation == "inference.cpu.run":
+    elif args.operation in {"inference.cpu.run", "inference.gpu.run", "inference.npu.run"}:
         if not args.prompt_stdin:
-            response = _error(request_id, "invalid_arguments", "CPU inference prompt must be provided with --prompt-stdin")
+            response = _error(request_id, "invalid_arguments", "inference prompt must be provided with --prompt-stdin")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        if args.operation != "inference.gpu.run" and args.device_id:
+            response = _error(request_id, "invalid_arguments", "--device-id is only supported by Vulkan inference")
             print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
             return 1
         prompt = sys.stdin.read(cpu_inference.MAX_PROMPT_BYTES + 1)
+        if prompt.endswith("\n"):
+            prompt = prompt[:-1]
+            if prompt.endswith("\r"):
+                prompt = prompt[:-1]
         payload = {"prompt": prompt, "max_tokens": args.max_tokens}
+        if args.device_id:
+            payload["device_id"] = args.device_id
     elif args.operation == "cron.scheduler.start":
         payload = {"poll_seconds": args.poll_seconds, "confirmed": bool(args.yes)}
     elif args.operation == "cron.scheduler.stop":
@@ -1461,10 +1900,190 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         payload = {"name": args.key_name}
         if is_apply: payload.update({"confirmed": True, "plan_id": args.plan_id})
-    elif args.operation == "continuity.prepare":
+    elif args.operation in {"continuity.prepare.preview", "continuity.prepare"}:
         payload = {"test_id": args.test_id or "manual-checkpoint", "repository": args.repository, "commit": args.commit,
                    "worktree_state": args.worktree_state, "task_state": args.task_state,
                    "pending_tests": args.pending_test, "next_safe_action": args.next_safe_action}
+        if args.operation.endswith(".preview") and (args.yes or args.plan_id):
+            response = _error(request_id, "invalid_arguments", "continuity preview does not accept apply confirmation")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        if args.operation == "continuity.prepare":
+            if not args.yes or not args.plan_id:
+                response = _error(request_id, "confirmation_required", "checkpoint creation requires --yes and the exact --plan-id from continuity.prepare.preview")
+                print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+                return 1
+            payload.update({"confirmed": True, "plan_id": args.plan_id})
+    elif args.operation in {"continuity.verify.preview", "continuity.verify"}:
+        if not args.checkpoint_id:
+            response = _error(request_id, "invalid_arguments", "--checkpoint-id is required")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"checkpoint_id": args.checkpoint_id}
+        if args.operation.endswith(".preview") and (args.yes or args.plan_id):
+            response = _error(request_id, "invalid_arguments", "continuity preview does not accept apply confirmation")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        if args.operation == "continuity.verify":
+            if not args.yes or not args.plan_id:
+                response = _error(request_id, "confirmation_required", "checkpoint verification requires --yes and the exact --plan-id from continuity.verify.preview")
+                print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+                return 1
+            payload.update({"confirmed": True, "plan_id": args.plan_id})
+    elif args.operation in {"proot.status", "proot.profiles.list", "proot.sessions.list", "terminal.broker.status"}:
+        payload = {}
+    elif args.operation == "proot.app.launch":
+        if (bool(args.app_id) == bool(args.desktop_id) or args.yes or args.plan_id):
+            response = _error(request_id, "invalid_arguments",
+                              "app launch requires exactly one --app-id or --desktop-id and accepts no apply flags")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"],
+                  file=None if args.json else sys.stderr)
+            return 1
+        payload = {"display": args.display}
+        if args.app_id:
+            payload["app_id"] = args.app_id
+        else:
+            payload["desktop_id"] = args.desktop_id
+    elif args.operation == "proot.guest.verify":
+        source = args.user_source
+        if (not args.distro or not args.display or not args.backend
+                or (source == "explicit" and not args.user)
+                or (source == "rootfs" and args.user)
+                or args.yes or args.plan_id):
+            response = _error(request_id, "invalid_arguments",
+                              "guest verification requires a distro, display, backend, one user source, and no apply flags")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"],
+                  file=None if args.json else sys.stderr)
+            return 1
+        payload = {"distro": args.distro, "display": args.display,
+                   "backend": args.backend, "user_source": source}
+        if source == "explicit":
+            payload["user"] = args.user
+    elif args.operation in {"proot.profiles.show", "proot.start.preview"}:
+        if not args.guest_profile or args.yes or args.plan_id:
+            response = _error(request_id, "invalid_arguments", "select --guest-profile; preview accepts no apply flags")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"profile": args.guest_profile}
+    elif args.operation == "proot.start":
+        if not args.guest_profile or not args.yes or not args.plan_id or not 30 <= args.timeout_seconds <= 1800:
+            response = _error(request_id, "confirmation_required", "guest start requires --guest-profile, --yes, exact --plan-id, and a bounded timeout")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"profile": args.guest_profile, "confirmed": True, "plan_id": args.plan_id,
+                   "timeout_seconds": args.timeout_seconds}
+    elif args.operation in {"proot.sessions.show", "proot.sessions.health", "proot.recovery.inspect",
+                            "proot.recovery.reconcile.preview", "proot.stop.preview"}:
+        if not args.session_id or args.yes or args.plan_id:
+            response = _error(request_id, "invalid_arguments", "select --session-id; preview accepts no apply flags")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"session_id": args.session_id}
+    elif args.operation == "proot.stop":
+        if not args.session_id or not args.yes or not args.plan_id:
+            response = _error(request_id, "confirmation_required", "session stop requires --session-id, --yes, and the exact --plan-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"session_id": args.session_id, "confirmed": True, "plan_id": args.plan_id}
+    elif args.operation == "proot.shortcuts.list":
+        if args.yes or args.plan_id or args.shortcut_action or args.app_id:
+            response = _error(request_id, "invalid_arguments", "shortcut list accepts no mutation arguments")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {}
+    elif args.operation == "proot.shortcuts.preview":
+        if not args.shortcut_action or not args.app_id or args.yes or args.plan_id:
+            response = _error(request_id, "invalid_arguments", "shortcut preview requires --shortcut-action and --app-id only")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"action": args.shortcut_action, "app_id": args.app_id}
+    elif args.operation == "proot.shortcuts.apply":
+        if not args.shortcut_action or not args.app_id or not args.yes or not args.plan_id:
+            response = _error(request_id, "confirmation_required", "shortcut apply requires --shortcut-action, --app-id, --yes, and exact --plan-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"action": args.shortcut_action, "app_id": args.app_id,
+                   "confirmed": True, "plan_id": args.plan_id}
+    elif args.operation == "proot.shortcuts.sync.preview":
+        if args.yes or args.plan_id or args.rollback_id:
+            response = _error(request_id, "invalid_arguments", "shortcut sync preview accepts no apply arguments")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {}
+    elif args.operation == "proot.shortcuts.sync.apply":
+        if not args.yes or not args.plan_id or args.rollback_id:
+            response = _error(request_id, "confirmation_required", "shortcut sync apply requires --yes and the exact --plan-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"confirmed": True, "plan_id": args.plan_id}
+    elif args.operation == "proot.shortcuts.sync.rollback.list":
+        if args.yes or args.plan_id or args.rollback_id:
+            response = _error(request_id, "invalid_arguments", "shortcut rollback list accepts no arguments")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {}
+    elif args.operation == "proot.shortcuts.sync.rollback.preview":
+        if not args.rollback_id or args.yes or args.plan_id:
+            response = _error(request_id, "invalid_arguments", "shortcut rollback preview requires only --rollback-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"rollback_id": args.rollback_id}
+    elif args.operation == "proot.shortcuts.sync.rollback.apply":
+        if not args.rollback_id or not args.yes or not args.plan_id:
+            response = _error(request_id, "confirmation_required", "shortcut rollback apply requires --rollback-id, --yes, and the exact --plan-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"rollback_id": args.rollback_id, "confirmed": True, "plan_id": args.plan_id}
+    elif args.operation == "proot.setup.retire.preview":
+        if not args.alias or args.backup_id or args.operation_id or args.yes or args.plan_id:
+            response = _error(request_id, "invalid_arguments", "retirement preview requires only --alias")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"alias": args.alias}
+    elif args.operation == "proot.setup.retire.apply":
+        if not args.alias or args.backup_id or args.operation_id or not args.yes or not args.plan_id:
+            response = _error(request_id, "confirmation_required", "retirement apply requires --alias, --yes, and the exact --plan-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"alias": args.alias, "confirmed": True, "plan_id": args.plan_id}
+    elif args.operation == "proot.setup.restore.preview":
+        if not args.alias or not args.backup_id or args.operation_id or args.yes or args.plan_id:
+            response = _error(request_id, "invalid_arguments", "restore preview requires --alias and --backup-id only")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"alias": args.alias, "backup_id": args.backup_id}
+    elif args.operation == "proot.setup.restore.apply":
+        if not args.alias or not args.backup_id or args.operation_id or not args.yes or not args.plan_id:
+            response = _error(request_id, "confirmation_required", "restore apply requires --alias, --backup-id, --yes, and the exact --plan-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"alias": args.alias, "backup_id": args.backup_id,
+                   "confirmed": True, "plan_id": args.plan_id}
+    elif args.operation == "proot.setup.icd-migrate.preview":
+        if not args.alias or args.backup_id or args.operation_id or args.yes or args.plan_id:
+            response = _error(request_id, "invalid_arguments", "ICD migration preview requires only --alias")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"alias": args.alias}
+    elif args.operation == "proot.setup.icd-migrate.apply":
+        if not args.alias or args.backup_id or args.operation_id or not args.yes or not args.plan_id:
+            response = _error(request_id, "confirmation_required", "ICD migration apply requires --alias, --yes, and the exact --plan-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"alias": args.alias, "confirmed": True, "plan_id": args.plan_id}
+    elif args.operation == "proot.setup.icd-migrate.rollback.preview":
+        if not args.operation_id or args.alias or args.backup_id or args.yes or args.plan_id:
+            response = _error(request_id, "invalid_arguments", "ICD rollback preview requires only --operation-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"migration_id": args.operation_id}
+    elif args.operation == "proot.setup.icd-migrate.rollback.apply":
+        if not args.operation_id or args.alias or args.backup_id or not args.yes or not args.plan_id:
+            response = _error(request_id, "confirmation_required", "ICD rollback requires --operation-id, --yes, and the exact --plan-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"migration_id": args.operation_id, "confirmed": True,
+                   "plan_id": args.plan_id}
     else:
         if not args.checkpoint_id:
             response = _error(request_id, "invalid_arguments", "--checkpoint-id is required")
@@ -1477,6 +2096,8 @@ def main(argv: list[str] | None = None) -> int:
     response = dispatch({"api_version": API_VERSION, "request_id": request_id, "operation": args.operation, "args": payload})
     if args.json:
         print(json.dumps(response, sort_keys=True))
+    elif args.operation == "proot.shortcuts.list" and response["ok"]:
+        print(management_presentation.format_report(response))
     elif response["ok"]:
         print(json.dumps(response["data"], indent=2, sort_keys=True))
     else:

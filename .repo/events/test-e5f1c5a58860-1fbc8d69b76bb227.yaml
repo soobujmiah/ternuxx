@@ -1,0 +1,8 @@
+event_id: test-e5f1c5a58860-1fbc8d69b76bb227
+repository: soobujmiah/ternuxx
+commit: e5f1c5a5886016bab2aaa0b342001d89f8ba3945
+kind: test
+occurred_at: '2026-10-24T03:40:17Z'
+status: passed
+summary: 967 Native Termux fixture tests passed in 116.305s; live read-only PRoot
+  sync preview discovered 27 apps with zero conflicts

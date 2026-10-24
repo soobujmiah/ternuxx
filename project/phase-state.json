@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_phase": null,
+  "active_phase": "P12",
   "phases": [
     {
       "id": "P0",
@@ -98,7 +98,7 @@
       "title": "CPU/GPU/NPU capability, optimization, and fallback",
       "status": "completed",
       "completed_on": "2026-10-24",
-      "summary": "Completed the Native compute capability assessment: the bounded shared CPU model path and software fallback are documented; stock and experimental graphics results are separated; offline inference remains unverified, GPU inference/NPU remain unavailable, and experimental graphics stay outside release support.",
+      "summary": "At P6 close, CPU was the only implemented inference path and GPU/NPU workload execution was unverified. This is a dated assessment, superseded by P12 evidence for bounded Vulkan GPU inference and experimental SM8735 HTP inference; broader qualification remains open.",
       "evidence": [
         "docs/evidence/2026-10-24-p6-completion-review.md"
       ],
@@ -106,6 +106,14 @@
         {
           "date": "2026-10-24",
           "reason": "P6 is closed; its previous next_action was the work completed by the P6 completion review and must not remain as an active instruction."
+        },
+        {
+          "date": "2026-10-24",
+          "reason": "Owner clarified that capability assessment completion did not complete Native acceleration implementation."
+        },
+        {
+          "date": "2026-10-24",
+          "reason": "Clarify that its closed assessment is a dated capability snapshot; P12 later implemented bounded GPU and experimental HTP inference."
         }
       ]
     },
@@ -166,20 +174,26 @@
       "title": "Optional isolated workload profile",
       "status": "skipped",
       "completed_on": null,
-      "summary": "Skipped: owner-selected Native-only product has no isolated workload gap; PRoot was retired and any future isolation needs a new decision.",
+      "summary": "Skipped under the Native-only product direction that was active on 2026-10-24; owner later superseded that decision and reauthorized Debian PRoot support. Historical skip is retained; restoration is tracked in P11.",
       "evidence": [
         "docs/evidence/2026-10-24-p9-native-only-scope-decision.md"
       ],
       "optional": true,
       "next_action": "Keep this optional phase deferred unless a specific Native workload gap is documented and approved.",
-      "skipped_on": "2026-10-24"
+      "skipped_on": "2026-10-24",
+      "revision_notes": [
+        {
+          "date": "2026-10-24",
+          "reason": "Owner superseded the Native-only decision and reauthorized Debian PRoot restoration."
+        }
+      ]
     },
     {
       "id": "P10",
       "title": "Hardening, release, and support",
       "status": "completed",
       "completed_on": "2026-10-24",
-      "summary": "Internal Native-only hardening includes read-only backup/recovery inspection across TUI/Web/GTK; the latest full suite passes 730 tests. Public release remains blocked by unresolved license/provenance, owner-managed SSH exposure, and clean-device qualification.",
+      "summary": "At P10 close, internal hardening covered Native-only backup/recovery inspection across TUI/Web/GTK and the full suite passed 730 tests. The owner later restored Debian PRoot support in P11. Public release remains blocked by unresolved license/provenance, owner-managed SSH exposure, and clean-device qualification.",
       "evidence": [
         "docs/evidence/2026-10-24-p10-internal-hardening-review.md"
       ],
@@ -195,8 +209,44 @@
         {
           "date": "2026-10-24",
           "reason": "Record the verified post-closure read-only recovery-client follow-up in P10 descriptive metadata without reopening the original internal-hardening gate."
+        },
+        {
+          "date": "2026-10-24",
+          "reason": "Label the completed hardening scope and test count as historical because PRoot support was later restored."
         }
       ]
+    },
+    {
+      "id": "P11",
+      "title": "Restore Debian PRoot support on Native Termux",
+      "status": "completed",
+      "summary": "Restored and verified Debian PRoot lifecycle, terminal, GUI routing, and shared CLI/TUI/Web/GTK acceptance on Native Termux; full suite passes 986 tests.",
+      "evidence": [
+        "docs/evidence/2026-10-24-p11-proot-source-restoration-audit.md"
+      ],
+      "completed_on": "2026-10-24",
+      "revision_notes": [
+        {
+          "date": "2026-10-24",
+          "reason": "P11 acceptance and its final live checks are complete; remove its stale next action that still requested closing P11."
+        }
+      ]
+    },
+    {
+      "id": "P12",
+      "title": "Qualify Native CPU, GPU and NPU acceleration",
+      "status": "in_progress",
+      "summary": "Current host-like Native worktree passes 1,017 tests in 94.697 seconds; replay-guest lifecycle parity covers CLI/TUI/Web/GTK with 168 focused tests. Bounded CPU/Vulkan/HTP offload is verified; sustained qualification and clean Vulkan provenance remain open.",
+      "evidence": [
+        "docs/evidence/2026-10-24-native-acceleration-live-check.md",
+        "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
+        "docs/evidence/2026-10-24-gh-ci-native-bridge-fixture.md",
+        "docs/evidence/2026-10-24-p12-htp-runtime-integrity-followup.md",
+        "docs/evidence/2026-10-24-p12-complete-offload-gate.md",
+        "docs/evidence/2026-10-24-p12-repo-regression-followup.md",
+        "docs/evidence/2026-10-24-replay-guest-client-parity.md"
+      ],
+      "next_action": "Publish reviewed source changes and verify GitHub Actions; continue controlled CPU/Vulkan/HTP correctness checks with memory and thermal observation, then qualify experimental Vulkan ICD clean-install provenance and sustained HTP stability/model coverage."
     }
   ]
 }

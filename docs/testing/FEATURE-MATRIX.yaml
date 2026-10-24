@@ -1,6 +1,6 @@
 schema_version: 1
 product: Ternuxx
-scope: native_termux_only
+scope: native_termux_host_with_optional_debian_proot
 as_of: 2026-10-24
 authority: current source, tests, and linked direct evidence; not a commercial or release approval
 classification_values:
@@ -94,13 +94,13 @@ features:
     implementation_status: PARTIAL
     commercial_class: NOT_READY
     runtime: native_termux_x11
-    dependencies: [gtk4, termux-x11]
+    dependencies: [gtk4, libvte, termux-x11]
     validation_status: PARTIAL
     qualification: DETECTED
     evidence: [../../apps/management-center/management-center.c, ../../tests/test_management_center_ui_contract.py]
     release_qualified: false
-    limitations: [GTK4 source compiles and contract tests pass; visual acceptance across current resources is incomplete.]
-    next_action: Review the live management center and compare visible actions with the shared catalog.
+    limitations: [The GTK client requires GTK4 and VTE GTK4 development files; guided fresh-guest setup is CLI-only; visual and live guest acceptance are incomplete.]
+    next_action: With an installed guest, verify VTE attach/detach, allowlisted app launch, catalog shortcut preview/apply, and owned-session stop; compare visible actions with the shared catalog.
     owner_decision_required: false
 
   - id: desktop.native
@@ -181,29 +181,29 @@ features:
   - id: inference.gpu
     name: Native GPU inference
     user_value: Delegate supported inference operators to a verified Android GPU backend.
-    implementation_status: NOT_IMPLEMENTED
+    implementation_status: PARTIAL
     commercial_class: NOT_READY
-    runtime: not_selected
-    dependencies: []
-    validation_status: BLOCKED
-    qualification: UNKNOWN
-    evidence: [GPU-ACCELERATION.md, reports/2026-10-24-native-profile-25053RT47C.md]
+    runtime: Native-Ternuxx-Vulkan-runner-plus-Termux-package-managed-backend
+    dependencies: [Termux llama-cpp 0.7.0, installed llama-cpp-backend-vulkan 0.7.0, selected experimental Adreno 825 Vulkan ICD]
+    validation_status: PARTIAL
+    qualification: WORKLOAD_VERIFIED
+    evidence: [GPU-ACCELERATION.md, ../evidence/2026-10-24-native-acceleration-live-check.md, ../evidence/2026-10-24-p12-complete-offload-gate.md, reports/2026-10-24-native-profile-25053RT47C.md, ../../lib/cpu_inference.py, ../../tests/test_cpu_inference.py, ../../tests/test_management_service.py]
     release_qualified: false
-    limitations: [No GPU inference runtime or workload exists; graphics API verification does not establish inference support.]
-    next_action: Keep GPU inference unavailable; consider implementation only after selecting an exact model/runtime/backend and validating correctness on this device.
-    owner_decision_required: true
+    limitations: [The pinned-model Ternuxx API path and three owner-provided LAI GGUFs pass bounded 29/29-layer Vulkan runs with the installed Termux backend. Results rely on the selected experimental Mesa/Freedreno ICD and do not qualify sustained thermals, clean-device installation, or general workload performance. The OpenCL backend reports no platforms.]
+    next_action: Complete longer correctness, memory, and thermal checks; qualify clean installation and provenance for the experimental graphics ICD.
+    owner_decision_required: false
 
   - id: inference.npu
     name: Native NPU inference
     user_value: Delegate supported inference operators to a verified Android NPU backend.
-    implementation_status: NOT_IMPLEMENTED
+    implementation_status: PARTIAL
     commercial_class: NOT_READY
-    runtime: not_selected
-    dependencies: []
-    validation_status: BLOCKED
-    qualification: UNKNOWN
-    evidence: [NPU-ACCELERATION.md, reports/2026-10-24-native-profile-25053RT47C.md]
+    runtime: Ternuxx-pinned-llama.cpp-Snapdragon-b11849-HVX-only-HTP0
+    dependencies: [SM8735, pinned llama.cpp b11849 Snapdragon artifact, pinned Qwen3 0.6B Q4_0 model]
+    validation_status: PARTIAL
+    qualification: WORKLOAD_VERIFIED
+    evidence: [NPU-ACCELERATION.md, ../evidence/2026-10-24-native-acceleration-live-check.md, ../evidence/2026-10-24-p12-ternux-htp-path-review.md, ../evidence/2026-10-24-p12-htp-runtime-integrity-followup.md, ../evidence/2026-10-24-p12-complete-offload-gate.md, ../../lib/npu_inference.py, ../../tests/test_npu_inference.py, ../../tests/test_management_service.py]
     release_qualified: false
-    limitations: [Vendor libraries are discovery hints; no accessible runtime or correct workload is present.]
-    next_action: Keep unavailable unless a supported Native Termux runtime and a demonstrated workload become available.
-    owner_decision_required: true
+    limitations: ["Ternuxx installs only selected files from the SHA-256-pinned MIT release into private HOME state and injects a fixed child-process loader/DSP environment without copying system/vendor libraries. SM8735-only experimental HTP inference passes repeated short known-answer runs with full layer offload and clean cancellation/restart, but is slower than CPU on tested prompts; sustained thermals, memory pressure, broader model/operator correctness, and clean-device runtime acquisition remain unqualified. CPU fallback is disabled."]
+    next_action: Complete controlled repeated CPU/HTP correctness, memory, and thermal qualification; retain explicit experimental labeling unless performance and stability evidence supports broader use.
+    owner_decision_required: false

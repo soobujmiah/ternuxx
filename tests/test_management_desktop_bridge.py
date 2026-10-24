@@ -15,12 +15,68 @@ import management_desktop_bridge as bridge
 
 
 class ManagementDesktopBridgeTests(unittest.TestCase):
+    def setUp(self) -> None:
+        # The GTK bridge is deliberately Native-Termux-only. Unit tests run on
+        # Linux CI as well, so model the host contract instead of inheriting the
+        # runner's unrelated environment.
+        env = mock.patch.dict(os.environ, {
+            "TERMUX_VERSION": "fixture",
+            "PREFIX": "/data/data/com.termux/files/usr",
+        })
+        env.start()
+        self.addCleanup(env.stop)
+
+    def test_native_environment_gate_rejects_non_termux_host(self):
+        with mock.patch.dict(os.environ, {"TERMUX_VERSION": "", "PREFIX": "/usr"}), \
+                mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()), \
+                mock.patch("sys.stderr", StringIO()):
+            self.assertEqual(bridge.main(["catalog"]), 2)
+        dispatch.assert_not_called()
+
     def test_cpu_prompt_is_sent_on_stdin_to_shared_management_service(self):
         with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"output": "ok"}}) as dispatch, \
                 mock.patch("sys.stdin", StringIO("one line")), redirect_stdout(StringIO()) as output:
             self.assertEqual(bridge.main(["cpu-run"]), 0)
         dispatch.assert_called_once_with("inference.cpu.run", {"prompt": "one line", "max_tokens": 64})
         self.assertIn("ok", output.getvalue().casefold())
+
+    def test_vulkan_inference_bridge_uses_shared_status_and_stdin_prompt(self):
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"available": False}}) as dispatch, \
+                redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["gpu-status"]), 0)
+        dispatch.assert_called_once_with("inference.gpu.status")
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"output": "ok"}}) as dispatch, \
+                mock.patch("sys.stdin", StringIO("one line")), redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["gpu-run"]), 0)
+        dispatch.assert_called_once_with("inference.gpu.run", {"prompt": "one line", "max_tokens": 64})
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch, \
+                mock.patch("sys.stdin", StringIO("prompt")), redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["gpu-run", "Vulkan1"]), 0)
+        dispatch.assert_called_once_with("inference.gpu.run", {
+            "prompt": "prompt", "max_tokens": 64, "device_id": "Vulkan1"})
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["gpu-run", "../outside"]), 2)
+        dispatch.assert_not_called()
+
+    def test_npu_bridge_previews_exact_runtime_and_gates_prompt_on_htp_status(self):
+        preview = {"ok": True, "data": {"plan_id": "a" * 24, "release": "b11849"}}
+        with mock.patch.object(bridge, "call", return_value=preview) as dispatch, redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["npu-runtime-preview"]), 0)
+        dispatch.assert_called_once_with("inference.npu.runtime.preview")
+        self.assertIn("P\t" + "a" * 24, output.getvalue())
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"installed": True}}) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["npu-runtime-apply", "a" * 24, "INSTALL"]), 0)
+        dispatch.assert_called_once_with("inference.npu.runtime.apply", {"plan_id": "a" * 24, "confirmed": True})
+        with mock.patch.object(bridge, "call", side_effect=[{"ok": True, "data": {"available": False, "reason": "HTP absent"}}]) as dispatch, \
+                mock.patch("sys.stdin", StringIO("one line")), redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["npu-run"]), 1)
+        dispatch.assert_called_once_with("inference.npu.status")
+        with mock.patch.object(bridge, "call", side_effect=[{"ok": True, "data": {"available": True}},
+                {"ok": True, "data": {"output": "ok", "backend": "HTP0"}}]) as dispatch, \
+                mock.patch("sys.stdin", StringIO("one line")), redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["npu-run"]), 0)
+        self.assertEqual(dispatch.call_args_list, [mock.call("inference.npu.status"), mock.call(
+            "inference.npu.run", {"prompt": "one line", "max_tokens": 64})])
 
     def test_cron_create_bridge_encodes_all_supported_schedule_types_as_typed_service_args(self):
         cases = [
@@ -65,6 +121,27 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
             with self.subTest(argv=argv), mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
                 self.assertEqual(bridge.main(argv), 2)
             dispatch.assert_not_called()
+
+    def test_continuity_checkpoint_bridge_uses_typed_preview_and_confirmed_plan(self):
+        plan_id = "e" * 64
+        cases = (("continuity-prepare-preview", "continuity.prepare.preview", "release-audit"),
+                 ("continuity-verify-preview", "continuity.verify.preview", "a" * 32))
+        for action, operation, reference in cases:
+            with self.subTest(action=action), mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"plan_id": plan_id}}) as dispatch, redirect_stdout(StringIO()) as output:
+                self.assertEqual(bridge.main([action, reference]), 0)
+            args = {"test_id": reference} if "prepare" in action else {"checkpoint_id": reference}
+            dispatch.assert_called_once_with(operation, args)
+            self.assertEqual(output.getvalue().strip().split("\t", 2)[:2], ["P", plan_id])
+        for action, operation, reference in (("continuity-prepare-apply", "continuity.prepare", "release-audit"),
+                                             ("continuity-verify-apply", "continuity.verify", "a" * 32)):
+            with self.subTest(action=action), mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch, redirect_stdout(StringIO()):
+                self.assertEqual(bridge.main([action, reference, plan_id, "confirmed"]), 0)
+            args = {"test_id": reference} if "prepare" in action else {"checkpoint_id": reference}
+            dispatch.assert_called_once_with(operation, {**args, "confirmed": True, "plan_id": plan_id})
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["continuity-verify-preview", "../bad"]), 2)
+            self.assertEqual(bridge.main(["continuity-verify-apply", "a" * 32, "bad", "confirmed"]), 2)
+        dispatch.assert_not_called()
 
     def test_backup_create_preview_and_apply_use_exact_saved_plan(self):
         plan = {"plan_id": "a" * 64, "entries": [{"path": "profile", "present": True}]}
@@ -152,6 +229,41 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
             self.assertEqual(bridge.main(["software-run", "Documents"]), 0)
         dispatch.assert_called_once_with("software.app.run", {"app_id": "directory-tree", "path": "Documents"})
         self.assertIn("Notes.txt", output.getvalue())
+
+    def test_proot_replay_guest_preview_apply_use_exact_shared_plans(self):
+        alias, backup_id, plan_id = "ternuxx-replay-p4", "b" * 32, "a" * 64
+        retire = {"ok": True, "data": {"plan_id": plan_id, "operation": {
+            "alias": alias, "confirmation_required": True, "impact": "No files deleted."}}}
+        with mock.patch.object(bridge, "call", return_value=retire) as dispatch, redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["proot-replay-retire-preview", alias]), 0)
+        dispatch.assert_called_once_with("proot.setup.retire.preview", {"alias": alias})
+        self.assertEqual(output.getvalue().strip().split("\t")[:3], ["P", plan_id, alias])
+
+        restore = {"ok": True, "data": {"plan_id": plan_id, "operation": {
+            "alias": alias, "backup_id": backup_id, "confirmation_required": True,
+            "impact": "Restore exact guest."}}}
+        with mock.patch.object(bridge, "call", return_value=restore) as dispatch, redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["proot-replay-restore-preview", alias, backup_id]), 0)
+        dispatch.assert_called_once_with("proot.setup.restore.preview", {"alias": alias, "backup_id": backup_id})
+        self.assertEqual(output.getvalue().strip().split("\t")[:4], ["P", plan_id, alias, backup_id])
+
+        for action, args, operation, payload in (
+            ("proot-replay-retire-apply", [alias, plan_id], "proot.setup.retire.apply",
+             {"alias": alias, "confirmed": True, "plan_id": plan_id}),
+            ("proot-replay-restore-apply", [alias, backup_id, plan_id], "proot.setup.restore.apply",
+             {"alias": alias, "backup_id": backup_id, "confirmed": True, "plan_id": plan_id}),
+        ):
+            with self.subTest(action=action), mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch, redirect_stdout(StringIO()):
+                self.assertEqual(bridge.main([action, *args]), 0)
+            dispatch.assert_called_once_with(operation, payload)
+
+    def test_proot_replay_guest_bridge_rejects_unowned_alias_and_bad_ids(self):
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-replay-retire-preview", "debian"]), 2)
+            self.assertEqual(bridge.main(["proot-replay-restore-preview", "ternuxx-replay-p4", "bad"]), 2)
+            self.assertEqual(bridge.main(["proot-replay-retire-apply", "ternuxx-replay-p4", "bad"]), 2)
+            self.assertEqual(bridge.main(["proot-replay-restore-apply", "ternuxx-replay-p4", "b" * 32, "bad"]), 2)
+        dispatch.assert_not_called()
 
     def test_curated_software_preview_and_apply_use_exact_shared_plan(self):
         preview = {"ok": True, "data": {"plan_id": "a" * 64, "changes": [{"action": "install", "package": "htop"}]}}
@@ -504,11 +616,133 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
             self.assertEqual(bridge.main(["run", "arbitrary command"]), 2)
         self.assertIn("Unsupported typed management action", error.getvalue())
 
-    def test_retired_guest_bridge_actions_fail_closed(self) -> None:
-        for action in ("proot-app-launch", "proot-session-list", "guest-lifecycle-preview", "shortcut-preview"):
-            with self.subTest(action=action):
-                result = bridge.main([action])
-                self.assertEqual(result, 2)
+    def test_proot_bridge_status_and_session_actions_use_shared_service(self) -> None:
+        for action, operation in (("proot-status", "proot.status"),
+                                  ("proot-profile-list", "proot.profiles.list"),
+                                  ("proot-session-list", "proot.sessions.list")):
+            with self.subTest(action=action), mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as call:
+                self.assertEqual(bridge.main([action]), 0)
+                self.assertEqual(call.call_args.args[0], operation)
+
+    def test_terminal_service_controls_use_exact_shared_previews_and_confirmation(self):
+        with mock.patch.object(bridge, "call", side_effect=[
+                {"ok": True, "data": {"installed": True, "status": "stopped"}},
+                {"ok": True, "data": {"plan_id": "a" * 64, "impact": "Starts broker"}}]) as dispatch, \
+                redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["terminal-service-prepare"]), 0)
+        self.assertEqual([item.args[0] for item in dispatch.call_args_list], [
+            "terminal.broker.service.status", "terminal.broker.service.start.preview"])
+        self.assertIn("P\t" + "a" * 64 + "\tstart\t", output.getvalue())
+        with mock.patch.object(bridge, "call", side_effect=[
+                {"ok": True, "data": {"installed": False}},
+                {"ok": True, "data": {"plan_id": "c" * 64, "impact": "Installs broker"}}]) as dispatch, \
+                redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["terminal-service-prepare"]), 0)
+        self.assertEqual(dispatch.call_args.args[0], "terminal.broker.service.install.preview")
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"installed": True, "status": "running"}}) as dispatch, \
+                redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["terminal-service-prepare"]), 0)
+        self.assertEqual(dispatch.call_args.args[0], "terminal.broker.service.status")
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"status": "running"}}) as dispatch, \
+                redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["terminal-service-apply", "confirmed", "start", "b" * 64]), 0)
+        dispatch.assert_called_once_with("terminal.broker.service.start.apply", {"confirmed": True, "plan_id": "b" * 64})
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["terminal-service-apply", "confirmed", "start", "../bad"]), 2)
+        dispatch.assert_not_called()
+
+    def test_gtk_guest_app_launch_uses_shared_typed_service_and_rejects_bad_ids(self) -> None:
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-app-launch", "firefox"]), 0)
+        dispatch.assert_called_once_with("proot.app.launch", {"app_id": "firefox", "display": ":1"})
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-app-launch", "../../x"]), 2)
+        dispatch.assert_not_called()
+
+    def test_gtk_guest_shortcut_list_uses_shared_service(self) -> None:
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"shortcuts": []}}) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-shortcut-list"]), 0)
+        dispatch.assert_called_once_with("proot.shortcuts.list")
+
+    def test_gtk_guest_shortcut_uses_preview_confirmation_plan(self) -> None:
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {
+                "plan_id": "a" * 24, "changed": True, "name": "Firefox",
+                "affected_resources": [{"path": "applications/firefox.desktop"}]}}) as dispatch, redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["proot-shortcut-preview", "add", "firefox"]), 0)
+        dispatch.assert_called_once_with("proot.shortcuts.preview", {"action": "add", "app_id": "firefox"})
+        self.assertEqual(output.getvalue().strip(), "P\t" + "a" * 24 + "\tFirefox\tapplications/firefox.desktop")
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-shortcut-apply", "remove", "firefox", "b" * 24]), 0)
+        dispatch.assert_called_once_with("proot.shortcuts.apply", {"action": "remove", "app_id": "firefox", "confirmed": True, "plan_id": "b" * 24})
+
+    def test_gtk_shortcut_sync_preview_apply_and_rollback_use_exact_service_plans(self) -> None:
+        sync_preview = {"ok": True, "data": {"plan_id": "a" * 24, "changed": True,
+                        "discovered": 5, "changes": [{}, {}], "conflicts": [{}]}}
+        with mock.patch.object(bridge, "call", return_value=sync_preview) as dispatch, redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["proot-shortcut-sync-preview"]), 0)
+        dispatch.assert_called_once_with("proot.shortcuts.sync.preview")
+        self.assertEqual(output.getvalue().strip(), "P\t" + "a" * 24 + "\t5\t2\t1")
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-shortcut-sync-apply", "confirmed", "a" * 24]), 0)
+        dispatch.assert_called_once_with("proot.shortcuts.sync.apply", {"confirmed": True, "plan_id": "a" * 24})
+
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"rollbacks": [
+                {"rollback_id": "b" * 32, "status": "applied", "integrity": "valid", "entry_count": 2}]}}) as dispatch, redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["proot-shortcut-rollback-list"]), 0)
+        dispatch.assert_called_once_with("proot.shortcuts.sync.rollback.list")
+        self.assertEqual(output.getvalue().strip(), "R\t" + "b" * 32 + "\tapplied\tvalid\t2")
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {
+                "plan_id": "c" * 24, "requires_confirmation": True, "changes": [{}, {}]}}) as dispatch, redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["proot-shortcut-rollback-preview", "b" * 32]), 0)
+        dispatch.assert_called_once_with("proot.shortcuts.sync.rollback.preview", {"rollback_id": "b" * 32})
+        self.assertEqual(output.getvalue().strip(), "Q\t" + "c" * 24 + "\t" + "b" * 32 + "\t2")
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-shortcut-rollback-apply", "confirmed", "b" * 32, "c" * 24]), 0)
+        dispatch.assert_called_once_with("proot.shortcuts.sync.rollback.apply", {"rollback_id": "b" * 32,
+            "confirmed": True, "plan_id": "c" * 24})
+
+    def test_gtk_guest_session_stop_requires_verified_preview_plan(self) -> None:
+        session_id = "proot-" + "c" * 32
+        plan_id = "plan-" + "d" * 64
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {
+                "plan_id": plan_id, "impact": "Stop only owned session"}}) as dispatch, redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["proot-stop-preview", session_id]), 0)
+        dispatch.assert_called_once_with("proot.stop.preview", {"session_id": session_id})
+        self.assertEqual(output.getvalue().strip(), "P\t" + plan_id + "\tStop only owned session")
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-stop-apply", session_id, plan_id]), 0)
+        dispatch.assert_called_once_with("proot.stop", {"session_id": session_id, "confirmed": True, "plan_id": plan_id})
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-stop-apply", session_id, "plan-" + "d" * 24]), 2)
+        dispatch.assert_not_called()
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-stop-preview", "../foreign"]), 2)
+        dispatch.assert_not_called()
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-stop-preview", "s-" + "c" * 24]), 2)
+        dispatch.assert_not_called()
+
+    def test_gtk_guest_session_reconciliation_uses_exit_evidence_and_exact_plan(self) -> None:
+        session_id, plan_id = "proot-" + "e" * 32, "plan-" + "f" * 64
+        calls = [{"ok": True, "data": {"status": "unverified"}},
+                 {"ok": True, "data": {"plan_id": plan_id, "observed_state": "failed",
+                                         "evidence": "process_absent", "action": "mark_exited_without_signal"}},
+                 {"ok": True, "data": {"state": "stopped", "signal_sent": False}}]
+        with mock.patch.object(bridge, "call", side_effect=calls) as dispatch, redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["proot-reconcile-preview", session_id]), 0)
+        self.assertEqual(dispatch.call_args_list, [mock.call("proot.recovery.inspect", {"session_id": session_id}),
+            mock.call("proot.recovery.reconcile.preview", {"session_id": session_id})])
+        self.assertIn("P\t" + plan_id, output.getvalue())
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-reconcile-apply", session_id, plan_id]), 0)
+        dispatch.assert_called_once_with("proot.recovery.reconcile", {"session_id": session_id,
+            "confirmed": True, "plan_id": plan_id})
+        with mock.patch.object(bridge, "call") as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-reconcile-apply", session_id, "plan-" + "f" * 24]), 2)
+        dispatch.assert_not_called()
+
+    def test_unregistered_guest_bridge_actions_fail_closed(self) -> None:
+        self.assertEqual(bridge.main(["guest-lifecycle-preview"]), 2)
 
 
 

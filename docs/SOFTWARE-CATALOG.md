@@ -11,7 +11,7 @@ Ternuxx supports Native Termux packages only. It does not install or manage a Li
 - tx app run directory-tree HOME_PATH passes one selected regular file or directory under Native HOME to the fixed tree executable. It is read-only, bounded to two directory levels and 32 entries per directory, and returns names only; it never reads file contents or follows a selected symlink.
 - The same shared operations are exposed in the TUI, authenticated Web management, and GTK Management Center. All clients use the shared typed service and authorization policy.
 - `tx mng catalog list` shows the shared management resource catalog. Catalog status distinguishes implemented Native operations from partial and planned work.
-- `tx guides` routes to Native package preview, Doctor, status, desktop start, CPU inference setup, TUI, authenticated Web management, GTK management, and the installation/operations guides.
+- `tx guides` routes to Native package preview, Doctor, status, desktop start, pinned CPU-model setup, CPU/GPU/NPU status, Debian inventory and fresh-guest preview, TUI, authenticated Web management, GTK management, and the installation/operations guides.
 
 The curated app IDs are deliberately limited. Arbitrary package names, third-party repositories, guest distributions, APK sideloading, shared-storage paths, and symlink traversal are outside this workflow.
 
@@ -33,4 +33,4 @@ Ternuxx does not silently change package providers, fetch arbitrary install scri
 | `planned` | No install or management action is available yet. |
 | `unavailable` | A checked prerequisite or workload cannot currently be used in the observed profile. |
 
-The [Native feature matrix](testing/FEATURE-MATRIX.yaml) and [device profile](testing/DEVICE-COMPATIBILITY.md) are the current status sources. The former broad multi-provider app/distro catalog is preserved as a [dated planning snapshot](history/SOFTWARE-CATALOG-pre-native-only-2026-10-24.md); it is not an install guide or support promise.
+The [Ternuxx feature matrix](testing/FEATURE-MATRIX.yaml) and [device profile](testing/DEVICE-COMPATIBILITY.md) are the current status sources. The former broad multi-provider app/distro catalog is preserved as a [dated planning snapshot](history/SOFTWARE-CATALOG-pre-native-only-2026-10-24.md); it is not an install guide or support promise.

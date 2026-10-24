@@ -145,7 +145,7 @@ class CpuInferenceTests(unittest.TestCase):
         cpu_inference.fcntl.flock(fd, cpu_inference.fcntl.LOCK_EX | cpu_inference.fcntl.LOCK_NB)
         try:
             plan = cpu_inference.preview("remove", home=self.home, state_dir=self.state, spec=self.spec)
-            with self.assertRaisesRegex(cpu_inference.InferenceError, "another CPU model operation"):
+            with self.assertRaisesRegex(cpu_inference.InferenceError, "another model operation"):
                 cpu_inference.remove_model(plan_id=plan["plan_id"], confirmed="REMOVE",
                     home=self.home, state_dir=self.state, spec=self.spec)
             self.assertEqual(target.read_bytes(), self.payload)
@@ -229,6 +229,117 @@ class CpuInferenceTests(unittest.TestCase):
                 cpu_inference._execute_cpu(["llama-cli"], timeout=1, prefix="/termux")
         self.assertEqual([call.args[1] for call in kill_group.call_args_list],
                          [cpu_inference.signal.SIGTERM, cpu_inference.signal.SIGKILL])
+
+    def test_gpu_status_reports_only_runtime_listed_vulkan_devices(self):
+        completed = cpu_inference.subprocess.CompletedProcess(
+            ["llama-cli", "--list-devices"], 0,
+            "Available devices:\n  Vulkan0: Adreno (TM) 825\n  CPU: ARMv9\n", "")
+        with patch.object(cpu_inference, "_runtime", return_value="/mock/llama-cli"), \
+                patch.object(cpu_inference.subprocess, "run", return_value=completed) as run:
+            result = cpu_inference.gpu_status(prefix="/termux")
+        self.assertTrue(result["available"])
+        self.assertEqual(result["devices"], [{"id": "Vulkan0", "name": "Adreno (TM) 825"}])
+        self.assertEqual(run.call_args.args[0], ["/mock/llama-cli", "--list-devices"])
+        self.assertEqual(run.call_args.kwargs["timeout"], 10)
+
+    def test_gpu_status_passes_the_validated_native_graphics_environment(self):
+        completed = cpu_inference.subprocess.CompletedProcess(
+            ["llama-cli", "--list-devices"], 0,
+            "Available devices:\n  Vulkan0: Adreno 825\n", "")
+        selected_env = {"LD_LIBRARY_PATH": "/mesa/lib:/termux/lib", "VK_ICD_FILENAMES": "/mesa/icd.json"}
+        with patch.object(cpu_inference, "_runtime", return_value="/mock/llama-cli"), \
+                patch.object(cpu_inference, "_gpu_runtime_env", return_value=selected_env) as build_env, \
+                patch.object(cpu_inference.subprocess, "run", return_value=completed) as run:
+            result = cpu_inference.gpu_status(prefix="/termux", home=self.home, state_dir=self.state)
+        self.assertTrue(result["available"])
+        build_env.assert_called_once_with(prefix="/termux", home=self.home, state_dir=self.state)
+        self.assertIs(run.call_args.kwargs["env"], selected_env)
+
+    def test_gpu_runtime_env_only_loads_the_prefix_owned_backend(self):
+        prefix = self.home / "prefix"
+        backend = prefix / "lib" / "libggml-vulkan.so"
+        backend.parent.mkdir(parents=True)
+        backend.write_bytes(b"test plugin")
+        backend.chmod(0o600)
+        with patch.dict(os.environ, {"LD_PRELOAD": "/untrusted/preload.so",
+                                     "GGML_BACKEND_PATH": "/untrusted/plugin.so"}):
+            env = cpu_inference._gpu_runtime_env(prefix=str(prefix), home=self.home, state_dir=self.state)
+        self.assertEqual(env["GGML_BACKEND_PATH"], str(backend))
+        self.assertNotIn("LD_PRELOAD", env)
+
+    def test_gpu_status_none_device_is_unavailable(self):
+        completed = cpu_inference.subprocess.CompletedProcess(
+            ["llama-cli", "--list-devices"], 0, "Available devices:\n  (none)\n", "")
+        with patch.object(cpu_inference, "_runtime", return_value="/mock/llama-cli"), \
+                patch.object(cpu_inference.subprocess, "run", return_value=completed):
+            result = cpu_inference.gpu_status(prefix="/termux")
+        self.assertFalse(result["available"])
+        self.assertEqual(result["devices"], [])
+
+    def test_gpu_run_requires_listed_device_and_verifiable_offload(self):
+        target = self.state / "models" / cpu_inference.MODEL.filename
+        target.parent.mkdir(parents=True, mode=0o700)
+        target.write_bytes(b"x" * cpu_inference.MODEL.size_bytes)
+        target.chmod(0o600)
+        completed = cpu_inference.subprocess.CompletedProcess(
+            ["llama-cli"], 0, "banner\n> Say GPU_OK\nGPU_OK\nExiting...", "offloaded 29/29 layers to GPU")
+        with patch.object(cpu_inference, "_valid_model", return_value=True), \
+                patch.object(cpu_inference, "_runtime", return_value="/mock/llama-cli"), \
+                patch.object(cpu_inference, "gpu_status", return_value={"available": True,
+                    "devices": [{"id": "Vulkan0", "name": "Adreno 825"}], "reason": None}), \
+                patch.object(cpu_inference, "_gpu_runtime_env", return_value={"VK_ICD_FILENAMES": "/mesa/icd.json"}), \
+                patch.object(cpu_inference, "_execute_cpu", return_value=completed) as execute:
+            result = cpu_inference.run_inference("Say GPU_OK", home=self.home, state_dir=self.state,
+                prefix="/termux", backend="vulkan")
+        self.assertEqual(result["backend"], "Vulkan")
+        self.assertEqual(result["device_id"], "Vulkan0")
+        self.assertEqual(result["gpu_layers"], 29)
+        self.assertEqual(result["gpu_total_layers"], 29)
+        self.assertEqual(result["output"], "GPU_OK")
+        argv = execute.call_args.args[0]
+        self.assertEqual(argv[argv.index("-ngl") + 1], "all")
+        self.assertEqual(argv[argv.index("--device") + 1], "Vulkan0")
+        self.assertEqual(argv[argv.index("-lv") + 1], "4")
+        self.assertEqual(execute.call_args.kwargs["env"], {"VK_ICD_FILENAMES": "/mesa/icd.json"})
+
+    def test_gpu_run_without_device_or_offload_fails_closed(self):
+        with patch.object(cpu_inference, "gpu_status", return_value={"available": False,
+                "devices": [], "reason": "no Vulkan inference device reported"}), \
+                patch.object(cpu_inference, "_valid_model") as validate_model:
+            with self.assertRaisesRegex(cpu_inference.InferenceError, "no Vulkan inference device"):
+                cpu_inference.run_inference("hello", home=self.home, state_dir=self.state,
+                                            prefix="/termux", backend="vulkan")
+        validate_model.assert_not_called()
+        target = self.state / "models" / cpu_inference.MODEL.filename
+        target.parent.mkdir(parents=True, mode=0o700)
+        target.write_bytes(b"x" * cpu_inference.MODEL.size_bytes)
+        target.chmod(0o600)
+        no_offload = cpu_inference.subprocess.CompletedProcess(["llama-cli"], 0,
+            "banner\n> hello\nhello\nExiting...", "")
+        with patch.object(cpu_inference, "_valid_model", return_value=True), \
+                patch.object(cpu_inference, "_runtime", return_value="/mock/llama-cli"), \
+                patch.object(cpu_inference, "gpu_status", return_value={"available": True,
+                    "devices": [{"id": "Vulkan0", "name": "Adreno"}], "reason": None}), \
+                patch.object(cpu_inference, "_execute_cpu", return_value=no_offload):
+            with self.assertRaisesRegex(cpu_inference.InferenceError, "without verifiable complete GPU layer offload"):
+                cpu_inference.run_inference("hello", home=self.home, state_dir=self.state,
+                                            prefix="/termux", backend="vulkan")
+
+    def test_gpu_run_rejects_partial_layer_offload(self):
+        target = self.state / "models" / cpu_inference.MODEL.filename
+        target.parent.mkdir(parents=True, mode=0o700)
+        target.write_bytes(b"x" * cpu_inference.MODEL.size_bytes)
+        target.chmod(0o600)
+        partial = cpu_inference.subprocess.CompletedProcess(
+            ["llama-cli"], 0, "banner\n> hello\nhello\nExiting...", "offloaded 22/29 layers to GPU")
+        with patch.object(cpu_inference, "_valid_model", return_value=True), \
+                patch.object(cpu_inference, "_runtime", return_value="/mock/llama-cli"), \
+                patch.object(cpu_inference, "gpu_status", return_value={"available": True,
+                    "devices": [{"id": "Vulkan0", "name": "Adreno"}], "reason": None}), \
+                patch.object(cpu_inference, "_execute_cpu", return_value=partial):
+            with self.assertRaisesRegex(cpu_inference.InferenceError, "complete GPU layer offload"):
+                cpu_inference.run_inference("hello", home=self.home, state_dir=self.state,
+                                            prefix="/termux", backend="vulkan")
 
     def test_run_is_cpu_only_bounded_and_reports_backend(self):
         target = self.state / "models" / cpu_inference.MODEL.filename

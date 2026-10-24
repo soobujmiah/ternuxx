@@ -7,13 +7,13 @@
 # shellcheck source=lib/core.sh
 . "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 
-# Native workstation packages include graphical diagnostics and X11 test
-# utilities requested by the owner. Heavy applications and Mesa providers stay
-# optional and are handled separately.
+# Native host packages include Debian PRoot support, graphical diagnostics, and
+# X11 test utilities. Heavy applications and Mesa providers remain optional.
 _NT_BASE_PACKAGES=(
   termux-x11-nightly
   dbus
   pulseaudio
+  proot-distro
   python
   xfce4-session
   xfce4-panel
@@ -95,7 +95,7 @@ _nt_make_install_plan() {
       continue
     fi
     case "$package" in
-      dbus|pulseaudio|python) expected_repo="termux-main" ;;
+      dbus|pulseaudio|python|proot-distro) expected_repo="termux-main" ;;
       *) expected_repo="termux-x11" ;;
     esac
     candidate="$(_nt_package_candidate_from_official_repo "$package" "$expected_repo")" || {
@@ -155,7 +155,7 @@ _nt_make_update_plan() {
   for package in "${_NT_BASE_PACKAGES[@]}"; do
     _nt_package_installed "$package" || continue
     case "$package" in
-      dbus|pulseaudio|python) expected_repo="termux-main" ;;
+      dbus|pulseaudio|python|proot-distro) expected_repo="termux-main" ;;
       *) expected_repo="termux-x11" ;;
     esac
     installed="$(dpkg-query -W -f='${Version}' "$package" 2>/dev/null)" || {

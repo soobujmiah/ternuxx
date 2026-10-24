@@ -192,7 +192,7 @@ nt_cmd_start() {
   done
 
   nt_require_termux || return 1
-  for tool in termux-x11 dbus-launch xfce4-session python3 nohup; do
+  for tool in termux-x11 dbus-launch xfce4-session python3 nohup setsid; do
     nt_require_command "$tool" || return 1
   done
   supervisor="$_TN_LIB_DIR/desktop-supervisor.sh"
@@ -292,7 +292,7 @@ nt_cmd_start() {
   chmod 600 "$log_file" 2>/dev/null || true
   rm -f "$state_root/session.ready" 2>/dev/null || true
   nt_step "Starting Ternuxx-owned X11 and XFCE on :$display_number..."
-  nohup env "${launch_env[@]}" "$supervisor" ":$display_number" "$state_root" "$tmp_root" \
+  nohup setsid env "${launch_env[@]}" "$supervisor" ":$display_number" "$state_root" "$tmp_root" \
     "$(command -v termux-x11)" "$(command -v dbus-launch)" \
     "$(command -v xfce4-session)" "$owned_exec" >> "$log_file" 2>&1 </dev/null &
 

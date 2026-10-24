@@ -206,7 +206,7 @@ on_signal() {
 trap on_signal TERM INT HUP
 
 [[ "$DISPLAY_VALUE" =~ ^:[0-9]{1,2}$ ]] || fail "invalid display"
-[[ "$PROVIDER" = native ]] || fail "only Native Termux desktop sessions are supported"
+[[ "$PROVIDER" = native || "$PROVIDER" = proot ]] || fail "unsupported desktop provider"
 [ -d "$STATE_DIR" ] || fail "state directory missing"
 [ -d "$TMP_ROOT/.X11-unix" ] || fail "Termux X11 socket directory missing"
 [ -x "$X11_BIN" ] || fail "termux-x11 executable missing"

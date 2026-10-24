@@ -148,6 +148,11 @@ OPERATION_LABELS: Final[dict[str, str]] = {
     "boot.cron.enable": "Enable Cron at Termux boot",
     "boot.cron.disable": "Disable Cron at Termux boot",
     "recovery.status": "Recovery status",
+    "continuity.status": "Reboot continuity status",
+    "continuity.prepare.preview": "Preview continuity checkpoint creation",
+    "continuity.prepare": "Create continuity checkpoint",
+    "continuity.verify.preview": "Preview checkpoint verification",
+    "continuity.verify": "Record checkpoint verification",
     "backup.list": "Available backups",
     "ssh.inspect": "SSH connection status",
     "native.ssh.status": "Managed SSH status",
@@ -214,6 +219,10 @@ def human_value(value: object) -> str:
 
 def format_report(value: object) -> str:
     """Format shared-service responses for people; omit credentials and IDs."""
+    if isinstance(value, dict) and value.get("ok") is True:
+        data = value.get("data")
+        if isinstance(data, dict) and data.get("resource_id") == "proot.x11.shortcuts":
+            return _format_proot_shortcuts(data)
     lines: list[str] = []
     if isinstance(value, dict):
         if value.get("ok") is True:
@@ -261,6 +270,34 @@ def format_report(value: object) -> str:
 
     visit(value)
     return "\n".join(lines) if lines else "No readable details were returned."
+
+
+def _format_proot_shortcuts(data: dict[str, object]) -> str:
+    """Keep guest launcher inventory readable without dumping localized desktop metadata."""
+    fixed = data.get("items")
+    fixed_items = [item for item in fixed if isinstance(item, dict)] if isinstance(fixed, list) else []
+    dynamic = data.get("desktop_applications")
+    dynamic_items = dynamic.get("items", []) if isinstance(dynamic, dict) else []
+    dynamic_items = [item for item in dynamic_items if isinstance(item, dict)] if isinstance(dynamic_items, list) else []
+    lines = [f"Debian shortcuts - {len(fixed_items)} fixed, {len(dynamic_items)} discovered app launchers"]
+    for title, items in (("Fixed shortcuts", fixed_items), ("Discovered Debian apps", dynamic_items)):
+        if not items:
+            continue
+        lines.append(title + ":")
+        for item in items:
+            identifier = item.get("id") or item.get("desktop_id")
+            name = item.get("name")
+            state = item.get("shortcut_state", item.get("status", "unknown"))
+            if not isinstance(identifier, str) or not isinstance(state, str):
+                continue
+            label = f"{identifier} — {name}" if isinstance(name, str) and name else identifier
+            availability = item.get("application_availability")
+            suffix = f"; app {availability}" if isinstance(availability, str) and availability != "unknown" else ""
+            lines.append(f"  {label}: {state}{suffix}")
+    diagnostics = dynamic.get("diagnostics") if isinstance(dynamic, dict) else None
+    if isinstance(diagnostics, list) and diagnostics:
+        lines.append(f"Discovery diagnostics: {len(diagnostics)} (details omitted; use --json for structured output)")
+    return "\n".join(lines)
 
 
 def _history_time(value: object) -> str | None:

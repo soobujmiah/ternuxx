@@ -107,7 +107,7 @@ class PackagePlanTest(unittest.TestCase):
                 finally:
                     temporary.cleanup()
 
-    def test_base_workstation_plan_excludes_proot_packages(self):
+    def test_base_workstation_plan_includes_previewed_proot_runtime(self):
         temporary = tempfile.TemporaryDirectory(prefix="ternuxx-native-plan-")
         fixture_bin = Path(temporary.name)
         apt_get = fixture_bin / "apt-get"
@@ -129,8 +129,7 @@ class PackagePlanTest(unittest.TestCase):
         temporary.cleanup()
         self.assertEqual(result.returncode, 0, result.stderr)
         roots = result.stdout.split("ROOTS ", 1)[1].splitlines()[0].split()
-        self.assertNotIn("proot", roots)
-        self.assertNotIn("proot-distro", roots)
+        self.assertIn("proot-distro", roots)
         self.assertNotIn("virglrenderer-android", roots)
         self.assertIn("xfce4-session", roots)
 

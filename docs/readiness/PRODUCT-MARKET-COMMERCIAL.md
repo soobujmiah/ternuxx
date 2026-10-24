@@ -1,10 +1,10 @@
 # Product positioning, market and commercial model
 
-**Reviewed:** 2026-10-17; product boundary refreshed 2026-10-24. This is a research hypothesis document, not an approved offer, price list or sales claim. Historical multi-provider assumptions are not current Ternuxx scope.
+**Reviewed:** 2026-10-24. This is a research hypothesis document, not an approved offer, price list or sales claim. Historical multi-provider assumptions are not current Ternuxx scope.
 
 ## What the product is today
 
-**Current factual description (rechecked 2026-10-24):** Ternuxx is an early-stage Native Termux-only workstation manager. Owner-directed PRoot retirement is complete; prior PRoot market and product claims below are historical planning assumptions. `./tx` in the source checkout and the installed `tx` command are canonical; the older `ternuxx` command is a compatibility entrypoint. The repository includes Native package planning, desktop/SSH lifecycle, a shared management service, CPU-only inference, and CLI/TUI/Web/GTK management surfaces. Native profile qualification and later project phases remain in progress; there are no public releases or release-qualified product tests. See [phase status](../PHASE-STATUS.md) and [the repository audit worklist](../audit/REPOSITORY-AUDIT.md).
+**Current factual description (2026-10-24):** Ternuxx is an early-stage Android workstation manager with Native Termux as host/control plane and optional Debian PRoot workloads. `./tx` in the source checkout and the installed `tx` command are canonical; the older `ternuxx` command is a compatibility entrypoint. The repository includes Native package planning, desktop/SSH lifecycle, a shared management service, bounded CPU and Vulkan inference, experimental SM8735 HTP inference, and CLI/TUI/Web/GTK management surfaces. P11 one-device guest/client acceptance passed; P12 acceleration qualification remains in progress. There are no public releases or release-qualified product tests. See [phase status](../PHASE-STATUS.md), [current state](../../CURRENT_STATE.md), and the [repository audit worklist](../audit/REPOSITORY-AUDIT.md).
 
 **Product promise to test:** give advanced Android users one evidence-led way to inspect and manage Native Termux workstation workflows through consistent interfaces and guided recovery. The distinction between desired architecture and usable product must stay visible on all marketing pages.
 
@@ -16,7 +16,7 @@
 | Android developers using phone as workstation | CLI, editors, compilers, SSH, selected Android APIs, repeatable workspace | Plausible but no validated use cases beyond owner | Interview developers; record workflows, offline/network and keyboard constraints |
 | Linux-on-Android learners/hobbyists | Low-friction distro and desktop setup, guided recovery | Competes directly with established apps; support burden may be high | Compare setup failure paths, onboarding and device coverage |
 | Privacy/offline-first users | Local state and no mandatory telemetry/cloud accounts | Product principles align; no audit yet verifies every code path | Threat-model, network-egress and logging review before claim |
-| Local AI/accelerator users | Actual GPU/NPU access from a named application/workload | High interest but not current product capability; NPU unknown | Name a model/runtime and prove backend selection, quality, sustained performance and thermal behavior first |
+| Local AI/accelerator users | Actual GPU/NPU access from a named application/workload | Experimental CPU/Vulkan/HTP paths have bounded device-specific workload evidence; sustained support and release qualification remain open | Validate customer demand separately; do not promise acceleration until repeated correctness, memory, and thermal qualification passes |
 | Users who need setup/maintenance help | Human troubleshooting and device-specific configuration | Potential first service buyer after a stable supported profile exists | Customer interviews and paid pilots; no demand/traction currently established |
 
 ## Alternatives and competitive position
@@ -44,7 +44,7 @@ Before selling or advertising a supported workstation profile, require:
 1. Honest, reviewed brand/license/provenance decision and product name clearance.
 2. Native installer preview/apply/rollback with user-readable ownership scope, accurate help and tested failure behavior.
 3. Doctor and safe lifecycle on an actual named Android/Termux/Termux:X11 profile.
-4. An opt-in existing-Ternux adapter whose exact behavior preserves the guest launcher, rootfs, display/audio lifecycle and verified workload/renderer evidence; no broad cleanup.
+4. Optional Debian PRoot setup/session controls with clean-device replay, safe lifecycle/recovery, and verified display/audio/workload behavior; do not couple Ternuxx state or lifecycle to the separate Ternux project.
 5. Tested recovery/backup boundaries and local data/privacy policy.
 6. Versioned release artifacts, source provenance, checksums/signatures where feasible, known issues, support boundaries, accessibility/bilingual install docs.
 7. A small pilot across more than the owner's one device/workflow before claiming broad compatibility.

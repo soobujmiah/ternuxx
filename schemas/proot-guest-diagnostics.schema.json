@@ -1,0 +1,334 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ternuxx:schema:proot-guest-diagnostics:v1",
+  "title": "Ternuxx bounded managed PRoot display, audio, and renderer diagnostics",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "component",
+    "status",
+    "distro",
+    "display",
+    "requested_backend",
+    "pulse_server",
+    "guest_entered",
+    "profile_owner",
+    "native_pulseaudio_endpoint",
+    "checks",
+    "blockers",
+    "read_only",
+    "safety",
+    "probe_payload_read_only"
+  ],
+  "properties": {
+    "component": {
+      "const": "proot_guest_diagnostics"
+    },
+    "status": {
+      "enum": [
+        "unavailable",
+        "not_installed",
+        "unknown",
+        "partial",
+        "complete"
+      ]
+    },
+    "distro": {
+      "type": "string",
+      "pattern": "^(debian|ternuxx-replay-[a-z0-9][a-z0-9-]{0,31})$"
+    },
+    "display": {
+      "type": "string",
+      "pattern": "^:(?:[0-9]|10)$"
+    },
+    "requested_backend": {
+      "enum": [
+        "zink",
+        "virgl"
+      ]
+    },
+    "pulse_server": {
+      "const": "tcp:127.0.0.1:4713"
+    },
+    "guest_entered": {
+      "type": "boolean"
+    },
+    "profile_owner": {
+      "const": "unverified"
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observed_display",
+        "x11",
+        "audio",
+        "renderer_class",
+        "renderer",
+        "gles_context",
+        "gles_renderer",
+        "gles_version",
+        "gles_draw_verified",
+        "glx_draw",
+        "glx_draw_frames",
+        "glx_draw_renderer",
+        "dri3_extension"
+      ],
+      "properties": {
+        "observed_display": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^:(?:[0-9]|10)$"
+        },
+        "x11": {
+          "enum": [
+            "reachable",
+            "unavailable",
+            "unknown"
+          ]
+        },
+        "audio": {
+          "enum": [
+            "reachable",
+            "unavailable",
+            "unknown"
+          ]
+        },
+        "renderer_class": {
+          "enum": [
+            "zink_turnip",
+            "virgl",
+            "software",
+            "other",
+            "unavailable"
+          ]
+        },
+        "renderer": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "gles_context": {
+          "enum": [
+            "verified",
+            "unavailable",
+            "unknown"
+          ]
+        },
+        "gles_renderer": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "gles_version": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 256
+        },
+        "gles_draw_verified": {
+          "const": false
+        },
+        "glx_draw": {
+          "enum": [
+            "verified",
+            "failed",
+            "unavailable",
+            "unknown"
+          ]
+        },
+        "glx_draw_frames": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000000000
+        },
+        "glx_draw_renderer": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 1024
+        },
+        "dri3_extension": {
+          "enum": [
+            "available",
+            "unavailable",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 4,
+      "items": {
+        "type": "string",
+        "maxLength": 120
+      }
+    },
+    "read_only": {
+      "type": "boolean"
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "packages_changed",
+        "guest_write_command_invoked",
+        "host_lifecycle_started",
+        "host_lifecycle_stopped",
+        "services_started",
+        "services_stopped",
+        "host_home_and_shared_storage_unbound",
+        "launcher_profile_write_possible"
+      ],
+      "properties": {
+        "packages_changed": {
+          "const": false
+        },
+        "guest_write_command_invoked": {
+          "const": false
+        },
+        "host_lifecycle_started": {
+          "const": false
+        },
+        "host_lifecycle_stopped": {
+          "const": false
+        },
+        "services_started": {
+          "const": false
+        },
+        "services_stopped": {
+          "const": false
+        },
+        "host_home_and_shared_storage_unbound": {
+          "const": true
+        },
+        "launcher_profile_write_possible": {
+          "type": "boolean"
+        }
+      }
+    },
+    "native_pulseaudio_endpoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "server_name",
+        "default_sink"
+      ],
+      "properties": {
+        "status": {
+          "enum": [
+            "available",
+            "unavailable",
+            "unknown"
+          ]
+        },
+        "server_name": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_.:+-]{1,128}$"
+        },
+        "default_sink": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9_.:+-]{1,128}$"
+        }
+      }
+    },
+    "probe_payload_read_only": {
+      "const": true
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "complete"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "checks": {
+            "properties": {
+              "x11": {
+                "const": "reachable"
+              },
+              "audio": {
+                "const": "reachable"
+              }
+            }
+          },
+          "blockers": {
+            "maxItems": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "guest_entered": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "read_only": {
+            "const": false
+          },
+          "safety": {
+            "properties": {
+              "launcher_profile_write_possible": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "guest_entered": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "read_only": {
+            "const": true
+          },
+          "safety": {
+            "properties": {
+              "launcher_profile_write_possible": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -269,7 +269,11 @@ bash -c "$runner" _ status
                                 text=True, capture_output=True, timeout=12, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertFalse(marker.exists())
-        self.assertEqual(self._state()["status"], "running")
+        session = self._state()
+        self.assertEqual(session["status"], "running")
+        supervisor_pid = int(session["supervisor"]["pid"])
+        self.assertEqual(os.getpgid(supervisor_pid), supervisor_pid)
+        self.assertEqual(os.getsid(supervisor_pid), supervisor_pid)
 
     def test_default_start_prefers_native_display_one(self) -> None:
         result = self._run("start")
@@ -503,7 +507,13 @@ bash -c "$runner" _ status
         self.assertFalse(self.state.exists())
 
     def test_checkpoint_cli_is_native_only_and_records_without_proot(self) -> None:
-        prepared = self._run("--json", "checkpoint", "prepare", "--test-id", "native-only", "--pending-test", "boot-check")
+        previewed = self._run("--json", "checkpoint", "prepare", "--test-id", "native-only", "--pending-test", "boot-check")
+        self.assertEqual(previewed.returncode, 0, previewed.stderr)
+        preview = json.loads(previewed.stdout)
+        self.assertTrue(preview["ok"], preview)
+        plan_id = preview["data"]["plan_id"]
+        prepared = self._run("--json", "checkpoint", "prepare", "--test-id", "native-only",
+                             "--pending-test", "boot-check", "--yes", "--plan-id", plan_id)
         self.assertEqual(prepared.returncode, 0, prepared.stderr)
         result = json.loads(prepared.stdout)
         self.assertTrue(result["ok"])

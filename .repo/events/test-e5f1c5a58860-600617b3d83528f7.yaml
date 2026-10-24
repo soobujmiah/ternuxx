@@ -1,0 +1,8 @@
+event_id: test-e5f1c5a58860-600617b3d83528f7
+repository: soobujmiah/ternuxx
+commit: e5f1c5a5886016bab2aaa0b342001d89f8ba3945
+kind: test
+occurred_at: '2026-10-24T03:40:17Z'
+status: passed
+summary: 958 Native Termux fixture tests passed in 105.417s on 2026-10-24 after TUI/Web
+  PRoot shortcut parity changes

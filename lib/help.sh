@@ -1,5 +1,5 @@
 # =============================================================================
-#  Ternuxx CLI help — Native Termux only
+#  Ternuxx CLI help — Native Termux host with optional Debian PRoot guest
 # =============================================================================
 . "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 
@@ -7,7 +7,7 @@ _nt_help_raw() {
   local cmd="${1:-}"
   case "$cmd" in
     "") cat <<'EOF'
-Ternuxx — Native Termux workstation management
+Ternuxx — Native Termux host and optional Debian PRoot workstation management
 
 Usage: tx <command> [options]
 
@@ -19,11 +19,12 @@ Quick launch:
   tx doctor          Run Native environment health checks
   tx guides          Open the interactive setup guide
 
-Commands by task:
+  Commands by task:
   Desktop: start, stop, restart, status, gui, tui, web
   Graphics: graphics, info, check, doctor
-  Local AI: ai (pinned Native CPU model workflow)
+  Local AI: ai (pinned CPU; explicit Vulkan GPU and experimental HTP inference routes)
   Software: app (curated Native package catalog)
+  Debian: db (interactive guest login), proot setup, pgui, terminal
   Management: mng, audio, ssh, remote
   Recovery: checkpoint, reboot, boot, wakelock, backup, recovery, restore
   Setup: install
@@ -36,10 +37,46 @@ Install and recovery changes require an exact preview plan. Remote access is
 disabled by default.
 EOF
       ;;
-    proot|db|pgui|virgl|terminal)
+    proot|db|pgui|virgl)
       cat <<'EOF'
-PRoot and guest-terminal support have been removed from Ternuxx.
-Ternuxx runs directly in Native Termux. Use `tx help`, `tx tui`, or `tx guides`.
+Debian PRoot uses the Native Termux host. `tx install preview` includes the
+proot-distro runtime. Then use `tx proot setup fresh-preview --user NAME`,
+review the exact image/package plan, and apply it with
+`tx proot setup fresh-install --yes --plan-id ID`. The guest sudo password is
+entered twice in hidden prompts; never put it in command arguments. Fresh setup
+runs in an attached Native Termux terminal and preserves an existing guest.
+`tx proot sessions list` inspects managed sessions;
+`tx proot sessions recovery-inspect SESSION_ID` and `reconcile-preview`
+inspect interrupted records. Apply reconciliation only when its exact preview
+proves the original process exited. `tx proot stop-preview SESSION_ID` prepares
+an exact stop plan; apply it with
+`tx proot stop SESSION_ID --yes --plan-id ID`. `tx db` opens an owned
+interactive Debian login; `tx pgui` starts the optional guest desktop.
+`tx mng app launch --desktop-id APP.desktop --display :N` launches an
+allowlisted Debian XFCE application through the shared guest service.
+`tx proot shortcuts list` inspects launcher state; `preview add|remove APP_ID`
+and `apply add|remove APP_ID --yes --plan-id ID` manage one Native launcher.
+`shortcuts sync preview|apply` synchronizes eligible guest applications, and
+`shortcuts rollback list|preview|apply` reviews and restores a prior sync.
+For a guest with the exact recognized legacy Turnip ICD, use
+`tx proot setup icd-migrate-preview --alias debian`, review the file move and
+backup, then apply with `icd-migrate --alias debian --yes --plan-id ID`.
+Rollback uses `icd-rollback-preview --operation-id MIGRATION_ID` followed by
+`icd-rollback --operation-id MIGRATION_ID --yes --plan-id ID`.
+Every mutation requires its exact preview plan.
+EOF
+      ;;
+    terminal)
+      cat <<'EOF'
+tx terminal status — Inspect the Native terminal-broker service
+tx terminal service preview-install — Review the exact Runit service registration
+tx terminal service install --yes --plan-id ID — Register and start the broker
+tx terminal start — Preview, confirm, and attach to a fixed Debian login
+tx terminal attach SESSION_ID — Attach to a verified broker session
+tx terminal close SESSION_ID — Preview and confirm stopping one owned session
+tx terminal service socket preview|recover — Inspect or recover one stale socket
+The broker never starts a guest automatically. Guest session start needs a local
+TTY; service install needs Termux Runit and writes only the fixed broker service.
 EOF
       ;;
     start) cat <<'EOF'
@@ -71,7 +108,16 @@ EOF
 tx install preview — Review Native Termux prerequisite packages
 tx install update preview — Review Native Ternuxx core updates
 tx install apply --yes --plan-id ID — Apply the exact saved Native package plan
-No guest, Debian, or PRoot packages are installed by this plan.
+This Native prerequisite plan does not provision the Debian guest. Debian setup has a
+separate preview and exact confirmation workflow.
+EOF
+      ;;
+    checkpoint) cat <<'EOF'
+tx checkpoint prepare --test-id ID — Preview, then type CREATE CHECKPOINT
+tx checkpoint verify --checkpoint-id ID — Preview, then type VERIFY CHECKPOINT
+JSON mode shows the plan only. Automation applies with --yes --plan-id from the
+exact current preview. This records evidence only; it never reboots or resumes.
+Reboot qualification commands remain owner-operated through `tx reboot`.
 EOF
       ;;
     ssh) cat <<'EOF'
@@ -127,12 +173,17 @@ EOF
       ;;
     ai) cat <<'EOF'
 tx ai status — Inspect llama.cpp runtime and pinned local model state
+tx ai devices — List llama.cpp Vulkan inference devices
+tx ai npu status — Check pinned HTP0 runtime and SM8735 availability
+tx ai npu runtime preview|apply — Preview or install the pinned experimental NPU runtime
+tx ai runtime preview [cpu|vulkan|opencl] — Run a read-only Termux apt simulation
 tx ai setup — Interactive runtime preflight, model preview, and optional CPU run
 tx ai model preview — Show the exact 429 MB download, checksum, license, and target
 tx ai model install — Preview first; type DOWNLOAD to install the pinned model
 tx ai model remove-preview / tx ai model remove — Preview, then type REMOVE
-tx ai run — Read a local prompt from terminal/stdin; CPU-only, bounded to 128 tokens
-The Termux-owned llama-cpp runtime is separate; Ternuxx never installs packages here.
+tx ai run [--backend cpu|vulkan|npu] [--device ID] [--max-tokens N] — Bounded local inference
+The experimental NPU path is SM8735-only, requires full HTP0 offload, and never silently falls back to CPU.
+Review Termux-owned llama.cpp packages with `tx ai runtime preview [cpu|vulkan|opencl]`; this runs apt simulation only. Ternuxx never installs packages here.
 EOF
       ;;
     doctor) cat <<'EOF'

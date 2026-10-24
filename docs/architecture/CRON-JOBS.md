@@ -79,9 +79,9 @@ A create preview accepts {action:"create", name, action_id, schedule_type, sched
 
 CLI, TUI, Web, and GTK use the shared preview/apply operations. Each supports create, update, remove, enabled-state changes, bounded history, and confirmed scheduler start/stop with a bounded poll interval. All four create forms support the four schedule types; calendar schedules support daily and specific modes. Every client reuses the saved plan ID and requires explicit confirmation. Service, bridge, and client-contract tests exercise these paths; live interactive acceptance remains open. No client claims that a resident scheduler is ready or running.
 
-## Retired guest-session integration (historical)
+## PRoot guest-session integration
 
-The former guest scheduler-integration plan is retired under the Native-only decision. Its guest ownership and process guidance below this heading is preserved as dated history only; it is not an available Cron target or supported operating procedure.
+Cron currently runs as a Native Termux service. There is no PRoot guest-session scheduler integration or guest-targeted Cron action. Debian PRoot restoration does not change that boundary; a guest scheduler provider would need its own ownership model, lifecycle integration, authorization, and acceptance evidence before it can be supported.
 
 ## Hermes
 
@@ -96,7 +96,7 @@ The real bounded subprocess runner was exercised only through a new registered n
 
 Dispatch health is based on recent successful polls, separate from process liveness and lease ownership. CLI/API provide explicit scheduler start/stop, but no boot service or persistent production process was enabled. Automatic retry, queue-one, cancellation, catch-up delivery, device boot and scheduler recovery adapters are not implemented. Unresolved claimed/running records remain uncertain and are not automatically retried. A crash after an action side effect but before durable completion remains an uncertain boundary; duplicate event claims are suppressed but arbitrary external effects are not exactly-once.
 
-Historical PRoot scheduler/session integration evidence is retained only in the dated records linked from [docs/README.md](../README.md); no guest-session scheduler integration is supported after the Native-only decision.
+No PRoot scheduler/session integration is implemented. Any historical design material remains background context and does not imply a supported guest scheduler target.
 
 
 ## Scheduler runtime increment (2026-10-19)

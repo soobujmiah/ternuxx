@@ -17,19 +17,19 @@ product:
       - "Safe Native desktop/session profiles with explicit process ownership"
       - "Doctor, service/SSH management, recovery, and workload-scoped optimization"
       - "Optional native Wine/Hangover application support, gated per app and backend"
+      - "Optional Debian PRoot guest workloads managed from Native Termux"
       - "Evidence-based CPU/GPU/NPU capability reporting and explicit fallback"
       - "Termux:Boot and Termux:API integration where installed, supported, and authorized"
       - "Automatic repository state plus evidence-reviewed SKB knowledge return"
     out:
       - "Modifying the separate Ternux repository or its launcher"
-      - "Reintroducing PRoot guest management or modifying the separate Ternux repository/launcher"
       - "Root-only Android control or bypassing Android permissions and thermal protections"
       - "Claiming generic Windows app, GPU, NPU, performance, or device support without named workload evidence"
       - "Enabling SSH or Wireless ADB listeners without explicit provider, bind, port, and authentication choices"
       - "Scanning shared storage or managing unselected personal files"
 
 architecture:
-  style: "Native Termux-only Ternuxx workstation manager for Android"
+  style: "Native Termux host with optional Debian PRoot workloads"
   language: "Bash for the initial Termux CLI; additional languages only when justified by a verified platform need"
   framework: "Termux packages, Termux:X11, and opt-in Termux/Android integrations"
   source_of_truth: "GitHub"

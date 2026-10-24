@@ -1,0 +1,13 @@
+event_id: test-e5f1c5a58860-local-20261024-1135-1
+repository: soobujmiah/ternuxx
+commit: e5f1c5a5886016bab2aaa0b342001d89f8ba3945
+kind: test
+occurred_at: '2026-10-24T11:17:24Z'
+run_id: local-20261024-1135
+run_attempt: '1'
+status: passed
+summary: Native Termux env -u LD_LIBRARY_PATH bash scripts/repo_test.sh passed 1,001
+  Python tests and CLI help/preview contract in 113.652s. This is a dirty worktree
+  based on e5f1c5a with local guide/menu, documentation, PRoot zombie isolation, and
+  CI fixture changes. GitHub run 40059254710 on clean e5f1c5a still failed; no remote
+  rerun yet.

@@ -88,6 +88,23 @@ class PhaseDocsTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "completed or skipped"):
             phase_docs.revise_resolved_phase(state, "P6", summary="wrong", reason="not closed")
 
+    def test_start_planned_phase_only_after_prior_gates_resolve(self):
+        state = {"active_phase": None, "phases": [
+            {"id": "P10", "status": "completed"},
+            {"id": "P11", "status": "planned"},
+        ]}
+        phase_docs.start_planned_phase(state, "P11")
+        self.assertEqual(state["active_phase"], "P11")
+        self.assertEqual(state["phases"][1]["status"], "in_progress")
+
+    def test_start_planned_phase_rejects_unresolved_prior_gate(self):
+        state = {"active_phase": None, "phases": [
+            {"id": "P10", "status": "in_progress"},
+            {"id": "P11", "status": "planned"},
+        ]}
+        with self.assertRaisesRegex(ValueError, "earlier phase"):
+            phase_docs.start_planned_phase(state, "P11")
+
     def test_only_active_optional_phase_can_be_skipped(self):
         state = {"active_phase": "P8", "phases": [
             {"id": "P8", "status": "in_progress"},

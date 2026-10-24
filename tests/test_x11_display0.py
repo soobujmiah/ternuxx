@@ -54,6 +54,14 @@ class DisplayZeroRecoveryTest(unittest.TestCase):
         self.assertEqual(prepare(str(self.root), "0"), "busy")
         self.assertTrue(sock.exists())
 
+    def test_nested_display_socket_without_lock_is_busy(self):
+        sock = self.root / ".X11-unix" / "X2"
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server.bind(str(sock))
+        server.close()
+        self.assertEqual(prepare(str(self.root), "2"), "busy")
+        self.assertTrue(sock.exists())
+
     def test_other_display_range_is_preserved(self):
         self.assertEqual(prepare(str(self.root), "1"), "available")
         self.assertEqual(prepare(str(self.root), "11"), "busy")

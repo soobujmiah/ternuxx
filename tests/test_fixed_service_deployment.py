@@ -116,11 +116,61 @@ class FixedNativeServiceDeploymentTests(unittest.TestCase):
         self.assertEqual(result["service_id"], monitor)
         self.assertTrue(self.target.is_dir())
         self.assertEqual(policy.read_text(), '{"enabled":false}')
-        for service_id in ("ssh", "ternuxx-terminal-broker", "../ternuxx-gui-monitor", "custom", "/tmp/service"):
+        for service_id in ("ssh", "../ternuxx-gui-monitor", "custom", "/tmp/service"):
             with self.subTest(service=service_id), self.assertRaisesRegex(
                     fixed_service_deployment.ServiceInstallError, "unsupported"):
                 fixed_service_deployment.preview_install(
                     prefix=self.prefix, source=self.source, service_id=service_id)
+
+    def test_terminal_broker_service_uses_the_shared_fixed_service_installer(self):
+        service_id = fixed_service_deployment.TERMINAL_BROKER_SERVICE_ID
+        source = ROOT / "scripts/termux-services" / service_id / "run"
+        plan = fixed_service_deployment.preview_install(prefix=self.prefix, service_id=service_id)
+        self.assertEqual(plan["service_id"], service_id)
+        self.assertTrue(plan["read_only"])
+        result = fixed_service_deployment.install(prefix=self.prefix, service_id=service_id,
+            confirmed=True, plan_id=plan["plan_id"], runner=self.runner)
+        self.assertEqual(result["status"], "installed")
+        self.assertFalse(result["guest_started"])
+        target = self.prefix / "var/service" / service_id / "run"
+        self.assertEqual(target.read_bytes(), source.read_bytes())
+        status = fixed_service_deployment.status(prefix=self.prefix, runner=self.runner, service_id=service_id)
+        self.assertEqual(status["status"], "running")
+
+    def test_terminal_broker_start_requires_exact_preview_and_does_not_start_guest(self):
+        service_id = fixed_service_deployment.TERMINAL_BROKER_SERVICE_ID
+        source = ROOT / "scripts/termux-services" / service_id / "run"
+        target = self.prefix / "var/service" / service_id
+        target.mkdir(mode=0o700)
+        (target / "run").write_bytes(source.read_bytes())
+        (target / "run").chmod(0o700)
+        supervise = target / "supervise"
+        supervise.mkdir(mode=0o700)
+        for name in ("control", "ok"):
+            (supervise / name).touch(mode=0o600)
+        running = False
+        calls = []
+        def runner(args, **kwargs):
+            nonlocal running
+            calls.append(args)
+            if args[1] == "up":
+                running = True
+                return subprocess.CompletedProcess(args, 0, "", "")
+            state = "run" if running else "down"
+            return subprocess.CompletedProcess(args, 0 if running else 1,
+                f"{state}: {target}: (pid 123) 2s\n", "")
+        plan = fixed_service_deployment.preview_start(prefix=self.prefix, runner=runner,
+            service_id=service_id)
+        self.assertEqual(plan["current_status"], "stopped")
+        with self.assertRaisesRegex(fixed_service_deployment.ServiceInstallError, "stale"):
+            fixed_service_deployment.start_service(prefix=self.prefix, runner=runner,
+                service_id=service_id, confirmed=True, plan_id="stale")
+        result = fixed_service_deployment.start_service(prefix=self.prefix, runner=runner,
+            service_id=service_id, confirmed=True, plan_id=plan["plan_id"])
+        self.assertEqual(result["status"], "running")
+        self.assertFalse(result["guest_started"])
+        self.assertIn([str(self.prefix / "bin/sv"), "up", str(target)], calls)
+        self.assertEqual((target / "run").read_bytes(), source.read_bytes())
 
     def test_changed_source_invalidates_preview(self):
         plan = self.preview()

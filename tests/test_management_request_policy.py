@@ -71,7 +71,8 @@ class ManagementRequestPolicyTests(unittest.TestCase):
 
     def test_rate_limiter_is_thread_safe(self) -> None:
         policy = management_request_policy.LoopbackRequestPolicy(
-            "http://127.0.0.1:8765", burst=3, rate_per_second=1)
+            "http://127.0.0.1:8765", burst=3, rate_per_second=1,
+            clock=FakeClock())
         def request(_index):
             return policy.check(host="127.0.0.1:8765", method="GET").allowed
         with ThreadPoolExecutor(max_workers=16) as pool:

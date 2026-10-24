@@ -38,4 +38,4 @@ Check the service configuration with `tx ssh inspect` and follow the exact previ
 
 The latest recorded owner-operated boot qualification is RB08, described in the [2026-10-22 postboot audit](../evidence/2026-10-22-p3-rb08-postboot-exit-audit.md). Its checkpoint remains `NOT_READY` because the automated observation did not capture managed-service health at the required time. That dated result does not prove current Android boot delivery, current SSH reachability, or readiness after a later reboot. A separate pre-Native-only procedure is preserved in [historical reboot notes](../history/REBOOT-RECOVERY-GUIDE-pre-native-only-2026-10-24.md).
 
-No task resumes automatically. Keep application and workload recovery owner-mediated, and preserve current state and logs when reporting a failure. PRoot and guest recovery procedures have been retired.
+No task resumes automatically. Keep application and workload recovery owner-mediated, and preserve current state and logs when reporting a failure. Debian PRoot recovery uses the current Ternuxx exact-preview session and setup procedures; historical guest-retirement instructions do not apply to the restored guest.

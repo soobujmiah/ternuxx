@@ -20,6 +20,12 @@ Use this page to find the current product, operating, architecture, testing, aud
 - [Optimization guide](OPTIMIZATION.md)
 - [Wine/Hangover research (not implemented)](WINE-NATIVE.md)
 
+## Debian PRoot workloads
+
+- [PRoot restoration and live acceptance](evidence/2026-10-24-p11-proot-source-restoration-audit.md)
+- [PRoot graphics evidence](PROOT-GPU.md)
+- [PRoot operations](OPERATIONS.md#proot-and-debian)
+
 ## Architecture and interfaces
 
 - [Shared capability matrix](architecture/CAPABILITY-MATRIX.md)
@@ -27,11 +33,11 @@ Use this page to find the current product, operating, architecture, testing, aud
 - [SSH lifecycle](architecture/SSH-LIFECYCLE.md)
 - [Architecture decisions](architecture/decisions/)
 
-## Historical PRoot documentation
+## Historical and superseded material
 
-The pre-Native-only [roadmap](history/ROADMAP-pre-native-only-2026-10-24.md), [management API contract](history/MANAGEMENT-API-pre-native-only-2026-10-24.md), [feature matrix](history/FEATURE-MATRIX-pre-native-only-2026-10-17.yaml), and [software catalog](history/SOFTWARE-CATALOG-pre-native-only-2026-10-24.md) are archived alongside the older dated reports below. These materials are retained as historical records and do not describe supported product behavior.
+The temporary Native-only decision is documented in dated history and superseded by the owner's PRoot reauthorization on 2026-10-24. Archived [roadmap](history/ROADMAP-pre-native-only-2026-10-24.md), [management API contract](history/MANAGEMENT-API-pre-native-only-2026-10-24.md), [feature matrix](history/FEATURE-MATRIX-pre-native-only-2026-10-17.yaml), and [software catalog](history/SOFTWARE-CATALOG-pre-native-only-2026-10-24.md) remain snapshots; they do not describe current supported behavior.
 
-The following dated/legacy materials are retained as historical records and do not describe supported product behavior: [hybrid integration](HYBRID-INTEGRATION.md), [PRoot session lifecycle](architecture/PROOT-SESSIONS.md), [PRoot graphics](PROOT-GPU.md), [PRoot GUI display experiment](PROOT-GUI-DISPLAY0.md), [shared-X11 PRoot applications](PROOT-SHARED-X11.md), [interactive guest terminals](architecture/INTERACTIVE-PROOT-TERMINALS.md), and the [pre-migration reboot guide](history/REBOOT-RECOVERY-GUIDE-pre-native-only-2026-10-24.md).
+Older design-only references remain historical: [hybrid integration](HYBRID-INTEGRATION.md), [PRoot GUI display experiment](PROOT-GUI-DISPLAY0.md), [shared-X11 PRoot applications](PROOT-SHARED-X11.md), [interactive guest terminals](architecture/INTERACTIVE-PROOT-TERMINALS.md), and the [pre-migration reboot guide](history/REBOOT-RECOVERY-GUIDE-pre-native-only-2026-10-24.md). Check P11 and the capability matrix before relying on any dated behavior.
 
 ## Testing and evidence
 
@@ -46,7 +52,7 @@ The following dated/legacy materials are retained as historical records and do n
 
 ## Project maintenance
 
-- [Repository audit worklist](audit/REPOSITORY-AUDIT.md)
+- [Current repository audit and remaining gates](audit/REPOSITORY-AUDIT.md)
 - [Phase revalidation](audit/PHASE-REVALIDATION.md)
 - [Knowledge synchronization](KNOWLEDGE-SYNC.md)
 - [Security policy](../SECURITY.md)

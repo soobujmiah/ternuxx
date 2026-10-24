@@ -1,0 +1,10 @@
+event_id: test-e5f1c5a58860-c5d57e69fd84d07e
+repository: soobujmiah/ternuxx
+commit: e5f1c5a5886016bab2aaa0b342001d89f8ba3945
+kind: test
+occurred_at: '2026-10-24T03:40:17Z'
+status: passed
+summary: 1,001 Python tests plus CLI help/preview passed in 122.158s with TERMUX_VERSION/PREFIX
+  unset in the parent environment; Native Termux dirty worktree based on e5f1c5a.
+  GitHub run 40059254710 on clean e5f1c5a had 41 bridge fixture failures; corrected
+  fixtures remain local pending remote rerun.

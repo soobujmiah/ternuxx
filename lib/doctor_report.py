@@ -777,7 +777,7 @@ def build_report(graphics: bool, state_root: Path) -> dict[str, object]:
                 f"model={model_state}; model_id={model['id']}; backend=CPU"
             )
             if not runtime["available"]:
-                cpu_action = "Review `tx ai runtime preview` before installing the Termux-managed llama-cpp runtime."
+                cpu_action = "Review `tx ai runtime preview cpu` before installing the Termux-managed llama-cpp runtime."
             elif model_state == "missing":
                 cpu_action = "Use `tx ai model preview` then apply if you want the pinned model; inference verifies its hash before running."
             elif model_state in {"present-unverified", "invalid-size", "unsafe", "unsafe-permissions"}:

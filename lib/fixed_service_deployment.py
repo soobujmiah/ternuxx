@@ -17,7 +17,9 @@ import subprocess
 import time
 
 MONITOR_SERVICE_ID = "ternuxx-gui-monitor"
+TERMINAL_BROKER_SERVICE_ID = "ternuxx-terminal-broker"
 SERVICE_IMPACTS = {
+    TERMINAL_BROKER_SERVICE_ID: "Adds only the fixed Ternuxx terminal broker Runit service. Runit keeps the Native broker available; it does not start a PRoot guest, change Termux:Boot, or acquire a Wake Lock.",
     MONITOR_SERVICE_ID: "Adds only the fixed Ternuxx GUI monitor Runit scheduler. It delivers the existing saved Native monitoring policy; disabled policy stays idle. It does not enable monitoring, alter Activity/focus settings, change Termux:Boot, start a desktop, or acquire a Wake Lock.",
 }
 
@@ -248,6 +250,92 @@ def install(*, prefix, confirmed: bool, plan_id: str | None, source=None,
                 except OSError:
                     pass
 
+
+
+def _start_state(*, prefix, runner, service_id: str) -> tuple[Path, str, str, str, str]:
+    service_id = _service(service_id)
+    root = _root(prefix)
+    target = root / service_id
+    try:
+        target_info = target.lstat()
+    except OSError as exc:
+        raise ServiceInstallError("fixed service registration is unavailable") from exc
+    if (not stat.S_ISDIR(target_info.st_mode) or target_info.st_uid != os.getuid()
+            or target_info.st_mode & 0o022):
+        raise ServiceInstallError("fixed service target identity is unsafe")
+    if {item.name for item in target.iterdir()} != {"run", "supervise"}:
+        raise ServiceInstallError("fixed service target has unexpected contents")
+    run_path = target / "run"
+    run_hash = hashlib.sha256(_read_executable(run_path)).hexdigest()
+    source_hash = hashlib.sha256(_source_bytes(_source(service_id=service_id))).hexdigest()
+    if run_hash != source_hash:
+        raise ServiceInstallError("installed service definition differs from the reviewed source")
+    supervise = target / "supervise"
+    try:
+        supervise_info = supervise.lstat()
+    except OSError as exc:
+        raise ServiceInstallError("Runit supervisor state is unavailable") from exc
+    if (not stat.S_ISDIR(supervise_info.st_mode) or supervise_info.st_uid != os.getuid()
+            or supervise_info.st_mode & 0o077):
+        raise ServiceInstallError("Runit supervisor state identity is unsafe")
+    children = {item.name for item in supervise.iterdir()}
+    if not {"control", "ok"}.issubset(children) or children - {"control", "ok", "lock", "pid", "stat", "status"}:
+        raise ServiceInstallError("Runit supervisor state is incomplete or unexpected")
+    manager_path = Path(prefix) / "bin/sv"
+    manager_hash = hashlib.sha256(_read_executable(manager_path)).hexdigest()
+    try:
+        result = runner([str(manager_path), "status", str(target)], capture_output=True,
+                        text=True, timeout=5, check=False)
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise ServiceInstallError("Runit service status is unavailable") from exc
+    line = (result.stdout or "").splitlines()
+    if line and line[0].startswith(f"run: {target}:"):
+        state = "running"
+    elif line and line[0].startswith(f"down: {target}:"):
+        state = "stopped"
+    else:
+        raise ServiceInstallError("Runit service state is unknown")
+    return target, run_hash, source_hash, manager_hash, state
+
+
+def preview_start(*, prefix, runner=subprocess.run,
+                  service_id: str = TERMINAL_BROKER_SERVICE_ID) -> dict[str, object]:
+    target, run_hash, source_hash, manager_hash, current = _start_state(
+        prefix=prefix, runner=runner, service_id=service_id)
+    core = {"service_id": service_id, "target": str(target), "run_sha256": run_hash,
+            "source_sha256": source_hash, "service_manager_sha256": manager_hash,
+            "current_status": current, "action": "start-fixed-service"}
+    plan_id = hashlib.sha256(json.dumps(core, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    return {**core, "plan_id": plan_id, "read_only": True, "requires_confirmation": True,
+            "impact": SERVICE_IMPACTS[service_id] + " The guest will not start until a separate terminal session is requested."}
+
+
+def start_service(*, prefix, confirmed: bool, plan_id: str | None,
+                  runner=subprocess.run, service_id: str = TERMINAL_BROKER_SERVICE_ID) -> dict[str, object]:
+    if confirmed is not True or not isinstance(plan_id, str):
+        raise ServiceInstallError("exact service start preview and confirmation are required")
+    with _install_lock(_root(prefix), service_id):
+        plan = preview_start(prefix=prefix, runner=runner, service_id=service_id)
+        if plan["plan_id"] != plan_id:
+            raise ServiceInstallError("service start preview is stale; review a fresh plan")
+        if plan["current_status"] == "running":
+            return {"service_id": service_id, "status": "running", "already_running": True,
+                    "guest_started": False}
+        manager_path = Path(prefix) / "bin/sv"
+        target = str(plan["target"])
+        if hashlib.sha256(_read_executable(manager_path)).hexdigest() != plan["service_manager_sha256"]:
+            raise ServiceInstallError("Runit service manager changed after preview")
+        result = runner([str(manager_path), "up", target], capture_output=True,
+                        text=True, timeout=8, check=False)
+        if result.returncode != 0:
+            raise ServiceInstallError("Runit did not accept the exact service start")
+        for _attempt in range(50):
+            current = preview_start(prefix=prefix, runner=runner, service_id=service_id)
+            if current["current_status"] == "running":
+                return {"service_id": service_id, "status": "running", "already_running": False,
+                        "guest_started": False, "run_sha256": current["run_sha256"]}
+            time.sleep(0.1)
+        raise ServiceInstallError("fixed service did not reach the running state")
 
 def status(*, prefix, runner=subprocess.run, service_id: str = MONITOR_SERVICE_ID) -> dict[str, object]:
     service_id = _service(service_id)

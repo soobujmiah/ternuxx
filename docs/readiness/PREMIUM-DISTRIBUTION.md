@@ -1,16 +1,16 @@
 # Free core, paid services, and premium delivery design
 
-**Status:** architecture proposal only; no package is approved for sale, no provider selected, and no payment or entitlement service exists. **Reviewed:** 2026-10-17.
+**Status:** architecture proposal only; no package is approved for sale, no provider selected, and no payment or entitlement service exists. **Reviewed:** 2026-10-24.
 
 ## Product boundary today
 
-Ternuxx is the owner-approved product and repository name; the public GitHub slug is `soobujmiah/ternuxx`. `./tx` is the source-checkout command and `tx` is the installed command; `ternuxx` remains a compatibility entrypoint. Ternuxx supports Native Termux only; PRoot guest workflows were retired on 2026-10-24. The repository is public but unlicensed, has no release artifacts, and has no approved premium module. Public visibility is not a grant to redistribute code. The historical first-commit PolyForm Noncommercial/addendum statement remains a legal review issue. The owner must decide the source license after counsel reviews the exact history and provenance.
+Ternuxx is the owner-approved product and repository name; the public GitHub slug is `soobujmiah/ternuxx`. `./tx` is the source-checkout command and `tx` is the installed command; `ternuxx` remains a compatibility entrypoint. Ternuxx uses Native Termux as host/control plane with optional Debian PRoot workloads. The repository is public but unlicensed, has no release artifacts, and has no approved premium module. Public visibility is not a grant to redistribute code. The historical first-commit PolyForm Noncommercial/addendum statement remains a legal review issue. The owner must decide the source license after counsel reviews the exact history and provenance.
 
 | Surface | Current state | Distribution/commercial treatment |
 |---|---|---|
 | Core CLI and lifecycle manager | Present in public source; product paths not qualified; no release | Keep no payment/feature-lock logic in existing core. A public checkout is not automatically an authorized redistributable installer. Resolve license and qualify releases first. |
-| Retired PRoot guest system | Removed from Ternuxx source routes and owner device under the 2026-10-24 Native-only decision | Historical implementation/evidence only; no current product workflow operates against that guest. Do not treat old integration documents as setup guidance. |
-| Termux, Termux:X11, Mesa/Turnip, XFCE, Wine/Hangover, llama-cpp and other Native runtime packages | Upstream components fetched from their own package/source channels; not bundled here | Record exact version, source, license and redistribution terms before bundling or mirroring. User-installed upstream packages are distinct from redistributed binaries. |
+| Optional Debian PRoot workload provider | Reauthorized and restored under P11; one-device live guest/client acceptance passed, while clean-device setup replay and broader qualification remain open | Treat Native and guest capabilities separately. Current workflow and limits are in P11 evidence and the capability matrix. |
+| Termux, Termux:X11, Mesa/Turnip, XFCE, Wine/Hangover, llama-cpp, pinned Snapdragon HTP runtime and other Native runtime packages | Upstream components fetched from their own package/source channels; not bundled in a release | Record exact version, source, license and redistribution terms before bundling or mirroring. User-installed or privately downloaded upstream artifacts are distinct from redistributed binaries. |
 | Premium software/modules | None implemented or approved | No payment gate, private repo, download URL or entitlement is operational. Each future component needs its own legal/provenance and security decision. |
 | Installation/setup/support/customization/training | Service hypotheses only; no approved offer | Fulfill as a scoped service order and completion record, not a generic software download entitlement. No availability, price, SLA or warranty is promised. |
 

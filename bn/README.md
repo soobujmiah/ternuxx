@@ -1,8 +1,8 @@
 # Ternuxx
 
-Ternuxx হলো Android-এর Native Termux-এর জন্য ওয়ার্কস্টেশন ম্যানেজার। `tx` দিয়ে Termux:X11 ডেস্কটপ, Native সার্ভিস, SSH, স্বাস্থ্য পরীক্ষা, ব্যাকআপ ও recovery পরিচালনা করা যায়। CLI, TUI, Web এবং GTK ইন্টারফেস একই Native Termux পরিবেশে কাজ করে।
+Ternuxx হলো Android-এর Native Termux-এর জন্য একটি ওয়ার্কস্টেশন ব্যবস্থাপক। `tx` দিয়ে Termux:X11 ডেস্কটপ, Native সেবা, SSH, স্বাস্থ্য পরীক্ষা, ব্যাকআপ ও পুনরুদ্ধার পরিচালনা করা যায়। CLI, TUI, Web এবং GTK—চারটি মাধ্যমই একই Native Termux পরিবেশ ব্যবহার করে।
 
-২০২৬-১০-২৪ তারিখে মালিক Ternuxx-কে Native Termux-only করেছেন। PRoot guest support বন্ধ, ইনস্টল করা ছয়টি guest সরানো এবং `proot` ও `proot-distro` প্যাকেজ uninstall করা হয়েছে। পুরোনো রিপোর্টগুলো তারিখসহ historical record হিসেবে রাখা হয়েছে; সেগুলো বর্তমান সমর্থিত আচরণ বোঝায় না। বিস্তারিত [migration audit](../docs/evidence/2026-10-24-native-only-proot-removal-audit.md), [বর্তমান অবস্থা](../CURRENT_STATE.md) এবং [সিদ্ধান্ত ADR-0017](../docs/architecture/decisions/ADR-0017-native-only-product-and-proot-retirement.md)-তে।
+Native Termux হলো Ternuxx-এর হোস্ট ও নিয়ন্ত্রণ স্তর; Debian PRoot ঐচ্ছিক বিচ্ছিন্ন কাজের পরিবেশ। ২০২৬-১০-২৪ তারিখে PRoot সাময়িকভাবে বন্ধ করার পর মালিক সেটি পুনরায় ব্যবহারের অনুমতি দেন। তাই আগের অপসারণ-সংক্রান্ত নথিগুলো কেবল সেই সময়ের বিবরণ। বর্তমান অবস্থা [P11 প্রমাণ](../docs/evidence/2026-10-24-p11-proot-source-restoration-audit.md), [পর্যায়-অবস্থা](../docs/PHASE-STATUS.md) ও [বর্তমান অবস্থা](../CURRENT_STATE.md)-তে দেখুন।
 
 ## শুরু করুন
 
@@ -13,21 +13,21 @@ Ternuxx হলো Android-এর Native Termux-এর জন্য ওয়ার�
 ./tx install preview
 ```
 
-প্যাকেজ পরিবর্তনের আগে পূর্বরূপের নির্দিষ্ট পরিকল্পনা পর্যালোচনা করুন। ডেস্কটপের জন্য Android-এ উপযুক্ত Termux:X11 অ্যাপ আলাদাভাবে লাগবে। বিস্তারিত [ইনস্টল নির্দেশিকা](INSTALLATION.md) ও [অপারেশন গাইড](../docs/OPERATIONS.md)-এ।
+প্যাকেজ পরিবর্তনের আগে নির্দিষ্ট পূর্বরূপ পরিকল্পনা পর্যালোচনা করুন। ডেস্কটপ চালাতে Android-এ উপযুক্ত Termux:X11 অ্যাপ আলাদাভাবে প্রয়োজন। বিস্তারিত [ইনস্টল নির্দেশিকা](INSTALLATION.md) ও [পরিচালনা নির্দেশিকা](../docs/OPERATIONS.md)-তে।
 
 ## স্থানীয় CPU মডেল
 
-`./tx ai status` দিয়ে Termux-এর `llama-cpp` runtime ও Ternuxx-এর নির্দিষ্ট model পরীক্ষা করুন। Runtime না থাকলে আগে `apt-get -s install llama-cpp` দিয়ে package পরিবর্তনের পূর্বরূপ দেখুন; Ternuxx নিজে package install করে না। Runtime থাকলে `./tx ai setup` model download-এর পূর্বরূপ দেখায়; ডাউনলোডের আগে `DOWNLOAD` লিখে নিশ্চিত করতে হয়। Model-এর নির্দিষ্ট আকার ও SHA-256 যাচাই হওয়ার পরই সেটি private Ternuxx state-এ রাখা হয়।
+`./tx ai status` দিয়ে Termux-এর `llama-cpp` চালনা-পরিবেশ ও Ternuxx-এর নির্দিষ্ট মডেল পরীক্ষা করুন। চালনা-পরিবেশ না থাকলে আগে `apt-get -s install llama-cpp` দিয়ে প্যাকেজ পরিবর্তনের পূর্বরূপ দেখুন; Ternuxx নিজে প্যাকেজ ইনস্টল করে না। চালনা-পরিবেশ থাকলে `./tx ai setup` মডেল নামানোর পূর্বরূপ দেখায়; নামানোর আগে `DOWNLOAD` লিখে নিশ্চিত করতে হয়। মডেলের নির্দিষ্ট আকার ও SHA-256 যাচাই হওয়ার পরই সেটি ব্যক্তিগত Ternuxx অবস্থান-তথ্যে রাখা হয়।
 
-`./tx ai run` টার্মিনাল বা stdin থেকে এক লাইনের prompt নেয় এবং CPU-তেই সীমাবদ্ধ run করে। Model নামাতে network লাগে; model ফাইল local-এ থাকলে inference-এর জন্য network লাগে না। বিস্তারিত [CPU baseline](../docs/testing/CPU-BASELINE.md) ও [workflow evidence](../docs/evidence/2026-10-24-native-cpu-inference-workflow.md)-এ।
+`./tx ai run --backend cpu` CPU-তে সীমিত অনুমানের কাজ চালায়। `--backend vulkan` দিলে Adreno GPU-তে মডেলের সব স্তর GPU-তে পাঠানো হয়েছে কি না যাচাই হয়; এই যন্ত্রে ফলটি পরীক্ষামূলক Mesa/Freedreno চালক-সমষ্টির ওপর নির্ভরশীল। `--backend npu` শুধু SM8735-এ পরীক্ষামূলক HTP0 ব্যবহার করে; CPU-তে নীরবভাবে কাজ সরিয়ে দেয় না, আর পরীক্ষিত ছোট নির্দেশে এটি CPU-র চেয়ে ধীর ছিল। মডেল নামাতে নেটওয়ার্ক লাগে; মডেল স্থানীয়ভাবে থাকলে অনুমানের জন্য নেটওয়ার্ক লাগে না। এই পথগুলো বিস্তৃত যন্ত্র-সমর্থন বা প্রকাশযোগ্যতার নিশ্চয়তা দেয় না। বিস্তারিত [CPU ভিত্তিমাপ](../docs/testing/CPU-BASELINE.md), [GPU যাচাই](../docs/testing/GPU-ACCELERATION.md), [NPU যাচাই](../docs/testing/NPU-ACCELERATION.md) ও [P12 প্রমাণ](../docs/evidence/2026-10-24-native-acceleration-live-check.md)-এ।
 
-## ইন্টারফেস
+## ব্যবহারের মাধ্যম
 
-- `./tx` — কমান্ড লাইন
-- `./tx tui` — টার্মিনালের interactive ব্যবস্থাপনা
-- `./tx web` — authenticated loopback Web UI
-- `./tx gui` — চলমান Native ডেস্কটপের GTK management center
+- `./tx` — নির্দেশ-সারি
+- `./tx tui` — টার্মিনালের পর্দাভিত্তিক ব্যবস্থাপনা
+- `./tx web` — পরিচয় যাচাইসহ স্থানীয় Web পর্দা
+- `./tx gui` — চালু Native ডেস্কটপের GTK ব্যবস্থাপনা কেন্দ্র
 
-Ternuxx এখনো উন্নয়নাধীন। পরীক্ষায় উত্তীর্ণ হওয়া মানে সব Android ডিভাইস, GPU/NPU বা workload সমর্থিত—এমন নয়। প্রকল্পের লাইসেন্স এখনো নির্ধারিত হয়নি।
+Ternuxx-এর উন্নয়ন চলছে। পরীক্ষায় উত্তীর্ণ হওয়া মানে সব Android যন্ত্র, GPU/NPU বা কাজের ধরন সমর্থিত—এমন নয়। প্রকল্পের লাইসেন্স এখনো নির্ধারিত হয়নি।
 
 [স্থাপত্য](../docs/ARCHITECTURE.md) · [সক্ষমতার তালিকা](../docs/architecture/CAPABILITY-MATRIX.md) · [নিরাপত্তা](../SECURITY.md) · [সব নথি](../docs/README.md)

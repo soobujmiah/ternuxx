@@ -4,9 +4,7 @@
 
 # Ternuxx
 
-Ternuxx is a Native Termux workstation manager for Android. It manages the Termux:X11 desktop, Native services, SSH, diagnostics, recovery, and CLI, TUI, Web, and GTK interfaces through `tx`.
-
-The owner selected a Native Termux-only product on 2026-10-24. PRoot guest support was retired, all six installed guests were removed, and the `proot` and `proot-distro` packages were uninstalled. Historical reports remain under `docs/` as dated records; they do not describe current supported behavior. See the [migration audit](docs/evidence/2026-10-24-native-only-proot-removal-audit.md), [ADR-0017](docs/architecture/decisions/ADR-0017-native-only-product-and-proot-retirement.md), and [current state](CURRENT_STATE.md).
+Ternuxx manages a Native Termux Android workstation and an optional Debian PRoot guest through `tx`. Native Termux remains the host and control plane; Debian workloads run in the isolated guest. The owner reauthorized PRoot support and Debian restoration on 2026-10-24. Native `proot`/`proot-distro` and a Debian Trixie guest are installed on the observed device; P11 live CLI/TUI/Web/GTK acceptance passed on this device. Clean-device replay, wider device coverage, and visual/accessibility qualification remain open. See the [capability matrix](docs/architecture/CAPABILITY-MATRIX.md), [roadmap](docs/ROADMAP.md), and [current state](CURRENT_STATE.md).
 
 ## Start here
 
@@ -18,6 +16,7 @@ Run Ternuxx directly in Native Termux:
 ./tx doctor
 ./tx install preview
 ./tx ai status
+./tx ai devices
 ./tx start
 ```
 
@@ -30,14 +29,14 @@ Install Termux:X11 separately from a trusted source before starting the desktop.
 - `tx web` — authenticated loopback Web UI
 - `tx gui` — Native GTK management center, attached to the verified Ternuxx desktop
 
-All interfaces run on Native Termux and use the shared management service for supported operations. Unsupported historical guest commands return a retirement message.
+All interfaces run on Native Termux and use the shared management service for supported operations. Guest installation remains Native CLI-only; client coverage and open acceptance gates are listed in the [capability matrix](docs/architecture/CAPABILITY-MATRIX.md).
 
 ## Project status
 
 <!-- generated:phase-status:start -->
-**Current phase:** All required roadmap phases are resolved.
+**Current phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Progress:** 11/11 phases resolved (10 completed, 1 skipped)
+**Progress:** 12/13 phases resolved (11 completed, 1 skipped)
 
 [Roadmap and active work](docs/ROADMAP.md) · [Phase status and evidence](docs/PHASE-STATUS.md)
 <!-- generated:phase-status:end -->

@@ -15,11 +15,14 @@ class ManagementCatalogTests(unittest.TestCase):
         catalog = management_catalog.build_catalog(set(management_service.OPERATIONS))
         domains = {domain["id"]: domain for domain in catalog["domains"]}
         self.assertIn("doctor.report", domains["doctor-diagnostics"]["available_operations"])
-        self.assertNotIn("proot-runtime", domains)
+        self.assertIn("proot-runtime", domains)
         cloud = next(provider for provider in catalog["providers"] if provider["id"] == "cloud-api")
         self.assertEqual(cloud["status"], "planned-disabled")
         self.assertFalse(catalog["policy"]["external_cloud_calls_enabled"])
         self.assertFalse(catalog["policy"]["credentials_in_catalog"])
+        remote_ai = next(resource for resource in catalog["resources"] if resource["id"] == "ai.runtime-providers")
+        self.assertEqual(remote_ai["name"], "Remote AI providers")
+        self.assertIn("local llama.cpp CPU, Vulkan, and HTP inference are listed separately", remote_ai["description"])
 
     def test_catalog_and_doctor_are_read_only_shared_operations(self):
         for operation in ("management.catalog", "doctor.report"):
@@ -53,6 +56,11 @@ class ManagementCatalogTests(unittest.TestCase):
         graphics = by_id["graphics.native"]
         self.assertIn("KGSL candidate is experimental", graphics["description"])
         self.assertIn("no Ternuxx installer", graphics["description"])
+        debian_graphics = by_id["graphics.debian"]
+        self.assertEqual(debian_graphics["status"], "external")
+        self.assertEqual(debian_graphics["availability"], "guest-graphics-not-managed-or-verified")
+        self.assertEqual(debian_graphics["supported_operations"], [])
+        self.assertIn("guest is installed", debian_graphics["description"])
         inference = by_id["inference.cpu.local"]
         self.assertEqual(inference["state"]["desired"], "bounded-local-cpu")
         self.assertIn("offline execution has not been verified", inference["description"])
@@ -69,11 +77,21 @@ class ManagementCatalogTests(unittest.TestCase):
             self.assertTrue(set(resource["supported_operations"]).issubset(management_service.OPERATIONS))
             self.assertEqual(set(resource["operation_capabilities"]), set(resource["supported_operations"]))
 
-    def test_catalog_excludes_retired_proot_providers_and_resources(self):
+    def test_catalog_lists_installed_optional_proot_provider_and_resources(self):
         catalog = management_catalog.build_catalog(set(management_service.OPERATIONS))
-        self.assertNotIn("proot-runtime", {item["id"] for item in catalog["domains"]})
-        self.assertFalse(any(item["id"].startswith("proot.") for item in catalog["resources"]))
-        self.assertFalse(any(item["id"] == "proot-debian" for item in catalog["providers"]))
+        domain = next(item for item in catalog["domains"] if item["id"] == "proot-runtime")
+        providers = {item["id"]: item for item in catalog["providers"]}
+        self.assertEqual(providers["proot-distro"]["status"], "installed-live-acceptance-passed")
+        resources = {item["id"]: item for item in catalog["resources"]}
+        guest = resources["proot.debian.workloads"]
+        self.assertEqual(guest["availability"], "installed-native-proot-debian-guest")
+        self.assertIn("proot.start.preview", guest["supported_operations"])
+        proot_resource_operations = {
+            operation for resource in catalog["resources"]
+            if resource["category_id"] == "proot"
+            for operation in resource["supported_operations"]
+        }
+        self.assertEqual(proot_resource_operations, set(domain["available_operations"]))
 
     def test_catalog_category_query_and_status_filters(self):
         operations = set(management_service.OPERATIONS)

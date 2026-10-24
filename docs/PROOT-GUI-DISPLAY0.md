@@ -1,7 +1,7 @@
-# Retired PRoot documentation
+# Historical standalone PRoot display experiment
 
-This page is an archive pointer. Ternuxx is Native Termux-only; PRoot guest code, package operations, and lifecycle controls have been removed. Do not use historical commands or setup steps.
+This file documents an older standalone display experiment and is not the current GUI command reference. Current support offers standalone and nested modes through `tx pgui`. The owner accepted portrait and landscape/fullscreen rotation on-device; installed-guest acceptance across all management clients remains in progress. See the current [P11 restoration evidence](evidence/2026-10-24-p11-proot-source-restoration-audit.md) for the live standalone `:0` geometry and application checks.
 
-- [Preserved historical snapshot](history/PROOT-GUI-DISPLAY0-pre-native-only-2026-10-24.md)
-- [Current product scope](PRODUCT-VISION.md)
-- [Owner-directed removal and live verification](evidence/2026-10-24-native-only-proot-removal-audit.md)
+- [Current Debian guest operations](OPERATIONS.md#debian-proot-guest)
+- [Current P11 restoration evidence](evidence/2026-10-24-p11-proot-source-restoration-audit.md)
+- [Preserved Native-only interval snapshot](history/PROOT-GUI-DISPLAY0-pre-native-only-2026-10-24.md)

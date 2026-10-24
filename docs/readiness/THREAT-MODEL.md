@@ -8,7 +8,7 @@
 |---|---|---|
 | Android/Termux app sandbox | Package metadata, private CLI state, local processes, user-selected files | A shell tool can mutate packages, run arbitrary local commands or expose user files if its scope is wrong |
 | Native Termux runtime and active workstation | Private state, installed packages, display/audio services, SSH and local workloads | A shell tool can mutate packages, run commands or expose files if its scope is wrong |
-| Bounded local CPU inference | User prompt, pinned model file, runtime process and generated output | Prompt disclosure, untrusted model artifact, resource exhaustion, accidental network access |
+| Bounded local CPU/Vulkan/HTP inference | User prompt, pinned model file, runtime process and generated output | Prompt disclosure, untrusted model/runtime artifact, resource exhaustion, thermal pressure, accidental network access |
 | SSH/ADB | Keys, ports, pairing state, remote command surface | Unauthenticated/LAN exposure, secret leakage, persistent shell |
 | Package and release pipeline | APT metadata, Python dependency, Actions, source archives/artifacts | Compromised action/dependency, wrong repository/version, unverified binary, misleading checksum |
 | Website/hosting | Public content, deployment secrets, access logs, possible future contact/analytics data | Supply-chain compromise, accidental private data publication, hostile form submissions, provider/account takeover |
@@ -18,12 +18,12 @@
 
 ## Current management and local inference controls
 
-- Management operations and the CPU inference operation use separate capabilities. Inference cannot install packages, alter services, or access arbitrary files.
+- Management operations and local inference operations use separate capabilities. CPU, Vulkan and HTP runs require `ai.local.run`; model/runtime changes require `ai.local.manage`. Inference cannot install Termux packages, alter services, or access arbitrary files.
 - The management Web UI is same-origin and loopback-only. Validate Host and Origin, reject wildcard CORS, use CSRF/session defenses, limit request sizes/rates, and do not bind to LAN/public addresses. A local browser is not inherently trusted. The management bearer is held in an HttpOnly, SameSite=Strict session cookie scoped to `/api/v1`, not page storage; reconnect requires exact Origin and a live in-memory session. Runtime restart invalidates reconnect. The loopback HTTP cookie omits `Secure`; this is safe only while the listener remains loopback-only.
 - Every mutation follows an exact preview, explicit confirmation bound to that plan and current state, an operation journal, and a verified outcome. Do not offer a generic shell or generic file-write route.
 - CLI, TUI, Web and GTK use the shared management services and permission checks. A UI route cannot bypass preview, capability scope, or confirmation rules.
 - Model paths are confined after canonicalization to the managed model directory or an explicitly selected file. Reject traversal/symlink escape; verify hashes and show source/license before download/use. Never scan shared storage by default.
-- The current CPU inference path has no cloud-provider credentials or routing operation. It passes a prompt to the local runtime and does not silently fall back to a remote provider. If remote inference is added, require a separate reviewed capability and explicit per-request destination/charge disclosure.
+- Current CPU, Vulkan and HTP inference paths have no cloud-provider credentials or routing operation. They pass prompts to local runtimes, fail closed on backend errors, and do not silently fall back to another backend or remote provider. If remote inference is added, require a separate reviewed capability and explicit per-request destination/charge disclosure.
 - Tool execution is a named allowlisted capability registry. File deletion, package changes, external network changes, boot changes, and recovery require a preview and appropriate confirmation.
 - Local operation history is bounded and redacted. Diagnostics export previews fields and removes serials, usernames, private paths and secret-like data before writing a user-selected export.
 - No dashboard analytics/telemetry by default. Optional off-home access is an owner-approved product requirement in [ADR-0013](../architecture/decisions/ADR-0013-owner-controlled-remote-access.md), but its transport implementation and device enablement remain pending a threat review and explicit owner action. Keep it disabled by default, use a private VPN/tunnel path, and do not add direct WAN listeners or router port-forwards by default.
@@ -43,7 +43,7 @@ These controls are not a security certification. Current routes and permission s
 
 ## Current controls and gaps
 
-**Present in docs/source:** Native Termux-only product boundary; package changes use preview/explicit confirmation; desktop state uses owner markers and PID start ticks; security policy rejects broad shared-storage scanning and unbounded cleanup; CPU inference pins model size/hash and runs with explicit CPU-only bounds; CLI/TUI/Web/GTK use shared authorization; CI job permissions are mostly read-only with a narrow same-repo write job for generated `.repo` state; no SKB write token; no telemetry/form/payment system.
+**Present in docs/source:** Native Termux host/control-plane boundary with optional Debian PRoot workloads; package changes use preview/explicit confirmation; desktop state uses owner markers and PID start ticks; security policy rejects broad shared-storage scanning and unbounded cleanup; inference pins model size/hash and uses explicit execution bounds; CLI/TUI/Web/GTK use shared authorization; CI job permissions are mostly read-only with a narrow same-repo write job for generated `.repo` state; no SKB write token; no telemetry/form/payment system. PRoot is an execution provider, not a security sandbox.
 
 **Not established:** full supported-profile reproducibility, secure release signing/provenance, build-specific SBOM, sustained model stability and offline isolation, vulnerability response staffing/SLA, independent security scan, web host, privacy notice, customer-data policy and legal entity/payment readiness.
 

@@ -2,6 +2,11 @@
 
 
 nt_cmd_app() {
+  if [ "${1:-}" = "--" ]; then
+    _nt_use proot || return $?
+    nt_cmd_debian_menu_app "$@"
+    return $?
+  fi
   nt_require_termux || return $?
   local service="${_TN_LIB_DIR}/management_service.py" sub="${1:-list}" app_id="" action="" plan_id="" confirm=""
   [ "$#" -gt 0 ] && shift || true
@@ -53,8 +58,57 @@ nt_cmd_management() {
   local section="${1:-}"
   [ "$#" -gt 0 ] && shift
   case "$section" in
-    proot|app|papps|shortcuts)
-      nt_warn "PRoot guest and application management was retired. Use the Native Termux desktop and 'tx help' for supported workflows."
+    proot)
+      _nt_use proot || return $?
+      nt_cmd_proot "$@"
+      ;;
+    app)
+      local action="${1:-}" app_id="" desktop_id="" display=""
+      [ "$#" -gt 0 ] && shift
+      [ "$action" = launch ] || {
+        nt_fail "Use tx mng app launch APP_ID | --desktop-id DESKTOP_ID [--display :N]."
+        return 2
+      }
+      while [ "$#" -gt 0 ]; do
+        case "$1" in
+          --desktop-id)
+            [ "$#" -ge 2 ] && [ -z "$app_id$desktop_id" ] || { nt_fail "--desktop-id requires one application ID."; return 2; }
+            desktop_id="$2"; shift 2 ;;
+          --app-id)
+            [ "$#" -ge 2 ] && [ -z "$app_id$desktop_id" ] || { nt_fail "--app-id requires one fixed application ID."; return 2; }
+            app_id="$2"; shift 2 ;;
+          --display)
+            [ "$#" -ge 2 ] && [ -z "$display" ] || { nt_fail "--display requires one X11 display such as :0."; return 2; }
+            display="$2"; shift 2 ;;
+          --help|-h)
+            printf '%s\n' "Usage: tx mng app launch APP_ID | --desktop-id DESKTOP_ID [--display :N]" \
+              "Launch an allowlisted Debian XFCE application through the shared PRoot service."
+            return 0 ;;
+          *)
+            if [ -z "$app_id$desktop_id" ]; then
+              case "$1" in
+                *.desktop) desktop_id="$1" ;;
+                *) app_id="$1" ;;
+              esac
+              shift
+            else
+              nt_fail "Unexpected Debian app launch argument: $1"; return 2
+            fi ;;
+        esac
+      done
+      [ -n "$app_id$desktop_id" ] || { nt_fail "Provide a fixed APP_ID or --desktop-id DESKTOP_ID."; return 2; }
+      if [ -n "$display" ] && ! [[ "$display" =~ ^:[0-9]{1,2}$ ]]; then
+        nt_fail "Display must be an X11 display such as :0."; return 2
+      fi
+      _nt_use proot || return $?
+      local -a launch_args=()
+      [ -n "$app_id" ] && launch_args+=(--app-id "$app_id")
+      [ -n "$desktop_id" ] && launch_args+=(--desktop-id "$desktop_id")
+      [ -n "$display" ] && launch_args+=(--display "$display")
+      _nt_proot_operation proot.app.launch "${launch_args[@]}"
+      ;;
+    papps|shortcuts)
+      nt_fail 'Use `tx proot` for Debian status/setup and `tx gui` for the management center; Native app management is `tx app`.'
       return 2 ;;
     graphics)
       local action="${1:-status}" provider="${2:-native}" api="${3:-opengl}" display="${4:-:1}"

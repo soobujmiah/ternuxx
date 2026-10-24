@@ -1,6 +1,6 @@
 # Comparable inference benchmark methodology
 
-**Status:** protocol proposal; no Ternuxx measurements have been collected. **All benchmarking is opt-in and owner-operated on the physical device.**
+**Status:** qualification protocol. Existing device results are exploratory until they meet the full controls below. **All benchmarking is opt-in and owner-operated on the physical device.**
 
 ## Experimental controls
 
@@ -48,4 +48,4 @@ Charts must be generated from accepted machine-readable reports and retain a lin
 
 ## Acceptance status
 
-This protocol does not constitute a test run. No report has a `PASS` verdict, and no performance result is available in this repository as of this audit.
+This protocol defines a qualification bar; it is not itself a test run. P12 contains bounded CPU, Vulkan, and HTP workload measurements for the named device and models, but those checks do not complete the warm-up/repetition, sustained memory/thermal, and clean-install requirements above. No cross-backend result is qualified as a full protocol-compliant comparative benchmark. See [current acceleration evidence](../evidence/2026-10-24-native-acceleration-live-check.md) and the [active P12 gate](../PHASE-STATUS.md).

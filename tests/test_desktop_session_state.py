@@ -97,6 +97,18 @@ class DesktopSessionStateTests(unittest.TestCase):
         self._session("failed", process_ticks="999")
         self.assertEqual(self._inspect()["state"], "failed")
 
+    def test_proot_provider_record_is_classified_with_its_own_process_marker(self) -> None:
+        session = self._session("failed", process_ticks="999")
+        session["provider"] = "proot"
+        session["desktop"]["command_marker"] = "proot-display0"
+        path = self.state / "session.json"
+        path.write_text(json.dumps(session), encoding="utf-8")
+        path.chmod(0o600)
+        result = self._inspect()
+        self.assertEqual(result["state"], "failed")
+        self.assertEqual(result["display_state"], "absent")
+        self.assertEqual(result["processes"], {"supervisor": "absent", "x11": "absent", "desktop": "absent"})
+
     def test_unavailable_process_inventory_is_unknown(self) -> None:
         self._session()
         self.assertEqual(desktop_session_state.inspect(self.home, self.state, self.proc / "missing", self.tmp)["state"], "unknown")

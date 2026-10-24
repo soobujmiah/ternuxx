@@ -33,6 +33,107 @@ def request(operation: object, args: object = None, api_version: int = 1) -> dic
 
 
 class ManagementServiceTests(unittest.TestCase):
+    def test_graphics_provider_error_is_scoped_to_graphics_not_whole_product(self) -> None:
+        result = management_service.dispatch(request("graphics.provider.status", {"provider": "proot-debian"}),
+                                             env=NATIVE_ENV)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"]["code"], "unsupported_provider")
+        self.assertEqual(result["error"]["message"], "graphics verification currently supports Native Termux only")
+
+    def test_proot_shortcut_list_and_mutation_routes_share_private_xdg_data_home(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            state = Path(temp) / ".local" / "share" / "ternuxx"
+            env = {**NATIVE_ENV, "HOME": temp, "TERNUXX_STATE_DIR": str(state)}
+            with patch.object(management_service.proot_shortcuts, "list_shortcuts",
+                              return_value={"items": [], "desktop_applications": {"items": []}}) as listing, \
+                 patch.object(management_service.proot_shortcuts, "preview",
+                              return_value={"status": "preview"}) as fixed_preview, \
+                 patch.object(management_service.proot_shortcuts, "preview_desktop_application_sync",
+                              return_value={"status": "preview"}) as sync_preview:
+                requests = [
+                    ("proot.shortcuts.list", {}),
+                    ("proot.shortcuts.preview", {"action": "add", "app_id": "files"}),
+                    ("proot.shortcuts.sync.preview", {}),
+                ]
+                for operation, arguments in requests:
+                    with self.subTest(operation=operation):
+                        result = management_service.dispatch(request(operation, arguments), env=env)
+                        self.assertTrue(result["ok"])
+
+                expected = str(state / "xfce" / "data")
+                expected_config = str(state / "xfce" / "config")
+                self.assertEqual(listing.call_args.kwargs["xdg_data_home"], expected)
+                self.assertEqual(fixed_preview.call_args.kwargs["xdg_data_home"], expected)
+                self.assertEqual(sync_preview.call_args.kwargs["xdg_data_home"], expected)
+                self.assertEqual(sync_preview.call_args.kwargs["xdg_config_home"], expected_config)
+
+            custom = "/tmp/ternuxx-custom-xdg"
+            env["XDG_DATA_HOME"] = custom
+            with patch.object(management_service.proot_shortcuts, "list_shortcuts",
+                              return_value={"items": [], "desktop_applications": {"items": []}}) as listing:
+                result = management_service.dispatch(request("proot.shortcuts.list"), env=env)
+            self.assertTrue(result["ok"])
+            self.assertEqual(listing.call_args.kwargs["xdg_data_home"], custom)
+
+    def test_proot_shortcut_routes_follow_verified_active_proot_xfce_tree(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            env = {**NATIVE_ENV, "HOME": temp}
+            state_root = Path(temp) / ".local/share/ternuxx/proot-display0/xfce"
+            with patch.object(management_service.desktop_session_state, "inspect",
+                              return_value={"state": "running", "display": ":0"}), \
+                 patch.object(management_service.proot_shortcuts, "preview_desktop_application_sync",
+                              return_value={"status": "preview"}) as preview:
+                result = management_service.dispatch(request("proot.shortcuts.sync.preview"), env=env)
+            self.assertTrue(result["ok"])
+            self.assertEqual(preview.call_args.kwargs["xdg_data_home"], str(state_root / "data"))
+            self.assertEqual(preview.call_args.kwargs["xdg_config_home"], str(state_root / "config"))
+
+            env.update({"XDG_DATA_HOME": "/tmp/custom-data", "XDG_CONFIG_HOME": "/tmp/custom-config"})
+            with patch.object(management_service.desktop_session_state, "inspect",
+                              return_value={"state": "running", "display": ":0"}), \
+                 patch.object(management_service.proot_shortcuts, "preview_desktop_application_sync",
+                              return_value={"status": "preview"}) as preview:
+                result = management_service.dispatch(request("proot.shortcuts.sync.preview"), env=env)
+            self.assertTrue(result["ok"])
+            self.assertEqual(preview.call_args.kwargs["xdg_data_home"], "/tmp/custom-data")
+            self.assertEqual(preview.call_args.kwargs["xdg_config_home"], "/tmp/custom-config")
+
+    def test_cli_parser_accepts_allowlisted_dynamic_debian_desktop_launch(self) -> None:
+        args = management_service._parser().parse_args([
+            "--operation", "proot.app.launch", "--desktop-id", "xfce4-about.desktop",
+            "--display", ":0",
+        ])
+        self.assertEqual(args.operation, "proot.app.launch")
+        self.assertEqual(args.desktop_id, "xfce4-about.desktop")
+        self.assertEqual(args.display, ":0")
+
+    def test_cli_dynamic_debian_app_launch_dispatches_one_desktop_id_and_display(self) -> None:
+        response = {"ok": True, "data": {"provider": "proot_debian", "status": "process_exited"}}
+        with patch.dict(os.environ, NATIVE_ENV), patch.object(management_service, "dispatch", return_value=response) as dispatch, \
+                redirect_stdout(io.StringIO()):
+            self.assertEqual(management_service.main([
+                "--operation", "proot.app.launch", "--desktop-id", "xfce4-about.desktop",
+                "--display", ":0",
+            ]), 0)
+        self.assertEqual(dispatch.call_args.args[0]["args"], {
+            "desktop_id": "xfce4-about.desktop", "display": ":0",
+        })
+
+    def test_shortcut_inventory_cli_is_compact_but_json_preserves_full_response(self) -> None:
+        response = {"ok": True, "data": {"resource_id": "proot.x11.shortcuts",
+            "items": [{"id": "files", "name": "File manager", "shortcut_state": "absent"}],
+            "desktop_applications": {"items": [{"desktop_id": "thunar.desktop", "name": "Files",
+                "shortcut_state": "installed", "localized_comments": {"en": "metadata"}}]}}}
+        with patch.dict(os.environ, NATIVE_ENV), patch.object(management_service, "dispatch", return_value=response), \
+                redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(management_service.main(["--operation", "proot.shortcuts.list"]), 0)
+        self.assertIn("Debian shortcuts - 1 fixed, 1 discovered", output.getvalue())
+        self.assertNotIn("localized_comments", output.getvalue())
+        with patch.dict(os.environ, NATIVE_ENV), patch.object(management_service, "dispatch", return_value=response), \
+                redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(management_service.main(["--operation", "proot.shortcuts.list", "--json"]), 0)
+        self.assertIn("localized_comments", output.getvalue())
+
     def test_typed_cron_create_builds_canonical_jobs_for_every_schedule_in_service(self) -> None:
         cases = [
             ("cron", {"expression": "0 8 * * *"}, {"expression": "0 8 * * *", "timezone": "Asia/Dhaka"}),
@@ -85,6 +186,59 @@ class ManagementServiceTests(unittest.TestCase):
             "inference.cpu.status", "inference.cpu.model.preview",
             "inference.cpu.model.apply", "inference.cpu.run"])
 
+    def test_vulkan_inference_status_and_run_use_the_shared_fail_closed_service(self) -> None:
+        inventory = {"available": True, "backend": "Vulkan", "devices": [{"id": "Vulkan0", "name": "Adreno 825"}]}
+        with patch.object(management_service.cpu_inference, "gpu_status", return_value=inventory) as probe:
+            listed = management_service.dispatch(request("inference.gpu.status"), env=NATIVE_ENV)
+        self.assertTrue(listed["ok"])
+        self.assertEqual(listed["data"], inventory)
+        probe.assert_called_once_with(prefix=NATIVE_ENV["PREFIX"], home=Path(NATIVE_ENV["HOME"]),
+                                      state_dir=os.path.join(NATIVE_ENV["HOME"], ".local/share/ternuxx"))
+        with patch.object(management_service.cpu_inference, "run_inference", return_value={
+                "backend": "Vulkan", "gpu_layers": 22}) as run:
+            result = management_service.dispatch(request("inference.gpu.run", {
+                "prompt": "hello", "max_tokens": 32, "device_id": "Vulkan0"}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(run.call_args.kwargs["backend"], "vulkan")
+        self.assertEqual(run.call_args.kwargs["device_id"], "Vulkan0")
+        invalid = management_service.dispatch(request("inference.gpu.run", {
+            "prompt": "hello", "max_tokens": 32, "device_id": "../Vulkan0"}), env=NATIVE_ENV)
+        self.assertFalse(invalid["ok"])
+        self.assertEqual(invalid["error"]["code"], "invalid_arguments")
+
+    def test_terminal_broker_service_controls_use_fixed_deployment_provider(self) -> None:
+        status = {"service_id": "ternuxx-terminal-broker", "installed": True, "status": "stopped"}
+        preview = {"service_id": "ternuxx-terminal-broker", "plan_id": "a" * 64, "read_only": True}
+        applied = {"service_id": "ternuxx-terminal-broker", "status": "running", "guest_started": False}
+        with patch.object(management_service.fixed_service_deployment, "status", return_value=status) as read:
+            result = management_service.dispatch(request("terminal.broker.service.status"), env=NATIVE_ENV)
+        self.assertTrue(result["ok"]); self.assertEqual(result["data"], status); read.assert_called_once()
+        with patch.object(management_service.fixed_service_deployment, "preview_start", return_value=preview) as plan:
+            result = management_service.dispatch(request("terminal.broker.service.start.preview"), env=NATIVE_ENV)
+        self.assertTrue(result["ok"]); self.assertTrue(result["data"]["read_only"]); plan.assert_called_once()
+        with patch.object(management_service.fixed_service_deployment, "start_service", return_value=applied) as start:
+            result = management_service.dispatch(request("terminal.broker.service.start.apply", {
+                "confirmed": True, "plan_id": "a" * 64}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"]); self.assertFalse(result["data"]["guest_started"])
+        start.assert_called_once()
+        self.assertEqual(start.call_args.kwargs["plan_id"], "a" * 64)
+        self.assertFalse(management_service.dispatch(request("terminal.broker.service.start.apply", {
+            "confirmed": True, "plan_id": "stale"}), env=NATIVE_ENV)["ok"])
+
+    def test_cli_retirement_preview_uses_typed_proot_operation_without_checkpoint_argument(self) -> None:
+        expected = {"status": "blocked", "reason": "not-a-managed-replay-guest"}
+        with patch.dict(os.environ, NATIVE_ENV), \
+             patch.object(management_service.retire_fresh_guest, "retire_preview",
+                          return_value=expected) as preview, \
+             redirect_stdout(io.StringIO()) as output:
+            result = management_service.main([
+                "--operation", "proot.setup.retire.preview",
+                "--alias", "ternuxx-replay-fixture", "--json",
+            ])
+        self.assertEqual(result, 0)
+        self.assertEqual(json.loads(output.getvalue())["data"], expected)
+        self.assertEqual(preview.call_args.kwargs["alias"], "ternuxx-replay-fixture")
+
     def test_cpu_model_apply_requires_typed_exact_plan_and_dispatches_same_runtime(self) -> None:
         with patch.object(management_service.cpu_inference, "install_model", return_value={"installed": True}) as install:
             missing = management_service.dispatch(request("inference.cpu.model.apply", {
@@ -122,7 +276,7 @@ class ManagementServiceTests(unittest.TestCase):
 
         with patch.object(management_service, "dispatch", side_effect=fake_dispatch), \
                 patch.dict(os.environ, NATIVE_ENV, clear=False), \
-                patch("sys.stdin", io.StringIO("one-line local prompt")), \
+                patch("sys.stdin", io.StringIO("one-line local prompt\n")), \
                 redirect_stdout(io.StringIO()) as output:
             self.assertEqual(management_service.main([
                 "--operation", "inference.cpu.status", "--json"]), 0)
@@ -146,6 +300,25 @@ class ManagementServiceTests(unittest.TestCase):
             "inference.cpu.status", "inference.cpu.model.preview",
             "inference.cpu.model.apply", "inference.cpu.run"])
 
+    def test_cli_proot_guest_verification_routes_explicit_and_rootfs_users(self) -> None:
+        calls = []
+        def fake_dispatch(request_data, env=None):
+            calls.append(request_data)
+            return {"api_version": 1, "request_id": request_data["request_id"],
+                    "ok": True, "operation": request_data["operation"], "data": {}}
+        with patch.object(management_service, "dispatch", side_effect=fake_dispatch), \
+                patch.dict(os.environ, NATIVE_ENV, clear=False), redirect_stdout(io.StringIO()):
+            self.assertEqual(management_service.main([
+                "--operation", "proot.guest.verify", "--distro", "debian",
+                "--guest-user", "sbj", "--display", ":1", "--backend", "zink", "--json"]), 0)
+            self.assertEqual(management_service.main([
+                "--operation", "proot.guest.verify", "--distro", "debian",
+                "--guest-user-from", "rootfs", "--display", ":1", "--backend", "virgl", "--json"]), 0)
+        self.assertEqual(calls[0]["args"], {"distro": "debian", "user": "sbj",
+                         "display": ":1", "backend": "zink", "user_source": "explicit"})
+        self.assertEqual(calls[1]["args"], {"distro": "debian", "display": ":1",
+                         "backend": "virgl", "user_source": "rootfs"})
+
     def test_cli_inference_model_apply_rejects_a_confirmation_for_the_wrong_action(self) -> None:
         with patch.object(management_service, "dispatch") as dispatch, \
                 patch.dict(os.environ, NATIVE_ENV, clear=False), \
@@ -163,7 +336,8 @@ class ManagementServiceTests(unittest.TestCase):
         self.assertIn('--operation inference.cpu.status', source)
         self.assertIn('--operation inference.cpu.model.preview', source)
         self.assertIn('--operation inference.cpu.model.apply', source)
-        self.assertIn('--operation inference.cpu.run', source)
+        self.assertIn('operation=inference.cpu.run', source)
+        self.assertIn('operation=inference.gpu.run', source)
         self.assertNotIn('cpu_inference.py', source)
 
     def test_ssh_key_inventory_is_a_separate_read_only_shared_operation(self) -> None:
@@ -551,15 +725,27 @@ class ManagementServiceTests(unittest.TestCase):
             home = Path(temp) / "home"
             home.mkdir()
             env = {**NATIVE_ENV, "HOME": str(home), "TERNUXX_STATE_DIR": str(home / ".state")}
-            prepared = management_service.dispatch(
-                request("continuity.prepare", {"test_id": "api-contract", "commit": "abcdef0", "worktree_state": "dirty"}),
-                env=env,
-            )
+            args = {"test_id": "api-contract", "commit": "abcdef0", "worktree_state": "dirty"}
+            preview = management_service.dispatch(request("continuity.prepare.preview", args), env=env)
+            self.assertTrue(preview["ok"])
+            self.assertTrue(preview["data"]["read_only"])
+            self.assertFalse((Path(env["TERNUXX_STATE_DIR"]) / "continuity" / "checkpoints").exists())
+            rejected = management_service.dispatch(request("continuity.prepare", args), env=env)
+            self.assertFalse(rejected["ok"])
+            self.assertEqual(rejected["error"]["code"], "confirmation_required")
+            prepared = management_service.dispatch(request("continuity.prepare", {
+                **args, "confirmed": True, "plan_id": preview["data"]["plan_id"]}), env=env)
             self.assertTrue(prepared["ok"])
             checkpoint_id = prepared["data"]["checkpoint_id"]
-            verified = management_service.dispatch(request("continuity.verify", {"checkpoint_id": checkpoint_id}), env=env)
+            verify_preview = management_service.dispatch(request("continuity.verify.preview", {"checkpoint_id": checkpoint_id}), env=env)
+            self.assertTrue(verify_preview["ok"])
+            report_dir = Path(env["TERNUXX_STATE_DIR"]) / "continuity" / "checkpoints" / "verification"
+            self.assertFalse(report_dir.exists())
+            verified = management_service.dispatch(request("continuity.verify", {
+                "checkpoint_id": checkpoint_id, "confirmed": True, "plan_id": verify_preview["data"]["plan_id"]}), env=env)
             self.assertTrue(verified["ok"])
             self.assertIn(verified["data"]["outcome"], {"same_boot", "boot_id_unavailable"})
+            self.assertTrue(report_dir.exists())
 
     def test_reboot_verification_uses_private_checkpoint_nonce(self) -> None:
         with tempfile.TemporaryDirectory(prefix="ternuxx-management-reboot-") as temp:
@@ -664,7 +850,6 @@ class ManagementServiceTests(unittest.TestCase):
             self.assertEqual(untrusted["error"]["code"], "unauthorized")
 
     def test_backend_has_no_generic_shell_or_unlisted_operation(self) -> None:
-        self.assertNotIn("shell.exec", management_service.OPERATIONS)
         self.assertNotIn("shell.exec", management_service.OPERATIONS)
         self.assertIn("continuity.prepare-reboot-test", management_service.OPERATIONS)
         self.assertIn("boot.status", management_service.OPERATIONS)

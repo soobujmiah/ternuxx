@@ -1,12 +1,12 @@
 # Ternuxx architecture
 
-Ternuxx is a Native Termux-only workstation manager for Android. Its public command is `tx`; the installed shim dispatches into `$HOME/ternuxx`. Product state lives under `$TERNUXX_STATE_DIR` or the default `$HOME/.local/share/ternuxx`, and installed runtime modules live under `$PREFIX/lib/ternuxx`.
+Ternuxx is an Android workstation manager with Native Termux as its host and control plane and optional Debian PRoot workloads. Its public command is `tx`; the installed shim dispatches into the checkout. Product state lives under `$TERNUXX_STATE_DIR` or the default `$HOME/.local/share/ternuxx`, and installed runtime modules live under `$PREFIX/lib/ternuxx`.
 
-Native Termux owns desktop lifecycle, boot/recovery, SSH, service supervision, state, diagnostics, and workloads. The Native desktop uses Termux:X11 and Native Termux packages. Ternuxx does not start or depend on Debian PRoot and does not invoke the separate Ternux project or launcher.
+Native Termux owns desktop lifecycle, boot/recovery, SSH, service supervision, state, diagnostics, and host workloads. Debian PRoot is an optional guest provider with typed, target-specific lifecycle, setup, application, GUI, and shortcut operations. Guest operations do not replace or silently fall back to Native operations. Ternuxx does not invoke or modify the separate Ternux project or launcher.
 
 ## Shared management
 
-The local management service exposes a typed operation allowlist to the CLI, TUI, authenticated loopback Web UI, and GTK management center. Clients share validation, authorization, preview/confirmation, journals, and result reporting. Each client may support a subset of the Native operation catalog; unsupported actions are not shown as active controls.
+The local management service exposes a typed operation allowlist to the CLI, TUI, authenticated loopback Web UI, and GTK management center. Clients share validation, authorization, preview/confirmation, journals, and result reporting. Each client may support a subset of the shared Native and PRoot operation catalog; unsupported actions are not shown as active controls.
 
 The Web service binds to loopback, uses one-time bootstrap, scoped sessions, same-origin checks, CSRF, and durable idempotency for permitted writes. It has no generic shell or arbitrary file API. Native GTK is separately built and installed with source/bridge/binary identity checks.
 
@@ -16,8 +16,8 @@ Ternuxx controls only the Native services and processes it records. Desktop and 
 
 ## Graphics and audio
 
-Native graphics selection is stored in private Ternuxx state and applies to future Native desktop sessions. Diagnostics identify the observed renderer and workload; installed libraries or device nodes alone are not acceleration evidence. Native PulseAudio is managed as a Native service. No guest library paths or cross-userspace handoff exist.
+Native graphics selection is stored in private Ternuxx state and applies to future Native desktop sessions. Debian graphics use the guest's own Mesa/Turnip stack and a bounded Native display/audio handoff. The two rendering contexts are qualified separately; installed libraries, device nodes, or a renderer string without a workload do not prove application acceleration. Native PulseAudio remains Native-owned.
 
 ## Scope migration
 
-The 2026-10-24 owner decision made Ternuxx Native-only and superseded the prior PRoot/hybrid architecture. See [ADR-0017](architecture/decisions/ADR-0017-native-only-product-and-proot-retirement.md) and the [removal audit](evidence/2026-10-24-native-only-proot-removal-audit.md). Older PRoot evidence remains historical and must not be used as current Native qualification.
+On 2026-10-24, the owner first retired and then reauthorized Debian PRoot support. P11 now tracks its restoration and installed-guest acceptance. Treat older dated PRoot observations as snapshots, and do not use guest results to qualify Native workloads. Current status is in [phase status](PHASE-STATUS.md), the [capability matrix](architecture/CAPABILITY-MATRIX.md), and [PRoot restoration evidence](evidence/2026-10-24-p11-proot-source-restoration-audit.md).

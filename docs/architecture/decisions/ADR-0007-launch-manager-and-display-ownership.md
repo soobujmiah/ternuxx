@@ -1,5 +1,5 @@
 # ADR-0007: Launch Manager owns named profiles, not existing Ternux sessions
-> **Scope update (2026-10-24):** This is a historical design record. ADR-0017 supersedes its PRoot/guest requirements; check the current source, [phase status](../../PHASE-STATUS.md), and [Native-only decision](ADR-0017-native-only-product-and-proot-retirement.md) for supported behavior.
+> **Scope update (2026-10-24):** ADR-0017 recorded a temporary Native-only direction, later reversed when the owner reauthorized Debian PRoot support. This record remains historical; current behavior is defined by source, [P11 phase status](../../PHASE-STATUS.md), and [restoration evidence](../../evidence/2026-10-24-p11-proot-source-restoration-audit.md).
 
 - **Date:** 2026-10-17
 - **Status:** proposed — owner review required; alias compatibility clauses superseded by [ADR-0016](ADR-0016-tx-db-and-legacy-entrypoints.md)

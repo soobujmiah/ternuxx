@@ -1,0 +1,87 @@
+from __future__ import annotations
+
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+import unittest
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class ProotGuiRoutingTests(unittest.TestCase):
+    def test_status_reports_stopped_when_no_managed_session_exists(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="ternuxx-proot-status-") as temp:
+            home = Path(temp)
+            env = {**os.environ, "HOME": str(home), "PREFIX": str(home / "prefix"),
+                   "TMPDIR": str(home / "tmp")}
+            result = subprocess.run(["bash", str(ROOT / "scripts/proot-gui0.sh"), "status"],
+                                    capture_output=True, text=True, env=env, timeout=10)
+            self.assertEqual(result.returncode, 0)
+            self.assertIn("Standalone Debian GUI: stopped; target display :0", result.stdout)
+            self.assertIn("Nested display :2 socket is absent.", result.stdout)
+
+    def test_nested_route_matches_native_orientation_and_resizes(self) -> None:
+        script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
+        self.assertIn('query_display_geometry(os.environ["DISPLAY"])', script)
+        self.assertIn('/usr/bin/Xephyr :2 -glamor_gles2 -screen "$native_geometry" -resizeable', script)
+        self.assertIn('--env TERNUXX_REPO_ROOT="$ROOT"', script)
+        self.assertIn("DISPLAY=:2 dbus-launch --exit-with-session xfce4-session &", script)
+        self.assertNotIn("DISPLAY=:2 dbus-launch --exit-with-session startxfce4 &", script)
+        self.assertIn('DISPLAY=:2 es2_info 2>&1 | sed', script)
+        self.assertIn('Use Termux:X11 fullscreen/orientation controls', script)
+
+    def test_nested_route_starts_xfce_session_on_existing_xephyr_server(self) -> None:
+        script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
+        self.assertIn("/usr/bin/Xephyr :2 -glamor_gles2 -screen", script)
+        self.assertIn("DISPLAY=:2 dbus-launch --exit-with-session xfce4-session &", script)
+        self.assertNotIn("DISPLAY=:2 dbus-launch --exit-with-session startxfce4 &", script)
+
+    def test_nested_route_refuses_an_unverified_display_before_guest_side_effects(self) -> None:
+        script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
+        preflight = script.index('nested_display_state="$(python3 "$DISPLAY_TOOL" "$TMP_ROOT" 2')
+        guest_check = script.index('resolve_proot_guest_shell', preflight)
+        audio_start = script.index('"$ROOT/tx" audio start', preflight)
+        self.assertLess(preflight, guest_check)
+        self.assertLess(preflight, audio_start)
+        self.assertIn('refusing startup because existing display ownership cannot be verified', script)
+
+    def test_standalone_supervisor_is_detached_from_terminal_lifecycle(self) -> None:
+        script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
+        self.assertIn('nohup setsid env TERNUXX_PULSE_COOKIE="$cookie" "$SUPERVISOR"', script)
+
+    def test_debian_xfce_gets_cpu_model_names_from_native_lscpu(self) -> None:
+        wrapper = (ROOT / "lib/proot-xfce-wrapper.sh").read_text(encoding="utf-8")
+        self.assertIn('proot_cpuinfo.py" "$CPUINFO_PATH"', wrapper)
+        self.assertIn('--bind "$CPUINFO_PATH:/proc/cpuinfo"', wrapper)
+
+    def test_standalone_app_launcher_binds_the_cpu_model_name_view(self) -> None:
+        wrapper = (ROOT / "scripts/proot-x11-app.sh").read_text(encoding="utf-8")
+        self.assertIn('proot_cpuinfo.py" "$CPUINFO_PATH"', wrapper)
+        self.assertIn('--bind "$CPUINFO_PATH:/proc/cpuinfo"', wrapper)
+        self.assertIn('"$pgui_provider" = proot', wrapper)
+
+    def test_guest_graphics_verification_requires_running_display_and_limits_claims(self) -> None:
+        script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
+        self.assertIn('Usage: tx pgui graphics verify', script)
+        self.assertIn('d.get("state")!="running" or d.get("display")!=":0"', script)
+        self.assertIn('es2_info 2>&1', script)
+        self.assertIn('glxinfo -B 2>&1', script)
+        self.assertIn('vulkaninfo --summary 2>&1', script)
+        self.assertIn('do not prove frame presentation or inference offload', script)
+
+    def test_invalid_mode_is_rejected_before_state_mutation(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="ternuxx-shared-gui-") as temp:
+            home = Path(temp)
+            env = {**os.environ, "HOME": str(home), "PREFIX": str(home / "prefix"),
+                   "TMPDIR": str(home / "tmp")}
+            result = subprocess.run(
+                ["bash", str(ROOT / "scripts/proot-gui0.sh"), "start", "--mode", "unsupported"],
+                capture_output=True, text=True, env=env, timeout=10,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("--mode must be auto, standalone, or nested", result.stderr)
+            self.assertFalse((home / ".local/share/ternuxx").exists())
+
+if __name__ == "__main__":
+    unittest.main()

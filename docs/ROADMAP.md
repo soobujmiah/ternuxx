@@ -1,6 +1,6 @@
 # Roadmap
 
-Ternuxx is a Native Termux-only Android workstation manager. The owner selected this scope on 2026-10-24 and authorized retirement of PRoot support, including installed guests and manager packages. The previous multi-provider roadmap is preserved as [historical planning](history/ROADMAP-pre-native-only-2026-10-24.md); it is not the active product plan.
+Ternuxx uses Native Termux as its host/control plane and supports optional Debian PRoot workloads. On 2026-10-24 the owner authorized restoring Debian PRoot after its earlier retirement. P11 tracks the provider and guest restoration; P12 tracks CPU/GPU/NPU acceleration qualification.
 
 <!-- generated:phase-table:start -->
 | ID | Phase | Status | Completed / skipped |
@@ -16,28 +16,30 @@ Ternuxx is a Native Termux-only Android workstation manager. The owner selected 
 | P8 | Native workload and accelerator routing | completed | 2026-10-24 |
 | P9 | Optional isolated workload profile | skipped | skipped 2026-10-24 |
 | P10 | Hardening, release, and support | completed | 2026-10-24 |
+| P11 | Restore Debian PRoot support on Native Termux | completed | 2026-10-24 |
+| P12 | Qualify Native CPU, GPU and NPU acceleration | in_progress | — |
 <!-- generated:phase-table:end -->
 
 ## Active work
 
 <!-- generated:active-work:start -->
-All required phases are resolved; see evidence for completed gates and skipped optional phases.
+**Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
+
+**Next action:** Publish reviewed source changes and verify GitHub Actions; continue controlled CPU/Vulkan/HTP correctness checks with memory and thermal observation, then qualify experimental Vulkan ICD clean-install provenance and sustained HTP stability/model coverage.
+
+Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->
 
 ## Current work
 
-1. Keep the retired PRoot guest, terminal, graphics-provider, and app-menu routes absent from the source and clients.
-2. Keep CLI, TUI, Web, and GTK behavior aligned with the Native operations actually exposed by the shared service.
-3. Keep current documentation and schemas Native-only; retain dated evidence clearly labeled as historical.
-4. Run the complete Native Termux test suite and reconcile phase/evidence records with the results.
-5. Continue device-specific qualification for graphics, audio, boot delivery, SSH, backup, and recovery without claiming support beyond observed evidence.
+Follow the active P12 next action above. Per-client implementation and remaining acceptance live in the [capability matrix](architecture/CAPABILITY-MATRIX.md); current runtime and release gates live in [CURRENT_STATE.md](../CURRENT_STATE.md) and [known limitations](testing/KNOWN-LIMITATIONS.md).
 
 ## Completion criteria
 
-- No supported command, UI action, package plan, or schema provisions or routes to a PRoot guest.
-- Native Termux remains usable with no guest tools or guest containers installed.
-- Every client exposes only implemented Native operations, with the same authorization and preview/confirmation rules.
-- Current docs describe Native Termux; historical guest records are dated and indexed as history.
+- Debian PRoot install preserves existing guests and requires preview-bound confirmation.
+- Native Termux remains the host and product control plane.
+- Every client exposes only implemented operations with the same authorization and preview/confirmation rules.
+- CPU/GPU/NPU claims match exact backend and workload evidence.
 - The full test harness, document/link audit, and Native live checks pass, with limitations recorded.
 
 Public release additionally requires a selected license, provenance review, and owner acceptance of the release artifact.

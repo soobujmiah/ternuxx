@@ -7,10 +7,26 @@ BRIDGE = (ROOT / "scripts/management_desktop_bridge.py").read_text()
 
 
 class ManagementCenterNativeUiContractTests(unittest.TestCase):
-    def test_gtk_client_has_no_guest_or_broker_controls(self):
-        for retired in ("proot", "debian", "guest-lifecycle", "terminal_cli", "VteTerminal"):
-            with self.subTest(retired=retired):
-                self.assertNotIn(retired.lower(), SOURCE.lower())
+    def test_gtk_client_exposes_guest_status_and_broker_terminal_without_arbitrary_shell(self):
+        self.assertIn("proot.debian.workloads", SOURCE)
+        self.assertIn("proot-status", SOURCE)
+        self.assertIn("Launch Debian app", SOURCE)
+        self.assertIn("Preview shortcut add", SOURCE)
+        self.assertIn("Preview shortcut remove", SOURCE)
+        self.assertIn("Preview session stop", SOURCE)
+        self.assertIn("Inspect/reconcile exited session", SOURCE)
+        self.assertIn('g_regex_match_simple("^plan-[0-9a-f]{64}$", f[1], 0, 0)', SOURCE)
+        self.assertIn("proot.recovery.reconcile.preview", BRIDGE)
+        self.assertIn("Ternuxx-owned session ID (proot-…)", SOURCE)
+        self.assertIn("proot-session-list", SOURCE)
+        for contract in ("proot.interactive-terminal-broker", "terminal-service-prepare",
+                         "terminal-service-apply", "vte_terminal_spawn_async",
+                         '"terminal", "start"', "closing this window also detaches"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract.lower(), SOURCE.lower())
+        for unsafe in ("/bin/sh", "terminal_cli"):
+            with self.subTest(unsafe=unsafe):
+                self.assertNotIn(unsafe, SOURCE)
 
     def test_review_instance_remains_available(self):
         self.assertIn('g_strcmp0(argv[1], "--review") == 0', SOURCE)
@@ -21,6 +37,21 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
                          "G_SUBPROCESS_FLAGS_STDIN_PIPE", "inference.cpu.local"):
             with self.subTest(contract=contract):
                 self.assertIn(contract, SOURCE)
+
+    def test_native_vulkan_inference_has_explicit_status_and_run_controls(self):
+        for contract in ("inference.gpu.local", "ai_gpu_status_button", "gpu-status",
+                         "ai_gpu_run_button", "gpu-run", "Run on Vulkan",
+                         "verified GPU-layer offload", "CPU fallback is disabled", "gpu-device-entry",
+                         "Exact ID from List Vulkan inference devices"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, SOURCE)
+
+    def test_native_hexagon_inference_has_preview_confirmation_status_and_explicit_run(self):
+        for contract in ("inference.npu.local", "ai_npu_status_button", "npu-status",
+                         "npu-runtime-preview", "npu-runtime-apply", "Type INSTALL exactly",
+                         "ai_npu_run_button", "npu-run", "CPU fallback is disabled"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, SOURCE + BRIDGE)
 
     def test_graphics_selection_warns_about_experimental_candidate_and_future_scope(self):
         self.assertIn("KGSL option is experimental", SOURCE)
@@ -96,6 +127,37 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
     def test_catalog_is_the_source_for_visible_resources(self):
         self.assertIn('script, "catalog", NULL', SOURCE)
         self.assertIn('Connected to Native Termux shared management service', SOURCE)
+
+    def test_gtk_proot_shortcut_sync_and_rollback_are_preview_confirmed(self):
+        for contract in ("Preview shortcut synchronization", "List prior shortcut syncs",
+                         "Preview shortcut sync restore", "proot-shortcut-sync-preview",
+                         "proot-shortcut-rollback-preview", "proot-shortcut-sync-apply",
+                         "proot-shortcut-rollback-apply"):
+            self.assertIn(contract, SOURCE)
+        for contract in ('action == "proot-shortcut-sync-preview"',
+                         'action == "proot-shortcut-rollback-preview"',
+                         'action == "proot-shortcut-sync-apply"',
+                         'action == "proot-shortcut-rollback-apply"'):
+            self.assertIn(contract, BRIDGE)
+
+    def test_gtk_proot_tools_explain_cli_setup_and_hidden_password_handoff(self):
+        self.assertIn("tx proot setup fresh-preview --user NAME", SOURCE)
+        self.assertIn("tx proot setup fresh-install --yes --plan-id PLAN_ID", SOURCE)
+        self.assertIn("hidden prompts", SOURCE)
+
+    def test_gtk_replay_guest_retirement_and_restore_use_inline_exact_plan_review(self):
+        for contract in ("proot.replay-guests", "Preview replay guest retirement",
+                         "Preview replay guest restore", "proot_replay_review_box",
+                         "proot_replay_cancel_button", "proot_replay_apply_button",
+                         "No guest files are deleted", 'g_strcmp0(c->selected_resource_id, "proot.replay-guests")'):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, SOURCE)
+        for contract in ('action == "proot-replay-retire-preview"',
+                         'action == "proot-replay-restore-preview"',
+                         '"proot-replay-retire-apply"', '"proot-replay-restore-apply"',
+                         '"proot.setup.retire.preview"', '"proot.setup.restore.preview"'):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, BRIDGE)
 
 
 if __name__ == "__main__":

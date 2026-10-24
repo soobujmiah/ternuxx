@@ -14,8 +14,9 @@ The only current Native Termux profile directly observed in this repository is t
 | Native desktop | Ternuxx supervisor, X11, and XFCE live on `:1` | Lifecycle live; Android GUI visibility not confirmed in this snapshot |
 | Native audio | Authenticated local PulseAudio endpoint ready; default sink `OpenSL_ES_sink` | Endpoint readiness only; physical audibility/quality not tested |
 | Native graphics | Bounded OpenGL/GLES draws and a 120-frame Vulkan `vkcube` draw use Adreno 825; llvmpipe fallback renders | Exact workloads only on the experimental candidate; see [direct P6 recheck](../evidence/2026-10-24-native-graphics-fallback-recheck.md); no general application or inference claim |
-| CPU inference | CPU available; no Ternuxx inference runtime/model/test | Not implemented |
-| NPU inference | Vendor libraries visible; usable runtime and workload absent | Unverified; not implemented |
+| CPU inference | Bounded Qwen3 0.6B run passes through Termux llama.cpp on CPU | Workload works; longer performance, thermal, memory, offline, and release checks remain |
+| Vulkan inference | Pinned Qwen3 0.6B and three owner-provided GGUF workloads return the requested short responses with 29/29 layer offload on Vulkan0 / Adreno 825 | Experimental Mesa/Freedreno ICD required; sustained thermal/memory checks, clean-device ICD setup, and broader workload support remain open. See [GPU qualification](GPU-ACCELERATION.md) and [full-offload evidence](../evidence/2026-10-24-p12-complete-offload-gate.md) |
+| NPU inference | Ternuxx-pinned llama.cpp Snapdragon `b11849` runtime lists `HTP0: Hexagon` on the observed SM8735 device; repeated short Q4_0 prompts pass full layer offload and known-answer checks | Experimental workload verified on this one device; slower than CPU and not release-qualified |
 | Boot/recovery delivery | Termux:Boot package and receiver detected, OS delivery policy unknown | Cold-boot delivery unverified |
 
 Other devices, Android releases, ABIs, Termux channels, package sources, display servers, and audio/graphics combinations remain unqualified until separately tested. Current package versions are snapshots and can change independently of this document.

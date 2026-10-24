@@ -1,0 +1,8 @@
+event_id: test-e5f1c5a58860-846a57f2e0d1ea97
+repository: soobujmiah/ternuxx
+commit: e5f1c5a5886016bab2aaa0b342001d89f8ba3945
+kind: test
+occurred_at: '2026-10-24T03:40:17Z'
+status: passed
+summary: 965 Native Termux fixture tests passed in 124.256s on 2026-10-24; four-client
+  PRoot shortcut sync/rollback and compact inventory presentation

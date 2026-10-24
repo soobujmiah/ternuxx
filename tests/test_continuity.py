@@ -58,6 +58,25 @@ class ContinuityTests(unittest.TestCase):
         self.assertEqual(record["task"]["automatic_resume"], False)
         self.assertEqual(record["task"]["pending_tests"], ["native-ssh-without-proot", "owner-verifies-reboot"])
 
+    def test_checkpoint_previews_are_readonly_and_verification_plan_binds_record(self) -> None:
+        plan = continuity.prepare_preview(home=self.home, state_dir=self.state, test_id="preview-checkpoint", boot_id=BOOT_A)
+        self.assertTrue(plan["read_only"])
+        self.assertFalse((self.state / "continuity/checkpoints").exists())
+        created = continuity.prepare(home=self.home, state_dir=self.state, test_id="preview-checkpoint", boot_id=BOOT_A)
+        checkpoint_id = str(created["checkpoint_id"])
+        preview = continuity.verify_preview(home=self.home, state_dir=self.state, checkpoint_id=checkpoint_id,
+                                            current_boot_id=BOOT_B)
+        self.assertEqual(preview["details"]["outcome"], "reboot_detected")
+        self.assertFalse((self.state / "continuity/checkpoints/verification").exists())
+        checkpoint = self.checkpoint_path(checkpoint_id)
+        record = json.loads(checkpoint.read_text(encoding="utf-8"))
+        record["task"]["pending_tests"] = ["changed-after-preview"]
+        checkpoint.write_text(json.dumps(record), encoding="utf-8")
+        with self.assertRaisesRegex(continuity.CheckpointError, "changed after preview"):
+            continuity.verify(home=self.home, state_dir=self.state, checkpoint_id=checkpoint_id,
+                              current_boot_id=BOOT_B, expected_record_sha256=preview["details"]["record_sha256"])
+        self.assertFalse((self.state / "continuity/checkpoints/verification").exists())
+
     def test_verify_distinguishes_reboot_and_records_no_automatic_resume(self) -> None:
         result = self.prepare()
         verified = continuity.verify(

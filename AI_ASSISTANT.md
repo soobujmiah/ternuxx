@@ -6,7 +6,7 @@
 
 ## Product scope
 
-Ternuxx is a Native Termux-only Android workstation manager. The owner directed removal of all PRoot support, including the live Debian and replay guests, on 2026-10-24 and confirmed an existing backup. Native boot/recovery, SSH, CLI, management, state, desktop, graphics/audio reporting, and native workloads remain the product. Do not reintroduce PRoot, Debian guest management, hybrid routing, or PRoot package dependencies unless the owner changes this direction.
+Ternuxx is a Native Termux Android workstation manager with an optional Debian PRoot workload provider. On 2026-10-24 the owner authorized full PRoot removal, then explicitly reauthorized PRoot support and Debian guest restoration. Keep Native as the host/control plane and route Debian tools only through the isolated guest provider. Do not modify the separate Ternux repository or launcher.
 
 Keep interactive help and the existing CLI/TUI/Web/GTK paths easy to use for supported Native functions. `tx` is the public command. Use only `TERNUXX_STATE_DIR`, `$HOME/.local/share/ternuxx`, and `$PREFIX/lib/ternuxx` for product state/runtime modules. License remains unresolved unless an owner-approved LICENSE file exists.
 
@@ -22,7 +22,7 @@ This checkout runs in Native Termux on Android, not PRoot. Confirm with `uname`,
 
 Do not close the Termux app. Do not stop the Native desktop, SSH, Runit, or other owner-managed services unless the user explicitly asks for that exact operation. Do not access `/sdcard`, `/storage/emulated/0`, or unrelated personal/shared storage. Do not modify Android settings or install/remove/upgrade device packages unless the user explicitly authorizes that operation.
 
-The owner explicitly authorized the current full PRoot removal, including all installed distro containers and the `proot`/`proot-distro` packages. Apply only to the verified PRoot-owned targets, use exact named operations, and verify inventory afterward. Do not traverse or alter shared/external-storage targets. The backup is owner-reported and was not independently checked.
+The owner authorized reintroducing PRoot support and restoring Debian. Live package/rootfs installation is distinct from source restoration: preserve any existing guest, preview exact targets, and never overwrite an existing rootfs. The earlier backup is owner-reported and was not independently checked. Do not traverse or alter shared/external-storage targets.
 
 ## Engineering and evidence
 

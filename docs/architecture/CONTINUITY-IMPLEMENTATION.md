@@ -1,13 +1,13 @@
 # Native continuity, recovery and Wake Lock implementation
 
-Native Termux owns persistent continuity evidence and service recovery. An Android reboot ends the old agent/process and never implies automatic task resumption. PRoot support has been retired; historical reboot records remain separately labeled.
+Native Termux owns persistent continuity evidence and service recovery. An Android reboot ends the old agent/process and never implies automatic task resumption. Debian PRoot is an optional workload provider; continuity storage and recovery remain Native-owned and do not silently resume guest work.
 
 The earlier RB02/RB03 implementation narrative is preserved as [dated history](history/2026-10-22-continuity-implementation.md). It is not the current checkpoint, service count, authentication policy or client status. [Phase state](../../project/phase-state.json), [client coverage](CAPABILITY-MATRIX.md) and [the audit](../audit/REPOSITORY-AUDIT.md) own current qualification.
 
 ## Components and commands
 
 - `lib/continuity.py`, `lib/reboot_recovery.py` and their shell adapters create/observe/verify private checkpoints. Records distinguish boot identity, matching observation, service readiness and pending work. Test IDs, nonces, boot identifiers and private runtime payloads stay outside Git.
-- `tx checkpoint prepare|verify` and `tx reboot status|prepare|verify|resume-info` manage evidence. They do not reboot the device, start tasks or configure boot as a side effect. `automatic_resume` remains false.
+- `tx checkpoint prepare|verify` and the TUI, Web, and GTK recovery guides support private checkpoint creation and verification. Both mutations show a read-only plan and require exact plan confirmation; verification binds that plan to the checkpoint record hash. Interactive CLI requires `CREATE CHECKPOINT` or `VERIFY CHECKPOINT`; JSON mode returns the plan, and automation applies it with `--yes --plan-id`. `tx reboot status|prepare|verify|resume-info` manages reboot qualification and remains CLI-only. These operations never reboot the device, start tasks, configure boot, or resume work; `automatic_resume` remains false.
 - `lib/boot_helpers.py` manages exact service/recovery helper reconciliation. `lib/termux_boot_cron.py` separately manages the Cron boot helper. Plans, private snapshots, serialized writes, identity checks and rollback preserve current state.
 - `lib/wakelock_manager.py` serializes owner leases, verifies process/boot identity and reconciles stale owners. It releases the app-global lock only after the final registered owner exits; observed platform holder state is separate.
 - The shared management service exposes continuity, boot, SSH and lease diagnostics/controls according to each client's real action coverage. Loopback HTTP/Web and Native GTK exist; they are not absent as in the older snapshot.

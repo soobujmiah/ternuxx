@@ -35,7 +35,7 @@ Report suspected vulnerabilities privately through the repository owner's existi
 
 ## Current limits
 
-Local managed SSH/service operations exist with scoped ownership and plans. No supported public release, broad off-device service management, NPU runtime, or general app compatibility is qualified. See [research](docs/RESEARCH.md), [operations](docs/OPERATIONS.md), [security decisions](docs/architecture/decisions/), and [current status](CURRENT_STATE.md).
+Local managed SSH/service operations exist with scoped ownership and plans. The experimental SM8735 HTP runtime is integrated, but sustained stability, broader model/operator coverage, and release qualification remain open. No public release, broad off-device service management, or general app compatibility is qualified. See [NPU qualification](docs/testing/NPU-ACCELERATION.md), [research](docs/RESEARCH.md), [operations](docs/OPERATIONS.md), [security decisions](docs/architecture/decisions/), and [current status](CURRENT_STATE.md).
 
 
 The following are dated observations, not a live status authority. Recheck the current Native service before relying on bind/authentication/process facts.
