@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 505,
-  "read_count": 143,
+  "read_count": 144,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "a07597e6a01aa93b0565fc30023b1f5ec77e54eedd9e4a51ae4fd2470bd40622",
-      "lines": 149,
+      "sha256": "32d4bcb618f791959f7e7e8bba8cbe96786ab2c25e93ec0c05151aaf1480c12d",
+      "lines": 150,
       "read_status": "read",
-      "read_sha256": "a07597e6a01aa93b0565fc30023b1f5ec77e54eedd9e4a51ae4fd2470bd40622"
+      "read_sha256": "32d4bcb618f791959f7e7e8bba8cbe96786ab2c25e93ec0c05151aaf1480c12d"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -227,10 +227,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "2705e7c7c3b10ad253c4f1b39d607cfbce6f8dcf0e98915f1720861ef861583b",
+      "sha256": "a4e18e33d4baa61075faec09fd15d919cbdc900f28e38424a0b0b95066ae97d7",
       "lines": 45,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "a4e18e33d4baa61075faec09fd15d919cbdc900f28e38424a0b0b95066ae97d7"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "ffc0361eb86c339ce2fea0e6cc748dd452b137b83b47539363c4c408bcff36d0",
+      "sha256": "e6523d954fc87b60f8e8e9c537c8aa4cecf49d7e7f3be759fc3befe329986999",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "ffc0361eb86c339ce2fea0e6cc748dd452b137b83b47539363c4c408bcff36d0"
+      "read_sha256": "e6523d954fc87b60f8e8e9c537c8aa4cecf49d7e7f3be759fc3befe329986999"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
@@ -3075,10 +3075,10 @@
     {
       "path": "docs/evidence/2026-10-24-p12-thermal-observation.md",
       "kind": "narrative",
-      "sha256": "c90ede3ca201a40b75bc07b2ef86ad25e3945dd0f30d58c2bf5e85811f89d137",
-      "lines": 15,
+      "sha256": "0b1d888a1fe229fad9c5b8ad625f30f43e5c33b39243638737270e3dedd9029f",
+      "lines": 23,
       "read_status": "read",
-      "read_sha256": "c90ede3ca201a40b75bc07b2ef86ad25e3945dd0f30d58c2bf5e85811f89d137"
+      "read_sha256": "0b1d888a1fe229fad9c5b8ad625f30f43e5c33b39243638737270e3dedd9029f"
     },
     {
       "path": "docs/evidence/2026-10-24-p4-managed-icd-migration.md",
@@ -3683,8 +3683,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "17128c986decf9f027f88f362df7e860c4633b51f3252dcbfdf5bccfc04e8940",
-      "lines": 252,
+      "sha256": "25788ae89746073be9ac3bdae5c5befba1eb463ce487909188f6aac36d545a9a",
+      "lines": 253,
       "read_status": "pending",
       "read_sha256": null
     },

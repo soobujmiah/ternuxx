@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Host-like Native suite passes 1,017 tests in 94.697 seconds; GitHub run 40096355236 passes all 1,017 tests, bridge and state checks. Replay-guest lifecycle parity covers CLI/TUI/Web/GTK with 168 focused tests. Bounded CPU/Vulkan/HTP offload is verified; sustained qualification and clean Vulkan provenance remain open.
+Host-like Native and GitHub runs pass all 1,017 tests; CLI/TUI/Web/GTK replay-guest parity passes 168 focused tests. CPU/Vulkan/HTP have bounded full-offload evidence, but the latest CPU zone reached 68.8°C while idle and no further inference was run; sustained qualification remains open.
 
-**Next action:** Continue controlled CPU/Vulkan/HTP correctness checks with memory and thermal observation; qualify experimental Vulkan ICD clean-install provenance and sustained HTP stability/model coverage.
+**Next action:** Repeat bounded CPU/Vulkan/HTP correctness checks only after device thermal zones settle, with memory and thermal observation; qualify experimental Vulkan ICD clean-install provenance and sustained HTP stability/model coverage.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -147,3 +147,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-complete-offload-gate.md](evidence/2026-10-24-p12-complete-offload-gate.md)
 - [docs/evidence/2026-10-24-p12-repo-regression-followup.md](evidence/2026-10-24-p12-repo-regression-followup.md)
 - [docs/evidence/2026-10-24-replay-guest-client-parity.md](evidence/2026-10-24-replay-guest-client-parity.md)
+- [docs/evidence/2026-10-24-p12-thermal-observation.md](evidence/2026-10-24-p12-thermal-observation.md)
