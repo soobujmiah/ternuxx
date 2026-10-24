@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 506,
-  "read_count": 155,
+  "document_count": 509,
+  "read_count": 159,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -35,10 +35,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "b2d03d75a33226587cdd24e4a9d49442ef1e16f4594e0c48365fdac411d20417",
+      "sha256": "c8d6c5fbc174edac3ddb68eb167271af2c5f6645dceb55bbfcf5504045ad1b67",
       "lines": 23,
       "read_status": "read",
-      "read_sha256": "b2d03d75a33226587cdd24e4a9d49442ef1e16f4594e0c48365fdac411d20417"
+      "read_sha256": "c8d6c5fbc174edac3ddb68eb167271af2c5f6645dceb55bbfcf5504045ad1b67"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "45bc3a656e5c1d32db9acfcd4f60ed84c5bbbd3642306e60f6f5cea63142ebe8",
-      "lines": 151,
+      "sha256": "cd2ca0c2ae267f0dd94d51abfd27a1421f279a5ed62bb43e761a1f6086b1539e",
+      "lines": 153,
       "read_status": "read",
-      "read_sha256": "45bc3a656e5c1d32db9acfcd4f60ed84c5bbbd3642306e60f6f5cea63142ebe8"
+      "read_sha256": "cd2ca0c2ae267f0dd94d51abfd27a1421f279a5ed62bb43e761a1f6086b1539e"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -227,10 +227,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "baaebd4af6de07cfdaed6a3769c0570e355efedfa88a4e9c13b905d72d3b9773",
+      "sha256": "5628965305b5c952091df429ed397fbd40f9c7a13cd0b05ed5ddd9d330291d42",
       "lines": 45,
       "read_status": "read",
-      "read_sha256": "baaebd4af6de07cfdaed6a3769c0570e355efedfa88a4e9c13b905d72d3b9773"
+      "read_sha256": "5628965305b5c952091df429ed397fbd40f9c7a13cd0b05ed5ddd9d330291d42"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -3025,6 +3025,14 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-24-official-freedreno-icd-adreno825-check.md",
+      "kind": "narrative",
+      "sha256": "0d1ab764d4809d0eb11b8533a369cdd27a0503ba2c3c4ec4b3cdb06f6c72b819",
+      "lines": 35,
+      "read_status": "read",
+      "read_sha256": "0d1ab764d4809d0eb11b8533a369cdd27a0503ba2c3c4ec4b3cdb06f6c72b819"
+    },
+    {
       "path": "docs/evidence/2026-10-24-p10-internal-hardening-review.md",
       "kind": "narrative",
       "sha256": "ba193f44b40852e3bbfe8b70a81d85146072df984a9c3728328652240b9955e3",
@@ -3055,6 +3063,14 @@
       "lines": 28,
       "read_status": "read",
       "read_sha256": "0193434cb7b47ab2a5652ab9737b6dc35808c6e371a2390a379268ed83b4d0fc"
+    },
+    {
+      "path": "docs/evidence/2026-10-24-p12-native-repeated-resource-check.md",
+      "kind": "narrative",
+      "sha256": "91419d7f69bfd5f016839cb8927a22a927bfe270c7757785077a394d82e28c22",
+      "lines": 26,
+      "read_status": "read",
+      "read_sha256": "91419d7f69bfd5f016839cb8927a22a927bfe270c7757785077a394d82e28c22"
     },
     {
       "path": "docs/evidence/2026-10-24-p12-repo-regression-followup.md",
@@ -3361,6 +3377,14 @@
       "read_sha256": "74c5fdf3453becdb0e22147a6076f2d53eb60882283a140c10385c9d5c1ef358"
     },
     {
+      "path": "docs/evidence/data/2026-10-24-p12-native-repeated-resource.json",
+      "kind": "structured",
+      "sha256": "ce71ed04975e5d96277fa667d62f4085c37af648e46ccca90555f0c00ec8f356",
+      "lines": 106,
+      "read_status": "read",
+      "read_sha256": "ce71ed04975e5d96277fa667d62f4085c37af648e46ccca90555f0c00ec8f356"
+    },
+    {
       "path": "docs/evidence/web-reconcile-visual/report.json",
       "kind": "structured",
       "sha256": "2a42a42798c32c63dca32aa7f6a99eebbf8d7bd74cc3b79e7294e9c6eecb83d4",
@@ -3627,10 +3651,10 @@
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "4c12586af16a631ba7b0da188d5bede74a7b17b6c7d800a06c8577a02eaf3aea",
-      "lines": 33,
+      "sha256": "d85af331905ab318f8ca40d76013fa78a1fad132304d6f4b2ceda1ef506e7c3d",
+      "lines": 36,
       "read_status": "read",
-      "read_sha256": "4c12586af16a631ba7b0da188d5bede74a7b17b6c7d800a06c8577a02eaf3aea"
+      "read_sha256": "d85af331905ab318f8ca40d76013fa78a1fad132304d6f4b2ceda1ef506e7c3d"
     },
     {
       "path": "docs/testing/KNOWN-LIMITATIONS.md",
@@ -3643,10 +3667,10 @@
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "3d26aca9925ac15de9f1bc00db754fd66824155eb23c770377893d9f1467581a",
-      "lines": 50,
+      "sha256": "0cc68b402aa20c38855adac36c0e4ebbe064b87881e59bc14bffa2c4e610cf07",
+      "lines": 52,
       "read_status": "read",
-      "read_sha256": "3d26aca9925ac15de9f1bc00db754fd66824155eb23c770377893d9f1467581a"
+      "read_sha256": "0cc68b402aa20c38855adac36c0e4ebbe064b87881e59bc14bffa2c4e610cf07"
     },
     {
       "path": "docs/testing/README.md",
@@ -3691,10 +3715,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "9853b6c6671c63fc4ad8d153f3fa91e7aa5bc7b8b4871991b0b92872cf0cf895",
-      "lines": 254,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "d5ca1f95a397c1fe0bc3233f5507698a6646e3e09f8301dd5e01c9bab82e28fb",
+      "lines": 256,
+      "read_status": "read",
+      "read_sha256": "d5ca1f95a397c1fe0bc3233f5507698a6646e3e09f8301dd5e01c9bab82e28fb"
     },
     {
       "path": "requirements-dev.txt",

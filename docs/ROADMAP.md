@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and supports optional Debia
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Continue sustained CPU/Vulkan/HTP resource qualification, establish a reproducible clean-install Vulkan ICD path, broaden HTP model/operator checks, and run a true clean-device PRoot replay when an independent target is available.
+**Next action:** Investigate the HTP sensor excursion and define a reviewed device-specific repeated-load procedure; identify an Adreno 825-compatible Vulkan ICD with reproducible provenance, then broaden HTP model/operator checks and clean-device PRoot replay.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

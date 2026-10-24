@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Bounded CPU, Vulkan, and experimental HTP inference plus a same-device fresh-alias Debian setup replay are verified; sustained, clean-device, and broader qualification remain open.
+Ten repeated 64-token Vulkan calls completed with full layer offload; HTP resource repeats stopped at the test guard after two calls, and the indexed official ICD rejects Adreno 825. Sustained, clean-install, and broader correctness qualification remain open.
 
-**Next action:** Continue sustained CPU/Vulkan/HTP resource qualification, establish a reproducible clean-install Vulkan ICD path, broaden HTP model/operator checks, and run a true clean-device PRoot replay when an independent target is available.
+**Next action:** Investigate the HTP sensor excursion and define a reviewed device-specific repeated-load procedure; identify an Adreno 825-compatible Vulkan ICD with reproducible provenance, then broaden HTP model/operator checks and clean-device PRoot replay.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -149,3 +149,5 @@ Evidence:
 - [docs/evidence/2026-10-24-replay-guest-client-parity.md](evidence/2026-10-24-replay-guest-client-parity.md)
 - [docs/evidence/2026-10-24-p12-thermal-observation.md](evidence/2026-10-24-p12-thermal-observation.md)
 - [docs/evidence/2026-10-24-p12-same-device-fresh-alias-replay.md](evidence/2026-10-24-p12-same-device-fresh-alias-replay.md)
+- [docs/evidence/2026-10-24-official-freedreno-icd-adreno825-check.md](evidence/2026-10-24-official-freedreno-icd-adreno825-check.md)
+- [docs/evidence/2026-10-24-p12-native-repeated-resource-check.md](evidence/2026-10-24-p12-native-repeated-resource-check.md)

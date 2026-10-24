@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "observed_on": "2026-10-24",
+  "execution_context": "Native Termux on Android 16, aarch64, Redmi Turbo 4 Pro (25053RT47C)",
+  "runtime_model": "Termux llama.cpp 0.7.0 with pinned Qwen3 0.6B Q4_0 model",
+  "prompt": "Write one coherent paragraph of about sixty words explaining how a local language model answers a question.",
+  "max_output_tokens": 64,
+  "guard": {
+    "cpu_zone_stop_c": 60,
+    "gpu_zone_stop_c": 60,
+    "htp_zone_stop_c": 60,
+    "battery_stop_c": 45,
+    "socd_stop_c": 70,
+    "minimum_memavailable_mib": 2048,
+    "reason": "Conservative test guards selected for this run; not OEM-rated limits.",
+    "sampling": "Read before and after each bounded inference; no in-flight thermal cancellation was implemented."
+  },
+  "vulkan": {
+    "requested_runs": 10,
+    "completed_runs": 10,
+    "device": "Vulkan0 / Adreno 825",
+    "offload": "29/29 layers on every run",
+    "exit_code": 0,
+    "output_words_each_run": 55,
+    "elapsed_seconds_each_run": [4.989, 4.774, 4.619, 4.616, 4.611, 4.614, 4.869, 4.609, 6.447, 4.604],
+    "total_inference_seconds": 48.752,
+    "peak_llama_cli_rss_kib": 249316,
+    "minimum_memavailable_mib": 3676.8,
+    "maximum_sampled_zones_c": {
+      "cpu": 58.1,
+      "gpu": 55.1,
+      "htp": 54.7,
+      "battery": 42.66,
+      "socd": 65.0
+    },
+    "preflight": {
+      "cpu_c": 50.1,
+      "gpu_c": 44.0,
+      "htp_c": 44.4,
+      "battery_c": 40.84,
+      "socd_c": 64.0,
+      "memavailable_kib": 3548320
+    },
+    "final": {
+      "cpu_c": 48.9,
+      "gpu_c": 47.9,
+      "htp_c": 47.5,
+      "battery_c": 42.69,
+      "socd_c": 65.0,
+      "memavailable_kib": 4095696
+    }
+  },
+  "htp": {
+    "requested_runs": 10,
+    "completed_runs": 2,
+    "device": "HTP0 / SM8735",
+    "runs": [
+      {
+        "elapsed_seconds": 24.62,
+        "exit_code": 0,
+        "output_words": 51,
+        "offload": "29/29 layers",
+        "model_buffer_mib": 319.96,
+        "silent_fallback": false,
+        "memavailable_mib": 4065.2,
+        "thermal_c": {"cpu": 51.2, "gpu": 48.3, "htp": 49.1, "battery": 42.39, "socd": 65.0}
+      },
+      {
+        "elapsed_seconds": 23.197,
+        "exit_code": 0,
+        "output_words": 51,
+        "offload": "29/29 layers",
+        "model_buffer_mib": 319.96,
+        "silent_fallback": false,
+        "memavailable_mib": 4815.8,
+        "thermal_c": {"cpu": 80.4, "gpu": 68.5, "htp": 67.4, "battery": 42.8, "socd": 65.0}
+      }
+    ],
+    "preflight": {
+      "cpu_c": 49.7,
+      "gpu_c": 45.1,
+      "htp_c": 45.9,
+      "battery_c": 42.23,
+      "socd_c": 65.0,
+      "memavailable_kib": 4083544
+    },
+    "stop_reason": "After run 2, sampled CPU/GPU/HTP zones exceeded the conservative 60 C guards; no third run was started.",
+    "post_sequence_recheck": {
+      "cpu_zone_max_c": 54.1,
+      "cpu_therm_c": 50.26,
+      "gpu_zone_max_c": 48.7,
+      "htp_zone_max_c": 49.9,
+      "battery_therm_c": 43.61,
+      "battery_c": 39.3,
+      "socd_c": 65.0,
+      "memavailable_kib": 5583932,
+      "llama_cli_process_remaining": false
+    }
+  },
+  "limitations": [
+    "This is a repeated bounded workload, not continuous burn-in, a battery-life test, or OEM thermal qualification.",
+    "Sensor excursions are recorded as returned and do not by themselves establish throttling or a hardware limit.",
+    "The HTP sequence stopped before ten runs; broader HTP stability and correctness remain unqualified.",
+    "The selected experimental ICD and HTP runtime remain device-specific; no clean-device release qualification was performed."
+  ]
+}
