@@ -1,7 +1,7 @@
 # Current repository audit
 
 **Status:** in progress; this report is a current checkpoint, not a completion claim.
-**Reviewed:** 2026-10-24 13:03 UTC. **Source HEAD:** `d3a2cae744540c09ac9d291d68c7d299e39651a2`; the worktree contains only the in-progress document-inventory update.
+**Reviewed:** 2026-10-24 13:14 UTC. **Source HEAD:** `ab981fc97f73c01c85fc9059fd1e01bdcce4580e` (documentation and deterministic-state updates after the latest code-bearing CI run); worktree clean at review. Repository source, tests, and read-only Native checks govern current behavior.
 The earlier Native-only audit is preserved in [history](../history/REPOSITORY-AUDIT-pre-native-only-2026-10-24.md). Repository source, tests, and read-only Native checks govern current behavior.
 
 ## Product and implementation
@@ -14,6 +14,7 @@ CPU inference is bounded and workload-verified for the pinned local model. Vulka
 
 - The latest host-like Native Termux `env -u TERMUX_VERSION -u PREFIX -u LD_LIBRARY_PATH bash scripts/repo_test.sh` passed 1,017 Python tests in 94.697 seconds plus the CLI help/preview contract. It includes the feature-matrix and Web-session security-classification checks, PRoot resource/domain coverage, NPU plan identity checks, legacy ICD lifecycle tests, and GTK/TUI/Web replay-guest client coverage. The separate combined client parity slice passed 168 tests. These runs used the dirty worktree based on `e5f1c5a`; model, desktop, package, HTTP service execution, and guest operations were mocked or fixture-scoped. No guest lifecycle action ran.
 - GitHub Actions run [40096355236](https://github.com/soobujmiah/ternuxx/actions/runs/40096355236) validated source `d3a2cae744540c09ac9d291d68c7d299e39651a2`: repository verification, strict README bridge check, all 1,017 tests (43.663 seconds), CLI help contract, and deterministic-state sync succeeded.
+- On 2026-10-24 19:12 +06:00, fresh Native checks ran the same short known-answer prompt twice each on CPU, Vulkan, and HTP. All six returned the correct answer; Vulkan and HTP reported full 29/29 layer offload, and HTP reported no silent fallback. Post-run sensor maxima were CPU 46.9°C, GPU 44.4°C, HTP-related 45.1°C, and battery 38.9°C, with 4.84 GiB `MemAvailable`. The bounded results are recorded in the [thermal observation](../evidence/2026-10-24-p12-thermal-observation.md); sustained qualification remains open.
 - `python3 -m tools.repo_knowledge verify`, strict README bridge validation, YAML parsing for the project manifests and feature matrix, `git diff --check`, and `python3 tools/audit_documents.py --check` pass. The document audit reports zero broken local links.
 - A live PTY check exercised the updated `tx guides` accelerator-status and Debian-inventory choices. The Debian choice remained read-only when setup preview was skipped. No live desktop, service, guest, or package was started, stopped, or changed during this audit checkpoint.
 - Historical GitHub run [40059254710](https://github.com/soobujmiah/ternuxx/actions/runs/40059254710) on source `e5f1c5a` failed its test-state gate because GTK bridge fixtures lacked Native Termux variables. The correction is now covered by the successful later run above.
@@ -28,7 +29,7 @@ The generated document inventory contains 505 documents; 146 are marked read aft
 
 ## Remaining project gates
 
-- P12 remains active: repeatable CPU/Vulkan correctness, memory and thermal qualification; experimental Vulkan ICD clean-install provenance; and sustained HTP stability and model/operator coverage.
+- P12 remains active: sustained CPU/Vulkan/HTP memory and thermal qualification; a reproducible experimental Vulkan ICD clean-install path; and broader HTP model/operator coverage. The latest six-run check establishes short repeatability only.
 - The full per-operation client-reach review, clean-device PRoot setup replay, visual/accessibility acceptance, cold-boot behavior, and SSH exposure decision remain open as described by the [capability matrix](../architecture/CAPABILITY-MATRIX.md) and [known limitations](../testing/KNOWN-LIMITATIONS.md). Operation authorization and Web-session read-only/CSRF classification are exhaustive and covered by regression tests; actual client action reach remains a separate audit.
 - No project license is selected. Provenance review, SBOM, signing, and release approval remain open; internal phase progress does not authorize publication.
 

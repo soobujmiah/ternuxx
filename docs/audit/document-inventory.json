@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "772bbe37713659aa42d96beac11d0206ea45c969b37047c06f9fcfc225561739",
-      "lines": 37,
+      "sha256": "fee5271804825ecd8b6fa62dfa706f6af2976dc6b1ade0a4fa81528a70128aa6",
+      "lines": 38,
       "read_status": "read",
-      "read_sha256": "772bbe37713659aa42d96beac11d0206ea45c969b37047c06f9fcfc225561739"
+      "read_sha256": "fee5271804825ecd8b6fa62dfa706f6af2976dc6b1ade0a4fa81528a70128aa6"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
@@ -2979,10 +2979,10 @@
     {
       "path": "docs/evidence/2026-10-24-native-graphics-fallback-recheck.md",
       "kind": "narrative",
-      "sha256": "0a4865e867942358437ae1281ed2474a9f0d88d5b3b2a9541be9a722e8c2f0da",
-      "lines": 70,
+      "sha256": "3bed0b87d21532718db71ab171d563ca0d3265f1e4c61b961a98f6e6bc48ff3a",
+      "lines": 74,
       "read_status": "read",
-      "read_sha256": "0a4865e867942358437ae1281ed2474a9f0d88d5b3b2a9541be9a722e8c2f0da"
+      "read_sha256": "3bed0b87d21532718db71ab171d563ca0d3265f1e4c61b961a98f6e6bc48ff3a"
     },
     {
       "path": "docs/evidence/2026-10-24-native-only-proot-removal-audit.md",
@@ -3619,10 +3619,10 @@
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "f035a7fecc412f939f320d614180c3933e5b666f7a853f27d731d1474a3bdeca",
+      "sha256": "c935b495461a0a818c797e038126e279aa1cab08896b648c3437069167eb74f2",
       "lines": 33,
       "read_status": "read",
-      "read_sha256": "f035a7fecc412f939f320d614180c3933e5b666f7a853f27d731d1474a3bdeca"
+      "read_sha256": "c935b495461a0a818c797e038126e279aa1cab08896b648c3437069167eb74f2"
     },
     {
       "path": "docs/testing/KNOWN-LIMITATIONS.md",

@@ -26,7 +26,7 @@ In this initial snapshot, the bounded Vulkan verifier returned one capped linker
 
 ## Current verified status and remaining limits
 
-After the loader-order fix below, the shared Vulkan operation rendered a bounded on-screen `vkcube` workload on the Adreno 825. The earlier linker failure remains useful regression evidence, but Vulkan is not currently unavailable in the corrected environment. OpenGL and GLES bounded draws and explicit `llvmpipe` fallback also passed. The experimental acceleration candidate still lacks reproducible clean-install distribution and provenance review; ordinary application-specific GPU behavior, inference acceleration, sustained stability, and NPU execution are not established. Keep Native software rendering available and do not claim generic GPU/NPU support. P6 remains active until the provider provenance/reproduction decision and remaining workload gates are resolved.
+After the loader-order fix below, the shared Vulkan operation rendered a bounded on-screen `vkcube` workload on the Adreno 825. The earlier linker failure remains useful regression evidence, but Vulkan is not currently unavailable in the corrected environment. OpenGL and GLES bounded draws and explicit `llvmpipe` fallback also passed. At this P6 checkpoint, the experimental acceleration candidate still lacked reproducible clean-install distribution and provenance review; ordinary application-specific GPU behavior, inference acceleration, sustained stability, and NPU execution were not established. P6 is now complete; current remaining acceleration qualification is tracked in P12 and the current repository audit.
 
 ## Recheck acceptance
 
@@ -68,3 +68,7 @@ All five retained Mesa `.deb` files passed `sha256sum -c` against the recorded p
 The temporary tree, including its selection file, was removed at scope exit. No package was installed, the package database and persistent graphics selection were unchanged, and a post-run `tx status --json` still reported the Native desktop, X11, XFCE, supervisor, and audio owner live. The PRoot packages and state remained absent.
 
 This verifies fresh extraction and workload reproduction from the locally retained, checksummed package set. It does not verify download/install from a stable public URL, a clean Termux package database, or an official Termux release. The candidate remains experimental until provenance and a reproducible distribution/install path are resolved.
+
+### GitHub artifact availability recheck — 2026-10-24
+
+The GitHub Actions API for run `36377469447` was queried read-only. It confirms successful source commit `0219ff84b372c9d38aad4e40f448c20ec3d1588e`; the aarch64 artifact remains unexpired and is listed with expiration `2026-12-27T04:23:02Z`. Its artifact ID/download URL is a temporary Actions distribution mechanism, not a stable release URL. The local bundle and five package hashes match the profile/checksum list, but a fresh Ternuxx install still has no supported acquisition and installation workflow. P12 therefore retains the clean-install provenance gate; the date-based artifact's current availability must not be described as durable distribution.
