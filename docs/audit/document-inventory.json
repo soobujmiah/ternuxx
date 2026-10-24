@@ -171,7 +171,7 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "e3b62a50f2bb9823f811b11ee25c4120398f8773e68ba03243bb5b2eface84b0",
+      "sha256": "5cbbf9836c1bf7ae82a2b8557b7f4e15c08f320ed41b60283a75143b77399544",
       "lines": 158,
       "read_status": "pending",
       "read_sha256": null
@@ -227,7 +227,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "022b5008b24f246954bc3ab3cf048e0f5c853eb7d170ad715b4a0271a7286654",
+      "sha256": "9e62427d41f448e303e61e99a0e3f0abde1debd4f09d8b7da7f3a953f9e1083d",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -3075,8 +3075,8 @@
     {
       "path": "docs/evidence/2026-10-24-p12-cpu-qualification-guard-block.md",
       "kind": "narrative",
-      "sha256": "89b47e6799f0e14a4619f5d9626968ffddc2eb19198c8347027fcb9119fdc802",
-      "lines": 21,
+      "sha256": "f13132195283915ace4b650eec9cee25f245e450a48cf09b58308026d68da7bf",
+      "lines": 25,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3107,8 +3107,8 @@
     {
       "path": "docs/evidence/2026-10-24-p12-native-artifact-release-recheck.md",
       "kind": "narrative",
-      "sha256": "91a9b1e06dae9a6088d778de454eaf7c0866578cdec33e70797b4b3d1b971173",
-      "lines": 17,
+      "sha256": "fd0d5b4abfe965ad7e73b3286aac99bb83fb18d46000c231b0aed255dea81b0d",
+      "lines": 23,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3579,8 +3579,8 @@
     {
       "path": "docs/readiness/LEGAL-IP.md",
       "kind": "narrative",
-      "sha256": "e39b1198d34192e7cf7cdcde13e4f8d70119aaaa91deac8cc84ed28875c1c77d",
-      "lines": 58,
+      "sha256": "fb9e273e44c9329d91fda730ee2e618635fa7ea46c6112059d598fe47d6a8a91",
+      "lines": 59,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3699,7 +3699,7 @@
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "1e52d2feebbeb3c8e73566d89927f2239a3053fa366b2101d5fecd9cc9bbd2b3",
+      "sha256": "008609dcec0616dd266633a21689ab59e6c1ae7000b4b1795e7930c65db23804",
       "lines": 36,
       "read_status": "pending",
       "read_sha256": null
@@ -3771,7 +3771,7 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "57f11da5c824c5cdfd6320122ae11558c2120bc17bbee123de3f43fbeff757db",
+      "sha256": "3ca249f038a5da0635e5d953933a9c9bf6bb6e5f24c21d3cc26cf6be0bba402f",
       "lines": 261,
       "read_status": "pending",
       "read_sha256": null

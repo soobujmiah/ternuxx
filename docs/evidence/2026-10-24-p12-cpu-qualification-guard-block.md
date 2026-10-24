@@ -19,3 +19,7 @@ It returned exit code 2 before starting inference. Preflight reported CPU 44.2°
 After the repository suite completed at 14:41 UTC, a fresh read reported CPU 48.1°C, GPU 43.6°C, HTP 44.4°C, battery 40.49°C, and `socd=71.0°C` with `MemAvailable` 4,050,368 KiB. This remained above the stop guard, so no corrected inference rerun was attempted.
 
 This is a safe preflight deferral, not a CPU inference failure and not a passing CPU qualification. Retry the corrected known-answer runner only after a fresh live preflight is below every configured guard. Existing CPU workload evidence remains in [CPU baseline](../testing/CPU-BASELINE.md); the qualification runner's CPU path has not yet been live-accepted.
+
+## Follow-up — 2026-10-24 15:04 UTC
+
+After the 1025-test repository suite completed successfully, a fresh read-only snapshot reported CPU 54.5°C, GPU 47.5°C, HTP 49.5°C, battery 42.57°C, `socd=77.0°C`, and `MemAvailable=3,977,032 KiB`. The SoC remains above the configured 70°C guard; no inference was started. This later observation supersedes the earlier temperature readings for current readiness, but does not change the qualification result.

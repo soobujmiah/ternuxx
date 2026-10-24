@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Short guarded Vulkan/HTP repeats verified offload and cleanup, but their initial runner did not check answer correctness; corrected validator is unit-tested. CPU test was blocked at the live SoC guard. Native Adreno package provenance traces to an open draft PR and an expiring workflow artifact; no durable Termux release asset exists. Sustained and clean-install gates remain open.
+The existing Native Mesa bundle and five package checksums verify, but its source is an open draft PR with an expiring artifact; package licensing is multi-component and no complete component inventory/SBOM exists. Corrected exact-answer inference runner remains unit-tested; device reruns are guard-blocked. Sustained and clean-install gates remain open.
 
-**Next action:** When device sensors fall below all conservative guards, rerun exact-answer CPU/Vulkan/HTP qualification. Then broaden HTP correctness/resource checks and establish a durable, auditable Bionic-compatible Adreno build source and clean-install replay.
+**Next action:** When device sensors are below all conservative guards, rerun exact-answer CPU/Vulkan/HTP qualification. Then broaden HTP correctness/resource checks and establish a durable, auditable Bionic-compatible source/build with complete notices/SBOM and clean-install replay.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
