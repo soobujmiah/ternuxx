@@ -1,0 +1,7 @@
+event_id: commit-d4483249ca9f-e4c4a3efbe6211f0
+repository: soobujmiah/ternuxx
+commit: d4483249ca9ffa7fc6a683c734f8899b6f214182
+kind: commit
+occurred_at: '2026-10-24T15:07:50Z'
+status: completed
+summary: 'docs(p12): record guarded backend preflights'
