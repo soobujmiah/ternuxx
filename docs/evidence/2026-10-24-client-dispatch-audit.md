@@ -13,11 +13,11 @@ The inspected product routes converge on that service:
 - Web's `management_http_adapter.py` uses `management_service.dispatch` as its default dispatcher; `management_http_runtime.py` supplies the shared service to the runtime.
 - GTK's C application invokes the fixed `scripts/management_desktop_bridge.py`; the bridge dispatches each typed request through `management_service.dispatch`.
 
-The regression suite includes a duplicate-operation-key assertion, an explicit authorization-scope assertion for every application operation, a Web-session security-class assertion for every operation, shared Web dispatch tests, TUI service-client tests, and GTK bridge/UI contract tests. The full repository suite passed 1033 tests in the current source revision.
+The regression suite includes a duplicate-operation-key assertion, an explicit authorization-scope assertion for every application operation, a Web-session security-class assertion for every operation, shared Web dispatch tests, TUI service-client tests, and GTK bridge/UI contract tests. The full repository suite passed 1033 tests in the source revision audited at that point.
 
 ## Finding and limit
 
-No duplicate backend operation catalog or second client-specific implementation of the inspected management business operations was found. CLI, TUI, Web, and GTK keep separate presentation code, as expected for their input and display models, while using the shared service for typed backend operations.
+CLI, TUI, Web, and GTK keep separate presentation code, as expected for their input and display models, while using the shared service for typed backend operations. The first pass confirmed that the inspected clients did not duplicate domain implementation code; the follow-up below found and removed a redundant typed-operation alias.
 
 This source audit does not prove that every operation is reachable and presented correctly in every client, nor does it verify rendered Web/GTK visual parity, accessibility, or live user flows. Those checks remain open in the [capability matrix](../architecture/CAPABILITY-MATRIX.md) and [feature matrix](../testing/FEATURE-MATRIX.yaml). Keep `management.shared_service` at `PARTIAL` until that per-operation and rendered-client acceptance is complete.
 
@@ -42,3 +42,18 @@ PY
 - Operation-map check: 148 IDs, 148 unique.
 - `python3 tools/audit_documents.py --check`: 521 documents indexed, 161 marked read, zero broken local links. This count does not mean all repository documentation has been reviewed.
 - Strict README bridge, repo-knowledge verification, and `git diff --check` passed.
+
+
+## Follow-up — canonical SSH diagnostics operation
+
+A per-client resource-route review found that `ssh.inspect` and `native.ssh.status` both called `ssh_diagnostics.inspect_native` with identical arguments and the same `diagnostics.read` capability. GTK selected the alias for the managed 8023 resource, while other clients used `ssh.inspect`. This was duplicate API surface without distinct behavior.
+
+The redundant `native.ssh.status` operation has been removed from the service allowlist, authorization map, Web session classification, catalog, and presentation labels. GTK now uses `ssh.inspect` for both SSH resources, and the Web status chooser uses the same canonical operation. The remaining 147 operation IDs are unique. A regression confirms the removed alias fails as unsupported and both GTK resource inspections converge on `ssh.inspect`.
+
+The same review found `cron.executor.self_test` was the only service operation absent from both resource and domain inventories. It is the fixed, no-side-effect action behind Cron’s `scheduler.self_test`; the operation now appears in the Cron resource and domain. A regression requires every service operation to be classified. These source corrections do not complete per-operation client reachability, rendered parity, accessibility, or live UI acceptance; those remain open in the [capability matrix](../architecture/CAPABILITY-MATRIX.md).
+
+### Follow-up validation
+
+- Focused authorization, service, catalog, and GTK bridge tests: 19 passed.
+- `bash scripts/repo_test.sh`: 1036 tests passed; CLI help contract passed.
+- Strict README bridge, document inventory/link check, repo-knowledge verification, and `git diff --check` passed.

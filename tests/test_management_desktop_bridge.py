@@ -456,6 +456,12 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
                 self.assertEqual(bridge.main(["inspect", "network.ssh.manual-8022"]), 0)
         dispatch.assert_called_once_with("ssh.inspect")
 
+    def test_managed_ssh_resource_uses_the_same_canonical_inspection_operation(self) -> None:
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch:
+            with redirect_stdout(StringIO()):
+                self.assertEqual(bridge.main(["inspect", "network.ssh.managed-8023"]), 0)
+        dispatch.assert_called_once_with("ssh.inspect")
+
     def test_gui_monitoring_status_only_reads_policy(self) -> None:
         with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {
             "enabled": False, "interval_seconds": 300, "focus_check": False, "activity_launch": False,

@@ -139,7 +139,6 @@ READ_ONLY_OPERATIONS = frozenset({
     "management.catalog",
     "management.logs.list",
     "management.logs.read",
-    "native.ssh.status",
     "proot.profiles.list",
     "proot.profiles.show",
     "proot.recovery.inspect",

@@ -561,6 +561,11 @@ class ManagementServiceTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertEqual(result["error"]["code"], "operation_not_supported")
 
+    def test_managed_ssh_status_uses_the_canonical_inspection_operation(self) -> None:
+        result = management_service.dispatch(request("native.ssh.status"), env=NATIVE_ENV)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"]["code"], "operation_not_supported")
+
     def test_rejects_unknown_fields_versions_callers_and_environments(self) -> None:
         self.assertEqual(management_service.dispatch({"api_version": 1}, env=NATIVE_ENV)["error"]["code"], "invalid_request")
         self.assertEqual(management_service.dispatch(request("ssh.inspect", api_version=2), env=NATIVE_ENV)["error"]["code"], "unsupported_api_version")

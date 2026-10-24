@@ -172,7 +172,6 @@ OPERATIONS = {
     "ssh.service.deploy": {"args": {"confirmed", "plan_id"}},
     "ssh.service.deploy.rollback.preview": {"args": {"operation_id"}},
     "ssh.service.deploy.rollback.apply": {"args": {"operation_id", "confirmed", "plan_id"}},
-    "native.ssh.status": {"args": set()},
     "boot.status": {"args": set()},
     "boot.profile.status": {"args": set()},
     "boot.profile.preview": {"args": {"profile"}},
@@ -887,7 +886,7 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             else:
                 data = ssh_client_keys.apply(home=home, uid=os.getuid(), name=name,
                     confirmed=args["confirmed"], plan_id=args["plan_id"])
-        elif operation in {"ssh.inspect", "native.ssh.status"}:
+        elif operation == "ssh.inspect":
             data = ssh_diagnostics.inspect_native(prefix=process_env["PREFIX"], home=home)
         elif operation == "ssh.service.deploy":
             confirmed = args.get("confirmed", False)
@@ -1586,7 +1585,7 @@ def main(argv: list[str] | None = None) -> int:
                 else: print("Preview first, then apply with --yes --plan-id PLAN_ID.", file=sys.stderr)
                 return 1
             payload = {"plan_id": args.plan_id, "confirmed": True}
-    elif args.operation in {"cron.status", "agent.hermes.status", "ssh.inspect", "native.ssh.status", "ssh.keys.list", "ssh.keys.rollback.list", "boot.status", "wakelock.status", "wakelock.ssh-policy.status", "continuity.status", "boot.profile.status", "boot.helpers.status", "boot.cron.status", "boot.cron.validate", "backup.list", "recovery.status"}:
+    elif args.operation in {"cron.status", "agent.hermes.status", "ssh.inspect", "ssh.keys.list", "ssh.keys.rollback.list", "boot.status", "wakelock.status", "wakelock.ssh-policy.status", "continuity.status", "boot.profile.status", "boot.helpers.status", "boot.cron.status", "boot.cron.validate", "backup.list", "recovery.status"}:
         payload = {}
         if args.operation == "continuity.status" and args.test_id:
             payload["test_id"] = args.test_id

@@ -348,7 +348,7 @@ def main(argv: list[str]) -> int:
             # they never launch a server, workload, or guest.
             operation_args = {"graphics": True}
         elif rid == "network.ssh.managed-8023":
-            operation = "native.ssh.status"
+            operation = "ssh.inspect"
         else:
             catalog = call("management.catalog")
             resource = next((r for r in catalog.get("data", {}).get("resources", []) if r["id"] == rid), None)

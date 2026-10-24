@@ -24,6 +24,17 @@ class ManagementCatalogTests(unittest.TestCase):
         self.assertEqual(remote_ai["name"], "Remote AI providers")
         self.assertIn("local llama.cpp CPU, Vulkan, and HTP inference are listed separately", remote_ai["description"])
 
+    def test_every_management_operation_is_classified_in_a_resource_or_domain(self):
+        resource_operations = {
+            operation for resource in management_catalog.RESOURCES
+            for operation in resource["supported_operations"]
+        }
+        domain_operations = {
+            operation for domain in management_catalog.DOMAINS
+            for operation in domain.get("operations", [])
+        }
+        self.assertEqual(set(management_service.OPERATIONS), resource_operations | domain_operations)
+
     def test_catalog_and_doctor_are_read_only_shared_operations(self):
         for operation in ("management.catalog", "doctor.report"):
             self.assertEqual(management_authorization.required_capability(operation), "diagnostics.read")
@@ -44,6 +55,7 @@ class ManagementCatalogTests(unittest.TestCase):
         self.assertEqual(by_id["network.ssh.manual-8022"]["status"], "external")
         self.assertEqual(by_id["network.ssh.manual-8022"]["supported_operations"], ["ssh.inspect"])
         self.assertEqual(by_id["network.ssh.managed-8023"]["configuration"]["defaults"]["port"], 8023)
+        self.assertEqual(by_id["network.ssh.managed-8023"]["diagnostics"], ["ssh.inspect"])
         self.assertIn("ssh.keys.list", by_id["network.ssh.managed-8023"]["supported_operations"])
         self.assertEqual(by_id["network.ssh.managed-8023"]["operation_capabilities"]["ssh.keys.list"], "ssh.credentials.read")
         self.assertIn("shared Termux account", by_id["network.ssh.managed-8023"]["description"])

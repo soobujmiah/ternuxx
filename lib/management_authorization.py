@@ -115,7 +115,6 @@ OPERATION_CAPABILITIES: dict[str, str] = {
     "ssh.service.autostart.status": "diagnostics.read",
     "ssh.service.autostart.preview": "ssh.managed.lifecycle",
     "ssh.service.autostart.apply": "ssh.managed.lifecycle",
-    "native.ssh.status": "diagnostics.read",
     "remote.access.preview": "remote_policy.read",
     "ssh.service.start": "ssh.managed.lifecycle",
     "ssh.service.stop": "ssh.managed.lifecycle",
