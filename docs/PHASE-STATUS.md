@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Corrected CPU, Vulkan, and HTP qualification remains unverified; the 16:19 UTC read-only preflight measured socd=83°C against the 70°C test guard, so no inference was started.
+Pinned Mesa source-file hash and SPDX-header inventory is recorded; source-to-configured-output and notice mapping remains open.
 
-**Next action:** Build a source-file license inventory tied to the pinned Mesa source and configured outputs; rerun corrected CPU/Vulkan/HTP arithmetic cases only when every live guard passes, then qualify sustained HTP and clean-install replay.
+**Next action:** Obtain or reproduce the exact configured Termux Mesa build for the pinned recipe, map compiled/generated inputs and shipped notices to each package, then rerun guarded CPU/Vulkan/HTP cases when preflight permits.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -161,3 +161,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-mesa-build-scope.md](evidence/2026-10-24-p12-mesa-build-scope.md)
 - [docs/evidence/2026-10-24-p12-thermal-recheck-1558-utc.md](evidence/2026-10-24-p12-thermal-recheck-1558-utc.md)
 - [docs/evidence/2026-10-24-p12-thermal-recheck-1619-utc.md](evidence/2026-10-24-p12-thermal-recheck-1619-utc.md)
+- [docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md](evidence/2026-10-24-p12-mesa-source-license-inventory.md)

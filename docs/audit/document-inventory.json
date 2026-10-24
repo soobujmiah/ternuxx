@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 523,
+  "document_count": 525,
   "read_count": 164,
   "reading_complete": false,
   "broken_local_links": [],
@@ -35,10 +35,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "8e03893d5cbde28c144105c55e430ec5c1d92226e9157501f35597f4e8a01cea",
-      "lines": 26,
+      "sha256": "68342880d49820f6b2e1541ec26550439bd38c75d82a5f0490b0bcb6b0bc7ca7",
+      "lines": 27,
       "read_status": "read",
-      "read_sha256": "8e03893d5cbde28c144105c55e430ec5c1d92226e9157501f35597f4e8a01cea"
+      "read_sha256": "68342880d49820f6b2e1541ec26550439bd38c75d82a5f0490b0bcb6b0bc7ca7"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -155,10 +155,10 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "3e104f5bb143e355b6367adf1f5ee358ca7e5888cc9dea6d881fac4c2c1f0706",
+      "sha256": "9333cad3c2bacb01399b3643133bb17e8ebfe0c565c10b12e0456b65019dd558",
       "lines": 57,
       "read_status": "read",
-      "read_sha256": "3e104f5bb143e355b6367adf1f5ee358ca7e5888cc9dea6d881fac4c2c1f0706"
+      "read_sha256": "9333cad3c2bacb01399b3643133bb17e8ebfe0c565c10b12e0456b65019dd558"
     },
     {
       "path": "docs/OPTIMIZATION.md",
@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "241dfbcdc3a71acfc12050fa3ab6e9c088c64531922e3873aa8bab3e9a7cbc85",
-      "lines": 163,
+      "sha256": "5772e21d597545baf64e50cfb8f45e5b949a6ae4262322e62bc3f72d8fc0e112",
+      "lines": 164,
       "read_status": "read",
-      "read_sha256": "241dfbcdc3a71acfc12050fa3ab6e9c088c64531922e3873aa8bab3e9a7cbc85"
+      "read_sha256": "5772e21d597545baf64e50cfb8f45e5b949a6ae4262322e62bc3f72d8fc0e112"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -211,10 +211,10 @@
     {
       "path": "docs/README.md",
       "kind": "narrative",
-      "sha256": "bcb03cec26d1d55bee565a667a9917c6511f2e4e639db5514b5d9b1d44fbb821",
-      "lines": 60,
+      "sha256": "5633b597e29748712ede3044d794d3c1a85a36a7ebd928df59689be8ed865b5d",
+      "lines": 61,
       "read_status": "read",
-      "read_sha256": "bcb03cec26d1d55bee565a667a9917c6511f2e4e639db5514b5d9b1d44fbb821"
+      "read_sha256": "5633b597e29748712ede3044d794d3c1a85a36a7ebd928df59689be8ed865b5d"
     },
     {
       "path": "docs/RESEARCH.md",
@@ -227,10 +227,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "4541d966fda5e545e4b03bd6f646cbff59f0faa16754f427c70e1d1a6bb904ac",
+      "sha256": "7d71fb78ecf6d80ea7a7ba9027f786bac005b33d502499425d989f36f93dbfb7",
       "lines": 45,
       "read_status": "read",
-      "read_sha256": "4541d966fda5e545e4b03bd6f646cbff59f0faa16754f427c70e1d1a6bb904ac"
+      "read_sha256": "7d71fb78ecf6d80ea7a7ba9027f786bac005b33d502499425d989f36f93dbfb7"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -259,10 +259,10 @@
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
       "kind": "narrative",
-      "sha256": "0b61d32a1ca0f50d050167697052fbde641af1b52aeac90c53faecb7de549960",
+      "sha256": "0f3531037a97d6d4f3b452ad819b1384f4c5535ef2e7fac1ed26b0b7f784165b",
       "lines": 21,
       "read_status": "read",
-      "read_sha256": "0b61d32a1ca0f50d050167697052fbde641af1b52aeac90c53faecb7de549960"
+      "read_sha256": "0f3531037a97d6d4f3b452ad819b1384f4c5535ef2e7fac1ed26b0b7f784165b"
     },
     {
       "path": "docs/architecture/CONTINUITY-IMPLEMENTATION.md",
@@ -347,10 +347,10 @@
     {
       "path": "docs/architecture/SSH-LIFECYCLE.md",
       "kind": "narrative",
-      "sha256": "cf8b7afdcb71a7dc0ddc7864e4a202005e4b487340c74eb2c880cb6e68297fc0",
+      "sha256": "05d7979ffe34ee07b8cd8960e70466d71565d33fc1b81b9b3cfa442507880981",
       "lines": 55,
       "read_status": "read",
-      "read_sha256": "cf8b7afdcb71a7dc0ddc7864e4a202005e4b487340c74eb2c880cb6e68297fc0"
+      "read_sha256": "05d7979ffe34ee07b8cd8960e70466d71565d33fc1b81b9b3cfa442507880981"
     },
     {
       "path": "docs/architecture/UNIFIED-WORKSTATION.md",
@@ -2899,10 +2899,10 @@
     {
       "path": "docs/evidence/2026-10-24-client-dispatch-audit.md",
       "kind": "narrative",
-      "sha256": "e3efa13d430fb111e4d38a44fe96608fbdd71eaaf479508dbd9e6f324340300c",
-      "lines": 67,
+      "sha256": "2a7e25210812c59a9381929c9788fb682496195abe1ba4253dc9f5c9ba0af14d",
+      "lines": 75,
       "read_status": "read",
-      "read_sha256": "e3efa13d430fb111e4d38a44fe96608fbdd71eaaf479508dbd9e6f324340300c"
+      "read_sha256": "2a7e25210812c59a9381929c9788fb682496195abe1ba4253dc9f5c9ba0af14d"
     },
     {
       "path": "docs/evidence/2026-10-24-cron-inspection-client-parity.md",
@@ -3121,6 +3121,14 @@
       "read_sha256": "0510b6ca5ca5184c7c036d8d900725eae50750ee77eb4c10fd0551eafa0953fa"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md",
+      "kind": "narrative",
+      "sha256": "613dcde3adee2e08df8c105745d1482d86dfa14e88a999273bf32e17c34b0d93",
+      "lines": 29,
+      "read_status": "read",
+      "read_sha256": "613dcde3adee2e08df8c105745d1482d86dfa14e88a999273bf32e17c34b0d93"
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-multi-case-runner.md",
       "kind": "narrative",
       "sha256": "13bc8a9d486e938c0ab1f9c72752c94f9280bc8421bf5eb08e38ae927e95ede0",
@@ -3203,10 +3211,10 @@
     {
       "path": "docs/evidence/2026-10-24-p12-thermal-recheck-1619-utc.md",
       "kind": "narrative",
-      "sha256": "f15caaae0a45d2724f849bd068b030ff7f0599ed7fccc79a8f3dac011eaecfb0",
-      "lines": 11,
+      "sha256": "d234b6a7579d30ca2c9593544be612e122571afe00257a2edc827660afb879da",
+      "lines": 15,
       "read_status": "read",
-      "read_sha256": "f15caaae0a45d2724f849bd068b030ff7f0599ed7fccc79a8f3dac011eaecfb0"
+      "read_sha256": "d234b6a7579d30ca2c9593544be612e122571afe00257a2edc827660afb879da"
     },
     {
       "path": "docs/evidence/2026-10-24-p4-managed-icd-migration.md",
@@ -3481,6 +3489,14 @@
       "read_sha256": "74c5fdf3453becdb0e22147a6076f2d53eb60882283a140c10385c9d5c1ef358"
     },
     {
+      "path": "docs/evidence/data/2026-10-24-p12-mesa-source-license-inventory.json",
+      "kind": "structured",
+      "sha256": "3c94f2dc4fff7d6a984b15c3c94c6b78b5f976dba4242d6bc995738c2a2f7501",
+      "lines": 58132,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/data/2026-10-24-p12-native-repeated-resource.json",
       "kind": "structured",
       "sha256": "9676f37216f2e94e2fcc64b6da94c4b2d17614ccc494a864acb776a491bd9923",
@@ -3747,10 +3763,10 @@
     {
       "path": "docs/testing/FEATURE-MATRIX.yaml",
       "kind": "structured",
-      "sha256": "b7dfb66c938fe947e56e42612ec5084335f20bf21c5472d0d05f3eb5121d905a",
+      "sha256": "6af16e78a616126d8677f5a4e3ed3a207adb70c47cade9d00481f74fad8e9c2e",
       "lines": 209,
       "read_status": "read",
-      "read_sha256": "b7dfb66c938fe947e56e42612ec5084335f20bf21c5472d0d05f3eb5121d905a"
+      "read_sha256": "6af16e78a616126d8677f5a4e3ed3a207adb70c47cade9d00481f74fad8e9c2e"
     },
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
@@ -3827,10 +3843,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "5b6f11cb70f0cd6a98e0fb0f4e383c4ad77bc35a74707a5e41d15631a8270c17",
-      "lines": 266,
-      "read_status": "read",
-      "read_sha256": "5b6f11cb70f0cd6a98e0fb0f4e383c4ad77bc35a74707a5e41d15631a8270c17"
+      "sha256": "7be51025f38e92a520448966e7889cde4586812e36eaaf7ab1a3c461cd4873df",
+      "lines": 267,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "requirements-dev.txt",

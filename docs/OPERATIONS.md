@@ -22,7 +22,7 @@ The CLI, TUI, authenticated Web UI, and GTK center call the same typed managemen
 
 ## SSH and services
 
-`tx ssh inspect` is read-only. Managed SSH configuration and lifecycle changes are scoped to the fixed Native Runit service and use preview/rollback flows. Ternuxx-managed SSH on 8023 is configured loopback-only and key-only. The separate owner-managed development SSH configuration on 8022 currently reports wildcard binds and password authentication enabled; listener ownership and external reachability remain unknown. Ternuxx does not manage 8022. Review the [security record](../SECURITY.md) before exposing remote access.
+`tx ssh inspect` is read-only. Managed SSH configuration and lifecycle changes are scoped to the fixed Native Runit service and use preview/rollback flows. The fixed service-definition deploy/rollback operations are currently exposed by the CLI only; see the [client coverage matrix](architecture/CAPABILITY-MATRIX.md) for the open TUI/GTK reach gap and Web permission boundary. Ternuxx-managed SSH on 8023 is configured loopback-only and key-only. The separate owner-managed development SSH configuration on 8022 currently reports wildcard binds and password authentication enabled; listener ownership and external reachability remain unknown. Ternuxx does not manage 8022. Review the [security record](../SECURITY.md) before exposing remote access.
 
 Native audio, desktop monitoring, boot profiles, and Wake Lock controls have independent owners and state. A stop operation releases only resources whose identity matches a Ternuxx record.
 

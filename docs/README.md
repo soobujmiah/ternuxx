@@ -47,6 +47,7 @@ Older design-only references remain historical: [hybrid integration](HYBRID-INTE
 - [CPU baseline](testing/CPU-BASELINE.md)
 - [GPU qualification](testing/GPU-ACCELERATION.md)
 - [NPU qualification](testing/NPU-ACCELERATION.md)
+- [P12 Mesa source license-header inventory](evidence/2026-10-24-p12-mesa-source-license-inventory.md)
 - [Device compatibility](testing/DEVICE-COMPATIBILITY.md) · [Current capability matrix](testing/FEATURE-MATRIX.yaml)
 - [Dated evidence](evidence/) · [Device test reports](testing/reports/)
 

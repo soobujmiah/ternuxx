@@ -65,3 +65,11 @@ A second source pass found three duplicate keys in the Web operation-label objec
 ### Shared presentation duplicate cleanup
 
 A literal-dictionary scan found a second `ssh.inspect` key in the Python operation-label map. The duplicate label was removed and consolidated to `SSH diagnostics`. A regression now verifies unique keys in the Python operation-label map; the focused Python/Web label and JavaScript syntax checks passed.
+
+### Follow-up — fixed SSH definition deployment reach
+
+The current shared-operation allowlist also exposes `ssh.service.deploy`, `ssh.service.deploy.rollback.preview`, and `ssh.service.deploy.rollback.apply`. `lib/ssh.sh` provides these through the Native CLI. Source inspection found no corresponding deploy/rollback action in the TUI or GTK client; the Web runtime has a regression that rejects `ssh.service.deploy` with `permission_denied` before shared dispatch. This is a real per-operation reach difference, not duplicate backend implementation.
+
+The current [SSH lifecycle contract](../architecture/SSH-LIFECYCLE.md) and [coverage matrix](../architecture/CAPABILITY-MATRIX.md) now state this limitation directly. The gap remains open: either implement a shared preview-confirmed flow in the clients where policy permits, or record a reviewed product boundary for CLI-only definition deployment. The Web deny should not be removed without a separate capability/session-scope review. No service definition was deployed or changed during this source audit.
+
+Validation: `tests.test_management_http_runtime` contains `test_web_mode_exposes_scoped_desktop_monitoring_and_managed_ssh_8023_mutations`, which asserts the deploy request is denied without dispatch. The full suite passed 1,041 tests on this source state; source absence in TUI/GTK is an inspection result, not runtime UI acceptance.
