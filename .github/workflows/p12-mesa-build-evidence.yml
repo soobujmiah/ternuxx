@@ -111,7 +111,18 @@ jobs:
           from pathlib import Path
           root = Path("termux-packages/p12-mesa-evidence")
           packages = json.loads((root / "package-staging-manifests.json").read_text())["packages"]
-          assert len(packages) == 5, f"expected five split packages, found {len(packages)}"
+          expected_packages = {
+              "mesa", "mesa-dev", "mesa-opencl-icd-rusticl",
+              "mesa-vulkan-icd-freedreno", "mesa-vulkan-icd-swrast",
+          }
+          actual_packages = {package["name"] for package in packages}
+          assert actual_packages == expected_packages, (
+              f"expected split packages {sorted(expected_packages)}, found {sorted(actual_packages)}"
+          )
+          assert len(packages) == len(expected_packages), "split package names are duplicated"
+          assert all(package["architecture"] == "aarch64" for package in packages), (
+              "a staged Mesa split package has the wrong architecture"
+          )
           for label in ("host", "target"):
               targets = json.loads((root / "aarch64" / label / "meson-targets.json").read_text())
               assert targets, f"{label} Meson target inventory is empty"

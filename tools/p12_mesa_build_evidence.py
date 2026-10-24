@@ -140,15 +140,23 @@ def package_manifests(packages_dir: Path, output_dir: Path, *, dpkg_deb: str | N
     executable = dpkg_deb or shutil.which("dpkg-deb")
     if not executable:
         raise EvidenceError("dpkg-deb is required")
-    packages = sorted(path for path in packages_dir.glob("*.deb") if path.is_file() and not path.is_symlink())
-    if not packages:
+    staged_packages = sorted(path for path in packages_dir.glob("*.deb") if path.is_file() and not path.is_symlink())
+    if not staged_packages:
         raise EvidenceError("no regular .deb packages found")
+    other_staging_packages: list[str] = []
+    packages = staged_packages
     if expected_packages is not None:
-        actual_names = {path.name.split("_", 1)[0] for path in packages}
-        if actual_names != expected_packages or len(actual_names) != len(packages):
-            raise EvidenceError(f"package set mismatch: expected {sorted(expected_packages)}, found {sorted(actual_names)}")
+        selected = [path for path in staged_packages if path.name.split("_", 1)[0] in expected_packages]
+        actual_names = {path.name.split("_", 1)[0] for path in selected}
+        if actual_names != expected_packages or len(actual_names) != len(selected):
+            raise EvidenceError(
+                f"requested package set mismatch: expected {sorted(expected_packages)}, "
+                f"found {sorted(actual_names)} in {len(selected)} matching archives")
+        packages = selected
+        other_staging_packages = sorted(path.name for path in staged_packages if path not in selected)
     output_dir.mkdir(parents=True, exist_ok=True)
-    manifest: dict[str, object] = {"schema_version": 1, "packages": []}
+    manifest: dict[str, object] = {"schema_version": 1, "packages": [],
+                                   "other_staging_packages": other_staging_packages}
     for package in packages:
         result = subprocess.run([executable, "--field", str(package)], capture_output=True,
                                 text=True, timeout=30, check=False)
@@ -161,6 +169,8 @@ def package_manifests(packages_dir: Path, output_dir: Path, *, dpkg_deb: str | N
                 fields[key] = value.strip()
         if not all(fields.get(key) for key in ("Package", "Version", "Architecture")):
             raise EvidenceError(f"package metadata incomplete for {package.name}")
+        if expected_packages is not None and fields["Package"] not in expected_packages:
+            raise EvidenceError(f"package control name does not match requested staging archive {package.name}")
         with package.open("rb") as stream:
             package_hash = _sha256_stream(stream)
         package_record = {
@@ -173,6 +183,10 @@ def package_manifests(packages_dir: Path, output_dir: Path, *, dpkg_deb: str | N
             "files": _payload_manifest(package, executable),
         }
         manifest["packages"].append(package_record)  # type: ignore[union-attr]
+    if expected_packages is not None:
+        recorded_names = [record["name"] for record in manifest["packages"]]  # type: ignore[index]
+        if set(recorded_names) != expected_packages or len(recorded_names) != len(expected_packages):
+            raise EvidenceError("requested package control records are missing or duplicated")
     (output_dir / "package-staging-manifests.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return len(packages)

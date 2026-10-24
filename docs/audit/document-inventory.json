@@ -3,18 +3,18 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 534,
-  "read_count": 169,
+  "document_count": 536,
+  "read_count": 171,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
     {
       "path": ".github/workflows/p12-mesa-build-evidence.yml",
       "kind": "structured",
-      "sha256": "0db2438c28d7c34cebf27b7d6e4c23cf2c746ddfbd806c346f9d7a2a637d2bd7",
-      "lines": 128,
+      "sha256": "d626912a4754e941f3a7f38efc8a1743f4b77eab00c0056c655a4b442d5aabd8",
+      "lines": 139,
       "read_status": "read",
-      "read_sha256": "0db2438c28d7c34cebf27b7d6e4c23cf2c746ddfbd806c346f9d7a2a637d2bd7"
+      "read_sha256": "d626912a4754e941f3a7f38efc8a1743f4b77eab00c0056c655a4b442d5aabd8"
     },
     {
       "path": ".github/workflows/repo-contract.yml",
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "45fa5e448e2568043541676aa9d4a77371201eea7fab4a8fc788fd584cba53ab",
-      "lines": 43,
+      "sha256": "02069c4efb8553a01f38378e7389622a980b27526fe0ba99e77ecbb45382897b",
+      "lines": 45,
       "read_status": "read",
-      "read_sha256": "45fa5e448e2568043541676aa9d4a77371201eea7fab4a8fc788fd584cba53ab"
+      "read_sha256": "02069c4efb8553a01f38378e7389622a980b27526fe0ba99e77ecbb45382897b"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -3161,6 +3161,14 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-mesa-package-staging-filter.md",
+      "kind": "narrative",
+      "sha256": "a55aaa114225f1f00ae3ceb6c1626d41a85c59282f0f4c9835d4c782d14b6195",
+      "lines": 17,
+      "read_status": "read",
+      "read_sha256": "a55aaa114225f1f00ae3ceb6c1626d41a85c59282f0f4c9835d4c782d14b6195"
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-mesa-source-license-inventory.md",
       "kind": "narrative",
       "sha256": "5de37498697ec85df672867479b58478f184b1e15ce42f05890abdec41ac0c15",
@@ -3223,6 +3231,14 @@
       "lines": 23,
       "read_status": "read",
       "read_sha256": "3bd480b3edd05ba3ebfde51299cd206419a1d5ab1c89d42bfef6fb3ed342cf88"
+    },
+    {
+      "path": "docs/evidence/2026-10-24-p12-single-case-backend-check.md",
+      "kind": "narrative",
+      "sha256": "34ca8c0364aa45720624269d8fe3a5cdb2ea67874417785bae7b6a1afb830d88",
+      "lines": 22,
+      "read_status": "read",
+      "read_sha256": "34ca8c0364aa45720624269d8fe3a5cdb2ea67874417785bae7b6a1afb830d88"
     },
     {
       "path": "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",

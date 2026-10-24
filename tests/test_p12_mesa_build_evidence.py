@@ -138,6 +138,44 @@ class PackageStagingManifestTests(unittest.TestCase):
             self.assertEqual(package["files"][1]["type"], "symlink")
             self.assertEqual(package["files"][1]["link_target"], "libmesa.so")
 
+    def test_selects_expected_packages_and_records_other_staging_archives(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            packages = root / "debs"
+            packages.mkdir()
+            (packages / "mesa_1_aarch64.deb").write_bytes(b"mesa archive")
+            (packages / "openssl_1_aarch64.deb").write_bytes(b"dependency archive")
+            payload = io.BytesIO()
+            with tarfile.open(fileobj=payload, mode="w"):
+                pass
+            encoded_tar = base64.b64encode(payload.getvalue()).decode("ascii")
+            fake = root / "dpkg-deb-fixture"
+            fake.write_text(
+                "#!/" + Path("usr/bin/env").as_posix() + " python3\n"
+                "from pathlib import Path\n"
+                "import base64, sys\n"
+                "name = Path(sys.argv[-1]).name.split('_', 1)[0]\n"
+                "if sys.argv[1] == '--field':\n"
+                " print(f'Package: {name}\\nVersion: 1\\nArchitecture: aarch64')\n"
+                "else:\n"
+                f" sys.stdout.buffer.write(base64.b64decode('{encoded_tar}'))\n",
+                encoding="utf-8",
+            )
+            fake.chmod(fake.stat().st_mode | stat.S_IXUSR)
+            output = root / "evidence"
+
+            self.assertEqual(package_manifests(packages, output, dpkg_deb=str(fake),
+                                               expected_packages={"mesa"}), 1)
+            manifest = json.loads((output / "package-staging-manifests.json").read_text())
+            self.assertEqual([item["name"] for item in manifest["packages"]], ["mesa"])
+            self.assertEqual(manifest["other_staging_packages"], ["openssl_1_aarch64.deb"])
+            with self.assertRaisesRegex(EvidenceError, "requested package set mismatch"):
+                package_manifests(packages, output, dpkg_deb=str(fake),
+                                  expected_packages={"mesa", "mesa-dev"})
+            (packages / "mesa_2_aarch64.deb").write_bytes(b"duplicate mesa archive")
+            with self.assertRaisesRegex(EvidenceError, "requested package set mismatch"):
+                package_manifests(packages, output, dpkg_deb=str(fake), expected_packages={"mesa"})
+
 
 if __name__ == "__main__":
     unittest.main()
