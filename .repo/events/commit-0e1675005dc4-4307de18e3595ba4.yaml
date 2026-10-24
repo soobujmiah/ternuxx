@@ -1,0 +1,7 @@
+event_id: commit-0e1675005dc4-4307de18e3595ba4
+repository: soobujmiah/ternuxx
+commit: 0e1675005dc48fb1be2ceb552678f6b303a66d80
+kind: commit
+occurred_at: '2026-10-24T14:52:57Z'
+status: completed
+summary: 'ci: pin GitHub Actions to reviewed commits'
