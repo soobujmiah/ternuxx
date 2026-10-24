@@ -1,7 +1,7 @@
 schema_version: 1
 project_id: ternuxx
 repository: soobujmiah/ternuxx
-generated_at: '2026-10-24T13:00:48Z'
+generated_at: '2026-10-24T13:02:21Z'
 generated_by: tools/repo_knowledge collect
 version: 63ae437
 head:
@@ -15,24 +15,27 @@ phases:
   next: null
 build:
   status: unknown
-  run_id: '40056143739'
-  commit: 547aa356a0a7c1825db0f7feb75247ffa1670ed8
+  run_id: '40096355236'
+  commit: 63ae43768270bbadca83d560a563b624aeba2127
   run_attempt: '1'
-  at: '2026-10-24T02:55:54Z'
+  at: '2026-10-24T13:02:21Z'
   timestamp_source: observed
   workflow_name: Repository Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/40056143739
+  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/40096355236
 test:
   status: passed
-  run_id: null
+  run_id: '40096355236'
   commit: 63ae43768270bbadca83d560a563b624aeba2127
   run_attempt: '1'
-  at: '2026-10-24T13:00:48Z'
-  timestamp_source: commit
-  summary: 'env -u TERMUX_VERSION -u PREFIX -u LD_LIBRARY_PATH bash scripts/repo_test.sh:
-    1017 tests passed in 94.697s; CLI help contract passed'
+  at: '2026-10-24T13:02:21Z'
+  timestamp_source: observed
+  workflow_name: Repository Knowledge Sync
+  event_type: push
+  actor: soobujmiah
+  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/40096355236
+  summary: null
 last_successful_build: null
 last_failed_build:
   commit: 69e378eb33247678437bda4b2de9ab25f6bcb91d
@@ -40,5 +43,5 @@ last_failed_build:
   run_id: '39159994935'
 sync:
   status: ok
-  last_synced_at: '2026-10-24T13:00:48Z'
-  source: local
+  last_synced_at: '2026-10-24T13:02:21Z'
+  source: ci
