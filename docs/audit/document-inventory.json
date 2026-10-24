@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 506,
-  "read_count": 147,
+  "read_count": 155,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -133,8 +133,8 @@
       "kind": "narrative",
       "sha256": "1a2f82686917aaec499c073b1fc1e3e452fa9df94921930884e27ebfd6d5a4cb",
       "lines": 8,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "1a2f82686917aaec499c073b1fc1e3e452fa9df94921930884e27ebfd6d5a4cb"
     },
     {
       "path": "docs/INSTALLATION.md",
@@ -157,16 +157,16 @@
       "kind": "narrative",
       "sha256": "3e104f5bb143e355b6367adf1f5ee358ca7e5888cc9dea6d881fac4c2c1f0706",
       "lines": 57,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "3e104f5bb143e355b6367adf1f5ee358ca7e5888cc9dea6d881fac4c2c1f0706"
     },
     {
       "path": "docs/OPTIMIZATION.md",
       "kind": "narrative",
-      "sha256": "61ea29abc8fa5832efa07b841537c77e808eb689edef71c7301ae405e27e4fac",
-      "lines": 20,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "c3f0c271cc58d4d75dda68e88124ecfdd9ee658a5f0416e8e06e8907040c86ce",
+      "lines": 22,
+      "read_status": "read",
+      "read_sha256": "c3f0c271cc58d4d75dda68e88124ecfdd9ee658a5f0416e8e06e8907040c86ce"
     },
     {
       "path": "docs/PHASE-STATUS.md",
@@ -205,8 +205,8 @@
       "kind": "narrative",
       "sha256": "f7614eab297a7314deac0ab1c013c9c7b1d063f774b21bba945f3346869b9177",
       "lines": 7,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "f7614eab297a7314deac0ab1c013c9c7b1d063f774b21bba945f3346869b9177"
     },
     {
       "path": "docs/README.md",
@@ -245,16 +245,16 @@
       "kind": "narrative",
       "sha256": "927f4dc4fe40c6f60e413d29b77879019ccbb6a76089a27eba2da36526e58718",
       "lines": 46,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "927f4dc4fe40c6f60e413d29b77879019ccbb6a76089a27eba2da36526e58718"
     },
     {
       "path": "docs/WORKSTATION-EXTENSIONS.md",
       "kind": "narrative",
       "sha256": "0ba8b7737e2e44a2a73a9e22cf3692b7ff2e8aa46d2d0464a51473099954ba17",
       "lines": 31,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "0ba8b7737e2e44a2a73a9e22cf3692b7ff2e8aa46d2d0464a51473099954ba17"
     },
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
@@ -389,16 +389,16 @@
       "kind": "narrative",
       "sha256": "2d91173852f4a35fe393b6e8e6a04fbec1697b0a77f4e44d1ca32f3291bada99",
       "lines": 58,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "2d91173852f4a35fe393b6e8e6a04fbec1697b0a77f4e44d1ca32f3291bada99"
     },
     {
       "path": "docs/architecture/decisions/ADR-0005-capability-permission-and-task-model.md",
       "kind": "narrative",
       "sha256": "651287212fef8b0da62bb2a49de1c89df86721b706310b4204234f6a48f49393",
       "lines": 66,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "651287212fef8b0da62bb2a49de1c89df86721b706310b4204234f6a48f49393"
     },
     {
       "path": "docs/architecture/decisions/ADR-0006-adapt-existing-ternux-provider.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "d3be4fc2df314c621fbf0a97a007b1679e4914261b39f2d4cad6b9a9848ba509",
+      "sha256": "11d72ebc0bda8fe5be1d7e451f9788adfda83ba871d6f2fc29af755811252150",
       "lines": 40,
       "read_status": "read",
-      "read_sha256": "d3be4fc2df314c621fbf0a97a007b1679e4914261b39f2d4cad6b9a9848ba509"
+      "read_sha256": "11d72ebc0bda8fe5be1d7e451f9788adfda83ba871d6f2fc29af755811252150"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
