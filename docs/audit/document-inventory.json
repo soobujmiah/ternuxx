@@ -3611,10 +3611,10 @@
     {
       "path": "docs/testing/FEATURE-MATRIX.yaml",
       "kind": "structured",
-      "sha256": "59a554b3bd39454d94f8f572548109c659ebce51ed211bc1648071608fec3e5f",
+      "sha256": "cecfeb4b532187b30a410df352bc9755d6b80ff55098abc34f49c272aec4013f",
       "lines": 209,
       "read_status": "read",
-      "read_sha256": "59a554b3bd39454d94f8f572548109c659ebce51ed211bc1648071608fec3e5f"
+      "read_sha256": "cecfeb4b532187b30a410df352bc9755d6b80ff55098abc34f49c272aec4013f"
     },
     {
       "path": "docs/testing/GPU-ACCELERATION.md",

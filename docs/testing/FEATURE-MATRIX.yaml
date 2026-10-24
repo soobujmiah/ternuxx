@@ -84,8 +84,8 @@ features:
     qualification: DETECTED
     evidence: [../../lib/management_web_ui.html, ../../lib/management_http_runtime.py, ../../tests/test_management_http_runtime.py]
     release_qualified: false
-    limitations: [Authentication, scoped operations, and reload/reconnect contracts have tests; visible device-wide acceptance is incomplete.]
-    next_action: Perform an owner-reviewed visible client pass without publishing session secrets.
+    limitations: [Authentication, scoped operations, and reload/reconnect contracts have tests; browser-rendered login, catalog, and live Debian status passed on-device. Narrow-screen/accessibility review and complete per-operation reach acceptance remain open.]
+    next_action: Finish the per-operation Web reach review and narrow-screen/accessibility acceptance without exposing session secrets.
     owner_decision_required: false
 
   - id: client.gtk
@@ -99,8 +99,8 @@ features:
     qualification: DETECTED
     evidence: [../../apps/management-center/management-center.c, ../../tests/test_management_center_ui_contract.py]
     release_qualified: false
-    limitations: [The GTK client requires GTK4 and VTE GTK4 development files; guided fresh-guest setup is CLI-only; visual and live guest acceptance are incomplete.]
-    next_action: With an installed guest, verify VTE attach/detach, allowlisted app launch, catalog shortcut preview/apply, and owned-session stop; compare visible actions with the shared catalog.
+    limitations: [The GTK client requires GTK4 and VTE GTK4 development files; guided fresh-guest setup is CLI-only. GTK bridge, guest lifecycle actions, and bounded inference have source/fixture coverage; complete per-operation reach, native-display visual review, and accessibility remain open.]
+    next_action: Finish the per-operation GTK reach review against the shared catalog, then complete native-display visual and accessibility acceptance.
     owner_decision_required: false
 
   - id: desktop.native
