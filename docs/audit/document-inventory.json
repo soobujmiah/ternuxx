@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "4a43d9b8129b77c368eff21284c89ca20dd6dd69f5f1bb98503d507f6e9080a9",
+      "sha256": "d3be4fc2df314c621fbf0a97a007b1679e4914261b39f2d4cad6b9a9848ba509",
       "lines": 40,
       "read_status": "read",
-      "read_sha256": "4a43d9b8129b77c368eff21284c89ca20dd6dd69f5f1bb98503d507f6e9080a9"
+      "read_sha256": "d3be4fc2df314c621fbf0a97a007b1679e4914261b39f2d4cad6b9a9848ba509"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
@@ -3619,18 +3619,18 @@
     {
       "path": "docs/testing/FEATURE-MATRIX.yaml",
       "kind": "structured",
-      "sha256": "cecfeb4b532187b30a410df352bc9755d6b80ff55098abc34f49c272aec4013f",
+      "sha256": "ce4d56c9ae730265dd213bf7daf703264cd70a7f2e3857d0d0a0fd45470269ca",
       "lines": 209,
       "read_status": "read",
-      "read_sha256": "cecfeb4b532187b30a410df352bc9755d6b80ff55098abc34f49c272aec4013f"
+      "read_sha256": "ce4d56c9ae730265dd213bf7daf703264cd70a7f2e3857d0d0a0fd45470269ca"
     },
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "c935b495461a0a818c797e038126e279aa1cab08896b648c3437069167eb74f2",
+      "sha256": "4c12586af16a631ba7b0da188d5bede74a7b17b6c7d800a06c8577a02eaf3aea",
       "lines": 33,
       "read_status": "read",
-      "read_sha256": "c935b495461a0a818c797e038126e279aa1cab08896b648c3437069167eb74f2"
+      "read_sha256": "4c12586af16a631ba7b0da188d5bede74a7b17b6c7d800a06c8577a02eaf3aea"
     },
     {
       "path": "docs/testing/KNOWN-LIMITATIONS.md",
@@ -3643,10 +3643,10 @@
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "81a4f1ca21e2f30475c150c9dd2b46f9208d0e5532fbdb70047721eb51a799db",
+      "sha256": "3d26aca9925ac15de9f1bc00db754fd66824155eb23c770377893d9f1467581a",
       "lines": 50,
       "read_status": "read",
-      "read_sha256": "81a4f1ca21e2f30475c150c9dd2b46f9208d0e5532fbdb70047721eb51a799db"
+      "read_sha256": "3d26aca9925ac15de9f1bc00db754fd66824155eb23c770377893d9f1467581a"
     },
     {
       "path": "docs/testing/README.md",

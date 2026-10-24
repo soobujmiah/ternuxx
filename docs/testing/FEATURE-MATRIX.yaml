@@ -189,7 +189,7 @@ features:
     qualification: WORKLOAD_VERIFIED
     evidence: [GPU-ACCELERATION.md, ../evidence/2026-10-24-native-acceleration-live-check.md, ../evidence/2026-10-24-p12-complete-offload-gate.md, reports/2026-10-24-native-profile-25053RT47C.md, ../../lib/cpu_inference.py, ../../tests/test_cpu_inference.py, ../../tests/test_management_service.py]
     release_qualified: false
-    limitations: [The pinned-model Ternuxx API path and three owner-provided LAI GGUFs pass bounded 29/29-layer Vulkan runs with the installed Termux backend. Results rely on the selected experimental Mesa/Freedreno ICD and do not qualify sustained thermals, clean-device installation, or general workload performance. The OpenCL backend reports no platforms.]
+    limitations: [The managed Ternuxx API selects only pinned Qwen3 0.6B; three owner-provided LAI GGUFs were separately tested through direct Termux llama-cli and do not add model selection to the API. All bounded runs reported 29/29 Vulkan layer offload with the installed Termux backend and selected experimental Mesa/Freedreno ICD. This does not qualify sustained thermals, clean-device installation, or general workload performance. The OpenCL backend reports no platforms.]
     next_action: Complete longer correctness, memory, and thermal checks; qualify clean installation and provenance for the experimental graphics ICD.
     owner_decision_required: false
 
@@ -204,6 +204,6 @@ features:
     qualification: WORKLOAD_VERIFIED
     evidence: [NPU-ACCELERATION.md, ../evidence/2026-10-24-native-acceleration-live-check.md, ../evidence/2026-10-24-p12-ternux-htp-path-review.md, ../evidence/2026-10-24-p12-htp-runtime-integrity-followup.md, ../evidence/2026-10-24-p12-complete-offload-gate.md, ../../lib/npu_inference.py, ../../tests/test_npu_inference.py, ../../tests/test_management_service.py]
     release_qualified: false
-    limitations: ["Ternuxx installs only selected files from the SHA-256-pinned MIT release into private HOME state and injects a fixed child-process loader/DSP environment without copying system/vendor libraries. SM8735-only experimental HTP inference passes repeated short known-answer runs with full layer offload and clean cancellation/restart, but is slower than CPU on tested prompts; sustained thermals, memory pressure, broader model/operator correctness, and clean-device runtime acquisition remain unqualified. CPU fallback is disabled."]
+    limitations: ["Ternuxx installs only selected files from the SHA-256-pinned MIT release into private HOME state and injects a fixed child-process loader/DSP environment without copying system/vendor libraries. The managed operation accepts only the pinned Qwen3 0.6B model; a separate direct-runtime Qwen2.5 1.5B reference check does not add API model selection. SM8735-only experimental HTP inference passes repeated short known-answer runs with full layer offload and clean cancellation/restart, but is slower than CPU on tested prompts; sustained thermals, memory pressure, broader model/operator correctness, and clean-device runtime acquisition remain unqualified. CPU fallback is disabled."]
     next_action: Complete controlled repeated CPU/HTP correctness, memory, and thermal qualification; retain explicit experimental labeling unless performance and stability evidence supports broader use.
     owner_decision_required: false
