@@ -1,0 +1,8 @@
+event_id: test-7a12cd69d6ce-938f3111f8ba5318
+repository: soobujmiah/ternuxx
+commit: 7a12cd69d6ce13efd27537ead56fc2ad644dc009
+kind: test
+occurred_at: '2026-10-24T13:00:18Z'
+status: passed
+summary: 'env -u TERMUX_VERSION -u PREFIX -u LD_LIBRARY_PATH bash scripts/repo_test.sh:
+  1017 tests passed in 94.697s; CLI help contract passed'
