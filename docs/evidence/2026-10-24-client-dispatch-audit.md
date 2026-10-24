@@ -57,3 +57,7 @@ The same review found `cron.executor.self_test` was the only service operation a
 - Focused authorization, service, catalog, and GTK bridge tests: 19 passed.
 - `bash scripts/repo_test.sh`: 1036 tests passed; CLI help contract passed.
 - Strict README bridge, document inventory/link check, repo-knowledge verification, and `git diff --check` passed.
+
+### Web presentation duplicate cleanup
+
+A second source pass found three duplicate keys in the Web operation-label object for managed SSH Wake Lock status, preview, and apply. JavaScript silently kept the later labels. The duplicates were removed and a regression now requires unique keys in the operation-label map. The focused regression and inline JavaScript syntax check both passed after the cleanup.

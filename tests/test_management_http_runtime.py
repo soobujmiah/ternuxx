@@ -69,6 +69,12 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertNotIn('Planned capabilities (', ui)
         self.assertIn("Technical API response", ui)
 
+    def test_web_operation_label_map_has_no_duplicate_keys(self) -> None:
+        ui = (ROOT / "lib" / "management_web_ui.html").read_text(encoding="utf-8")
+        section = ui.split("function operationLabel(op){const known={", 1)[1].split("};return known[op]", 1)[0]
+        keys = re.findall(r'"([^"\\]+)"\s*:', section)
+        self.assertEqual(len(keys), len(set(keys)), "duplicate Web label silently overrides an earlier value")
+
     def test_authenticated_page_reconnect_contract_survives_reload(self) -> None:
         ui = (ROOT / "lib" / "management_web_ui.html").read_text(encoding="utf-8")
         self.assertIn("/api/v1/session/reconnect", ui)
