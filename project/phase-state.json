@@ -236,7 +236,7 @@
       "id": "P12",
       "title": "Qualify Native CPU, GPU and NPU acceleration",
       "status": "in_progress",
-      "summary": "Host-like Native and GitHub runs pass all 1,017 tests; CLI/TUI/Web/GTK replay-guest parity passes 168 focused tests. CPU/Vulkan/HTP have bounded full-offload evidence, but the latest CPU zone reached 68.8°C while idle and no further inference was run; sustained qualification remains open.",
+      "summary": "Bounded CPU, Vulkan, and experimental HTP inference plus a same-device fresh-alias Debian setup replay are verified; sustained, clean-device, and broader qualification remain open.",
       "evidence": [
         "docs/evidence/2026-10-24-native-acceleration-live-check.md",
         "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
@@ -245,9 +245,10 @@
         "docs/evidence/2026-10-24-p12-complete-offload-gate.md",
         "docs/evidence/2026-10-24-p12-repo-regression-followup.md",
         "docs/evidence/2026-10-24-replay-guest-client-parity.md",
-        "docs/evidence/2026-10-24-p12-thermal-observation.md"
+        "docs/evidence/2026-10-24-p12-thermal-observation.md",
+        "docs/evidence/2026-10-24-p12-same-device-fresh-alias-replay.md"
       ],
-      "next_action": "Repeat bounded CPU/Vulkan/HTP correctness checks only after device thermal zones settle, with memory and thermal observation; qualify experimental Vulkan ICD clean-install provenance and sustained HTP stability/model coverage."
+      "next_action": "Continue sustained CPU/Vulkan/HTP resource qualification, establish a reproducible clean-install Vulkan ICD path, broaden HTP model/operator checks, and run a true clean-device PRoot replay when an independent target is available."
     }
   ]
 }

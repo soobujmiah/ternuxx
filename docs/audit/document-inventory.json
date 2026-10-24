@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 505,
-  "read_count": 146,
+  "document_count": 506,
+  "read_count": 147,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -171,10 +171,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "cbe338bfc4b7f4ee5f300195d5f7881bf85682d8fd315fcad28992ba1d7b6490",
-      "lines": 150,
+      "sha256": "45bc3a656e5c1d32db9acfcd4f60ed84c5bbbd3642306e60f6f5cea63142ebe8",
+      "lines": 151,
       "read_status": "read",
-      "read_sha256": "cbe338bfc4b7f4ee5f300195d5f7881bf85682d8fd315fcad28992ba1d7b6490"
+      "read_sha256": "45bc3a656e5c1d32db9acfcd4f60ed84c5bbbd3642306e60f6f5cea63142ebe8"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -227,10 +227,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "a4e18e33d4baa61075faec09fd15d919cbdc900f28e38424a0b0b95066ae97d7",
+      "sha256": "baaebd4af6de07cfdaed6a3769c0570e355efedfa88a4e9c13b905d72d3b9773",
       "lines": 45,
       "read_status": "read",
-      "read_sha256": "a4e18e33d4baa61075faec09fd15d919cbdc900f28e38424a0b0b95066ae97d7"
+      "read_sha256": "baaebd4af6de07cfdaed6a3769c0570e355efedfa88a4e9c13b905d72d3b9773"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/REPOSITORY-AUDIT.md",
       "kind": "narrative",
-      "sha256": "52232caa88312ae611e5122e98ab1e90c296aa6663f6d381bbdf421faa4d3bcf",
-      "lines": 39,
+      "sha256": "4a43d9b8129b77c368eff21284c89ca20dd6dd69f5f1bb98503d507f6e9080a9",
+      "lines": 40,
       "read_status": "read",
-      "read_sha256": "52232caa88312ae611e5122e98ab1e90c296aa6663f6d381bbdf421faa4d3bcf"
+      "read_sha256": "4a43d9b8129b77c368eff21284c89ca20dd6dd69f5f1bb98503d507f6e9080a9"
     },
     {
       "path": "docs/evidence/2026-10-17-native-access-wakelock-baseline.json",
@@ -3065,6 +3065,14 @@
       "read_sha256": "6dce1dfc7dfd0aadbab79336f2016b80ef9c4860a374c9b8e9d7d8ae61f68ad1"
     },
     {
+      "path": "docs/evidence/2026-10-24-p12-same-device-fresh-alias-replay.md",
+      "kind": "narrative",
+      "sha256": "3bd480b3edd05ba3ebfde51299cd206419a1d5ab1c89d42bfef6fb3ed342cf88",
+      "lines": 23,
+      "read_status": "read",
+      "read_sha256": "3bd480b3edd05ba3ebfde51299cd206419a1d5ab1c89d42bfef6fb3ed342cf88"
+    },
+    {
       "path": "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
       "kind": "narrative",
       "sha256": "d642db1f0f43c1ebfda7c9d0bca254caeda7becb81abd6df587eeecafa42afbb",
@@ -3683,8 +3691,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "25788ae89746073be9ac3bdae5c5befba1eb463ce487909188f6aac36d545a9a",
-      "lines": 253,
+      "sha256": "9853b6c6671c63fc4ad8d153f3fa91e7aa5bc7b8b4871991b0b92872cf0cf895",
+      "lines": 254,
       "read_status": "pending",
       "read_sha256": null
     },
