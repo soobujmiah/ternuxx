@@ -1,0 +1,7 @@
+event_id: commit-e6027d3f45b9-a2b9478322f9c341
+repository: soobujmiah/ternuxx
+commit: e6027d3f45b923622c3c09a0db7ce82bc9a984c1
+kind: commit
+occurred_at: '2026-10-24T14:47:46Z'
+status: completed
+summary: 'docs(p12): clarify native Mesa artifact provenance'
