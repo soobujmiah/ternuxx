@@ -19,7 +19,9 @@ from typing import BinaryIO
 SOURCE_SUFFIXES = {
     ".c", ".h", ".cc", ".hh", ".cpp", ".hpp", ".cxx", ".hxx", ".inc",
     ".inl", ".S", ".s", ".py", ".sh", ".m", ".mm", ".rs", ".cl",
-    ".glsl", ".vert", ".frag", ".comp",
+    ".glsl", ".vert", ".frag", ".comp", ".l", ".ll", ".y", ".yy",
+    ".xml", ".json", ".conf", ".txt", ".csv", ".rnc", ".yaml", ".yml",
+    ".xsd", ".def", ".in",
 }
 _SPDX_HEADER = re.compile(
     rb"^\s*(?:(?:/\*+|\*|//|#|<!--|;|--)\s*)?"
@@ -99,8 +101,8 @@ def inventory_archive(archive: str, commit: str) -> dict[str, object]:
         "source_repository": "https://github.com/lfdevs/mesa-for-android-container",
         "source_commit": commit,
         "source_archive_sha256": archive_digest.hexdigest(),
-        "method": "Hash every candidate source file; inspect only the first 80 lines for comment-style SPDX-License-Identifier headers.",
-        "scope_limit": "A candidate-source inventory, not a configured-build source map or license conclusion. NOASSERTION means no recognized header was found; it does not mean unlicensed.",
+        "method": "Hash every candidate source/build-input file by suffix; inspect only the first 80 lines for comment-style SPDX-License-Identifier headers.",
+        "scope_limit": "A candidate source/build-input inventory, not a configured-build source map or license conclusion. NOASSERTION means no recognized header was found; it does not mean unlicensed.",
         "candidate_source_file_count": len(entries),
         "files_with_spdx_header": sum(bool(item["spdx_header_identifiers"]) for item in entries),
         "files_without_spdx_header": sum(not item["spdx_header_identifiers"] for item in entries),

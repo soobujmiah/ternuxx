@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Corrected CPU qualification now records a guarded in-flight cancellation without claiming a pass; the pinned Mesa source-header and package inventories remain separate from the missing configured source-to-binary graph and notice mapping.
+Expanded pinned Mesa source/build-input inventory to 9,376 hashed files. The configured host/target graph is captured and all 1,567 Mesa source-tree paths match the inventory; package staging is being rerun. One-case CPU/Vulkan/HTP checks pass, but repeated correctness and sustained qualification remain open; the latest CPU repeat cancelled at its unchanged 60°C guard.
 
-**Next action:** Obtain a reproducible build of the pinned Mesa recipe with Meson introspection, Ninja compile metadata, generated-source records, and package staging manifests; resume guarded CPU/Vulkan/HTP correctness and sustained checks only when live sensor samples remain within configured limits.
+**Next action:** Complete Mesa run 40125903141 and verify the five split-package manifests; map generated/external inputs and applicable notices. Resume three-case CPU/Vulkan/HTP checks only while live guards remain satisfied.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

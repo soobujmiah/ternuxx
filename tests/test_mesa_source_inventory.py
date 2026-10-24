@@ -36,18 +36,25 @@ class MesaSourceInventoryTests(unittest.TestCase):
             write_archive(archive, {
                 f"mesa-for-android-container-{COMMIT}/src/a.c": source,
                 f"mesa-for-android-container-{COMMIT}/src/b.h": unknown,
+                f"mesa-for-android-container-{COMMIT}/src/c.xml": b"<!-- SPDX-License-Identifier: Apache-2.0 -->\n<api/>\n",
+                f"mesa-for-android-container-{COMMIT}/src/d.y": b"/* SPDX-License-Identifier: MIT */\n%%\n",
+                f"mesa-for-android-container-{COMMIT}/src/e.json": b"// SPDX-License-Identifier: BSD-2-Clause\n{}\n",
                 f"mesa-for-android-container-{COMMIT}/README.md": b"not source\n",
             })
 
             result = inventory_archive(str(archive), COMMIT)
 
-        self.assertEqual(result["candidate_source_file_count"], 2)
-        self.assertEqual(result["files_with_spdx_header"], 1)
+        self.assertEqual(result["candidate_source_file_count"], 5)
+        self.assertEqual(result["files_with_spdx_header"], 4)
         self.assertEqual(result["files_without_spdx_header"], 1)
-        self.assertEqual(result["spdx_header_file_counts"], {"MIT": 1})
+        self.assertEqual(result["spdx_header_file_counts"], {
+            "Apache-2.0": 1, "BSD-2-Clause": 1, "MIT": 2,
+        })
         files = {item["path"]: item for item in result["files"]}
         self.assertEqual(files["src/a.c"]["sha256"], hashlib.sha256(source).hexdigest())
         self.assertEqual(files["src/b.h"]["header_license_status"], "NOASSERTION")
+        self.assertEqual(files["src/c.xml"]["spdx_header_identifiers"], ["Apache-2.0"])
+        self.assertEqual(files["src/d.y"]["spdx_header_identifiers"], ["MIT"])
         self.assertIn("does not mean unlicensed", result["scope_limit"])
         json.dumps(result)
 
