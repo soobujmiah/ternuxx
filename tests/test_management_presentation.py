@@ -1,11 +1,23 @@
 from __future__ import annotations
 
 import unittest
+import ast
+from pathlib import Path
 
 from lib import management_presentation
 
 
 class ManagementPresentationTests(unittest.TestCase):
+    def test_operation_labels_have_unique_keys_and_canonical_ssh_label(self):
+        source = Path(management_presentation.__file__).read_text(encoding="utf-8")
+        tree = ast.parse(source)
+        assignment = next(node for node in tree.body if isinstance(node, ast.AnnAssign)
+                          and isinstance(node.target, ast.Name)
+                          and node.target.id == "OPERATION_LABELS")
+        keys = [item.value for item in assignment.value.keys if isinstance(item, ast.Constant)]
+        self.assertEqual(len(keys), len(set(keys)), "duplicate presentation label silently overwrites a value")
+        self.assertEqual(management_presentation.operation_label("ssh.inspect"), "SSH diagnostics")
+
     def test_proot_shortcut_inventory_is_compact_and_hides_localized_desktop_metadata(self):
         report = management_presentation.format_report({"ok": True, "data": {
             "resource_id": "proot.x11.shortcuts",

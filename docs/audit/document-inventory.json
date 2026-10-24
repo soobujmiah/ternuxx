@@ -2899,10 +2899,10 @@
     {
       "path": "docs/evidence/2026-10-24-client-dispatch-audit.md",
       "kind": "narrative",
-      "sha256": "c7c6ea3d10a45b492a1f64f6378d7492314a2ff8074ca2e66a1ba9f205adafc0",
-      "lines": 63,
+      "sha256": "e3efa13d430fb111e4d38a44fe96608fbdd71eaaf479508dbd9e6f324340300c",
+      "lines": 67,
       "read_status": "read",
-      "read_sha256": "c7c6ea3d10a45b492a1f64f6378d7492314a2ff8074ca2e66a1ba9f205adafc0"
+      "read_sha256": "e3efa13d430fb111e4d38a44fe96608fbdd71eaaf479508dbd9e6f324340300c"
     },
     {
       "path": "docs/evidence/2026-10-24-cron-inspection-client-parity.md",

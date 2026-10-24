@@ -61,3 +61,7 @@ The same review found `cron.executor.self_test` was the only service operation a
 ### Web presentation duplicate cleanup
 
 A second source pass found three duplicate keys in the Web operation-label object for managed SSH Wake Lock status, preview, and apply. JavaScript silently kept the later labels. The duplicates were removed and a regression now requires unique keys in the operation-label map. The focused regression and inline JavaScript syntax check both passed after the cleanup.
+
+### Shared presentation duplicate cleanup
+
+A literal-dictionary scan found a second `ssh.inspect` key in the Python operation-label map. The duplicate label was removed and consolidated to `SSH diagnostics`. A regression now verifies unique keys in the Python operation-label map; the focused Python/Web label and JavaScript syntax checks passed.
