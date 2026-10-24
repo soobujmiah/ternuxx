@@ -2,7 +2,7 @@
 
 # Current Ternuxx state
 
-**Reviewed:** 2026-10-24 15:58 UTC. Ternuxx uses Native Termux as its host and control plane, with Debian PRoot as an optional isolated workload provider. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
+**Reviewed:** 2026-10-24 16:19 UTC. Ternuxx uses Native Termux as its host and control plane, with Debian PRoot as an optional isolated workload provider. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
 ## Live runtime
 
@@ -17,7 +17,7 @@ P11 Debian PRoot source restoration and integration is complete. P12 Native CPU/
 
 Build and test results, source SHAs, and synchronization receipts are maintained in the generated [.repo status](.repo/STATUS.md). The latest local documentation checks passed the phase and feature-matrix tests, document/link/hash audit, strict README bridge validation, and `repo_knowledge verify`.
 
-A read-only Native thermal and memory recheck at 15:58 UTC measured CPU 50.1°C, GPU 45.5°C, HTP-related 46.7°C, battery 42.31°C, `socd=87°C`, and `MemAvailable=4,143,620 KiB`. The SoC exceeds the qualification runner’s 70°C test guard, so no inference was started. This is a dated test-readiness observation, not an OEM thermal limit; details are in the [P12 thermal recheck](docs/evidence/2026-10-24-p12-thermal-recheck-1558-utc.md).
+A read-only Native thermal and memory recheck at 16:19 UTC measured CPU 50.5°C, GPU 46.3°C, HTP-related 47.1°C, battery 43.02°C, `socd=83°C`, and `MemAvailable=3,855,912 KiB`. The SoC exceeds the qualification runner’s 70°C test guard, so no inference was started. This is a dated test-readiness observation, not an OEM thermal limit; details are in the [P12 thermal recheck](docs/evidence/2026-10-24-p12-thermal-recheck-1619-utc.md).
 
 ## Release boundary
 

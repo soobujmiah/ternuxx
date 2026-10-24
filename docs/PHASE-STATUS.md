@@ -135,7 +135,7 @@ Evidence:
 
 **Status:** in_progress
 
-Corrected CPU, Vulkan, and HTP qualification remains unverified; the 15:58 UTC read-only preflight measured socd=87°C against the 70°C test guard, so no inference was started.
+Corrected CPU, Vulkan, and HTP qualification remains unverified; the 16:19 UTC read-only preflight measured socd=83°C against the 70°C test guard, so no inference was started.
 
 **Next action:** Build a source-file license inventory tied to the pinned Mesa source and configured outputs; rerun corrected CPU/Vulkan/HTP arithmetic cases only when every live guard passes, then qualify sustained HTP and clean-install replay.
 
@@ -160,3 +160,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-native-mesa-package-inventory.md](evidence/2026-10-24-p12-native-mesa-package-inventory.md)
 - [docs/evidence/2026-10-24-p12-mesa-build-scope.md](evidence/2026-10-24-p12-mesa-build-scope.md)
 - [docs/evidence/2026-10-24-p12-thermal-recheck-1558-utc.md](evidence/2026-10-24-p12-thermal-recheck-1558-utc.md)
+- [docs/evidence/2026-10-24-p12-thermal-recheck-1619-utc.md](evidence/2026-10-24-p12-thermal-recheck-1619-utc.md)
