@@ -510,7 +510,8 @@ class ProotShortcutTests(unittest.TestCase):
         status.parent.mkdir(parents=True)
         status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
                           "Package: xfce4-terminal\nStatus: install ok installed\n\n"
-                          "Package: lxqt\nStatus: install ok installed\n")
+                          "Package: lxqt\nStatus: install ok installed\n\n"
+                          "Package: openbox\nStatus: install ok installed\n")
         (rootfs / "etc").mkdir(parents=True, exist_ok=True)
         (rootfs / "etc/os-release").write_text("ID=debian\nVERSION_CODENAME=trixie\n")
         kwargs = {"home": str(self.home), "prefix": str(prefix), "repo_root": str(self.repo)}

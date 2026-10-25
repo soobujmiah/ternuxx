@@ -6,6 +6,7 @@ if [[ "$#" -ne 0 ]]; then
 fi
 
 SCRIPT_LIB_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+REPO_ROOT="$(cd -- "$SCRIPT_LIB_DIR/.." && pwd -P)"
 PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
 CPUINFO_PATH="$HOME/.local/share/ternuxx/proot-display0/cpuinfo"
 python3 "$SCRIPT_LIB_DIR/proot_cpuinfo.py" "$CPUINFO_PATH" || {
@@ -31,6 +32,7 @@ args=(login debian --shared-tmp --user "$guest_user"
   --env DISPLAY=:0
   --env TERNUXX_SESSION_ID=proot-display0
   --env TERNUXX_DESKTOP_ID="$desktop_id"
+  --env TERNUXX_REPO_ROOT="$REPO_ROOT"
   --env TERNUXX_DESKTOP_SESSION="$desktop_id"
   --env GALLIUM_DRIVER=zink
   --env MESA_LOADER_DRIVER_OVERRIDE=zink
@@ -64,6 +66,11 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
     chmod 700 "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"
     export XDG_CONFIG_HOME="$state/config" XDG_CACHE_HOME="$state/cache"
     export XDG_DATA_HOME="$state/data" XDG_RUNTIME_DIR="$state/runtime"
+    if [ "$TERNUXX_DESKTOP_ID" = lxqt ]; then
+      [ -n "${TERNUXX_REPO_ROOT:-}" ] && [ -f "$TERNUXX_REPO_ROOT/lib/proot-lxqt-session.sh" ] || { echo "Ternuxx LXQt session defaults are unavailable." >&2; exit 1; }
+      . "$TERNUXX_REPO_ROOT/lib/proot-lxqt-session.sh"
+      nt_proot_lxqt_session_defaults "$XDG_CONFIG_HOME" || { echo "Could not prepare the isolated LXQt window-manager defaults." >&2; exit 1; }
+    fi
     if [ "$TERNUXX_DESKTOP_ID" = xfce ]; then
       xfwm="$XDG_CONFIG_HOME/xfce4/xfconf/xfce-perchannel-xml"
       mkdir -p "$xfwm"

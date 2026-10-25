@@ -151,3 +151,12 @@ All seven environments were tested on both routes. “Pass” means the selected
 | Cinnamon | Fail: `Cinnamon just crashed`; no shell/panel | Partial: Cinnamon/Muffin and Nemo desktop surface, no panel |
 
 Nested sessions continued to report Zink/Vulkan Adreno 825 Turnip GLES context selection. This is not proof of rendered application frames or Android presentation. Standalone graphics probes were not repeated in this added three-desktop run. `gui_visible` remains unknown. Final state was verified: Native XFCE running on `:1`, standalone `:0` stopped, nested `:2` socket absent, managed guest-session list empty, and Debian `dpkg --audit` clean. No guest reset or password entry occurred.
+
+
+## 2026-10-25 19:12 UTC: LXQt route fix and retest
+
+The LXQt profile had installed `lxqt` without recommended packages, so no lightweight window manager was guaranteed. Its generated session preference selected `kwin` because Plasma was also installed. In both routes LXQt then showed only its Welcome dialog and no WM, panel, or desktop. This is the evidence-backed root-cause inference: after changing only the missing preference to `openbox`, both routes produced a running `lxqt-session`, Openbox, `lxqt-panel`, and PCManFM-Qt desktop; the X root tree showed a 752x32 panel and the desktop surface. The warning that LXQt's LockScreenManager could not start remained non-fatal in the passing runs.
+
+The implementation now includes Openbox in the LXQt package selection and seeds `window_manager=openbox` only when the user's LXQt session preference is absent. Existing preferences are preserved, and the helper refuses symlinked config paths. Both nested Xephyr `:2` (while Native XFCE remained on `:1`) and standalone `:0` passed clean-config retests. The standalone test temporarily stopped only the Ternuxx-owned Native desktop and restored it after stopping the PRoot GUI. Final state: Native XFCE running on `:1`, `:0` stopped, `:2` absent, managed sessions empty, and Debian `dpkg --audit` clean. No password was used; `gui_visible` remains unknown.
+
+Validation: all 1,176 repository tests passed, CLI help contract passed, and focused LXQt/desktop/routing/shortcut tests passed. Debian LXQt session settings expose the window-manager choice in the [matching Debian source README](https://sources.debian.org/src/lxqt-session/2.1.1-1/README.md); the live route tests above establish the behavior on this device.

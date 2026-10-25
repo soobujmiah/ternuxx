@@ -9,7 +9,7 @@ from pathlib import Path
 # commands are never accepted from caller input or passed through a shell.
 DEBIAN_DESKTOPS = {
     "xfce": {"name": "XFCE", "packages": ("xfce4", "xfce4-terminal"), "session": "startxfce4"},
-    "lxqt": {"name": "LXQt", "packages": ("lxqt",), "session": "startlxqt"},
+    "lxqt": {"name": "LXQt", "packages": ("lxqt", "openbox"), "session": "startlxqt"},
     "lxde": {"name": "LXDE", "packages": ("lxde-core",), "session": "startlxde"},
     "mate": {"name": "MATE", "packages": ("mate-desktop-environment-core",), "session": "mate-session"},
     "gnome": {"name": "GNOME", "packages": ("gnome-core",), "session": "gnome-session"},

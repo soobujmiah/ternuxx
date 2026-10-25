@@ -189,6 +189,11 @@ state="$HOME/.local/share/ternuxx/proot-nested-gui/$TERNUXX_DESKTOP_ID"
 mkdir -p "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"
 chmod 700 "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"
 export XDG_CONFIG_HOME="$state/config" XDG_CACHE_HOME="$state/cache" XDG_DATA_HOME="$state/data" XDG_RUNTIME_DIR="$state/runtime"
+if [ "$TERNUXX_DESKTOP_ID" = lxqt ]; then
+  [ -n "${TERNUXX_REPO_ROOT:-}" ] && [ -f "$TERNUXX_REPO_ROOT/lib/proot-lxqt-session.sh" ] || { echo "Ternuxx LXQt session defaults are unavailable." >&2; exit 1; }
+  . "$TERNUXX_REPO_ROOT/lib/proot-lxqt-session.sh"
+  nt_proot_lxqt_session_defaults "$XDG_CONFIG_HOME" || { echo "Could not prepare the isolated LXQt window-manager defaults." >&2; exit 1; }
+fi
 if [ "$TERNUXX_DESKTOP_ID" = xfce ]; then
   mkdir -p "$XDG_CONFIG_HOME/xfce4/xfconf/xfce-perchannel-xml"
   printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<channel name="xfwm4" version="1.0"><property name="general" type="empty"><property name="use_compositing" type="bool" value="false"/></property></channel>' > "$XDG_CONFIG_HOME/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"

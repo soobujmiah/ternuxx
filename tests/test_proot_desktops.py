@@ -15,7 +15,7 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["mate", "lxqt"]),
                          ("lxqt", "mate"))
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxde", "lxqt"]),
-                         ["lxqt", "lxde-core"])
+                         ["lxqt", "openbox", "lxde-core"])
         self.assertEqual(proot_desktops.session_command("debian-trixie", "mate"), "mate-session")
         self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["cinnamon", "plasma", "gnome"]),
                          ("gnome", "plasma", "cinnamon"))
@@ -47,13 +47,13 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         manifest = json.loads((ROOT / "config/proot/debian-trixie.json").read_text())
         base = manifest["packages"]["base"]
         self.assertTrue({"xfce4", "xfce4-terminal"}.issubset(base))
-        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxqt"]), ["lxqt"])
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxqt"]), ["lxqt", "openbox"])
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["gnome"]), ["gnome-core"])
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["plasma"]), ["kde-plasma-desktop", "kwin-x11"])
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["cinnamon"]), ["cinnamon-desktop-environment"])
         setup = __import__("proot_fresh_setup")
         groups = ["base"]
-        self.assertEqual(set(setup._workstation_packages(manifest, groups, ("lxqt",))), {"lxqt"}.union(
+        self.assertEqual(set(setup._workstation_packages(manifest, groups, ("lxqt",))), {"lxqt", "openbox"}.union(
             set(base) - {"xfce4", "xfce4-terminal"}))
         self.assertEqual(set(setup._workstation_packages(manifest, groups, ("xfce",))), set(base))
 
@@ -76,6 +76,7 @@ class ProotDesktopCatalogTests(unittest.TestCase):
             status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
                               "Package: xfce4-terminal\nStatus: install ok installed\n\n"
                               "Package: lxqt\nStatus: install ok installed\n\n"
+                              "Package: openbox\nStatus: install ok installed\n\n"
                               "Package: gnome-core\nStatus: install ok installed\n\n"
                               "Package: kde-plasma-desktop\nStatus: install ok installed\n\n"
                               "Package: kwin-x11\nStatus: install ok installed\n\n"
