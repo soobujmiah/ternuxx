@@ -545,11 +545,12 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 return _error(request_id, "unsupported_provider", "graphics verification currently supports Native Termux only")
             data = graphics_manager.status(provider, home=home, state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"), process_env=process_env, prefix=process_env["PREFIX"])
         elif operation == "graphics.provider.select":
-            if args.get("provider") != "native" or args.get("backend") not in {"kgsl-freedreno", "system"} or args.get("confirmed") is not True:
+            if args.get("provider") != "native" or args.get("backend") not in {"kgsl-freedreno", "termux-zink", "system"} or args.get("confirmed") is not True:
                 return _error(request_id, "confirmation_required", "Native graphics selection requires a supported backend and explicit confirmation")
             repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             data = graphics_manager.configure_native(args["backend"], home=home,
-                state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"), repo_root=repo_root)
+                state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"), repo_root=repo_root,
+                prefix=process_env["PREFIX"])
         elif operation == "graphics.provider.verify":
             provider, api = args.get("provider"), args.get("api")
             display = args.get("display", ":1")
@@ -1224,6 +1225,8 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
     except ValueError as exc:
         if operation == "management.catalog":
             return _error(request_id, "invalid_arguments", str(exc))
+        if operation == "graphics.provider.select":
+            return _error(request_id, "graphics_backend_unavailable", str(exc)[:512])
         return _error(request_id, "operation_failed", f"operation could not complete ({exc.__class__.__name__})")
     except (KeyError, TypeError, OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
         return _error(request_id, "operation_failed", f"operation could not complete ({exc.__class__.__name__})")
@@ -1255,7 +1258,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--display", choices=tuple(f":{number}" for number in range(11)))
     parser.add_argument("--provider", choices=("native",))
     parser.add_argument("--graphics-api", choices=("opengl", "gles", "vulkan"))
-    parser.add_argument("--graphics-backend", choices=("kgsl-freedreno", "system"), help="KGSL is experimental and must already be extracted; selection affects future desktop starts only")
+    parser.add_argument("--graphics-backend", choices=("kgsl-freedreno", "termux-zink", "system"), help="termux-zink requires the graphical profile Freedreno ICD; KGSL is experimental and must already be extracted")
     parser.add_argument("--backend", choices=("zink", "virgl"),
                         help="explicit Debian PRoot graphics backend for read-only guest verification")
     parser.add_argument("--policy-stdin", action="store_true",
@@ -1475,7 +1478,7 @@ def main(argv: list[str] | None = None) -> int:
         payload = {"provider": args.provider}
     elif args.operation == "graphics.provider.select":
         if args.provider != "native" or not args.graphics_backend or not args.yes:
-            response = _error(request_id, "confirmation_required", "select requires --provider native, --graphics-backend, and --yes; kgsl-freedreno is experimental and must already be extracted")
+            response = _error(request_id, "confirmation_required", "select requires --provider native, --graphics-backend, and --yes; termux-zink requires the Freedreno ICD package; kgsl-freedreno is experimental and must already be extracted")
             print(json.dumps(response, sort_keys=True) if args.json else "Confirm native graphics backend selection with --yes.", file=None if args.json else sys.stderr)
             return 1
         payload = {"provider": args.provider, "backend": args.graphics_backend, "confirmed": True}

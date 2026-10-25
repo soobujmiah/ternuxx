@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 556,
+  "document_count": 557,
   "read_count": 164,
   "reading_complete": false,
   "broken_local_links": [],
@@ -147,7 +147,7 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "f62201e2cc94e6ad997b5480b8e278a935601f98fc96e4faed4417795f975fe7",
+      "sha256": "93283b75e96369a6dfd9d7043f8eda873920ac051549875acdf6baf39fd01983",
       "lines": 120,
       "read_status": "pending",
       "read_sha256": null
@@ -539,8 +539,8 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "04b38d8318089caa392fff2587a7377bd3434e070e67f4ae2e83fa71c31ac376",
-      "lines": 70,
+      "sha256": "c874f60e7523f976d1716e5cb5c773db6d6fe3014c81e1432de0f72127495868",
+      "lines": 76,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3439,6 +3439,14 @@
       "lines": 13,
       "read_status": "read",
       "read_sha256": "b988c29853fe4b2483e5c21a746c760a03a9a33b7c96edd5ec644560afa30f0b"
+    },
+    {
+      "path": "docs/evidence/2026-10-25-native-freedreno-runtime-recheck.md",
+      "kind": "narrative",
+      "sha256": "9e7e7f50ab76d19306c7f2acb6ea6248665fb6772e83b1b4018bd3c0cd99f0c3",
+      "lines": 11,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-25-native-installer-profiles.md",

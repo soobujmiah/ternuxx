@@ -53,6 +53,55 @@ def _candidate_paths(state_dir: str) -> tuple[str, str]:
     return str(prefix), str(root / "freedreno-isolated.json")
 
 
+def _termux_freedreno_paths(prefix: str) -> tuple[str, str]:
+    return (os.path.join(prefix, "lib/libvulkan_freedreno.so"),
+            os.path.join(prefix, "share/vulkan/icd.d/freedreno_icd.aarch64.json"))
+
+
+def _termux_freedreno_ready(prefix: str) -> tuple[bool, str | None]:
+    library, icd = _termux_freedreno_paths(prefix)
+    required = [os.path.join(prefix, "lib/dri/libdril_dri.so"), library, icd]
+    try:
+        if not all(stat.S_ISREG(os.lstat(path).st_mode) and not os.path.islink(path) for path in required):
+            return False, "Termux Mesa or Freedreno ICD files are missing or unsafe"
+        gallium = [path for path in Path(prefix, "lib").glob("libgallium-*.so")
+                   if path.is_file() and not path.is_symlink()]
+        if len(gallium) != 1:
+            return False, "Termux Mesa Gallium runtime is missing or ambiguous"
+        manifest = json.loads(Path(icd).read_text(encoding="utf-8"))
+        library_path = manifest.get("ICD", {}).get("library_path")
+        if not isinstance(library_path, str):
+            return False, "Termux Freedreno ICD descriptor is malformed"
+        if os.path.isabs(library_path):
+            if os.path.realpath(library_path) != os.path.realpath(library):
+                return False, "Termux Freedreno ICD points outside its package library"
+        elif library_path != "libvulkan_freedreno.so":
+            return False, "Termux Freedreno ICD names an unexpected library"
+    except (OSError, ValueError, AttributeError):
+        return False, "Termux Mesa or Freedreno ICD files are unavailable"
+    return True, None
+
+
+def _termux_freedreno_device(prefix: str) -> tuple[bool, str | None, str | None]:
+    """Require the installed Termux ICD to enumerate a supported Vulkan device."""
+    env = dict(os.environ)
+    env["PREFIX"] = prefix
+    env["PATH"] = os.path.join(prefix, "bin") + os.pathsep + env.get("PATH", "")
+    env["LD_LIBRARY_PATH"] = os.path.join(prefix, "lib")
+    env["VK_ICD_FILENAMES"] = _termux_freedreno_paths(prefix)[1]
+    tool = shutil.which("vulkaninfo", path=env["PATH"])
+    if not tool:
+        return False, None, "vulkaninfo is not installed; Freedreno device support is unverified"
+    code, output = _run([tool, "--summary"], env, 15)
+    device = next((match.group(1).strip() for line in output.splitlines()
+                   if (match := re.search(r"deviceName\s*=\s*(.*)", line))), None)
+    if code == 0 and device:
+        return True, device, None
+    detail = next((line.strip()[:384] for line in output.splitlines()
+                   if re.search(r"unsupported|incompatible.driver|failed to detect any valid GPUs", line, re.I)), None)
+    return False, device, detail or "Freedreno ICD did not enumerate a supported Vulkan device"
+
+
 def _native_env(*, home: str, state_dir: str, process_env: dict[str, str]) -> dict[str, str]:
     env = dict(process_env)
     termux_prefix = process_env.get("PREFIX")
@@ -116,6 +165,22 @@ def _native_env(*, home: str, state_dir: str, process_env: dict[str, str]) -> di
                 pass
     except (OSError, IndexError):
         pass
+    backend_path = Path(state_dir) / "native-graphics-backend"
+    candidate_path = Path(state_dir) / "native-graphics-prefix"
+    try:
+        metadata = backend_path.lstat()
+        selected = backend_path.read_text(encoding="ascii")
+        if (not candidate_path.exists() and stat.S_ISREG(metadata.st_mode) and not stat.S_ISLNK(metadata.st_mode)
+                and metadata.st_uid == os.getuid() and stat.S_IMODE(metadata.st_mode) == 0o600
+                and selected == "termux-zink\n" and termux_prefix and os.path.isabs(termux_prefix)):
+            ready, _reason = _termux_freedreno_ready(termux_prefix)
+            if ready:
+                _library, icd = _termux_freedreno_paths(termux_prefix)
+                env.update({"MESA_LOADER_DRIVER_OVERRIDE": "zink", "GALLIUM_DRIVER": "zink",
+                            "TU_DEBUG": "noconform", "MESA_VK_WSI_DEBUG": "sw",
+                            "VK_ICD_FILENAMES": icd})
+    except (OSError, UnicodeError):
+        pass
     if env.get("DISPLAY"):
         env.setdefault("XDG_RUNTIME_DIR", os.path.join(process_env.get("PREFIX", ""), "tmp"))
     return env
@@ -178,7 +243,29 @@ def status(provider: str, *, home: str, state_dir: str, process_env: dict[str, s
                   "device": device, "proof": "device-enumeration-only; no draw verified"}
         gles = _gles_context(env) if display else {"status": "unavailable", "context_verified": False,
                                                    "render_verified": False, "reason": "no active display"}
+        selected_backend = "system"
+        backend_reason = None
+        candidate_path = Path(state_dir) / "native-graphics-prefix"
+        if candidate_path.exists() or candidate_path.is_symlink():
+            selected_backend = "kgsl-freedreno"
+        else:
+            selected_path = Path(state_dir) / "native-graphics-backend"
+            try:
+                selected_meta = selected_path.lstat()
+                selected = selected_path.read_text(encoding="ascii")
+                if (stat.S_ISREG(selected_meta.st_mode) and not stat.S_ISLNK(selected_meta.st_mode)
+                        and selected_meta.st_uid == os.getuid() and stat.S_IMODE(selected_meta.st_mode) == 0o600
+                        and selected == "termux-zink\n"):
+                    ready, backend_reason = _termux_freedreno_ready(prefix)
+                    selected_backend = "termux-zink" if ready else "termux-zink-unavailable"
+                elif selected_path.exists() or selected_path.is_symlink():
+                    selected_backend = "invalid-selection"
+            except FileNotFoundError:
+                pass
+            except (OSError, UnicodeError):
+                selected_backend = "invalid-selection"
         return {"provider": provider, "display": display, "opengl": gl, "gles": gles, "vulkan": vk,
+                "selected_backend": selected_backend, "backend_reason": backend_reason,
                 "saved_candidate": os.path.isfile(os.path.join(state_dir, "native-graphics-prefix")),
                 "provider_boundary": "native Termux/Bionic"}
     if provider != "native":
@@ -335,32 +422,91 @@ def verify(provider: str, api: str, *, home: str, state_dir: str, process_env: d
     raise ValueError("api must be opengl, gles, or vulkan")
 
 
-def configure_native(backend: str, *, home: str, state_dir: str, repo_root: str) -> dict[str, object]:
-    """Select only the known extracted candidate or native system stack."""
+def configure_native(backend: str, *, home: str, state_dir: str, repo_root: str,
+                    prefix: str | None = None) -> dict[str, object]:
+    """Select a validated Native stack for future desktop starts."""
     import stat
     import tempfile
     import desktop_session_state
     config = Path(state_dir) / "native-graphics-prefix"
+    backend_file = Path(state_dir) / "native-graphics-backend"
     candidate, manifest_path = _candidate_paths(state_dir)
     candidate = os.path.realpath(candidate)
-    if backend not in {"kgsl-freedreno", "system"}:
-        raise ValueError("backend must be kgsl-freedreno or system")
+    if backend not in {"kgsl-freedreno", "termux-zink", "system"}:
+        raise ValueError("backend must be kgsl-freedreno, termux-zink, or system")
     desktop_session_state.ensure_state_dir(Path(home), Path(state_dir))
-    if backend == "system":
+
+    def remove_candidate() -> bool:
         try:
-            meta = config.lstat()
+            metadata = config.lstat()
         except FileNotFoundError:
-            return {"provider": "native", "backend": backend, "changed": False, "applies": "future desktop starts"}
-        if not stat.S_ISREG(meta.st_mode) or meta.st_uid != os.getuid():
-            raise ValueError("saved graphics selection is not a regular owned file; it was preserved")
+            return False
+        if (not stat.S_ISREG(metadata.st_mode) or stat.S_ISLNK(metadata.st_mode)
+                or metadata.st_uid != os.getuid() or stat.S_IMODE(metadata.st_mode) != 0o600):
+            raise ValueError("saved graphics candidate selection is unsafe; it was preserved")
         try:
             saved = config.read_text(encoding="utf-8").splitlines()[0]
         except (OSError, IndexError):
-            raise ValueError("saved graphics selection is malformed; it was preserved")
+            raise ValueError("saved graphics candidate selection is malformed; it was preserved")
         if saved != candidate:
             raise ValueError("saved graphics selection is not the qualified candidate; it was preserved")
         config.unlink()
-        return {"provider": "native", "backend": backend, "changed": True, "applies": "future desktop starts"}
+        return True
+
+    def read_backend_selection() -> bool:
+        try:
+            metadata = backend_file.lstat()
+        except FileNotFoundError:
+            return False
+        if (not stat.S_ISREG(metadata.st_mode) or stat.S_ISLNK(metadata.st_mode)
+                or metadata.st_uid != os.getuid() or stat.S_IMODE(metadata.st_mode) != 0o600
+                or backend_file.read_text(encoding="ascii") != "termux-zink\n"):
+            raise ValueError("saved Native graphics selection is unsafe or unknown; it was preserved")
+        return True
+
+    def write_backend_selection() -> bool:
+        current = read_backend_selection()
+        if current:
+            return False
+        fd, temp_name = tempfile.mkstemp(prefix=".native-graphics-backend-", dir=state_dir)
+        try:
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, "w", encoding="ascii") as stream:
+                stream.write("termux-zink\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temp_name, backend_file)
+        finally:
+            try:
+                os.unlink(temp_name)
+            except FileNotFoundError:
+                pass
+        return True
+
+    if backend == "system":
+        changed = remove_candidate()
+        if read_backend_selection():
+            backend_file.unlink()
+            changed = True
+        return {"provider": "native", "backend": backend, "changed": changed,
+                "applies": "future desktop starts"}
+
+    if backend == "termux-zink":
+        prefix = prefix or os.environ.get("PREFIX", "")
+        ready, reason = _termux_freedreno_ready(prefix) if prefix and os.path.isabs(prefix) else (
+            False, "Native Termux PREFIX is unavailable")
+        if not ready:
+            raise ValueError(reason or "Termux Freedreno ICD is unavailable")
+        supported, device, probe_reason = _termux_freedreno_device(prefix)
+        if not supported:
+            raise ValueError("Termux Freedreno did not enumerate a supported Vulkan GPU: "
+                             + (probe_reason or "device unavailable"))
+        changed = remove_candidate()
+        changed = write_backend_selection() or changed
+        return {"provider": "native", "backend": backend, "changed": changed,
+                "applies": "future desktop starts", "icd": _termux_freedreno_paths(prefix)[1],
+                "device": device}
+
     required = ["lib/dri/libdril_dri.so", "lib/libgallium-26.3.0-devel.so",
                 "share/glvnd/egl_vendor.d/50_mesa.json", "lib/libvulkan_freedreno.so"]
     expected_hashes = _candidate_hashes(repo_root)
@@ -381,23 +527,32 @@ def configure_native(backend: str, *, home: str, state_dir: str, repo_root: str)
         raise ValueError("qualified Turnip ICD manifest is unavailable") from exc
     if manifest.get("ICD", {}).get("library_path") != os.path.join(candidate, "lib/libvulkan_freedreno.so"):
         raise ValueError("Turnip ICD manifest does not match the qualified candidate")
+    changed = read_backend_selection()
+    if changed:
+        backend_file.unlink()
     try:
         current_meta = config.lstat()
     except FileNotFoundError:
         current_meta = None
-    if current_meta is not None and (not stat.S_ISREG(current_meta.st_mode) or current_meta.st_uid != os.getuid()):
+    if current_meta is not None and (not stat.S_ISREG(current_meta.st_mode) or stat.S_ISLNK(current_meta.st_mode)
+                                     or current_meta.st_uid != os.getuid()
+                                     or stat.S_IMODE(current_meta.st_mode) != 0o600):
         raise ValueError("saved graphics selection is unsafe; it was preserved")
-    fd, temp_name = tempfile.mkstemp(prefix=".native-graphics-", dir=state_dir)
-    try:
-        os.fchmod(fd, 0o600)
-        with os.fdopen(fd, "w", encoding="utf-8") as stream:
-            stream.write(candidate + "\n")
-            stream.flush()
-            os.fsync(stream.fileno())
-        os.replace(temp_name, config)
-    finally:
+    already_selected = current_meta is not None and config.read_text(encoding="utf-8") == candidate + "\n"
+    if not already_selected:
+        fd, temp_name = tempfile.mkstemp(prefix=".native-graphics-", dir=state_dir)
         try:
-            os.unlink(temp_name)
-        except FileNotFoundError:
-            pass
-    return {"provider": "native", "backend": backend, "changed": True, "applies": "future desktop starts"}
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                stream.write(candidate + "\n")
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temp_name, config)
+        finally:
+            try:
+                os.unlink(temp_name)
+            except FileNotFoundError:
+                pass
+        changed = True
+    return {"provider": "native", "backend": backend, "changed": changed,
+            "applies": "future desktop starts"}

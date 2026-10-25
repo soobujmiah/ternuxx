@@ -147,6 +147,31 @@ _nt_native_graphics_prefix() {
   printf '%s\n' "$prefix"
 }
 
+_nt_native_zink_icd() {
+  local selection="$TERNUXX_STATE_DIR/native-graphics-backend"
+  local icd="$PREFIX/share/vulkan/icd.d/freedreno_icd.aarch64.json"
+  local library="$PREFIX/lib/libvulkan_freedreno.so"
+  local -a gallium=("$PREFIX"/lib/libgallium-*.so)
+  [ -f "$selection" ] && [ ! -L "$selection" ] || return 1
+  [ "$(cat "$selection")" = termux-zink ] || return 1
+  [ -f "$PREFIX/lib/dri/libdril_dri.so" ] && [ ! -L "$PREFIX/lib/dri/libdril_dri.so" ] || return 1
+  [ -f "$library" ] && [ ! -L "$library" ] || return 1
+  [ -f "$icd" ] && [ ! -L "$icd" ] || return 1
+  [ "${#gallium[@]}" -eq 1 ] && [ -f "${gallium[0]}" ] && [ ! -L "${gallium[0]}" ] || return 1
+  python3 - "$icd" "$library" <<'PYICD'
+import json, os, stat, sys
+icd, library = sys.argv[1:]
+try:
+    if stat.S_ISLNK(os.lstat(icd).st_mode) or stat.S_ISLNK(os.lstat(library).st_mode): raise ValueError
+    value=json.load(open(icd, encoding="utf-8"))["ICD"]["library_path"]
+    if not isinstance(value, str): raise ValueError
+    valid=os.path.realpath(value)==os.path.realpath(library) if os.path.isabs(value) else value=="libvulkan_freedreno.so"
+    raise SystemExit(0 if valid else 1)
+except (OSError, ValueError, KeyError, TypeError):
+    raise SystemExit(1)
+PYICD
+}
+
 nt_cmd_graphics() {
   local target="${1:-}" action="${2:-}" prefix="" expected="$TERNUXX_STATE_DIR/graphics/providers/native-mesa-0219ff84/extracted/data/data/com.termux/files/usr" arg
   [ "$target" = native ] || { nt_fail "Use 'tx mng graphics status|verify|select' for shared graphics management."; return 2; }
@@ -270,6 +295,16 @@ nt_cmd_start() {
 
   _nt_use audio && nt_audio_ensure || true
 
+  if [ -e "$TERNUXX_STATE_DIR/native-graphics-backend" ] || [ -L "$TERNUXX_STATE_DIR/native-graphics-backend" ]; then
+    if [ -e "$TERNUXX_STATE_DIR/native-graphics-prefix" ] || [ -L "$TERNUXX_STATE_DIR/native-graphics-prefix" ] \
+      || ! _nt_native_zink_icd; then
+      nt_fail "Saved Native Zink selection is missing, conflicting, or unsafe; no desktop process was started."; return 1
+    fi
+    local zink_icd="$PREFIX/share/vulkan/icd.d/freedreno_icd.aarch64.json"
+    launch_env+=("MESA_LOADER_DRIVER_OVERRIDE=zink" "GALLIUM_DRIVER=zink" "TU_DEBUG=noconform" \
+      "MESA_VK_WSI_DEBUG=sw" "VK_ICD_FILENAMES=$zink_icd")
+    nt_info "Applying the selected Termux Mesa Zink backend with the Freedreno ICD to this desktop session."
+  fi
   if [ -e "$TERNUXX_STATE_DIR/native-graphics-prefix" ] || [ -L "$TERNUXX_STATE_DIR/native-graphics-prefix" ]; then
     mesa_prefix="$(_nt_native_graphics_prefix 2>/dev/null)" || {
       nt_fail "Saved Native graphics candidate is missing or unsafe; no desktop process was started."; return 1;

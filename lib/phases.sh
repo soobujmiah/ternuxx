@@ -16,7 +16,7 @@ _NT_DESKTOP_PACKAGES=(
 )
 _NT_AUDIO_PACKAGES=(pulseaudio)
 _NT_PROOT_PACKAGES=(proot-distro)
-_NT_GRAPHICS_PACKAGES=(glmark2 mesa-demos vulkan-tools xorg-server-xvfb xdotool)
+_NT_GRAPHICS_PACKAGES=(glmark2 mesa-demos mesa-vulkan-icd-freedreno vulkan-tools xorg-server-xvfb xdotool)
 _NT_DEVELOPER_PACKAGES=(clang cmake gdb make pkg-config)
 _NT_BASE_PACKAGES=(
   termux-x11-nightly
@@ -34,6 +34,7 @@ _NT_BASE_PACKAGES=(
   xfce4-terminal
   glmark2
   mesa-demos
+  mesa-vulkan-icd-freedreno
   vulkan-tools
   xorg-server-xvfb
   xdotool
@@ -293,7 +294,7 @@ _nt_make_install_plan() {
       continue
     fi
     case "$package" in
-      dbus|pulseaudio|python|proot-distro|vulkan-tools|clang|cmake|gdb|make|pkg-config) expected_repo="termux-main" ;;
+      dbus|pulseaudio|python|proot-distro|vulkan-tools|mesa-vulkan-icd-freedreno|clang|cmake|gdb|make|pkg-config) expected_repo="termux-main" ;;
       *) expected_repo="termux-x11" ;;
     esac
     candidate="$(_nt_package_candidate_from_official_repo "$package" "$expected_repo")" || {
@@ -355,7 +356,7 @@ _nt_make_update_plan() {
   for package in "${_NT_BASE_PACKAGES[@]}"; do
     _nt_package_installed "$package" || continue
     case "$package" in
-      dbus|pulseaudio|python|proot-distro|vulkan-tools) expected_repo="termux-main" ;;
+      dbus|pulseaudio|python|proot-distro|vulkan-tools|mesa-vulkan-icd-freedreno) expected_repo="termux-main" ;;
       *) expected_repo="termux-x11" ;;
     esac
     installed="$(dpkg-query -W -f='${Version}' "$package" 2>/dev/null)" || {

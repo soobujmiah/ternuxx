@@ -46,6 +46,72 @@ class GraphicsManagementTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp.cleanup()
 
+    def make_termux_freedreno(self, prefix: Path) -> None:
+        for relative in ("lib/dri/libdril_dri.so", "lib/libgallium-26.2.5.so", "lib/libvulkan_freedreno.so"):
+            target = prefix / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("termux package fixture", encoding="utf-8")
+        icd = prefix / "share/vulkan/icd.d/freedreno_icd.aarch64.json"
+        icd.parent.mkdir(parents=True, exist_ok=True)
+        icd.write_text(json.dumps({"ICD": {"library_path": "libvulkan_freedreno.so"}}), encoding="utf-8")
+
+    def test_termux_zink_requires_and_uses_the_installed_freedreno_icd(self) -> None:
+        prefix = self.home / "termux"
+        self.make_termux_freedreno(prefix)
+        with patch.dict(os.environ, {"PREFIX": str(prefix)}), patch.object(
+                graphics_manager, "_run", return_value=(0, "deviceName = Adreno 825\n")):
+            result = graphics_manager.configure_native("termux-zink", home=str(self.home),
+                state_dir=str(self.state), repo_root=str(self.repo), prefix=str(prefix))
+        self.assertEqual(result["backend"], "termux-zink")
+        selection = self.state / "native-graphics-backend"
+        self.assertEqual(selection.read_text(), "termux-zink\n")
+        self.assertEqual(selection.stat().st_mode & 0o777, 0o600)
+        env = graphics_manager.native_process_environment(home=str(self.home), state_dir=str(self.state),
+            process_env={"PATH": "/termux/bin", "PREFIX": str(prefix)})
+        self.assertEqual(env["MESA_LOADER_DRIVER_OVERRIDE"], "zink")
+        self.assertEqual(env["GALLIUM_DRIVER"], "zink")
+        self.assertEqual(env["VK_ICD_FILENAMES"],
+            str(prefix / "share/vulkan/icd.d/freedreno_icd.aarch64.json"))
+        status = graphics_manager.status("native", home=str(self.home), state_dir=str(self.state),
+            process_env={"PATH": "/termux/bin", "PREFIX": str(prefix)}, prefix=str(prefix))
+        self.assertEqual(status["selected_backend"], "termux-zink")
+
+    def test_termux_zink_refuses_missing_or_escaping_freedreno_icd(self) -> None:
+        prefix = self.home / "termux"
+        with self.assertRaisesRegex(ValueError, "unavailable"):
+            graphics_manager.configure_native("termux-zink", home=str(self.home),
+                state_dir=str(self.state), repo_root=str(self.repo), prefix=str(prefix))
+        self.make_termux_freedreno(prefix)
+        icd = prefix / "share/vulkan/icd.d/freedreno_icd.aarch64.json"
+        icd.write_text(json.dumps({"ICD": {"library_path": "/tmp/foreign.so"}}), encoding="utf-8")
+        with patch.object(graphics_manager, "_run", return_value=(0, "deviceName = Adreno 825\n")), self.assertRaisesRegex(ValueError, "points outside"):
+            graphics_manager.configure_native("termux-zink", home=str(self.home),
+                state_dir=str(self.state), repo_root=str(self.repo), prefix=str(prefix))
+        self.assertFalse((self.state / "native-graphics-backend").exists())
+
+    def test_termux_zink_selection_requires_a_supported_enumerated_gpu(self) -> None:
+        prefix = self.home / "termux"
+        self.make_termux_freedreno(prefix)
+        with patch.object(graphics_manager, "_run", return_value=(1, "TU: device is unsupported\n")):
+            with self.assertRaisesRegex(ValueError, "did not enumerate a supported Vulkan GPU"):
+                graphics_manager.configure_native("termux-zink", home=str(self.home),
+                    state_dir=str(self.state), repo_root=str(self.repo), prefix=str(prefix))
+        self.assertFalse((self.state / "native-graphics-backend").exists())
+
+    def test_system_selection_removes_termux_zink_preference(self) -> None:
+        prefix = self.home / "termux"
+        self.make_termux_freedreno(prefix)
+        with patch.object(graphics_manager, "_run", return_value=(0, "deviceName = Adreno 825\n")):
+            graphics_manager.configure_native("termux-zink", home=str(self.home), state_dir=str(self.state),
+                repo_root=str(self.repo), prefix=str(prefix))
+        result = graphics_manager.configure_native("system", home=str(self.home),
+            state_dir=str(self.state), repo_root=str(self.repo))
+        self.assertTrue(result["changed"])
+        self.assertFalse((self.state / "native-graphics-backend").exists())
+        env = graphics_manager.native_process_environment(home=str(self.home), state_dir=str(self.state),
+            process_env={"PATH": "/termux/bin", "PREFIX": str(prefix)})
+        self.assertNotIn("MESA_LOADER_DRIVER_OVERRIDE", env)
+
     def test_only_known_candidate_is_selected_and_file_is_private(self) -> None:
         result = graphics_manager.configure_native("kgsl-freedreno", home=str(self.home),
                                                    state_dir=str(self.state), repo_root=str(self.repo))

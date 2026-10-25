@@ -33,6 +33,12 @@ Native SSH diagnostics use schema v2: the public report keeps external authentic
 
 The repository now has a Debian desktop catalog for XFCE, LXQt, LXDE, and MATE, plus launch routing and shortcut entries across CLI/TUI/Web/GTK. The shared manifest stays byte-identical for receipt compatibility; package planning removes unselected desktop package names from all selected groups and retains the original manifest order for the default XFCE set. Only Debian/XFCE has been installed in the current guest; all other provider and desktop combinations remain unqualified. PRoot distro providers beyond Debian, distro-specific clean system profiles, arbitrary desktop multi-select on every provider, and end-to-end visible journeys in all clients remain implementation/acceptance work. A renderer context or enumeration result is not proof of XFCE/application acceleration.
 
+## 2026-10-25 graphics correction
+
+The official Freedreno ICD package was added to the Native graphical profile and installed from an exact saved preview. Live enumeration then exposed a device-compatibility boundary: Termux Mesa 26.2.5 reports `gpu_id=6830` as unsupported (`VK_ERROR_INCOMPATIBLE_DRIVER`). Current Native X11 still renders through `llvmpipe`; Vulkan has no enumerated device and no rendered workload is verified. Ternuxx now probes the installed ICD before recording `termux-zink`, returns a bounded `graphics_backend_unavailable` diagnostic, and leaves the default `system` selection active when the driver rejects the GPU. The desktop was not restarted. See [Native Freedreno runtime recheck](../evidence/2026-10-25-native-freedreno-runtime-recheck.md).
+
+This device result does not establish whether a different Mesa build or future package supports this GPU. Native GUI acceleration and PRoot graphics remain unqualified; no Vulkan/Zink/Adreno rendering success is claimed.
+
 ## Acceptance gates
 
 | Gate | State | Evidence / next action |
@@ -55,7 +61,7 @@ The repository now has a Debian desktop catalog for XFCE, LXQt, LXDE, and MATE, 
 
 ## Current implementation change
 
-The installer verbosity regression is fixed. Native XFCE on `:1` is live and owner-visible; Native Ternuxx PulseAudio is authenticated and ready; Debian Trixie is installed with XFCE only; and the managed SSH service is running on loopback. Current Native XFCE is `llvmpipe`; no current Adreno-accelerated XFCE/application workload is verified. Cross-distro providers, full GUI journeys across clients, performance/resource gates, and final release acceptance remain open.
+The installer verbosity regression is fixed. Native XFCE on `:1` is live and owner-visible; Native Ternuxx PulseAudio is authenticated and ready; Debian Trixie is installed with XFCE only; and the managed SSH service is running on loopback. Current Native XFCE is `llvmpipe`; the installed Termux Freedreno ICD rejects `gpu_id=6830` as unsupported, and the Ternuxx selector now refuses to save the Zink backend unless Vulkan device enumeration succeeds. No current Adreno-accelerated XFCE/application workload is verified. Cross-distro providers, full GUI journeys across clients, performance/resource gates, and final release acceptance remain open.
 
 ## Session commands
 

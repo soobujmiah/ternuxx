@@ -157,7 +157,7 @@ def main(argv: list[str]) -> int:
         result = call("inference.cpu.model.apply", {"action": argv[1], "plan_id": plan_id, "confirmed": True})
         print(management_presentation.format_report(result))
         return 0 if result.get("ok") else 1
-    if action == "graphics-select" and len(argv) == 2 and argv[1] in {"kgsl-freedreno", "system"}:
+    if action == "graphics-select" and len(argv) == 2 and argv[1] in {"kgsl-freedreno", "termux-zink", "system"}:
         result = call("graphics.provider.select", {"provider": "native", "backend": argv[1], "confirmed": True})
         print(management_presentation.format_report(result))
         return 0 if result.get("ok") else 1

@@ -1500,14 +1500,15 @@ static void confirm_action(GtkButton *button, gpointer data) {
 static void graphics_select_done(GObject *source, GAsyncResult *result, gpointer user_data) {
     GtkAlertDialog *dialog=GTK_ALERT_DIALOG(source); Center *c=user_data; GError *error=NULL;
     int choice=gtk_alert_dialog_choose_finish(dialog,result,&error);
-    if (!error && choice == 1) run_bridge(c,"graphics-select","kgsl-freedreno",NULL,NULL,NULL,NULL);
-    else if (!error && choice == 2) run_bridge(c,"graphics-select","system",NULL,NULL,NULL,NULL);
+    if (!error && choice == 1) run_bridge(c,"graphics-select","termux-zink",NULL,NULL,NULL,NULL);
+    else if (!error && choice == 2) run_bridge(c,"graphics-select","kgsl-freedreno",NULL,NULL,NULL,NULL);
+    else if (!error && choice == 3) run_bridge(c,"graphics-select","system",NULL,NULL,NULL,NULL);
     else if (error) { gtk_label_set_text(GTK_LABEL(c->notice),error->message); g_clear_error(&error); }
 }
 static void select_graphics(GtkButton *button, gpointer data) {
     (void)button; Center *c=data;
-    GtkAlertDialog *dialog=gtk_alert_dialog_new("Choose a graphics stack for future desktop starts. The KGSL option is experimental, device-specific, and must already be extracted. Ternuxx does not install it; the running desktop will not change.");
-    const char *choices[]={"Cancel","Experimental KGSL (already present)","Termux system stack",NULL}; gtk_alert_dialog_set_buttons(dialog,choices);
+    GtkAlertDialog *dialog=gtk_alert_dialog_new("Choose a graphics stack for future desktop starts. Termux Zink requires the Native graphical package profile and available Freedreno ICD; it uses stock Termux Mesa. The KGSL option is experimental, device-specific, and must already be extracted; Ternuxx does not install it. Choices affect future desktop starts only.");
+    const char *choices[]={"Cancel","Termux Mesa Zink + Freedreno ICD","Experimental KGSL (already present)","Termux system stack",NULL}; gtk_alert_dialog_set_buttons(dialog,choices);
     gtk_alert_dialog_set_default_button(dialog,0); gtk_alert_dialog_choose(dialog,GTK_WINDOW(c->window),NULL,graphics_select_done,c); g_object_unref(dialog);
 }
 static void graphics_api_done(GObject *source, GAsyncResult *result, gpointer user_data) {

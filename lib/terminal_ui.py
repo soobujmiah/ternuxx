@@ -1716,10 +1716,10 @@ def _run(screen: "curses._CursesWindow") -> int:
                 if action == "status":
                     report = _call("graphics.provider.status", {"provider": "native"})
                 elif action == "select":
-                    backend = _prompt(screen, "Choose: experimental KGSL (files already present) or system")
-                    if backend not in {"kgsl-freedreno", "system"}:
+                    backend = _prompt(screen, "Choose: termux-zink, experimental KGSL (files already present), or system")
+                    if backend not in {"termux-zink", "kgsl-freedreno", "system"}:
                         report = {"ok": False, "error": {"code": "invalid_backend"}}
-                    elif _prompt(screen, f"Save {backend} for future starts? KGSL is experimental, must already be extracted, and this does not change the running desktop. type yes").lower() == "yes":
+                    elif _prompt(screen, f"Save {backend} for future starts? termux-zink requires the graphical profile Freedreno ICD; KGSL is experimental and must already be extracted; this does not change the running desktop. type yes").lower() == "yes":
                         report = _call("graphics.provider.select", {"provider": "native", "backend": backend, "confirmed": True})
                     else:
                         report = {"ok": False, "error": {"code": "cancelled"}}
