@@ -13,7 +13,7 @@ Live Debian desktop routes: XFCE/LXQt/LXDE/MATE pass on standalone `:0` and nest
 
 ## P12 source-provenance checkpoint (2026-10-26)
 
-The pinned Mesa build-graph audit now maps all 75 generated outputs and 12 paths outside the Mesa source tree. Seven external Wayland protocol XML inputs are traced to the checksum-matched 1.49 source release; five Rust binding outputs, exact dependency package bytes, generated-file notices, and package attribution remain open. This audit does not make a redistribution or licensing conclusion. See [P12 generated/external source follow-up](../evidence/2026-10-26-p12-mesa-generated-source-follow-up.md).
+The pinned Mesa build-graph audit now maps all 75 generated outputs and 12 paths outside the Mesa source tree. Seven external Wayland protocol XML inputs are traced to the checksum-matched 1.49 source release. The pinned capture helper was extended for generated text/Rust fingerprints, Cargo source/archive metadata, Ninja external-input hashes/package-owner candidates, and Meson install planning; 11 focused fixture tests pass, but the updated workflow has not run yet. Exact dependency package bytes, shipped notices, and package attribution remain open. This audit does not make a redistribution or licensing conclusion. See [P12 generated/external source follow-up](../evidence/2026-10-26-p12-mesa-generated-source-follow-up.md).
 
 ## Baseline observed
 

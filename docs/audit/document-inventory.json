@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "5e9d92e27f4a6584f26b612948c82b692935dd6121a90085faeb71a8a054c354",
+      "sha256": "71ff0543ecb4af7e99ac795fec9a11a860651fb79de6c8f9308f0ce6dcecbcbd",
       "lines": 37,
       "read_status": "pending",
       "read_sha256": null
@@ -179,7 +179,7 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "46c8d4ce293f2d129d8bcb73d0e72b2945574550b39c5965a1eea60baa04d652",
+      "sha256": "edb26aa7b1f113c4c35b7caf93fa753746bd6c2967030da194b4362ddadf31dd",
       "lines": 170,
       "read_status": "pending",
       "read_sha256": null
@@ -539,7 +539,7 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "f7fae9ca42869152fa9ac611a84fcce804e6575997dc5abe2a8fbf70b01cd7c0",
+      "sha256": "8a4e8547a719bf52b48dc5b2b57030b97c88e8b6ad8326406371238afe855d77",
       "lines": 135,
       "read_status": "pending",
       "read_sha256": null
@@ -3563,8 +3563,8 @@
     {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
       "kind": "narrative",
-      "sha256": "6f655a27f4e5054963748de9dd4a8a5004570388cc9df6176c1621a050c9cd25",
-      "lines": 29,
+      "sha256": "4fdd8df6a30cb0f481b10ce8ca1aa61602306b8ea4782359257db35477ff660c",
+      "lines": 33,
       "read_status": "pending",
       "read_sha256": null
     },

@@ -45,11 +45,157 @@ _ternuxx_capture_meson() {
 	"${meson_command[@]}" introspect "$build_dir" --tests > "$evidence_dir/meson-tests.json"
 	ninja -C "$build_dir" -t commands > "$evidence_dir/ninja-commands.txt"
 	ninja -C "$build_dir" -t targets all > "$evidence_dir/ninja-targets.txt"
+	if ! "${meson_command[@]}" install --dry-run --no-rebuild -C "$build_dir" > "$evidence_dir/meson-install-plan.txt" 2>&1; then
+		echo "Meson install dry-run failed; refusing an incomplete package-provenance capture" >&2
+		return 1
+	fi
 	cp "$build_dir/build.ninja" "$evidence_dir/build.ninja"
 	if [[ -f "$build_dir/meson-logs/meson-log.txt" ]]; then
 		cp "$build_dir/meson-logs/meson-log.txt" "$evidence_dir/meson-log.txt"
 	fi
 	git -C "$TERMUX_PKG_SRCDIR" rev-parse HEAD > "$evidence_dir/source-commit.txt"
+	python3 - "$build_dir" "$TERMUX_PKG_SRCDIR" "$evidence_dir" <<'PY_CAPTURE'
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+
+build_dir, source_dir, evidence_dir = map(Path, sys.argv[1:])
+build_root = build_dir.resolve()
+source_root = source_dir.resolve()
+targets = json.loads((evidence_dir / "meson-targets.json").read_text(encoding="utf-8"))
+text_suffixes = {".c", ".cc", ".cpp", ".h", ".hpp", ".inc", ".py", ".rs", ".xml"}
+generated = set()
+for target in targets if isinstance(targets, list) else []:
+    if not isinstance(target, dict):
+        continue
+    candidates = target.get("filename", [])
+    if isinstance(candidates, str):
+        candidates = [candidates]
+    for source in target.get("target_sources", []):
+        if isinstance(source, dict):
+            generated_sources = source.get("generated_sources", [])
+            if isinstance(generated_sources, list):
+                candidates += generated_sources
+    for item in candidates:
+        if isinstance(item, str):
+            path = Path(item)
+            if not path.is_absolute():
+                path = build_root / path
+            try:
+                resolved = path.resolve(strict=True)
+                resolved.relative_to(build_root)
+            except (OSError, ValueError):
+                continue
+            if resolved.is_file() and resolved.suffix.lower() in text_suffixes:
+                generated.add(resolved)
+for path in build_root.rglob("*.rs"):
+    if not path.is_file() or not ("rusticl_" in path.name or path.name == "lib.rs"):
+        continue
+    try:
+        resolved = path.resolve(strict=True)
+        resolved.relative_to(build_root)
+    except (OSError, ValueError):
+        continue
+    generated.add(resolved)
+
+def file_record(path, root, kind):
+    data = path.read_bytes()
+    head = data[:65536].decode("utf-8", "replace")
+    identifiers = sorted(set(re.findall(r"SPDX-License-Identifier:\s*([^\s*]+)", head)))
+    copyrights = sorted(set(re.findall(r"Copyright[^\n]{0,240}", head, re.IGNORECASE)))[:16]
+    return {"path": path.relative_to(root).as_posix(), "kind": kind,
+            "size": len(data), "sha256": hashlib.sha256(data).hexdigest(),
+            "spdx_header_identifiers": identifiers,
+            "header_license_status": "IDENTIFIER_PRESENT" if identifiers else "NOASSERTION",
+            "copyright_header_lines": copyrights}
+
+generated_records = [file_record(path, build_root, "generated-build-output")
+                     for path in sorted(generated)]
+cargo_root = source_root / "src/gallium/frontends/rusticl"
+cargo_inputs = []
+if cargo_root.is_dir():
+    for path in sorted(cargo_root.rglob("*")):
+        if path.is_file() and path.name in {"Cargo.toml", "Cargo.lock", "build.rs"}:
+            cargo_inputs.append(file_record(path, source_root, "rust-source-or-manifest"))
+registry_archives = []
+cargo_home = Path(os.environ.get("CARGO_HOME", str(Path.home() / ".cargo"))).resolve()
+registry = cargo_home / "registry/cache"
+if registry.is_dir():
+    for path in sorted(registry.rglob("*.crate")):
+        if path.is_file() and not path.is_symlink():
+            registry_archives.append({"path": path.relative_to(cargo_home).as_posix(),
+                                      "size": path.stat().st_size,
+                                      "sha256": hashlib.sha256(path.read_bytes()).hexdigest()})
+rust_versions = {}
+for executable in ("cargo", "rustc"):
+    try:
+        rust_versions[executable] = subprocess.check_output([executable, "--version"], text=True).strip()
+    except (OSError, subprocess.CalledProcessError):
+        rust_versions[executable] = "unavailable"
+external_paths = set()
+for line in (build_root / "build.ninja").read_text(encoding="utf-8").splitlines():
+    if not line.startswith("build "):
+        continue
+    _, separator, edge = line[6:].partition(": ")
+    if not separator:
+        continue
+    _, separator, inputs = edge.partition(" ")
+    if not separator:
+        continue
+    mode = "explicit"
+    for section in re.split(r" (\|@|\|\||\|) ", inputs):
+        if section in {"|", "||", "|@"}:
+            mode = section
+        elif mode and section:
+            for raw in section.split():
+                if not raw.startswith("/"):
+                    continue
+                path = Path("/" + raw.lstrip("/"))
+                try:
+                    resolved = path.resolve(strict=True)
+                    resolved.relative_to(source_root)
+                    continue
+                except ValueError:
+                    pass
+                except OSError:
+                    continue
+                try:
+                    resolved.relative_to(build_root)
+                    continue
+                except ValueError:
+                    pass
+                if resolved.is_file():
+                    external_paths.add(resolved)
+external_inputs = []
+for path in sorted(external_paths):
+    owner = "unresolved"
+    version = "unresolved"
+    try:
+        query = subprocess.check_output(["dpkg-query", "-S", str(path)], text=True,
+                                        stderr=subprocess.DEVNULL).splitlines()
+        package = query[0].partition(": ")[0]
+        owner = package
+        version = subprocess.check_output(["dpkg-query", "-W", "-f=${Version}", package],
+                                          text=True, stderr=subprocess.DEVNULL).strip()
+    except (OSError, subprocess.CalledProcessError, IndexError):
+        pass
+    record = file_record(path, Path("/"), "external-build-input")
+    record["absolute_path"] = str(path)
+    record["package"] = owner
+    record["package_version"] = version
+    external_inputs.append(record)
+report = {"schema_version": 1, "generated_text_outputs": generated_records,
+          "rust_generated_outputs": [item for item in generated_records if item["path"].endswith(".rs")],
+          "rust_source_inputs": cargo_inputs, "cargo_registry_archives": registry_archives,
+          "external_build_inputs": external_inputs, "rust_tool_versions": rust_versions,
+          "scope_limit": "Hashes and leading notice metadata for generated text outputs and existing external build inputs, package-owner/version candidates, Rusticl manifests/build scripts, and cached Cargo archives; exact dependency .deb hashes and complete license conclusions remain outside this capture."}
+(evidence_dir / "generated-output-and-rust-provenance.json").write_text(
+    json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+PY_CAPTURE
 }
 '''
 
@@ -65,18 +211,20 @@ def instrument_recipe(recipe: Path) -> None:
     if f"_COMMIT={RECIPE_COMMIT}" not in text:
         raise EvidenceError("recipe does not pin the expected Mesa source commit")
     if MARKER in text:
-        if text.count(MARKER) != 1 or "_ternuxx_capture_meson \"$TERMUX_PKG_HOSTBUILD_DIR/build\" host" not in text or "_ternuxx_capture_meson \"$TERMUX_PKG_BUILDDIR\" target" not in text:
+        if (text.count(MARKER) != 1
+                or "_ternuxx_capture_meson \"$TERMUX_PKG_HOSTBUILD_DIR/build\" host" not in text
+                or "unset BINDGEN_EXTRA_CLANG_ARGS LLVM_CONFIG\n\t_ternuxx_capture_meson \"$TERMUX_PKG_BUILDDIR\" target" not in text):
             raise EvidenceError("existing instrumentation is incomplete or duplicated")
         return
 
     helper_anchor = "termux_step_host_build() {\n"
     host_anchor = "\t$TERMUX_MESON install -C build\n"
-    target_anchor = '\trm -f "$_WRAPPER_BIN/cmake"\n'
+    target_anchor = '\tunset BINDGEN_EXTRA_CLANG_ARGS LLVM_CONFIG\n}'
     if any(text.count(anchor) != 1 for anchor in (helper_anchor, host_anchor, target_anchor)):
         raise EvidenceError("pinned Mesa recipe structure changed; refusing to patch it")
     text = text.replace(helper_anchor, _HELPER + "\n" + helper_anchor, 1)
     text = text.replace(host_anchor, host_anchor + '\t_ternuxx_capture_meson "$TERMUX_PKG_HOSTBUILD_DIR/build" host\n', 1)
-    text = text.replace(target_anchor, target_anchor + '\t_ternuxx_capture_meson "$TERMUX_PKG_BUILDDIR" target\n', 1)
+    text = text.replace(target_anchor, '\tunset BINDGEN_EXTRA_CLANG_ARGS LLVM_CONFIG\n\t_ternuxx_capture_meson "$TERMUX_PKG_BUILDDIR" target\n}', 1)
     recipe.write_text(text, encoding="utf-8")
 
 
@@ -247,10 +395,32 @@ def validate_capture(evidence_dir: Path) -> None:
         targets = read_json(targets_path)
         if not isinstance(targets, list) or not targets:
             raise EvidenceError(f"{role} Meson target inventory is empty or malformed")
-        for name in ("ninja-commands.txt", "ninja-targets.txt", "build.ninja"):
+        for name in ("ninja-commands.txt", "ninja-targets.txt", "build.ninja",
+                     "meson-install-plan.txt", "generated-output-and-rust-provenance.json"):
             artifact = role_dir / name
             if artifact.is_symlink() or not artifact.is_file() or artifact.stat().st_size == 0:
-                raise EvidenceError(f"{role} build graph evidence is missing or empty: {name}")
+                raise EvidenceError(f"{role} build graph/provenance evidence is missing or empty: {name}")
+        provenance = read_json(role_dir / "generated-output-and-rust-provenance.json")
+        if not isinstance(provenance, dict):
+            raise EvidenceError(f"{role} generated-output provenance is malformed")
+        for key in ("generated_text_outputs", "rust_generated_outputs", "rust_source_inputs",
+                    "cargo_registry_archives", "external_build_inputs"):
+            if not isinstance(provenance.get(key), list):
+                raise EvidenceError(f"{role} generated-output provenance is missing {key}")
+        if not isinstance(provenance.get("rust_tool_versions"), dict):
+            raise EvidenceError(f"{role} generated-output provenance is missing Rust tool versions")
+        for record in provenance["generated_text_outputs"] + provenance["rust_source_inputs"] + provenance["external_build_inputs"]:
+            if not isinstance(record, dict) or not isinstance(record.get("path"), str) \
+                    or not isinstance(record.get("sha256"), str) \
+                    or not re.fullmatch(r"[0-9a-f]{64}", record["sha256"]):
+                raise EvidenceError(f"{role} generated-output provenance has an invalid file record")
+        for record in provenance["cargo_registry_archives"]:
+            if not isinstance(record, dict) or not isinstance(record.get("path"), str) \
+                    or not isinstance(record.get("sha256"), str) \
+                    or not re.fullmatch(r"[0-9a-f]{64}", record["sha256"]):
+                raise EvidenceError(f"{role} Cargo archive inventory has an invalid record")
+        if role == "target" and len(provenance["rust_generated_outputs"]) < 5:
+            raise EvidenceError("target provenance does not include all five known Rusticl generated outputs")
 
     target_graph_path = evidence_dir / "aarch64" / "target" / "meson-targets.json"
     target_graph = read_json(target_graph_path)

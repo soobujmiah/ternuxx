@@ -39,6 +39,9 @@ termux_step_host_build() {
 termux_step_post_configure() {
 \trm -f "$_WRAPPER_BIN/cmake"
 }
+termux_step_post_make_install() {
+\tunset BINDGEN_EXTRA_CLANG_ARGS LLVM_CONFIG
+}
 ''', encoding="utf-8")
 
     def tearDown(self) -> None:
@@ -49,11 +52,14 @@ termux_step_post_configure() {
         text = self.recipe.read_text(encoding="utf-8")
         self.assertIn('[[ "${TERNUXX_MESA_BUILD_CAPTURE:-0}" == "1" ]] || return 0', text)
         self.assertIn('_ternuxx_capture_meson "$TERMUX_PKG_HOSTBUILD_DIR/build" host', text)
-        self.assertIn('_ternuxx_capture_meson "$TERMUX_PKG_BUILDDIR" target', text)
+        self.assertIn('unset BINDGEN_EXTRA_CLANG_ARGS LLVM_CONFIG\n\t_ternuxx_capture_meson "$TERMUX_PKG_BUILDDIR" target', text)
+        self.assertNotIn('termux_step_post_configure() {\n\trm -f "$_WRAPPER_BIN/cmake"\n\t_ternuxx_capture_meson', text)
         self.assertIn('local evidence_root="${TERNUXX_MESA_EVIDENCE_DIR:-$HOME/p12-mesa-evidence}"', text)
         self.assertIn('"$evidence_root/${TERMUX_ARCH}/${role}"', text)
         self.assertNotIn('.ternuxx-mesa-evidence', text)
         self.assertIn('ninja -C "$build_dir" -t commands', text)
+        self.assertIn('install --dry-run --no-rebuild -C "$build_dir"', text)
+        self.assertIn('generated-output-and-rust-provenance.json', text)
         self.assertIn('--targets > "$evidence_dir/meson-targets.json"', text)
         self.assertIn('read -r -a meson_command <<< "$TERMUX_MESON"', text)
 
@@ -61,13 +67,21 @@ termux_step_post_configure() {
         instrument_recipe(self.recipe)
         build = self.root / "build"
         build.mkdir()
-        (build / "build.ninja").write_text("# fixture\n", encoding="utf-8")
+        generated_source = build / "rusticl_generated.rs"
+        generated_source.write_text("// generated fixture\n", encoding="utf-8")
+        external_input = self.root / "protocol.xml"
+        external_input.write_text("<protocol/>\n", encoding="utf-8")
+        (build / "build.ninja").write_text(
+            f"build generated.o: custom {external_input}\n", encoding="utf-8")
         fake_meson = self.root / "fake_meson.py"
         fake_meson.write_text(
             "import json, os, sys\n"
             "with open(os.environ['MESON_CALLS'], 'a', encoding='utf-8') as out:\n"
             " out.write(json.dumps(sys.argv[1:]) + '\\n')\n"
-            "print('{}')\n", encoding="utf-8",
+            "if sys.argv[-1] == '--targets':\n"
+            " print(json.dumps([{'filename': [os.environ['GENERATED_SOURCE']]}]))\n"
+            "else:\n"
+            " print('{}')\n", encoding="utf-8",
         )
         fake_bin = self.root / "bin"
         fake_bin.mkdir()
@@ -83,7 +97,9 @@ termux_step_post_configure() {
             "TERMUX_ARCH": "aarch64",
             "TERMUX_PKG_SRCDIR": str(Path(__file__).resolve().parents[1]),
             "MESON_CALLS": str(calls),
+            "GENERATED_SOURCE": str(generated_source),
             "PATH": f"{fake_bin}:{os.environ.get('PATH', '')}",
+            "CARGO_HOME": str(self.root / "cargo-home"),
             "BUILD_DIR": str(build),
         }
         result = subprocess.run(
@@ -92,9 +108,14 @@ termux_step_post_configure() {
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         invocations = [json.loads(line) for line in calls.read_text(encoding="utf-8").splitlines()]
-        self.assertEqual(len(invocations), 5)
+        self.assertEqual(len(invocations), 6)
         self.assertEqual(invocations[0][:2], ["introspect", str(build)])
         self.assertEqual(invocations[1][-1], "--targets")
+        self.assertIn("--dry-run", invocations[5])
+        provenance = json.loads((self.root / "evidence/aarch64/host/generated-output-and-rust-provenance.json").read_text())
+        generated = provenance["generated_text_outputs"][0]
+        self.assertEqual(generated["sha256"], hashlib.sha256(generated_source.read_bytes()).hexdigest())
+        self.assertEqual(provenance["external_build_inputs"][0]["absolute_path"], str(external_input))
 
     def test_instrumentation_is_idempotent(self) -> None:
         instrument_recipe(self.recipe)
@@ -210,6 +231,19 @@ class MesaCaptureValidationTests(unittest.TestCase):
             (role_dir / "ninja-commands.txt").write_text("cc -c mesa.c\n", encoding="utf-8")
             (role_dir / "ninja-targets.txt").write_text("libmesa.so\n", encoding="utf-8")
             (role_dir / "build.ninja").write_text("build libmesa.so\n", encoding="utf-8")
+            (role_dir / "meson-install-plan.txt").write_text("dry-run install plan\n", encoding="utf-8")
+            rust_records = [{"path": f"rusticl/generated-{index}.rs", "sha256": str(index) * 64}
+                            for index in range(1, 6)] if role == "target" else []
+            provenance = {
+                "generated_text_outputs": rust_records,
+                "rust_generated_outputs": rust_records,
+                "rust_source_inputs": [],
+                "cargo_registry_archives": [],
+                "external_build_inputs": [],
+                "rust_tool_versions": {"cargo": "cargo 1.0", "rustc": "rustc 1.0"},
+            }
+            (role_dir / "generated-output-and-rust-provenance.json").write_text(
+                json.dumps(provenance), encoding="utf-8")
         target_graph_path = self.root / "aarch64" / "target" / "meson-targets.json"
         (self.root / "configured-target-source-map.json").write_text(json.dumps({
             "source_commit": RECIPE_COMMIT,
@@ -251,6 +285,14 @@ class MesaCaptureValidationTests(unittest.TestCase):
 
     def test_validates_pinned_graphs_and_split_package_architectures(self) -> None:
         validate_capture(self.root)
+
+    def test_rejects_missing_rust_generated_output_provenance(self) -> None:
+        path = self.root / "aarch64/target/generated-output-and-rust-provenance.json"
+        provenance = json.loads(path.read_text(encoding="utf-8"))
+        provenance["rust_generated_outputs"] = provenance["rust_generated_outputs"][:4]
+        path.write_text(json.dumps(provenance), encoding="utf-8")
+        with self.assertRaisesRegex(EvidenceError, "all five known Rusticl"):
+            validate_capture(self.root)
 
     def test_rejects_wrong_split_package_architecture(self) -> None:
         path = self.root / "package-staging-manifests.json"
