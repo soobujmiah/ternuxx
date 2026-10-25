@@ -1,0 +1,7 @@
+event_id: commit-dce9febf04ac-45ee2dba28f74d19
+repository: soobujmiah/ternuxx
+commit: dce9febf04ac6fab83319eeb3474614b9b0b6d35
+kind: commit
+occurred_at: '2026-10-25T17:12:43Z'
+status: completed
+summary: 'fix: report PRoot desktop readiness accurately'
