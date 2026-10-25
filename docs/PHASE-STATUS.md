@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The corrected pinned Mesa aarch64 build and capture workflow passed; its configured source map, split-package manifests, and candidate output audit are recorded. External/generated inputs, notice coverage, and per-file license gaps remain open. Native `:1` Adreno 825 GLES and Vulkan draws now pass with the hash-checked experimental KGSL/Freedreno candidate; the bounded three-case CPU and Vulkan inference suites also pass with complete Vulkan offload. The thermal-limit override was explicitly requested by the owner; memory and timeout guards stayed active. The candidate remains community-built and has no clean-install path.
+Pinned CPU, Adreno 825 Vulkan, and experimental SM8735 HTP inference each passed ten-call answer-verified repeats using the owner's explicit thermal-limit override; Vulkan and HTP proved complete 29/29 layer offload on every call, with memory, timeout, fallback, and process checks active. Experimental KGSL Mesa GLES/Vulkan draws pass; source/notice/license closure and wider sustained/operator qualification remain open.
 
-**Next action:** Audit the 12 external source inputs and 75 generated outputs back to their generator inputs, source origins, license metadata, and shipped notice obligations; resolve the 1,165 source paths without recognized SPDX headers and strengthen package attribution beyond basename candidates. Keep sustained performance/thermal behavior, HTP multi-case coverage, clean-install provider setup, and visible GUI capture open.
+**Next action:** Complete the 12 external-input and 75 generated-output Mesa source, SPDX, attribution, and shipped-notice audit; then measure longer bounded CPU/Vulkan/HTP workloads with memory, timeout, and process guards active and thermal readings observed. Keep experimental Mesa and HTP status clearly labeled; no stable clean-install path is qualified.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

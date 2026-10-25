@@ -21,3 +21,19 @@ After restart, Native graphics status identified Adreno (TM) 825 and Mesa 26.3.0
 The three-case CPU suite passed 3/3 and the three-case Vulkan suite passed 3/3, both with eight output tokens and a 30-second per-call timeout. Vulkan reported complete positive offload of all 29/29 model layers to Adreno 825 on every run; the known answers were verified. The largest sampled `MemAvailable` drop still left over 4.0 GiB. No `llama-cli` process remained after either suite. The qualification reports recorded `thermal_limits_ignored: true`; the SoC sensor read 76.0°C during the Vulkan run. These short correctness runs do not qualify sustained performance, OEM thermal behavior, or other models/operators.
 
 The local full test and CI status are recorded by the repository state workflow. Future installer reproducibility, community artifact provenance/licensing review, sustained workload qualification, HTP multi-case coverage, and visible GUI capture remain open.
+
+Phase: `P12`
+
+## Evidence
+
+P12 evidence: live Native Adreno 825 graphics and bounded CPU/Vulkan inference qualification, including the owner-authorized thermal-limit override and the remaining qualification boundaries.
+
+
+## Experimental HTP route follow-up
+
+Installed the exact previewed llama.cpp Snapdragon b11849 archive through `tx ai npu runtime apply`; archive SHA-256 matched `2d0f1a989a8f0c4329839c3bb85b6fb70edb03e0b017fee0be4cf55b7ece8f6c`. `tx ai npu status --json` then reported experimental HTP0 available on SM8735 with silent fallback disabled. The three-case pinned-model suite passed 3/3 under the owner-authorized thermal override, with 29/29 layers on HTP0, answer verification on each case, and no remaining `llama-cli` process. Available memory stayed above 4.4 GiB during the run. This is a short correctness qualification of the experimental runtime, not sustained performance or broad operator/model coverage.
+
+
+## Ten-run per-backend repeat qualification
+
+With `--runs 10 --max-tokens 8 --timeout 30 --idle-seconds 0 --ignore-thermal-limits`, all three backends passed 10/10 answer-verified calls. Vulkan reported 29/29 layers for each call; HTP reported 29/29 layers with silent fallback disabled; CPU reported zero GPU layers. No new `llama-cli` process remained after any call. Minimum sampled available memory was 5,004.4 MiB (CPU), 4,726.7 MiB (Vulkan), and 4,080.3 MiB (HTP). The highest sensor readings across each run were CPU/GPU/HTP/battery/SoC-digital: CPU backend 72.4/51.9/56.6/42.84/78.0 C; Vulkan 72.0/58.2/56.3/43.52/78.0 C; HTP 95.2/63.4/67.7/45.07/78.0 C. Thermal thresholds were explicitly ignored for these runs at the owner's direction; Android's system thermal controls were not changed. These are repeated correctness calls, not a sustained benchmark or OEM safety qualification. Full JSON reports remain in private `$HOME/.local/share/ternuxx/qualification/` and are not committed.

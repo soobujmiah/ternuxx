@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and supports optional Debia
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Audit the 12 external source inputs and 75 generated outputs back to their generator inputs, source origins, license metadata, and shipped notice obligations; resolve the 1,165 source paths without recognized SPDX headers and strengthen package attribution beyond basename candidates. Resume Native CPU, Vulkan, and HTP workloads only when live sensors satisfy unchanged guards.
+**Next action:** Complete the 12 external-input and 75 generated-output Mesa source, SPDX, attribution, and shipped-notice audit; then measure longer bounded CPU/Vulkan/HTP workloads with memory, timeout, and process guards active and thermal readings observed. Keep experimental Mesa and HTP status clearly labeled; no stable clean-install path is qualified.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

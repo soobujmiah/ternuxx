@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 567,
-  "read_count": 176,
+  "read_count": 170,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "c6135aaf578f608dad1768aec1083f6e7abd9c21ef7b1ad2bd73ef1c23cfe7be",
+      "sha256": "17235ccc0cdff44dc7c61367225a75b1130ba0d963c4c0be46b1bd6c972da108",
       "lines": 37,
-      "read_status": "read",
-      "read_sha256": "c6135aaf578f608dad1768aec1083f6e7abd9c21ef7b1ad2bd73ef1c23cfe7be"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -107,10 +107,10 @@
     {
       "path": "config/graphics/native-kgsl.json",
       "kind": "structured",
-      "sha256": "f9da1f77d21feac3c8a41548150d7a4720e941aaf69a44057d16f7c3e563d9ff",
+      "sha256": "894477a90e8f59d2a5a5d6187de796eac3ff226b246cca824fb41e910a007e36",
       "lines": 76,
-      "read_status": "read",
-      "read_sha256": "f9da1f77d21feac3c8a41548150d7a4720e941aaf69a44057d16f7c3e563d9ff"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "config/proot/debian-trixie.json",
@@ -179,10 +179,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "f67415d334365da030b264fe16a7f688ef87075f96596acb02468712a48b7dbd",
+      "sha256": "6a0eb7a8fa3e2857297650d357311fb944c8fff59043122c94fe30e448560a47",
       "lines": 169,
-      "read_status": "read",
-      "read_sha256": "f67415d334365da030b264fe16a7f688ef87075f96596acb02468712a48b7dbd"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -235,7 +235,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "4d8d73788c3e738c4e16a7a772bb3702c730a1c77e4c287a99f53fa4bcd94266",
+      "sha256": "0578af58c678b91ad3d7765db3c6274b7fab79b1fefcd9873460eea3a7e03233",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "f2cc655fe2dffb174b6db1817a94583b74ce53c0e9eb7e868b7af037b336d91a",
+      "sha256": "a3ad844e72bf6e8df3fc1b9c071e90c5400fe056d875bcdee353bbb877f20618",
       "lines": 127,
-      "read_status": "read",
-      "read_sha256": "f2cc655fe2dffb174b6db1817a94583b74ce53c0e9eb7e868b7af037b336d91a"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3563,10 +3563,10 @@
     {
       "path": "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",
       "kind": "narrative",
-      "sha256": "d6ea316c0494b057515fe4a148b48b4dd31558b86c21faca9768fd0bb1b27585",
-      "lines": 23,
-      "read_status": "read",
-      "read_sha256": "d6ea316c0494b057515fe4a148b48b4dd31558b86c21faca9768fd0bb1b27585"
+      "sha256": "27b8cd0ace883489395669f9fa69229dd52457681cb39d6e8803311a59b23020",
+      "lines": 39,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-26-p12-thermal-override-and-native-graphics.md",
@@ -4123,10 +4123,10 @@
     {
       "path": "docs/testing/NATIVE-ACCEL-QUALIFICATION.md",
       "kind": "narrative",
-      "sha256": "c2e65c1514aa62513e354474f6a843553743dc6468a70d5cd2c0677e464292be",
-      "lines": 46,
-      "read_status": "read",
-      "read_sha256": "c2e65c1514aa62513e354474f6a843553743dc6468a70d5cd2c0677e464292be"
+      "sha256": "3c6dddca042f2f20b4087887fe72cd67e359779a57dbba874880f0b41742af7d",
+      "lines": 48,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
@@ -4179,8 +4179,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "879f56f40cdc6f03f1f9fa4880d792bfaf866528c32fdef4dce89ab3586524b9",
-      "lines": 271,
+      "sha256": "81156a564c3a2769973e46e284c1d8b7ad8be986914a0fb36c447a8eaae3a419",
+      "lines": 272,
       "read_status": "pending",
       "read_sha256": null
     },

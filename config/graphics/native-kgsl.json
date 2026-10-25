@@ -71,6 +71,6 @@
     "native_opengl": "render-verified-on-adreno-825",
     "native_vulkan": "device-enumerated-and-bounded-X11-draw-verified-on-Adreno-825",
     "native_gles": "bounded-shared-manager-pbuffer-draw-verified-on-Adreno-825",
-    "inference": "three-case-pinned-Qwen3-Vulkan-pass-29-of-29-layers-2026-10-26"
+    "inference": "ten-call-repeat-pinned-Qwen3-CPU-Vulkan-HTP-pass-Vulkan-and-HTP-29-of-29-layers-2026-10-26"
   }
 }
