@@ -1,0 +1,7 @@
+event_id: commit-039d6364604a-801f697e28e50c61
+repository: soobujmiah/ternuxx
+commit: 039d6364604a602041d50a792a64b1b7569d488b
+kind: commit
+occurred_at: '2026-10-25T21:45:24Z'
+status: completed
+summary: 'docs(npu): record higher output budget probe'
