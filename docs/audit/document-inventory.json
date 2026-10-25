@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "75a88656b4be628fb3a3ba5bf6029fb18b9b84a8d6c61a67fdcdd8ddb4f20992",
+      "sha256": "c6c19b8b7b608e81ea550af76d15158197218076dbf12897fdbc67eb24a529f8",
       "lines": 31,
       "read_status": "read",
-      "read_sha256": "75a88656b4be628fb3a3ba5bf6029fb18b9b84a8d6c61a67fdcdd8ddb4f20992"
+      "read_sha256": "c6c19b8b7b608e81ea550af76d15158197218076dbf12897fdbc67eb24a529f8"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "be93b5c3453a0f2d1493aab89af296cd31d3bf336d4dababfcc5ce8962cde33d",
+      "sha256": "a35dae43c511852a9981c2739ebd077031f608b30a50c984a678380e1a74cfe8",
       "lines": 61,
       "read_status": "read",
-      "read_sha256": "be93b5c3453a0f2d1493aab89af296cd31d3bf336d4dababfcc5ce8962cde33d"
+      "read_sha256": "a35dae43c511852a9981c2739ebd077031f608b30a50c984a678380e1a74cfe8"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3443,10 +3443,10 @@
     {
       "path": "docs/evidence/2026-10-25-pulse-ci-fixture-regression.md",
       "kind": "narrative",
-      "sha256": "ea1dbb03273b22f8842d26857a93cc3031bc862cf61524dcb49434eef9cbb2c5",
+      "sha256": "f638267e081bcaa4e1c33a4a3e9e9a4621663a373bd0ee1eb5dadb660b312913",
       "lines": 9,
       "read_status": "read",
-      "read_sha256": "ea1dbb03273b22f8842d26857a93cc3031bc862cf61524dcb49434eef9cbb2c5"
+      "read_sha256": "f638267e081bcaa4e1c33a4a3e9e9a4621663a373bd0ee1eb5dadb660b312913"
     },
     {
       "path": "docs/evidence/2026-10-25-reboot-test-client-parity.md",
