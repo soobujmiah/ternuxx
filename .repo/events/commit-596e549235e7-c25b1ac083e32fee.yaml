@@ -1,0 +1,7 @@
+event_id: commit-596e549235e7-c25b1ac083e32fee
+repository: soobujmiah/ternuxx
+commit: 596e549235e737796745673b41a673164d71889c
+kind: commit
+occurred_at: '2026-10-25T22:33:52Z'
+status: completed
+summary: 'feat(installer): streamline guided Debian setup'
