@@ -1,0 +1,7 @@
+event_id: commit-b6974ba8c6e7-1cff7fcb440251d8
+repository: soobujmiah/ternuxx
+commit: b6974ba8c6e78c58ec46372cb32fe2d0f7a888c0
+kind: commit
+occurred_at: '2026-10-25T16:50:29Z'
+status: completed
+summary: 'fix: keep PRoot desktop sessions supervised'
