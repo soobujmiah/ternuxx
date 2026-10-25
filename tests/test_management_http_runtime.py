@@ -285,6 +285,7 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
             self.assertIn('"' + capability + '"', ui)
             self.assertIn(capability, management_http_runtime.WEB_CAPABILITIES)
         self.assertNotIn("proot.guest.manage", management_http_runtime.WEB_CAPABILITIES)
+        self.assertIn("proot.install.manage", management_http_runtime.WEB_CAPABILITIES)
         for operation in ("proot.setup.retire.preview", "proot.setup.retire.apply",
                           "proot.setup.restore.preview", "proot.setup.restore.apply"):
             with self.subTest(operation=operation):
@@ -577,7 +578,10 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn("applications.launch", page)
         self.assertIn("applications.shortcuts.manage", page)
         self.assertIn("Preview bounded headless guest probe", page)
-        self.assertIn("tx install debian --user NAME", page)
+        self.assertIn('id="proot-install-scope"', page)
+        self.assertIn('capabilities.push("proot.install.manage")', page)
+        self.assertIn('operations.includes("proot.setup.fresh.preview")', page)
+        self.assertIn('run("proot.setup.fresh.apply",args)', page)
 
     def test_boot_cron_web_scope_is_opt_in_and_narrow(self) -> None:
         ui = (ROOT / "lib" / "management_web_ui.html").read_text(encoding="utf-8")
@@ -772,11 +776,15 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn('Debian shortcuts · ', page)
         self.assertIn('function humanReport(value){if(value?.data?.resource_id==="proot.x11.shortcuts")', page)
 
-    def test_web_proot_setup_handoff_keeps_guest_password_in_attached_terminal(self) -> None:
+    def test_web_proot_setup_runs_from_authenticated_ui_and_keeps_password_ephemeral(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()
-        self.assertIn('tx install debian --user NAME', page)
-        self.assertIn('defaults to XFCE', page)
-        self.assertIn("asks before applying that exact plan", page)
+        self.assertIn('id="guest-password" type="password"', page)
+        self.assertIn('id="proot-install-scope"', page)
+        self.assertIn('async function installManagedDebian()', page)
+        self.assertIn('run("proot.setup.fresh.preview"', page)
+        self.assertIn('run("proot.setup.fresh.apply",args)', page)
+        self.assertIn('args.password=""', page)
+        self.assertIn('existing_guests_are_preserved', page) if 'existing_guests_are_preserved' in page else self.assertIn('Existing guests are preserved.', page)
         self.assertIn('Other distro setup profiles are not yet available', page)
 
     def test_web_proot_shortcut_sync_and_rollback_are_preview_confirmed(self) -> None:

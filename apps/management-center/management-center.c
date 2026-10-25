@@ -6,7 +6,7 @@ typedef struct { gchar *id, *category, *name, *status, *availability, *descripti
 typedef struct { GtkWidget *window, *category_list, *resource_list, *details, *notice, *search, *action_scroll;
                  GtkWidget *desktop_choice, *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *boot_cron_button, *boot_helpers_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *reboot_test_prepare_button, *reboot_test_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
                  *monitor_interval, *monitor_unit, *monitor_focus, *monitor_launch,
-                 *proot_box, *proot_help, *proot_setup_help, *proot_app_entry, *proot_shortcut_entry, *proot_sync_rollback_entry, *proot_session_entry,
+                 *proot_box, *proot_help, *proot_setup_help, *proot_setup_button, *proot_desktop_entry, *proot_app_entry, *proot_shortcut_entry, *proot_sync_rollback_entry, *proot_session_entry,
                  *proot_replay_alias_entry, *proot_replay_backup_entry, *proot_replay_retire_button,
                  *proot_replay_restore_button, *proot_replay_review_box, *proot_replay_review_label,
                  *proot_replay_apply_button, *proot_replay_cancel_button,
@@ -31,6 +31,7 @@ static void ssh_deploy_rollback_choice(GObject *source, GAsyncResult *result, gp
 static void choose_graphics_api(GtkButton *button, gpointer data);
 static void ask_terminal_service_confirmation(Center *c, const gchar *plan_id, const gchar *action, const gchar *impact);
 static void open_debian_terminal(GtkButton *button, gpointer data);
+static void open_debian_setup(GtkButton *button, gpointer data);
 static void ask_shortcut_confirmation(Center *c, const gchar *action, const gchar *app_id, const gchar *plan_id, const gchar *target, const gchar *transition);
 static void proot_app_clicked(GtkButton *button, gpointer data);
 static void proot_shortcut_list_clicked(GtkButton *button, gpointer data);
@@ -789,7 +790,7 @@ static void show_resource(Center *c, Resource *r) {
     else if (g_strcmp0(r->id, "inference.npu.local") == 0)
         gui_actions = "Check HTP0 · Preview and confirm a pinned Snapdragon runtime · Run an experimental HTP prompt with verified offload and no CPU fallback";
     else if (g_strcmp0(r->id, "proot.debian.workloads") == 0)
-        gui_actions = "Inspect Debian/PRoot status · List profiles and owned sessions";
+        gui_actions = "Install the managed Debian guest from the GTK terminal · Inspect status · List profiles and owned sessions";
     else if (g_strcmp0(r->id, "proot.replay-guests") == 0)
         gui_actions = "Preview exact receipt-verified replay guest retirement or restore · Review exact target and reversible impact before applying";
     else if (g_strcmp0(r->id, "proot.interactive-terminal-broker") == 0)
@@ -862,7 +863,8 @@ static void show_resource(Center *c, Resource *r) {
     gtk_widget_set_visible(c->proot_box, proot_workloads || proot_replay);
     gtk_widget_set_visible(c->proot_help, proot_workloads);
     gtk_widget_set_visible(c->proot_setup_help, proot_workloads);
-    GtkWidget *workload_widgets[] = {c->proot_app_entry, c->proot_app_button, c->proot_shortcut_entry,
+    gtk_widget_set_visible(c->proot_setup_button, proot_workloads);
+    GtkWidget *workload_widgets[] = {c->proot_setup_button, c->proot_desktop_entry, c->proot_app_entry, c->proot_app_button, c->proot_shortcut_entry,
         c->proot_shortcut_list_button, c->proot_shortcut_add_button, c->proot_shortcut_remove_button,
         c->proot_shortcut_sync_button, c->proot_shortcut_rollback_list_button, c->proot_sync_rollback_entry,
         c->proot_shortcut_rollback_preview_button, c->proot_session_entry, c->proot_session_stop_button,
@@ -1117,6 +1119,50 @@ static void open_debian_terminal(GtkButton *button, gpointer data) {
     gchar *argv[] = {tx, "terminal", "start", NULL};
     vte_terminal_spawn_async(terminal, VTE_PTY_DEFAULT, NULL, argv, NULL,
         G_SPAWN_DEFAULT, NULL, NULL, NULL, -1, NULL, terminal_spawn_done, c);
+    g_free(tx);
+}
+
+static void guest_setup_spawn_done(VteTerminal *terminal, GPid pid, GError *error, gpointer user_data) {
+    (void)terminal; (void)pid;
+    Center *c = user_data;
+    if (error) gtk_label_set_text(GTK_LABEL(c->notice), error->message);
+    else gtk_label_set_text(GTK_LABEL(c->notice), "Guided Debian installer finished or was cancelled. Existing guests remain preserved.");
+}
+
+static void open_debian_setup(GtkButton *button, gpointer data) {
+    (void)button; Center *c = data;
+    const gchar *prefix = g_getenv("PREFIX");
+    if (!prefix || g_strcmp0(prefix, "/data/data/com.termux/files/usr") != 0) {
+        gtk_label_set_text(GTK_LABEL(c->notice), "Native Termux is required to install the managed Debian guest.");
+        return;
+    }
+    gchar *tx = g_build_filename(prefix, "bin", "tx", NULL);
+    if (!g_file_test(tx, G_FILE_TEST_IS_EXECUTABLE)) {
+        gtk_label_set_text(GTK_LABEL(c->notice), "The installed Native `tx` command is unavailable.");
+        g_free(tx); return;
+    }
+    const gchar *desktops = gtk_editable_get_text(GTK_EDITABLE(c->proot_desktop_entry));
+    if (!desktops || !g_regex_match_simple("^(xfce|lxqt|lxde|mate|plasma|gnome|cinnamon)(,(xfce|lxqt|lxde|mate|plasma|gnome|cinnamon))*$", desktops, 0, 0)) {
+        gtk_label_set_text(GTK_LABEL(c->notice), "Choose one or more comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate,plasma,gnome,cinnamon.");
+        g_free(tx); return;
+    }
+    GtkWidget *window = gtk_window_new();
+    gtk_window_set_title(GTK_WINDOW(window), "Ternuxx — Managed Debian setup");
+    gtk_window_set_default_size(GTK_WINDOW(window), 820, 520);
+    gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(c->window));
+    gtk_window_set_destroy_with_parent(GTK_WINDOW(window), TRUE);
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+    GtkWidget *note = gtk_label_new("Guided Ternuxx-managed Debian install. Review the pinned target and confirm in this terminal; passwords are hidden. Existing guests are preserved.");
+    gtk_label_set_wrap(GTK_LABEL(note), TRUE); gtk_box_append(GTK_BOX(box), note);
+    VteTerminal *terminal = VTE_TERMINAL(vte_terminal_new());
+    vte_terminal_set_scrollback_lines(terminal, 5000);
+    gtk_widget_set_vexpand(GTK_WIDGET(terminal), TRUE); gtk_widget_set_hexpand(GTK_WIDGET(terminal), TRUE);
+    gtk_box_append(GTK_BOX(box), GTK_WIDGET(terminal));
+    gtk_window_set_child(GTK_WINDOW(window), box);
+    gtk_window_present(GTK_WINDOW(window));
+    gchar *argv[] = {tx, "install", "debian", "--desktops", (gchar *)desktops, NULL};
+    vte_terminal_spawn_async(terminal, VTE_PTY_DEFAULT, NULL, argv, NULL,
+        G_SPAWN_DEFAULT, NULL, NULL, NULL, -1, NULL, guest_setup_spawn_done, c);
     g_free(tx);
 }
 
@@ -2097,7 +2143,9 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     c->proot_box=gtk_expander_new("Debian guest tools"); gtk_widget_set_visible(c->proot_box,FALSE);
     GtkWidget *proot_actions=gtk_box_new(GTK_ORIENTATION_VERTICAL,4);
     c->proot_help=gtk_label_new("Use an installed guest app ID. Shortcut edits and session stops show an exact preview first."); gtk_label_set_wrap(GTK_LABEL(c->proot_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_help);
-    c->proot_setup_help=gtk_label_new("Optional managed Debian setup runs in an attached Native Termux terminal. Run `tx install debian --user NAME` to preview the pinned guest; it defaults to XFCE and asks before applying that exact plan. Ternuxx applies its guest configuration with available graphics/audio integration. Choose other catalogued desktops with `--desktops xfce,lxqt,lxde,mate,plasma`. Hidden password prompts are used by default; guest-only passwordless sudo is optional. Other distro setup profiles are not available yet. Existing guests are preserved."); gtk_label_set_wrap(GTK_LABEL(c->proot_setup_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_setup_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_help);
+    c->proot_setup_help=gtk_label_new("Choose one or more desktop IDs, then start the guided installer here. Review and confirm its pinned target in the embedded terminal; Ternuxx applies available graphics/audio integration. Existing guests are preserved."); gtk_label_set_wrap(GTK_LABEL(c->proot_setup_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_setup_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_help);
+    c->proot_desktop_entry=gtk_entry_new(); gtk_editable_set_text(GTK_EDITABLE(c->proot_desktop_entry),"xfce"); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_desktop_entry),"xfce,lxqt"); gtk_widget_set_tooltip_text(c->proot_desktop_entry,"Comma-separated Debian desktop IDs. Current catalog: xfce,lxqt,lxde,mate,plasma,gnome,cinnamon."); gtk_box_append(GTK_BOX(proot_actions),c->proot_desktop_entry);
+    c->proot_setup_button=gtk_button_new_with_label("Install managed Debian…"); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_button);
     c->proot_app_entry=gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_app_entry), "Debian app ID (for example: firefox)"); gtk_box_append(GTK_BOX(proot_actions),c->proot_app_entry);
     c->proot_app_button=gtk_button_new_with_label("Launch Debian app"); gtk_box_append(GTK_BOX(proot_actions),c->proot_app_button);
     c->proot_shortcut_entry=gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_shortcut_entry), "Debian app ID for shortcut add/remove"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_entry);
@@ -2135,6 +2183,7 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     g_signal_connect(c->ai_npu_status_button,"clicked",G_CALLBACK(npu_status_clicked),c); g_signal_connect(c->ai_npu_install_button,"clicked",G_CALLBACK(npu_install_clicked),c); g_signal_connect(c->ai_npu_run_button,"clicked",G_CALLBACK(npu_run_dialog),c);
     g_signal_connect(c->terminal_service_button,"clicked",G_CALLBACK(terminal_service_clicked),c);
     g_signal_connect(c->terminal_open_button,"clicked",G_CALLBACK(open_debian_terminal),c);
+    g_signal_connect(c->proot_setup_button,"clicked",G_CALLBACK(open_debian_setup),c);
     g_signal_connect(c->proot_app_button,"clicked",G_CALLBACK(proot_app_clicked),c);
     g_signal_connect(c->proot_shortcut_list_button,"clicked",G_CALLBACK(proot_shortcut_list_clicked),c);
     g_signal_connect(c->proot_shortcut_add_button,"clicked",G_CALLBACK(proot_shortcut_clicked),c);

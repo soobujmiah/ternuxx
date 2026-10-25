@@ -17,6 +17,7 @@ from typing import Any
 import management_service
 import management_sessions
 import management_presentation
+import proot_desktops
 
 
 BRANDING_TAGLINE = "Workstation in your pocket — by Sobuj Miah"
@@ -1403,10 +1404,20 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
         if prefix != "/data/data/com.termux/files/usr" or not executable.is_file():
             return {"ok": False, "error": {"code": "native_tx_unavailable",
                     "message": "The fixed Native Termux tx command is unavailable."}}
+        available = proot_desktops.catalog("debian-trixie")
+        selection = _prompt(screen, "Debian desktop IDs, comma-separated (default xfce): ").strip()
+        desktops = [item.strip() for item in selection.split(",") if item.strip()] if selection else ["xfce"]
+        try:
+            validated = proot_desktops.validate_selection("debian-trixie", desktops)
+        except ValueError as exc:
+            return {"ok": False, "error": {"code": "invalid_desktop_selection", "message": str(exc)}}
+        if any(item not in available for item in desktops):
+            return {"ok": False, "error": {"code": "invalid_desktop_selection",
+                    "message": "Choose from the listed Debian desktop IDs."}}
         screen.erase(); screen.refresh()
         curses.def_prog_mode(); curses.endwin()
         try:
-            result = subprocess.run([str(executable), "install", "debian"], check=False)
+            result = subprocess.run([str(executable), "install", "debian", "--desktops", ",".join(validated)], check=False)
         except OSError as exc:
             return {"ok": False, "error": {"code": "guest_install_launch_failed", "message": str(exc)}}
         finally:
@@ -1424,7 +1435,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
             return {"ok": True, "data": {"guest_status": "installed",
                 "next_step": "Debian is installed. Exit TUI and run `tx db` in an attached Native Termux terminal."}}
         return {"ok": True, "data": {"guest_status": "missing",
-            "next_step": "Choose Install the optional managed Debian guest to start the guided installer here. It asks for the guest username, shows the pinned target, and asks before installing Ternuxx's XFCE, graphics, and audio configuration. Other distro profiles are not yet available. Existing guests are preserved."}}
+            "next_step": "Choose Install the optional managed Debian guest to pick one or more desktop environments and start the guided installer here. It asks for the guest username, shows the pinned target, and asks before installing Ternuxx graphics/audio configuration. Existing guests are preserved."}}
     if action == "stop" and {"proot.stop.preview", "proot.stop"} <= operations:
         inventory = _call("proot.sessions.list")
         if not inventory.get("ok"):

@@ -14,6 +14,8 @@ from collections.abc import Iterable
 OPERATION_CAPABILITIES: dict[str, str] = {
     "management.catalog": "diagnostics.read",
     "proot.status": "diagnostics.read",
+    "proot.setup.fresh.preview": "proot.install.manage",
+    "proot.setup.fresh.apply": "proot.install.manage",
     "proot.sessions.list": "diagnostics.read",
     "proot.sessions.show": "diagnostics.read",
     "proot.sessions.health": "diagnostics.read",

@@ -174,11 +174,11 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
                          'action == "proot-shortcut-rollback-apply"'):
             self.assertIn(contract, BRIDGE)
 
-    def test_gtk_proot_tools_explain_cli_setup_and_hidden_password_handoff(self):
-        self.assertIn("tx install debian --user NAME", SOURCE)
-        self.assertIn("defaults to XFCE", SOURCE)
-        self.assertIn("asks before applying that exact plan", SOURCE)
-        self.assertIn("password prompts are used by default", SOURCE)
+    def test_gtk_proot_setup_launches_guided_installer_with_desktop_selection(self):
+        self.assertIn("Install managed Debian", SOURCE)
+        self.assertIn("proot_desktop_entry", SOURCE)
+        self.assertIn('"install", "debian", "--desktops"', SOURCE)
+        self.assertIn("Existing guests are preserved", SOURCE)
 
     def test_gtk_replay_guest_retirement_and_restore_use_inline_exact_plan_review(self):
         for contract in ("proot.replay-guests", "Preview replay guest retirement",
@@ -216,3 +216,10 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+    def test_gtk_launches_guided_managed_debian_installer_with_desktop_selection(self):
+        self.assertIn('Install managed Debian', SOURCE)
+        self.assertIn('proot_desktop_entry', SOURCE)
+        self.assertIn('gtk_editable_get_text(GTK_EDITABLE(c->proot_desktop_entry))', SOURCE)
+        self.assertIn('"install", "debian", "--desktops"', SOURCE)
+        self.assertIn('Existing guests are preserved.', SOURCE)

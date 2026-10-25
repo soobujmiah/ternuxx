@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "39d61bf0b47eb8c195944908e463a862dcb7076df29ed38b71ab61a29d68022f",
+      "sha256": "30d24dbf484381ec3e287ca05cd2c98cdd0138349d4f1303e08d6e8c12c5ae77",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "39d61bf0b47eb8c195944908e463a862dcb7076df29ed38b71ab61a29d68022f"
+      "read_sha256": "30d24dbf484381ec3e287ca05cd2c98cdd0138349d4f1303e08d6e8c12c5ae77"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -147,10 +147,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "a0300daf7c23bf83b1b55b99a983a61dfc0564c761df82f6bce33a1314ddae11",
+      "sha256": "c4b0a69cf0d0e2e0f370abbbef5738e9838989c60f466b5ac4dada73eaf0c952",
       "lines": 119,
       "read_status": "read",
-      "read_sha256": "a0300daf7c23bf83b1b55b99a983a61dfc0564c761df82f6bce33a1314ddae11"
+      "read_sha256": "c4b0a69cf0d0e2e0f370abbbef5738e9838989c60f466b5ac4dada73eaf0c952"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -267,10 +267,10 @@
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
       "kind": "narrative",
-      "sha256": "b26ffb85a1723a57ec7552038b383962b82aad87d748ebbc5238ae5224072103",
+      "sha256": "7aaa3607f7bb97f6f93a0c9b37ad824ed4c3870210ec41d54ed8ccc4b7af6a7f",
       "lines": 21,
       "read_status": "read",
-      "read_sha256": "b26ffb85a1723a57ec7552038b383962b82aad87d748ebbc5238ae5224072103"
+      "read_sha256": "7aaa3607f7bb97f6f93a0c9b37ad824ed4c3870210ec41d54ed8ccc4b7af6a7f"
     },
     {
       "path": "docs/architecture/CONTINUITY-IMPLEMENTATION.md",

@@ -54,6 +54,8 @@ MUTATING_OPERATIONS = frozenset({
     "proot.app.launch",
     "proot.guest.verify",
     "proot.recovery.reconcile",
+    "proot.setup.fresh.apply",
+    "proot.setup.fresh.preview",
     "proot.setup.icd-migrate.apply",
     "proot.setup.icd-migrate.preview",
     "proot.setup.icd-migrate.rollback.apply",

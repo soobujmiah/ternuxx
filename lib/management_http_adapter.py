@@ -46,6 +46,21 @@ def _canonical_json(value: object) -> bytes:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
                       allow_nan=False).encode("utf-8")
 
+def _fingerprint_request(payload: dict[str, object]) -> str:
+    """Hash an idempotency identity without persisting any guest password material."""
+    identity: object = payload
+    if payload.get("operation") == "proot.setup.fresh.apply":
+        identity = dict(payload)
+        raw_args = payload.get("args")
+        if isinstance(raw_args, dict):
+            args = dict(raw_args)
+            had_password = "password" in args
+            args.pop("password", None)
+            args["password_supplied"] = had_password
+            identity["args"] = args
+    return hashlib.sha256(_canonical_json(identity)).hexdigest()
+
+
 
 class ManagementHTTPAdapter:
     """Translate guarded, authenticated local HTTP requests into typed calls."""
@@ -245,7 +260,7 @@ class ManagementHTTPAdapter:
         if is_mutation:
             if not isinstance(idempotency_key, str) or not IDEMPOTENCY_KEY_RE.fullmatch(idempotency_key):
                 return self._response(400, {"ok": False, "error": "idempotency_key_required"})
-            fingerprint = hashlib.sha256(_canonical_json(payload)).hexdigest()
+            fingerprint = _fingerprint_request(payload)
             if not self._allow_mutations:
                 return self._response(403, {"ok": False, "error": "mutation_transport_disabled"})
             try:

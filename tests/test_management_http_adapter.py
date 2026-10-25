@@ -61,6 +61,50 @@ def bootstrap(adapter, capabilities):
 
 
 class ManagementHTTPAdapterTests(unittest.TestCase):
+    def test_fresh_guest_idempotency_fingerprint_never_contains_password_material(self) -> None:
+        base = {"api_version": 1, "request_id": "request-12345678",
+                "operation": "proot.setup.fresh.apply",
+                "args": {"user": "sobuj", "sudo_mode": "password", "plan_id": "a" * 64,
+                         "confirmed": True, "password": "temporary-secret"}}
+        other_password = json.loads(json.dumps(base))
+        other_password["args"]["password"] = "different-secret"
+        no_password = json.loads(json.dumps(base))
+        no_password["args"].pop("password")
+        self.assertEqual(management_http_adapter._fingerprint_request(base),
+                         management_http_adapter._fingerprint_request(other_password))
+        self.assertNotEqual(management_http_adapter._fingerprint_request(base),
+                            management_http_adapter._fingerprint_request(no_password))
+        serialized_identity = management_http_adapter._canonical_json({
+            "password_supplied": True, "operation": "proot.setup.fresh.apply"})
+        self.assertNotIn(b"temporary-secret", serialized_identity)
+
+    def test_guest_password_reaches_dispatch_but_is_absent_from_durable_request_state(self) -> None:
+        secret = "temporary-secret"
+        dispatch = Mock(return_value={"ok": True, "api_version": 1,
+                                      "request_id": "fresh-guest-apply", "data": {"status": "installed"}})
+        with tempfile.TemporaryDirectory(prefix="ternuxx-guest-http-") as temp:
+            home = Path(temp) / "home"; home.mkdir(mode=0o700)
+            state = home / ".state"; state.mkdir(mode=0o700)
+            store = management_request_store.ManagementRequestStore(home=home, state_dir=state)
+            adapter = make_adapter(dispatcher=dispatch, caps={"proot.install.manage"},
+                                   allow_mutations=True, request_store=store)
+            _status, issued = bootstrap(adapter, ["proot.install.manage"])
+            session = issued["session"]
+            body = payload_bytes({"api_version": 1, "request_id": "fresh-guest-apply",
+                "operation": "proot.setup.fresh.apply", "args": {"user": "sobuj",
+                "sudo_mode": "password", "plan_id": "a" * 64, "confirmed": True,
+                "password": secret}})
+            status, _headers, response = adapter.handle(method="POST", path="/api/v1/operations",
+                headers=headers_for(body, Authorization="Bearer " + session["bearer_token"],
+                    **{"X-Ternuxx-CSRF": session["csrf_token"],
+                       "Idempotency-Key": "fresh-guest-apply-key-01"}), body=body)
+            self.assertEqual(status, 200)
+            self.assertTrue(json.loads(response)["ok"])
+            self.assertEqual(dispatch.call_args.args[0]["args"]["password"], secret)
+            for path in store.root.rglob("*"):
+                if path.is_file():
+                    self.assertNotIn(secret.encode(), path.read_bytes())
+
     def test_cpu_inference_requires_distinct_run_and_model_management_capabilities(self) -> None:
         with tempfile.TemporaryDirectory(prefix="ternuxx-cpu-http-") as temp:
             home = Path(temp) / "home"; home.mkdir(mode=0o700)

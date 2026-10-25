@@ -33,6 +33,33 @@ def request(operation: object, args: object = None, api_version: int = 1) -> dic
 
 
 class ManagementServiceTests(unittest.TestCase):
+    def test_fresh_guest_setup_service_routes_one_exact_preview_and_apply(self) -> None:
+        preview_data = {"status": "preview", "plan_id": "a" * 64,
+                        "operation": {"alias": "debian", "guest_user": "sobuj"}}
+        with patch.object(management_service.proot_setup.proot_fresh_setup, "preview",
+                          return_value=preview_data) as preview:
+            result = management_service.dispatch(request("proot.setup.fresh.preview", {
+                "user": "sobuj", "sudo_mode": "password", "desktops": ["xfce"]}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"]["plan_id"], "a" * 64)
+        preview.assert_called_once()
+        with patch.object(management_service.proot_setup.proot_fresh_setup, "apply",
+                          return_value={"status": "installed", "alias": "debian"}) as apply:
+            result = management_service.dispatch(request("proot.setup.fresh.apply", {
+                "user": "sobuj", "sudo_mode": "password", "plan_id": "a" * 64,
+                "confirmed": True, "password": "temporary-secret"}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertNotIn("temporary-secret", json.dumps(result))
+        self.assertEqual(apply.call_args.kwargs["password"], "temporary-secret")
+
+    def test_fresh_guest_apply_rejects_missing_or_wrong_plan_confirmation(self) -> None:
+        for args in (
+                {"user": "sobuj", "sudo_mode": "password", "plan_id": "a" * 64, "confirmed": True},
+                {"user": "sobuj", "sudo_mode": "passwordless", "plan_id": "bad", "confirmed": True}):
+            result = management_service.dispatch(request("proot.setup.fresh.apply", args), env=NATIVE_ENV)
+            self.assertFalse(result["ok"])
+            self.assertEqual(result["error"]["code"], "confirmation_required")
+
     def test_graphics_provider_error_is_scoped_to_graphics_not_whole_product(self) -> None:
         result = management_service.dispatch(request("graphics.provider.status", {"provider": "proot-debian"}),
                                              env=NATIVE_ENV)

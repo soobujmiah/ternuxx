@@ -60,6 +60,10 @@ class ManagementAuthorizationTests(unittest.TestCase):
             self.assertEqual(management_authorization.required_capability(operation), "proot.replay.manage")
             self.assertTrue(management_authorization.authorize(operation, {"proot.replay.manage"}))
             self.assertFalse(management_authorization.authorize(operation, {"proot.guest.manage"}))
+        for operation in ("proot.setup.fresh.preview", "proot.setup.fresh.apply"):
+            self.assertEqual(management_authorization.required_capability(operation), "proot.install.manage")
+            self.assertTrue(management_authorization.authorize(operation, {"proot.install.manage"}))
+            self.assertFalse(management_authorization.authorize(operation, {"proot.guest.manage"}))
         for operation in ("proot.setup.icd-migrate.preview", "proot.setup.icd-migrate.apply",
                           "proot.setup.icd-migrate.rollback.preview", "proot.setup.icd-migrate.rollback.apply"):
             self.assertEqual(management_authorization.required_capability(operation), "proot.guest.manage")
