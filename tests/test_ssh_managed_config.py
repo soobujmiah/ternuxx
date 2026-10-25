@@ -106,6 +106,8 @@ class ManagedSshConfigTests(unittest.TestCase):
                 confirmed=True, plan_id="0" * 64, runner=self.runner, port_probe=self.probe)
         config = self.home / ssh_managed_config.CONFIG_RELATIVE
         config.parent.mkdir(parents=True, mode=0o700)
+        (self.home / ".config").chmod(0o700)
+        (self.home / ".config/ternuxx").chmod(0o700)
         config.write_text("owner-managed content\n", encoding="utf-8")
         config.chmod(0o600)
         with self.assertRaisesRegex(ssh_managed_config.ManagedSshConfigError, "differs"):

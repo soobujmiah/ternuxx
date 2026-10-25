@@ -89,10 +89,9 @@ def _termux_freedreno_device(prefix: str) -> tuple[bool, str | None, str | None]
     env["PATH"] = os.path.join(prefix, "bin") + os.pathsep + env.get("PATH", "")
     env["LD_LIBRARY_PATH"] = os.path.join(prefix, "lib")
     env["VK_ICD_FILENAMES"] = _termux_freedreno_paths(prefix)[1]
-    tool = shutil.which("vulkaninfo", path=env["PATH"])
-    if not tool:
+    code, output = _run(["vulkaninfo", "--summary"], env, 15)
+    if code == 127:
         return False, None, "vulkaninfo is not installed; Freedreno device support is unverified"
-    code, output = _run([tool, "--summary"], env, 15)
     device = next((match.group(1).strip() for line in output.splitlines()
                    if (match := re.search(r"deviceName\s*=\s*(.*)", line))), None)
     if code == 0 and device:
