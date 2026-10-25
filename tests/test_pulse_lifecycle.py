@@ -83,7 +83,11 @@ class PulseLifecycleTests(unittest.TestCase):
 
     def test_cookie_requires_private_regular_file_and_expected_size(self):
         with tempfile.TemporaryDirectory() as directory:
-            cookie = Path(directory) / "cookie"
+            config = Path(directory) / ".config"
+            config.mkdir(mode=0o700)
+            pulse = config / "pulse"
+            pulse.mkdir(mode=0o700)
+            cookie = pulse / "cookie"
             cookie.write_bytes(b"x" * 256)
             cookie.chmod(0o600)
             self.assertEqual(pulse_lifecycle._cookie({"cookie": cookie}), cookie)

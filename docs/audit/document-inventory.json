@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 544,
-  "read_count": 175,
+  "document_count": 546,
+  "read_count": 177,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "505726167511b5a9982deae7959352e7a852e2c1a0358353cd8a200ccf3c68d5",
+      "sha256": "75a88656b4be628fb3a3ba5bf6029fb18b9b84a8d6c61a67fdcdd8ddb4f20992",
       "lines": 31,
       "read_status": "read",
-      "read_sha256": "505726167511b5a9982deae7959352e7a852e2c1a0358353cd8a200ccf3c68d5"
+      "read_sha256": "75a88656b4be628fb3a3ba5bf6029fb18b9b84a8d6c61a67fdcdd8ddb4f20992"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "282aeb38d28d17995cf6dc24feec18ec14dcd98e1c91c89333b618455b0fc8e2",
-      "lines": 60,
+      "sha256": "be93b5c3453a0f2d1493aab89af296cd31d3bf336d4dababfcc5ce8962cde33d",
+      "lines": 61,
       "read_status": "read",
-      "read_sha256": "282aeb38d28d17995cf6dc24feec18ec14dcd98e1c91c89333b618455b0fc8e2"
+      "read_sha256": "be93b5c3453a0f2d1493aab89af296cd31d3bf336d4dababfcc5ce8962cde33d"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3425,12 +3425,28 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-25-gtk-management-center-owner-check.md",
+      "kind": "narrative",
+      "sha256": "f59918415b43b51c0ca9a4df985baddc80dd95f2f5ce9e84166642e08a29ee64",
+      "lines": 9,
+      "read_status": "read",
+      "read_sha256": "f59918415b43b51c0ca9a4df985baddc80dd95f2f5ce9e84166642e08a29ee64"
+    },
+    {
       "path": "docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md",
       "kind": "narrative",
       "sha256": "5885ded2b11233ee52eb2dcb8ebf72e83af73959e076f868566e7207a425e380",
       "lines": 38,
       "read_status": "read",
       "read_sha256": "5885ded2b11233ee52eb2dcb8ebf72e83af73959e076f868566e7207a425e380"
+    },
+    {
+      "path": "docs/evidence/2026-10-25-pulse-ci-fixture-regression.md",
+      "kind": "narrative",
+      "sha256": "ea1dbb03273b22f8842d26857a93cc3031bc862cf61524dcb49434eef9cbb2c5",
+      "lines": 9,
+      "read_status": "read",
+      "read_sha256": "ea1dbb03273b22f8842d26857a93cc3031bc862cf61524dcb49434eef9cbb2c5"
     },
     {
       "path": "docs/evidence/2026-10-25-reboot-test-client-parity.md",
