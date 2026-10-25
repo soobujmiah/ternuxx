@@ -233,7 +233,7 @@ nt_cmd_install debian --user sobuj
 
     def test_distro_named_guest_apply_requires_explicit_consent_and_exact_plan(self):
         result = subprocess.run(
-            ["bash", "-c", 'source "$1"; nt_cmd_install debian apply --user sobuj --plan-id "' + "a" * 64 + '"',
+            ["bash", "-c", 'source "$1"; nt_require_termux() { return 0; }; nt_require_command() { return 0; }; nt_cmd_install debian apply --user sobuj --plan-id "' + "a" * 64 + '"',
              "bash", str(PHASES)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
         )
         self.assertEqual(result.returncode, 2)
