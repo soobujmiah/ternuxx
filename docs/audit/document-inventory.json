@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "a510dbf4f82575ff86850179fb1d452d44daf25475f742c67c672d90a858286f",
+      "sha256": "5e9d92e27f4a6584f26b612948c82b692935dd6121a90085faeb71a8a054c354",
       "lines": 37,
       "read_status": "pending",
       "read_sha256": null
@@ -3571,8 +3571,8 @@
     {
       "path": "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",
       "kind": "narrative",
-      "sha256": "27b8cd0ace883489395669f9fa69229dd52457681cb39d6e8803311a59b23020",
-      "lines": 39,
+      "sha256": "5af0863efab1d29fcf9966d0d2c05b49f70b8763dde538d8847d753e3bf178d0",
+      "lines": 43,
       "read_status": "pending",
       "read_sha256": null
     },
