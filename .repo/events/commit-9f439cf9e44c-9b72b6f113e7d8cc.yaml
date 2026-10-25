@@ -1,0 +1,7 @@
+event_id: commit-9f439cf9e44c-9b72b6f113e7d8cc
+repository: soobujmiah/ternuxx
+commit: 9f439cf9e44ca574cc5ab44e95cc66176de4efea
+kind: commit
+occurred_at: '2026-10-25T19:40:51Z'
+status: completed
+summary: 'docs(state): align rebuild tracker with desktop cleanup'
