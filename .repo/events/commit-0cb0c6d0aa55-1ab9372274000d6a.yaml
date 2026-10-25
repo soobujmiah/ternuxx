@@ -1,0 +1,7 @@
+event_id: commit-0cb0c6d0aa55-1ab9372274000d6a
+repository: soobujmiah/ternuxx
+commit: 0cb0c6d0aa556d5907170c788d01fd0b67491932
+kind: commit
+occurred_at: '2026-10-25T20:10:33Z'
+status: completed
+summary: 'docs(evidence): capture desktop and audio acceptance'
