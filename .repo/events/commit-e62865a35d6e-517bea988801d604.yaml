@@ -1,0 +1,7 @@
+event_id: commit-e62865a35d6e-517bea988801d604
+repository: soobujmiah/ternuxx
+commit: e62865a35d6e9b19ec62014226770565be44b49c
+kind: commit
+occurred_at: '2026-10-25T20:45:22Z'
+status: completed
+summary: 'test(accel): allow explicit thermal-limit override'
