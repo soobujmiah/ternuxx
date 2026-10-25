@@ -106,6 +106,24 @@ printf 'CUSTOM %s\n' "${_NT_BASE_PACKAGES[*]}"
         custom = result.stdout.split("CUSTOM ", 1)[1].splitlines()[0].split()
         self.assertEqual(len(custom), len(set(custom)))
 
+    def test_empty_install_plan_skips_package_estimator(self):
+        command = """source "$1"
+_NT_PLAN_TRANSACTION=()
+_nt_capture_install_resource_estimates
+printf '%s\n' "$_NT_PLAN_RESOURCE_ESTIMATES"
+"""
+        result = subprocess.run(
+            ["bash", "-c", command, "bash", str(PHASES)],
+            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("usage:", result.stderr)
+        estimate = json.loads(result.stdout)
+        self.assertTrue(estimate["complete"])
+        self.assertEqual(estimate["download_bytes"], 0)
+        self.assertEqual(estimate["installed_kib"], 0)
+        self.assertEqual(estimate["packages"], [])
+
     def test_custom_install_profile_rejects_unknown_component_groups(self):
         result = subprocess.run(
             ["bash", "-c", 'source "$1"; _nt_select_install_profile custom "desktop,arbitrary"',

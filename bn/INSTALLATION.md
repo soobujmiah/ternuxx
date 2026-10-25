@@ -10,20 +10,28 @@ Termux-এ X11 প্যাকেজ-উৎস চালু করে Git ইন
 pkg update && pkg install x11-repo git && pkg update
 git clone https://github.com/soobujmiah/ternuxx.git "$HOME/ternuxx"
 cd "$HOME/ternuxx"
-./tx install preview
 ```
 
-প্যাকেজ ও নির্ভরতার পরিবর্তন পর্যালোচনা করে কেবল সংরক্ষিত পরিকল্পনার পরিচিতি দিয়ে তা প্রয়োগ করুন:
+প্রিভিউ-ভিত্তিক ইনস্টলার দিয়ে `tx` কমান্ডটি Native Termux-এ যুক্ত করুন। এটি `$PREFIX/bin/tx`-এ একটি ছোট শিম বসায়, যা এই সংগ্রহস্থলের কোড চালায়:
 
 ```sh
-./tx install apply PLAN_ID
+python3 scripts/cli_entrypoint.py preview
+python3 scripts/cli_entrypoint.py apply --yes --plan-id PLAN_ID
+tx help
+```
+
+শিমটি `$HOME/ternuxx` পথের চেকআউট চালায়। প্যাকেজ ও নির্ভরতার পরিবর্তন পর্যালোচনা করে কেবল সংরক্ষিত পরিকল্পনার পরিচিতি দিয়ে প্রয়োগ করুন:
+
+```sh
+tx install preview --verbose
+tx install apply --yes --plan-id PLAN_ID
 ```
 
 এই পরিকল্পনায় প্যাকেজ অপসারণ বা হালনাগাদ হয় না। Ternuxx নিজে হালনাগাদ করতে:
 
 ```sh
-./tx install update preview
-./tx install update apply PLAN_ID
+tx install update preview
+tx install update apply --yes --plan-id PLAN_ID
 ```
 
 হালনাগাদ পরিকল্পনা প্যাকেজ অপসারণ, আগের সংস্করণে ফেরা, অথবা Termux-এর সরকারি প্যাকেজ-উৎসের বাইরের পরিবর্তন প্রত্যাখ্যান করে। ডেস্কটপের জন্য Android-এ উপযুক্ত Termux:X11 অ্যাপ আলাদাভাবে ইনস্টল করতে হবে।
@@ -31,40 +39,40 @@ cd "$HOME/ternuxx"
 ## প্রথম পরীক্ষা ও ডেস্কটপ
 
 ```sh
-./tx help
-./tx guides
-./tx doctor
-./tx info
+tx help
+tx guides
+tx doctor
+tx info
 ```
 
 Android-এ Termux:X11 অ্যাপ খুলে Native ডেস্কটপ চালু করুন:
 
 ```sh
-./tx start
+tx start
 ```
 
-পর্দাভিত্তিক ব্যবস্থাপনার জন্য `./tx tui`, `./tx web` অথবা `./tx mng center` চালান। কোন কাজের বোতাম বা নির্দেশ পাওয়া যাবে, তা মাধ্যমভেদে আলাদা হতে পারে। বিস্তারিত [সক্ষমতার তালিকা](../docs/architecture/CAPABILITY-MATRIX.md)-তে।
+পর্দাভিত্তিক ব্যবস্থাপনার জন্য `tx tui`, `tx web` অথবা `tx mng center` চালান। কোন কাজের বোতাম বা নির্দেশ পাওয়া যাবে, তা মাধ্যমভেদে আলাদা হতে পারে। বিস্তারিত [সক্ষমতার তালিকা](../docs/architecture/CAPABILITY-MATRIX.md)-তে।
 
 ## SSH ও পুনরুদ্ধার
 
-`./tx ssh inspect` Native SSH-এর অবস্থা দেখায়। পরিচালিত SSH সেবার প্রতিটি চালু, বন্ধ বা পুনরারম্ভের আগে পূর্বরূপ ও নিশ্চিতকরণ লাগে। Ternuxx-এর পরিচালিত সেবা স্থানীয় সংযোগ-দ্বার 8023-এ চলে; সংযোগ-দ্বার 8022 আলাদা উন্নয়ন সংযোগ।
+`tx ssh inspect` Native SSH-এর অবস্থা দেখায়। পরিচালিত SSH সেবার প্রতিটি চালু, বন্ধ বা পুনরারম্ভের আগে পূর্বরূপ ও নিশ্চিতকরণ লাগে। Ternuxx-এর পরিচালিত সেবা স্থানীয় সংযোগ-দ্বার 8023-এ চলে; সংযোগ-দ্বার 8022 আলাদা উন্নয়ন সংযোগ।
 
-`./tx backup`, `./tx recovery` এবং `./tx checkpoint` Native অবস্থার ব্যাকআপ ও পুনরুদ্ধারে সহায়তা করে। পরিবর্তনের আগে লক্ষ্য ও পরিকল্পনা যাচাই করুন। Ternuxx যৌথ সংরক্ষণস্থান খোঁজে না বা নির্বিচারে ফাইল পরিচালনা করে না।
+`tx backup`, `tx recovery` এবং `tx checkpoint` Native অবস্থার ব্যাকআপ ও পুনরুদ্ধারে সহায়তা করে। পরিবর্তনের আগে লক্ষ্য ও পরিকল্পনা যাচাই করুন। Ternuxx যৌথ সংরক্ষণস্থান খোঁজে না বা নির্বিচারে ফাইল পরিচালনা করে না।
 
 ## ঐচ্ছিক Debian PRoot
 
-আগে `./tx proot status` দিয়ে Native `proot`/`proot-distro` ও Debian পরিবেশের তালিকা দেখুন। নতুন Debian পরিবেশের জন্য নির্দিষ্ট ব্যবহারকারীর নামসহ পূর্বরূপ তৈরি করুন, লক্ষ্য ও ডিস্ক-ছবির নির্দিষ্ট SHA-256 পরিচিতি যাচাই করুন, তারপর শুধু সেই পরিকল্পনা প্রয়োগ করুন:
+আগে `tx proot status` দিয়ে Native `proot`/`proot-distro` ও Debian পরিবেশের তালিকা দেখুন। নতুন Debian পরিবেশের জন্য নির্দিষ্ট ব্যবহারকারীর নামসহ পূর্বরূপ তৈরি করুন, লক্ষ্য ও ডিস্ক-ছবির নির্দিষ্ট SHA-256 পরিচিতি যাচাই করুন, তারপর শুধু সেই পরিকল্পনা প্রয়োগ করুন:
 
 ```sh
-./tx proot setup fresh-preview --user USER
-./tx proot setup fresh-install --yes --plan-id PLAN_ID
+tx proot setup fresh-preview --user USER
+tx proot setup fresh-install --yes --plan-id PLAN_ID
 ```
 
-প্রস্তুতির সময় `sudo`-র গোপন সংকেত গোপন-লেখা ঘরে দিন; নির্দেশে বা ফাইলে রাখবেন না। আগে থেকে থাকা পরিবেশ ইনস্টলার প্রতিস্থাপন করে না। Debian-এর নির্দেশ-সারি ও ডেস্কটপ Native Termux থেকেই চালান: `./tx db` এবং `./tx pgui`।
+প্রস্তুতির সময় `sudo`-র গোপন সংকেত গোপন-লেখা ঘরে দিন; নির্দেশে বা ফাইলে রাখবেন না। আগে থেকে থাকা পরিবেশ ইনস্টলার প্রতিস্থাপন করে না। Debian-এর নির্দেশ-সারি ও ডেস্কটপ Native Termux থেকেই চালান: `tx db` এবং `tx pgui`।
 
 ## ঐচ্ছিক স্থানীয় কৃত্রিম বুদ্ধিমত্তা
 
-`./tx ai status` দিয়ে মডেল ও Termux-পরিচালিত চালনা-পরিবেশ দেখুন। CPU-তে অনুমানের জন্য `./tx ai run --backend cpu` চালান। Vulkan ব্যবহার করতে আগে `./tx ai devices` দিয়ে যন্ত্র দেখুন, তারপর `./tx ai run --backend vulkan` চালান। মডেলের সব স্তর GPU-তে পাঠানোর প্রমাণ না মিললে Vulkan কাজ ব্যর্থ হয়। পরীক্ষামূলক NPU পথ `./tx ai run --backend npu` কেবল SM8735/HTP0-তে চলে এবং CPU-তে নীরবে ফিরে যায় না; পরীক্ষিত ছোট নির্দেশে এটি CPU-র চেয়ে ধীর ছিল। GPU/NPU-র ফল নির্দিষ্ট যন্ত্র ও কাজের জন্য; এগুলো সাধারণ সমর্থন বা প্রকাশযোগ্যতার নিশ্চয়তা নয়।
+`tx ai status` দিয়ে মডেল ও Termux-পরিচালিত চালনা-পরিবেশ দেখুন। CPU-তে অনুমানের জন্য `tx ai run --backend cpu` চালান। Vulkan ব্যবহার করতে আগে `tx ai devices` দিয়ে যন্ত্র দেখুন, তারপর `tx ai run --backend vulkan` চালান। মডেলের সব স্তর GPU-তে পাঠানোর প্রমাণ না মিললে Vulkan কাজ ব্যর্থ হয়। পরীক্ষামূলক NPU পথ `tx ai run --backend npu` কেবল SM8735/HTP0-তে চলে এবং CPU-তে নীরবে ফিরে যায় না; পরীক্ষিত ছোট নির্দেশে এটি CPU-র চেয়ে ধীর ছিল। GPU/NPU-র ফল নির্দিষ্ট যন্ত্র ও কাজের জন্য; এগুলো সাধারণ সমর্থন বা প্রকাশযোগ্যতার নিশ্চয়তা নয়।
 
 ## সীমাবদ্ধতা
 

@@ -16,33 +16,41 @@ git clone https://github.com/soobujmiah/ternuxx.git "$HOME/ternuxx"
 cd "$HOME/ternuxx"
 ```
 
-Review the full Native package/dependency transaction, including approximate package sizes and current host resources, before applying it:
+Install the `tx` entrypoint with the preview-first installer. It places a thin shim at `$PREFIX/bin/tx` and dispatches into this checkout:
 
 ```sh
-./tx install preview --verbose
-./tx install apply --yes --plan-id PLAN_ID
-./tx doctor
+python3 scripts/cli_entrypoint.py preview
+python3 scripts/cli_entrypoint.py apply --yes --plan-id PLAN_ID
+tx help
+```
+
+Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT` before using the installed shim. Then review the full Native package/dependency transaction, including approximate package sizes and current host resources, before applying it:
+
+```sh
+tx install preview --verbose
+tx install apply --yes --plan-id PLAN_ID
+tx doctor
 ```
 
 Use the exact plan ID printed by the preview. The installer refuses removals, upgrades, unapproved repositories, and a changed plan. It installs Native XFCE/Termux:X11 support, diagnostics, audio, and the PRoot runtime. The matching Termux:X11 Android app is installed separately.
 
-Run `./tx install interactive` for named presets, or select one for automation with `--profile NAME`; both use the same exact preview/apply engine. Repeat a non-default profile when applying its plan. The PRoot-provider preset installs the runtime only; guest setup remains a separate preview-confirmed operation. See the [installation guide](docs/INSTALLATION.md) for profiles and custom components.
+Run `tx install interactive` for named presets, or select one for automation with `--profile NAME`; both use the same exact preview/apply engine. Repeat a non-default profile when applying its plan. The PRoot-provider preset installs the runtime only; guest setup remains a separate preview-confirmed operation. See the [installation guide](docs/INSTALLATION.md) for profiles and custom components.
 
 ## Open the workstation
 
 Open the Floating Termux:X11 app, then start the Native desktop:
 
 ```sh
-./tx start
+tx start
 ```
 
 Manage the same Native workstation from the command line, terminal interface, authenticated loopback Web UI, or GTK center:
 
 ```sh
-./tx help
-./tx tui
-./tx web
-./tx gui
+tx help
+tx tui
+tx web
+tx gui
 ```
 
 Each client exposes its supported operations through the shared management service. Review the [capability matrix](docs/architecture/CAPABILITY-MATRIX.md) for current client coverage and open checks.
@@ -52,25 +60,25 @@ Each client exposes its supported operations through the shared management servi
 Preview and install a fresh, pinned Debian Trixie guest with a named guest account:
 
 ```sh
-./tx proot setup fresh-preview --user NAME
-./tx proot setup fresh-install --yes --plan-id PLAN_ID
-./tx proot status
+tx proot setup fresh-preview --user NAME
+tx proot setup fresh-install --yes --plan-id PLAN_ID
+tx proot status
 ```
 
 Read the preview first. The install asks for the guest sudo password in hidden prompts; do not put it in a command or file. An existing guest is preserved. See the [installation guide](docs/INSTALLATION.md) for setup details.
 
 ## SSH and services
 
-`./tx ssh inspect` reports Native SSH state. Ternuxx's managed service is designed for loopback port 8023 and uses preview-confirmed lifecycle changes. Port 8022 belongs to a separate owner-managed channel and is outside Ternuxx service lifecycle control. Verify current configuration and listener evidence before enabling remote access; see [operations](docs/OPERATIONS.md) and [security](SECURITY.md).
+`tx ssh inspect` reports Native SSH state. Ternuxx's managed service is designed for loopback port 8023 and uses preview-confirmed lifecycle changes. Port 8022 belongs to a separate owner-managed channel and is outside Ternuxx service lifecycle control. Verify current configuration and listener evidence before enabling remote access; see [operations](docs/OPERATIONS.md) and [security](SECURITY.md).
 
 ## Troubleshooting
 
 Start with read-only diagnostics:
 
 ```sh
-./tx doctor
-./tx status
-./tx proot status
+tx doctor
+tx status
+tx proot status
 ```
 
 If the Native package preview reports a missing X11 index, install the official `x11-repo` package and refresh package indexes as shown above. For graphics, recovery, audio, and service-specific checks, use the [task guides](docs/README.md).

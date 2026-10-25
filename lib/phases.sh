@@ -46,6 +46,10 @@ _NT_PLAN_MODE=install
 _NT_PLAN_RESOURCE_ESTIMATES='{"schema_version":1,"complete":false,"packages":[]}'
 
 _nt_capture_install_resource_estimates() {
+  if [ ${#_NT_PLAN_TRANSACTION[@]} -eq 0 ]; then
+    _NT_PLAN_RESOURCE_ESTIMATES='{"schema_version":1,"complete":true,"download_bytes":0,"installed_kib":0,"packages":[]}'
+    return 0
+  fi
   local estimate_helper="${_TN_LIB_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)}/package_estimates.py"
   _NT_PLAN_RESOURCE_ESTIMATES="$(python3 "$estimate_helper" -- "${_NT_PLAN_TRANSACTION[@]}")" || {
     _NT_PLAN_RESOURCE_ESTIMATES='{"schema_version":1,"complete":false,"packages":[]}';

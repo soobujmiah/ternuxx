@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 547,
-  "read_count": 178,
+  "document_count": 548,
+  "read_count": 179,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "57398e0833b3b7e0b0a3add611b93440ea7c0911a9a5734c8460bbd4e69db3fb",
-      "lines": 32,
+      "sha256": "bf75128c09b6a1fc95cff00a8a2ed5c4dcf4455d86be44bf397f5726a29d6c7c",
+      "lines": 34,
       "read_status": "read",
-      "read_sha256": "57398e0833b3b7e0b0a3add611b93440ea7c0911a9a5734c8460bbd4e69db3fb"
+      "read_sha256": "bf75128c09b6a1fc95cff00a8a2ed5c4dcf4455d86be44bf397f5726a29d6c7c"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "a23a29384bdb2e14960112bc9e70874bc1d2c819a9fc153c2a103344325e8f6f",
-      "lines": 99,
+      "sha256": "94f7125834b343e9a72d37b8ee408e77dcd8dfcdd8ee953eb2ad280a59f5700d",
+      "lines": 107,
       "read_status": "read",
-      "read_sha256": "a23a29384bdb2e14960112bc9e70874bc1d2c819a9fc153c2a103344325e8f6f"
+      "read_sha256": "94f7125834b343e9a72d37b8ee408e77dcd8dfcdd8ee953eb2ad280a59f5700d"
     },
     {
       "path": "SECURITY.md",
@@ -91,10 +91,10 @@
     {
       "path": "bn/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "618f8d3337e596f729c326c8be9c647880640e308329fb923e854ee389e055b4",
-      "lines": 75,
+      "sha256": "009a19c6ad21aeedbbeb3bbaec6b11faefebf38c6afbddd2197c8c98f3940f54",
+      "lines": 83,
       "read_status": "read",
-      "read_sha256": "618f8d3337e596f729c326c8be9c647880640e308329fb923e854ee389e055b4"
+      "read_sha256": "009a19c6ad21aeedbbeb3bbaec6b11faefebf38c6afbddd2197c8c98f3940f54"
     },
     {
       "path": "bn/README.md",
@@ -147,10 +147,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "f7c08343835cdaab91143d78a7425b629048f45445d9439588759a755cc6dc3a",
-      "lines": 103,
+      "sha256": "b22a8e36b04af695f28ad27687613de20b91c42d05e4bad84a0c19e0c01efcee",
+      "lines": 111,
       "read_status": "read",
-      "read_sha256": "f7c08343835cdaab91143d78a7425b629048f45445d9439588759a755cc6dc3a"
+      "read_sha256": "b22a8e36b04af695f28ad27687613de20b91c42d05e4bad84a0c19e0c01efcee"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "ca8d10e90fc1334bc5cd33adffcc5df2ac216a2a12ecfff494eb09098fb9bbb8",
-      "lines": 61,
+      "sha256": "b41ee3d70ba4bede61c0ef09351750ae0a1a659c12fc3ff56f4878c9894da548",
+      "lines": 62,
       "read_status": "read",
-      "read_sha256": "ca8d10e90fc1334bc5cd33adffcc5df2ac216a2a12ecfff494eb09098fb9bbb8"
+      "read_sha256": "b41ee3d70ba4bede61c0ef09351750ae0a1a659c12fc3ff56f4878c9894da548"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3433,12 +3433,20 @@
       "read_sha256": "f59918415b43b51c0ca9a4df985baddc80dd95f2f5ce9e84166642e08a29ee64"
     },
     {
-      "path": "docs/evidence/2026-10-25-native-installer-profiles.md",
+      "path": "docs/evidence/2026-10-25-native-cli-entrypoint-install.md",
       "kind": "narrative",
-      "sha256": "a7e86bd9bf90c8d6a5579b3ca1cc995cd49dcffbf24f05120860060190dc47a4",
+      "sha256": "b988c29853fe4b2483e5c21a746c760a03a9a33b7c96edd5ec644560afa30f0b",
       "lines": 13,
       "read_status": "read",
-      "read_sha256": "a7e86bd9bf90c8d6a5579b3ca1cc995cd49dcffbf24f05120860060190dc47a4"
+      "read_sha256": "b988c29853fe4b2483e5c21a746c760a03a9a33b7c96edd5ec644560afa30f0b"
+    },
+    {
+      "path": "docs/evidence/2026-10-25-native-installer-profiles.md",
+      "kind": "narrative",
+      "sha256": "ba02014f1d9fc7999219d3ad4b0a44d406f6430fea680be9a700800e638c91cd",
+      "lines": 13,
+      "read_status": "read",
+      "read_sha256": "ba02014f1d9fc7999219d3ad4b0a44d406f6430fea680be9a700800e638c91cd"
     },
     {
       "path": "docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md",
