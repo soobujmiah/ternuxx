@@ -15,27 +15,40 @@ DEBIAN_DESKTOPS = {
     "plasma": {"name": "KDE Plasma", "packages": ("kde-plasma-desktop", "kwin-x11"), "session": "startplasma-x11"},
 }
 DEFAULT_DESKTOPS = ("xfce",)
+DESKTOP_ROUTES = {
+    "xfce": frozenset({"standalone", "nested"}),
+    "lxqt": frozenset({"standalone", "nested"}),
+    "lxde": frozenset({"standalone", "nested"}),
+    "mate": frozenset({"standalone", "nested"}),
+    "plasma": frozenset({"standalone"}),
+}
 
 
 class DesktopError(ValueError):
     pass
 
 
-def validate_selection(provider: str, selected: list[str] | tuple[str, ...] | None = None) -> tuple[str, ...]:
+def validate_selection(provider: str, selected: list[str] | tuple[str, ...] | None = None, *, route: str | None = None) -> tuple[str, ...]:
     if provider != "debian-trixie":
         raise DesktopError("desktop selection is not implemented for this PRoot provider")
+    if route not in {None, "standalone", "nested"}:
+        raise DesktopError("desktop route must be standalone or nested")
+    available = catalog(provider, route=route)
     selected = DEFAULT_DESKTOPS if selected is None else selected
     if (not isinstance(selected, (list, tuple)) or not selected
-            or any(not isinstance(item, str) or item not in DEBIAN_DESKTOPS for item in selected)
+            or any(not isinstance(item, str) or item not in available for item in selected)
             or len(set(selected)) != len(selected)):
-        raise DesktopError("choose one or more route-verified Debian desktop IDs: " + ", ".join(DEBIAN_DESKTOPS))
+        raise DesktopError("choose one or more route-verified Debian desktop IDs: " + ", ".join(available))
     return tuple(item for item in DEBIAN_DESKTOPS if item in selected)
 
 
-def catalog(provider: str) -> tuple[str, ...]:
+def catalog(provider: str, *, route: str | None = None) -> tuple[str, ...]:
     if provider != "debian-trixie":
         raise DesktopError("desktop catalog is not implemented for this PRoot provider")
-    return tuple(DEBIAN_DESKTOPS)
+    if route not in {None, "standalone", "nested"}:
+        raise DesktopError("desktop route must be standalone or nested")
+    return tuple(item for item in DEBIAN_DESKTOPS
+                 if route is None or route in DESKTOP_ROUTES[item])
 
 
 def packages_for(provider: str, selected: list[str] | tuple[str, ...] | None = None) -> list[str]:
@@ -43,17 +56,17 @@ def packages_for(provider: str, selected: list[str] | tuple[str, ...] | None = N
     return list(dict.fromkeys(package for item in choices for package in DEBIAN_DESKTOPS[item]["packages"]))
 
 
-def session_argv(provider: str, selected: str) -> tuple[str, ...]:
-    if provider != "debian-trixie" or selected not in DEBIAN_DESKTOPS:
-        raise DesktopError("unsupported PRoot desktop selection")
+def session_argv(provider: str, selected: str, *, route: str | None = None) -> tuple[str, ...]:
+    if provider != "debian-trixie" or selected not in catalog(provider, route=route):
+        raise DesktopError("unsupported PRoot desktop selection for this route")
     if selected == "gnome":
         return ("gnome-session", "--session=gnome")
     return (str(DEBIAN_DESKTOPS[selected]["session"]),)
 
 
-def session_command(provider: str, selected: str) -> str:
+def session_command(provider: str, selected: str, *, route: str | None = None) -> str:
     """Return the validated entry executable (legacy display label helper)."""
-    return session_argv(provider, selected)[0]
+    return session_argv(provider, selected, route=route)[0]
 
 
 def desktop_id(value: str) -> str:

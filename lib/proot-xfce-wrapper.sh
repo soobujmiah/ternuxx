@@ -19,9 +19,7 @@ case "$desktop_id" in
   lxqt) desktop_argv=(startlxqt) ;;
   lxde) desktop_argv=(startlxde) ;;
   mate) desktop_argv=(mate-session) ;;
-  gnome) desktop_argv=(gnome-session --session=gnome) ;;
   plasma) desktop_argv=(startplasma-x11) ;;
-  cinnamon) desktop_argv=(cinnamon-session) ;;
   *) echo "Unsupported Debian desktop selection" >&2; exit 2 ;;
 esac
 guest_user="$(PYTHONPATH="$SCRIPT_LIB_DIR" python3 -c 'import os,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro="debian",prefix=os.environ["PREFIX"]))')" || {
@@ -85,9 +83,7 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
       lxqt) desktop_argv=(startlxqt); export XDG_CURRENT_DESKTOP=LXQt XDG_SESSION_DESKTOP=LXQt DESKTOP_SESSION=lxqt ;;
       lxde) desktop_argv=(startlxde); export XDG_CURRENT_DESKTOP=LXDE XDG_SESSION_DESKTOP=LXDE DESKTOP_SESSION=lxde ;;
       mate) desktop_argv=(mate-session); export XDG_CURRENT_DESKTOP=MATE XDG_SESSION_DESKTOP=MATE DESKTOP_SESSION=mate ;;
-      gnome) desktop_argv=(gnome-session --session=gnome); export XDG_CURRENT_DESKTOP=GNOME XDG_SESSION_DESKTOP=gnome DESKTOP_SESSION=gnome ;;
       plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma ;;
-      cinnamon) desktop_argv=(cinnamon-session); export XDG_CURRENT_DESKTOP=X-Cinnamon XDG_SESSION_DESKTOP=X-Cinnamon DESKTOP_SESSION=cinnamon ;;
       *) echo "Unsupported Debian desktop selection" >&2; exit 2 ;;
     esac
     export XDG_SESSION_TYPE=x11

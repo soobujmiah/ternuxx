@@ -11,6 +11,18 @@ import proot_desktops
 
 
 class ProotDesktopCatalogTests(unittest.TestCase):
+    def test_catalog_and_session_selection_are_route_specific(self):
+        self.assertEqual(proot_desktops.catalog("debian-trixie", route="nested"),
+                         ("xfce", "lxqt", "lxde", "mate"))
+        self.assertEqual(proot_desktops.catalog("debian-trixie", route="standalone"),
+                         ("xfce", "lxqt", "lxde", "mate", "plasma"))
+        self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["mate"], route="nested"),
+                         ("mate",))
+        with self.assertRaisesRegex(proot_desktops.DesktopError, "route-verified"):
+            proot_desktops.validate_selection("debian-trixie", ["plasma"], route="nested")
+        with self.assertRaisesRegex(proot_desktops.DesktopError, "this route"):
+            proot_desktops.session_command("debian-trixie", "plasma", route="nested")
+
     def test_debian_desktops_map_to_fixed_packages_and_session_commands(self):
         self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["mate", "lxqt"]),
                          ("lxqt", "mate"))

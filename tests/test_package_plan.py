@@ -94,7 +94,7 @@ printf 'COMBINED %s\n' "${_NT_BASE_PACKAGES[*]}"
 printf 'COMBINED_SKIP %s\n' "$_NT_ACTIVE_SKIPPED_COMPONENTS"
 _nt_select_install_profile custom 'desktop,proot,developer,desktop'
 printf 'CUSTOM %s\n' "${_NT_BASE_PACKAGES[*]}"
-_nt_select_install_profile custom 'lxqt,mate,cinnamon,plasma'
+_nt_select_install_profile custom 'mate,plasma'
 printf 'ALT %s\n' "${_NT_BASE_PACKAGES[*]}"
 printf 'ALT_SKIP %s\n' "$_NT_ACTIVE_SKIPPED_COMPONENTS"
 """
@@ -111,7 +111,7 @@ printf 'ALT_SKIP %s\n' "$_NT_ACTIVE_SKIPPED_COMPONENTS"
         self.assertIn("CUSTOM python termux-x11-nightly dbus xfce4-session", result.stdout)
         custom = result.stdout.split("CUSTOM ", 1)[1].splitlines()[0].split()
         self.assertEqual(len(custom), len(set(custom)))
-        self.assertIn("ALT python lxqt mate cinnamon plasma-desktop\n", result.stdout)
+        self.assertIn("ALT python mate plasma-desktop\n", result.stdout)
         self.assertIn("ALT_SKIP desktop,audio,proot,graphics,developer,guest\n", result.stdout)
 
     def test_native_debian_combined_preview_contains_both_exact_plans(self):
@@ -228,13 +228,15 @@ printf '%s\n' "$_NT_PLAN_RESOURCE_ESTIMATES"
         self.assertEqual(estimate["installed_kib"], 0)
         self.assertEqual(estimate["packages"], [])
 
-    def test_custom_install_profile_rejects_unknown_component_groups(self):
-        result = subprocess.run(
-            ["bash", "-c", 'source "$1"; _nt_select_install_profile custom "desktop,arbitrary"',
-             "bash", str(PHASES)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
-        )
-        self.assertEqual(result.returncode, 2)
-        self.assertIn("Unknown component group", result.stderr)
+    def test_custom_install_profile_rejects_unknown_and_unverified_desktop_groups(self):
+        for group in ("arbitrary", "lxqt", "cinnamon"):
+            with self.subTest(group=group):
+                result = subprocess.run(
+                    ["bash", "-c", 'source "$1"; _nt_select_install_profile custom "desktop,' + group + '"',
+                     "bash", str(PHASES)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+                )
+                self.assertEqual(result.returncode, 2)
+                self.assertIn("Unknown component group", result.stderr)
 
     def test_update_plan_pins_direct_candidates_and_parses_upgrade_closure(self):
         simulation = "\n".join([

@@ -27,3 +27,14 @@ A read-only Debian PRoot user command bound only the Native PulseAudio cookie in
 - Native and Debian package health: `dpkg --audit` clean; Debian `apt-get check` exit 0.
 - Native XFCE `:1` is process-live; `xdotool getdisplaygeometry` returned `752x1155`; standalone `:0` and nested `:2` are stopped; managed guest-session inventory is empty.
 - This catalog-only correction did not start or alter any desktop session. No graphics workload was run. Adreno/Zink application rendering, Android presentation, sustained thermal qualification, audible playback, and GUI visibility remain unverified.
+
+## 2026-10-25 20:27 UTC route-aware desktop selection
+
+The authoritative Debian route matrix shows XFCE, LXQt, LXDE, and MATE pass both standalone :0 and nested :2; Plasma passes standalone only. The shared catalog now encodes that matrix. tx pgui filters explicit-mode choices and performs a second route guard after resolving auto, so Plasma cannot start on nested :2. Generated Plasma shortcuts specify standalone mode; other passing desktop shortcuts remain automatic. Failed GNOME/Cinnamon cases were removed from launch wrappers and selectable catalogs. Failed Native LXQt/Cinnamon package groups were also removed from the custom installer, retaining Native XFCE/MATE/Plasma.
+
+CLI, TUI, Web setup examples, and tx help now use the supported desktop IDs. Management shortcut payloads include route metadata and matching launch commands. No desktop session or package transaction was started for this source/catalog change.
+
+- bash scripts/repo_test.sh: 1,180 tests passed in 171.265 seconds; CLI help contract passed.
+- Focused PRoot desktop, GUI routing, shortcut, and Native package-profile tests passed.
+- tools.audit_documents: zero broken links; repo_knowledge verify: zero findings; shell syntax and git diff --check passed.
+- No live application rendering or Android visibility test was performed; route decisions are from the dated live matrix.

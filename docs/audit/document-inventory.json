@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "1308c2f6c7bd2ffc3327c93637ad5345c299cd609da0494fb1ec876c7e82a57a",
+      "sha256": "c57a3ced9be9842a8cb02687c66e7911b87f4b3bd3f5f0089f5241e994274774",
       "lines": 37,
       "read_status": "pending",
       "read_sha256": null
@@ -147,7 +147,7 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "8ebbadf9ce4aecf50cc156df66ff551568d1370cfb179e7d185fb73bce71d025",
+      "sha256": "b7c1df2531921b1e85a4bc68bdc6e6884557321dd6446697efbf6abfe74de7bf",
       "lines": 120,
       "read_status": "pending",
       "read_sha256": null
@@ -3555,8 +3555,8 @@
     {
       "path": "docs/evidence/2026-10-26-desktop-cleanup-and-pulse-recovery.md",
       "kind": "narrative",
-      "sha256": "d786e7d6b1742ab3063f22f3f22cb6f01915e51ab98cebd10025783da494a7dc",
-      "lines": 29,
+      "sha256": "e9f277bf259ae77c7de2a1b595a98d1680a2e6b3a56ab26bf015bfeb25bef5ad",
+      "lines": 40,
       "read_status": "pending",
       "read_sha256": null
     },

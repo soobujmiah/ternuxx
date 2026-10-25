@@ -524,6 +524,8 @@ class ProotShortcutTests(unittest.TestCase):
         self.assertIn('pgui start --mode auto --desktop "xfce"', xfce)
         self.assertIn("Terminal=true", xfce)
         self.assertIn("X-Ternuxx-Generated=proot-desktop-v1", xfce)
+        plasma = proot_shortcuts._desktop_session_entry("plasma", cli=str(self.repo / "tx")).decode()
+        self.assertIn('pgui start --mode standalone --desktop "plasma"', plasma)
 
     def test_bulk_sync_preview_preserves_unmanaged_conflicts(self) -> None:
         prefix = Path(self.temp.name) / "termux"

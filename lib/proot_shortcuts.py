@@ -406,7 +406,8 @@ def _desktop_session_entry(desktop_id: str, *, cli: str) -> bytes:
     import proot_desktops
     selected = proot_desktops.desktop_id(desktop_id)
     label = proot_desktops.DEBIAN_DESKTOPS[selected]["name"]
-    command = f"{_desktop_quote(cli)} pgui start --mode auto --desktop {_desktop_quote(selected)}"
+    route = "standalone" if selected == "plasma" else "auto"
+    command = f"{_desktop_quote(cli)} pgui start --mode {route} --desktop {_desktop_quote(selected)}"
     lines = ["[Desktop Entry]", "Version=1.0", "Type=Application",
         f"Name=Start {label} (PRoot)",
         "Comment=Start this Ternuxx-managed Debian PRoot desktop",
@@ -1117,9 +1118,11 @@ def list_shortcuts(*, home: str, prefix: str, xdg_data_home: str | None = None,
             raw = b"unsafe"
         expected = _desktop_session_entry(desktop_id, cli=cli)
         owned = raw == expected
+        launch_route = "standalone" if desktop_id == "plasma" else "auto"
         desktop_sessions.append({"id": desktop_id,
             "name": proot_desktops.DEBIAN_DESKTOPS[desktop_id]["name"],
-            "launch_command": f"tx pgui start --mode auto --desktop {desktop_id}",
+            "route": "standalone-only" if desktop_id == "plasma" else "nested-and-standalone",
+            "launch_command": f"tx pgui start --mode {launch_route} --desktop {desktop_id}",
             "shortcut_id": target.name,
             "shortcut_state": "absent" if raw is None else "installed" if owned else "modified/conflict",
             "shortcut_owner": "ternuxx" if owned else "none/unknown",

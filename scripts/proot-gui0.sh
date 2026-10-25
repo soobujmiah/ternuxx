@@ -30,25 +30,31 @@ if [ "$ACTION" = start ]; then
   [[ "$MODE" = auto || "$MODE" = standalone || "$MODE" = nested ]] || { echo "--mode must be auto, standalone, or nested." >&2; exit 2; }
   if [ "$ACTION" = start ]; then
     guest_user="$(PYTHONPATH="$ROOT/lib" python3 -c 'import os,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro="debian",prefix=os.environ["PREFIX"]))')" 2>/dev/null || { echo "Could not resolve one ordinary Debian guest account; no desktop was started." >&2; exit 1; }
-    selection="$(PYTHONPATH="$ROOT/lib" python3 - "$PREFIX/var/lib/proot-distro/containers/debian/rootfs" "$DESKTOP_ID" <<'PYSEL'
+    selection="$(PYTHONPATH="$ROOT/lib" python3 - "$PREFIX/var/lib/proot-distro/containers/debian/rootfs" "$DESKTOP_ID" "$MODE" <<'PYSEL'
 import sys
 import proot_desktops
 installed = proot_desktops.installed_desktops(sys.argv[1])
 requested = sys.argv[2]
+route = None if sys.argv[3] == "auto" else sys.argv[3]
+route_ids = proot_desktops.catalog("debian-trixie", route=route)
+available = [item for item in installed if item in route_ids]
 if requested:
     if requested not in installed:
-        print("requested desktop is not installed; available: " + (", ".join(installed) or "none"), file=sys.stderr)
+        print("requested desktop is not installed; available: " + (", ".join(available) or "none"), file=sys.stderr)
+        raise SystemExit(2)
+    if requested not in route_ids:
+        print("requested desktop is not verified on the " + route + " route; available: " + (", ".join(available) or "none"), file=sys.stderr)
         raise SystemExit(2)
     choice = requested
-elif len(installed) == 1:
-    choice = installed[0]
-elif not installed:
-    print("no supported Debian desktop is installed", file=sys.stderr)
+elif len(available) == 1:
+    choice = available[0]
+elif not available:
+    print("no route-verified Debian desktop is installed for this mode", file=sys.stderr)
     raise SystemExit(2)
 else:
-    print("choose an installed Debian desktop with --desktop: " + ", ".join(installed), file=sys.stderr)
+    print("choose an installed desktop with --desktop: " + ", ".join(available), file=sys.stderr)
     raise SystemExit(2)
-print(choice, proot_desktops.session_command("debian-trixie", choice))
+print(choice, proot_desktops.session_command("debian-trixie", choice, route=route))
 PYSEL
 )" || exit $?
     read -r DESKTOP_ID DESKTOP_SESSION <<<"$selection"
@@ -56,7 +62,7 @@ PYSEL
 fi
 
 usage() { cat <<'USAGE'
-Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|gnome|plasma|cinnamon]|status|stop]
+Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|plasma]|status|stop]
 Auto uses standalone :0 when Native GUI is stopped, otherwise nested Xephyr :2 inside Native :1.
 Standalone and Native desktop sessions cannot run together. Nested mode holds the lifecycle lock until closed.
 Choose an installed environment with `tx pgui start --desktop ID`; when several are installed, selection is required.
@@ -160,6 +166,15 @@ exit "$result"
     native_report="$(python3 "$STATE_HELPER" inspect "$HOME" "$NATIVE_STATE" /proc "$TMP_ROOT")" || { echo "Native GUI ownership is unknown; refusing PRoot GUI startup." >&2; exit 1; }
     native_state="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("state","unknown"))' <<<"$native_report")"
     [ "$MODE" != auto ] || { [ "$native_state" = running ] && MODE=nested || MODE=standalone; }
+    PYTHONPATH="$ROOT/lib" python3 - "$DESKTOP_ID" "$MODE" <<'PYROUTE'
+import sys
+import proot_desktops
+selected, route = sys.argv[1:]
+if selected not in proot_desktops.catalog("debian-trixie", route=route):
+    available = ", ".join(proot_desktops.catalog("debian-trixie", route=route))
+    print(f"Debian {selected} has no accepted {route} route; available: {available}", file=sys.stderr)
+    raise SystemExit(2)
+PYROUTE
     if [ "$MODE" = nested ]; then
       [ "$native_state" = running ] || { echo "Nested PRoot GUI requires the verified Native desktop to be running." >&2; exit 1; }
       native_display="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("display",""))' <<<"$native_report")"
@@ -203,10 +218,8 @@ case "$TERNUXX_DESKTOP_ID" in
   lxqt) desktop_argv=(startlxqt); export XDG_CURRENT_DESKTOP=LXQt XDG_SESSION_DESKTOP=LXQt DESKTOP_SESSION=lxqt ;;
   lxde) desktop_argv=(startlxde); export XDG_CURRENT_DESKTOP=LXDE XDG_SESSION_DESKTOP=LXDE DESKTOP_SESSION=lxde ;;
   mate) desktop_argv=(mate-session); export XDG_CURRENT_DESKTOP=MATE XDG_SESSION_DESKTOP=MATE DESKTOP_SESSION=mate ;;
-  gnome) desktop_argv=(gnome-session --session=gnome); export XDG_CURRENT_DESKTOP=GNOME XDG_SESSION_DESKTOP=gnome DESKTOP_SESSION=gnome ;;
   # Xephyr lacks GLX; Debian KWin's X11 backend can manage windows with its compositor disabled.
   plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma KWIN_COMPOSE=N ;;
-  cinnamon) desktop_argv=(cinnamon-session); export XDG_CURRENT_DESKTOP=X-Cinnamon XDG_SESSION_DESKTOP=X-Cinnamon DESKTOP_SESSION=cinnamon ;;
   *) echo "Unsupported desktop selection" >&2; exit 2 ;;
 esac
 export XDG_SESSION_TYPE=x11

@@ -47,8 +47,8 @@ EOF
 Debian PRoot uses the Native Termux host. `tx install preview` includes the
 proot-distro runtime. Preview with `tx proot setup fresh-preview --user NAME
 --desktops xfce,lxqt`; Debian desktop IDs are `xfce`, `lxqt`, `lxde`, `mate`,
-`gnome`, `plasma`, and `cinnamon`; only selected desktops are installed (XFCE
-is the default). Review the exact
+`plasma`; only selected desktops are installed (XFCE is the default). Plasma is
+verified on standalone :0; nested :2 supports XFCE, LXQt, LXDE, and MATE. Review the exact
 image/package plan, then apply it with
 `tx proot setup fresh-install --yes --plan-id ID`.
 Choose `--sudo-mode password` for hidden prompts, or `passwordless` for
@@ -122,7 +122,7 @@ tx install apply [--profile NAME] --yes --plan-id ID — Apply the exact saved p
 tx install preview --profile native-debian --user NAME — Preview Native + fresh Debian
 tx install apply --profile native-debian --user NAME --yes --plan-id NATIVE_ID --guest-plan-id GUEST_ID
 Profiles: minimal-native, full-native, graphical, developer, native-proot-provider, native-debian, custom.
-Custom groups: desktop,audio,proot,graphics,developer,lxqt,mate,cinnamon,plasma. All profiles use the same
+Custom groups: desktop,audio,proot,graphics,developer,mate,plasma. All profiles use the same
 repository and dependency checks. The PRoot-provider profile installs the runtime only.
 The native-debian profile reviews both exact plans, applies Native packages first, then
 runs the existing hidden-prompt fresh guest setup. If Native packages are already present,

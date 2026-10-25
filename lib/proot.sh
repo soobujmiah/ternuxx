@@ -465,10 +465,10 @@ nt_cmd_proot() {
           nt_fail "Fresh install requires --yes --plan-id ID from the matching preview."; return 2;
         }; [ -z "$user" ] || setup_args+=(--user "$user"); setup_args+=(--sudo-mode "$sudo_mode" --yes --plan-id "$plan_id") ;;
         fresh-preview) [ -n "$user" ] && [ -z "$plan_id" ] && [ "$confirmed" -eq 0 ] || {
-          nt_fail "Usage: tx proot setup fresh-preview --user NAME [--groups base,fonts] [--desktops xfce,lxqt,lxde,mate,gnome,plasma,cinnamon] [--sudo-mode password|passwordless]"; return 2;
+          nt_fail "Usage: tx proot setup fresh-preview --user NAME [--groups base,fonts] [--desktops xfce,lxqt,lxde,mate,plasma] [--sudo-mode password|passwordless]"; return 2;
         }; setup_args+=(--user "$user" --sudo-mode "$sudo_mode") ;;
         fresh-resume-preview) [ -n "$user" ] && [ -n "$plan_id" ] && [ "$confirmed" -eq 0 ] || {
-          nt_fail "Usage: tx proot setup fresh-resume-preview --user NAME --plan-id FAILED_PLAN_ID [--groups base,fonts] [--desktops xfce,lxqt,lxde,mate,gnome,plasma,cinnamon] [--sudo-mode password|passwordless]"; return 2;
+          nt_fail "Usage: tx proot setup fresh-resume-preview --user NAME --plan-id FAILED_PLAN_ID [--groups base,fonts] [--desktops xfce,lxqt,lxde,mate,plasma] [--sudo-mode password|passwordless]"; return 2;
         }; setup_args+=(--user "$user" --plan-id "$plan_id" --sudo-mode "$sudo_mode") ;;
       esac
       if [ -n "$desktop_choices" ]; then
