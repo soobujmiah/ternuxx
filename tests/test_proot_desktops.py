@@ -29,11 +29,18 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxde", "lxqt"]),
                          ["lxqt", "openbox", "lxde-core"])
         self.assertEqual(proot_desktops.session_command("debian-trixie", "mate"), "mate-session")
-        self.assertEqual(proot_desktops.catalog("debian-trixie"), ("xfce", "lxqt", "lxde", "mate", "plasma"))
-        self.assertEqual(proot_desktops.session_argv("debian-trixie", "plasma"), ("startplasma-x11",))
+        self.assertEqual(proot_desktops.catalog("debian-trixie"),
+                         ("xfce", "lxqt", "lxde", "mate", "plasma", "gnome", "cinnamon"))
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["gnome"]), ["gnome-core"])
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["cinnamon"]),
+                         ["cinnamon-desktop-environment"])
+        self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["plasma"], route="standalone"),
+                         ("plasma",))
         for failed in ("gnome", "cinnamon"):
             with self.subTest(desktop=failed), self.assertRaises(proot_desktops.DesktopError):
-                proot_desktops.validate_selection("debian-trixie", [failed])
+                proot_desktops.validate_selection("debian-trixie", [failed], route="standalone")
+            self.assertEqual(proot_desktops.DESKTOP_ROUTES[failed], frozenset())
+        self.assertEqual(proot_desktops.DESKTOP_ROUTES["plasma"], frozenset({"standalone"}))
 
     def test_invalid_or_unsupported_selections_fail_closed(self):
         for selection in ([], ["xfce", "xfce"], ["xfce;id"], ["unknown"]):
@@ -57,7 +64,7 @@ class ProotDesktopCatalogTests(unittest.TestCase):
             set(base) - {"xfce4", "xfce4-terminal"}))
         self.assertEqual(set(setup._workstation_packages(manifest, groups, ("xfce",))), set(base))
 
-    def test_plasma_is_not_advertised_until_its_x11_window_manager_is_installed(self):
+    def test_installed_plasma_package_is_launchable_only_on_standalone_route(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             status = root / "var/lib/dpkg/status"
@@ -66,7 +73,10 @@ class ProotDesktopCatalogTests(unittest.TestCase):
             self.assertNotIn("plasma", proot_desktops.installed_desktops(root))
             with status.open("a", encoding="utf-8") as stream:
                 stream.write("\nPackage: kwin-x11\nStatus: install ok installed\n")
-            self.assertIn("plasma", proot_desktops.installed_desktops(root))
+            installed = proot_desktops.installed_desktops(root)
+            self.assertIn("plasma", installed)
+            self.assertIn("plasma", proot_desktops.launchable_desktops(installed))
+            self.assertNotIn("plasma", proot_desktops.launchable_desktops(installed, route="nested"))
 
     def test_inventory_reports_only_fully_installed_desktop_packages(self):
         with tempfile.TemporaryDirectory() as temporary:

@@ -1001,7 +1001,7 @@ def main() -> int:
     parser.add_argument("--plan-id", default="")
     parser.add_argument("--backup-id", default="")
     parser.add_argument("--groups", help="comma-separated fresh Debian package groups; base is required")
-    parser.add_argument("--desktops", help="comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate,plasma")
+    parser.add_argument("--desktops", help="comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate,plasma,gnome,cinnamon")
     parser.add_argument("--sudo-mode", choices=("password", "passwordless"), default="password",
                         help="guest account sudo authentication; passwordless is scoped to the PRoot guest")
     parser.add_argument("--yes", action="store_true")

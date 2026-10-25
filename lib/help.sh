@@ -47,8 +47,9 @@ EOF
 Debian PRoot uses the Native Termux host. `tx install preview` includes the
 proot-distro runtime. Preview with `tx proot setup fresh-preview --user NAME
 --desktops xfce,lxqt`; Debian desktop IDs are `xfce`, `lxqt`, `lxde`, `mate`,
-`plasma`; only selected desktops are installed (XFCE is the default). Plasma is
-verified on standalone :0; nested :2 supports XFCE, LXQt, LXDE, and MATE. Review the exact
+`plasma`, `gnome`, `cinnamon`; only selected desktops are installed (XFCE is the default).
+XFCE, LXQt, LXDE, and MATE are live-checked on standalone :0 and nested :2;
+Plasma is accepted on standalone :0 only; GNOME and Cinnamon are install-catalog options without an accepted route. Review the exact
 image/package plan, then apply it with
 `tx proot setup fresh-install --yes --plan-id ID`.
 Choose `--sudo-mode password` for hidden prompts, or `passwordless` for

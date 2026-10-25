@@ -397,7 +397,8 @@ def _installed_desktops(prefix: str) -> list[str]:
         import proot_desktops
         import proot_setup
         root, _metadata = proot_setup._safe_rootfs(prefix)
-        return proot_desktops.installed_desktops(root)
+        installed = proot_desktops.installed_desktops(root)
+        return proot_desktops.launchable_desktops(installed)
     except (OSError, ValueError):
         return []
 
@@ -406,7 +407,10 @@ def _desktop_session_entry(desktop_id: str, *, cli: str) -> bytes:
     import proot_desktops
     selected = proot_desktops.desktop_id(desktop_id)
     label = proot_desktops.DEBIAN_DESKTOPS[selected]["name"]
-    route = "standalone" if selected == "plasma" else "auto"
+    routes = proot_desktops.DESKTOP_ROUTES.get(selected, frozenset())
+    if not routes:
+        raise ShortcutError("Debian desktop has no accepted live launch route")
+    route = "auto" if routes == frozenset({"standalone", "nested"}) else next(iter(routes))
     command = f"{_desktop_quote(cli)} pgui start --mode {route} --desktop {_desktop_quote(selected)}"
     lines = ["[Desktop Entry]", "Version=1.0", "Type=Application",
         f"Name=Start {label} (PRoot)",
@@ -1118,10 +1122,13 @@ def list_shortcuts(*, home: str, prefix: str, xdg_data_home: str | None = None,
             raw = b"unsafe"
         expected = _desktop_session_entry(desktop_id, cli=cli)
         owned = raw == expected
-        launch_route = "standalone" if desktop_id == "plasma" else "auto"
+        routes = proot_desktops.DESKTOP_ROUTES.get(desktop_id, frozenset())
+        launch_route = "auto" if routes == frozenset({"standalone", "nested"}) else next(iter(routes))
+        route_label = ("nested-and-standalone" if routes == frozenset({"standalone", "nested"})
+                       else f"{launch_route}-only")
         desktop_sessions.append({"id": desktop_id,
             "name": proot_desktops.DEBIAN_DESKTOPS[desktop_id]["name"],
-            "route": "standalone-only" if desktop_id == "plasma" else "nested-and-standalone",
+            "route": route_label,
             "launch_command": f"tx pgui start --mode {launch_route} --desktop {desktop_id}",
             "shortcut_id": target.name,
             "shortcut_state": "absent" if raw is None else "installed" if owned else "modified/conflict",
