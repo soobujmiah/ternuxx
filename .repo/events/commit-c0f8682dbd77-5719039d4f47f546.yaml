@@ -1,0 +1,7 @@
+event_id: commit-c0f8682dbd77-5719039d4f47f546
+repository: soobujmiah/ternuxx
+commit: c0f8682dbd77a93910f0fc4efa2d076b425bccca
+kind: commit
+occurred_at: '2026-10-25T17:24:25Z'
+status: completed
+summary: 'fix: recover exact stale nested PRoot display lock'
