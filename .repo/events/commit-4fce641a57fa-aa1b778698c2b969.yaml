@@ -1,0 +1,7 @@
+event_id: commit-4fce641a57fa-aa1b778698c2b969
+repository: soobujmiah/ternuxx
+commit: 4fce641a57fa9d07ed418e56ce254eb5c91b7c75
+kind: commit
+occurred_at: '2026-10-25T23:28:18Z'
+status: completed
+summary: 'docs: qualify guest diagnostic side effect'
