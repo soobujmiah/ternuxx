@@ -1,0 +1,7 @@
+event_id: commit-b25d9b01dfb8-c6a32c80372eb9f7
+repository: soobujmiah/ternuxx
+commit: b25d9b01dfb8ec06364de3d84044f8cdefbb2e9a
+kind: commit
+occurred_at: '2026-10-25T20:32:54Z'
+status: completed
+summary: 'fix(desktop): enforce route-specific availability'
