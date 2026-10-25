@@ -1,0 +1,7 @@
+event_id: commit-f119a128db89-07a0a65df5815474
+repository: soobujmiah/ternuxx
+commit: f119a128db89b0edb5bdc3ee0c4279a1f0a05527
+kind: commit
+occurred_at: '2026-10-25T20:37:09Z'
+status: completed
+summary: 'docs(evidence): record guarded Vulkan preflight'
