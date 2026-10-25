@@ -1,0 +1,7 @@
+event_id: commit-643d3dd60c1f-7fc25478fcdd5831
+repository: soobujmiah/ternuxx
+commit: 643d3dd60c1fa5caeb71e926c2e8081781b5f9b4
+kind: commit
+occurred_at: '2026-10-25T23:46:16Z'
+status: completed
+summary: 'test: align install help contract with guided flow'
