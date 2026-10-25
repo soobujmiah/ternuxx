@@ -27,13 +27,19 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertIn("session processes are live on standalone display :0", script)
         self.assertIn("Desktop shell/panel readiness and Android visibility are not verified", script)
 
+    def test_guest_desktop_launchers_drop_the_native_termux_path(self) -> None:
+        expected = "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        for path in (ROOT / "scripts/proot-gui0.sh", ROOT / "lib/proot-xfce-wrapper.sh"):
+            with self.subTest(path=path.name):
+                self.assertIn(expected, path.read_text(encoding="utf-8"))
+
     def test_nested_route_matches_native_orientation_and_resizes(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
         self.assertIn('query_display_geometry(os.environ["DISPLAY"])', script)
         self.assertIn('/usr/bin/Xephyr :2 -glamor_gles2 -screen "$native_geometry" -resizeable', script)
         self.assertIn('--env TERNUXX_REPO_ROOT="$ROOT"', script)
         self.assertIn('gnome) desktop_argv=(gnome-session --session=gnome-xorg)', script)
-        self.assertIn('plasma) desktop_argv=(startplasma-x11)', script)
+        self.assertIn('plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma KWIN_COMPOSE=N', script)
         self.assertIn('cinnamon) desktop_argv=(cinnamon-session)', script)
         self.assertIn('DISPLAY=:2 dbus-launch --exit-with-session "${desktop_argv[@]}" &', script)
         self.assertIn('dbus-daemon --session --address="$system_bus_address" --nofork', script)

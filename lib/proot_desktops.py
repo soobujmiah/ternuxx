@@ -13,7 +13,7 @@ DEBIAN_DESKTOPS = {
     "lxde": {"name": "LXDE", "packages": ("lxde-core",), "session": "startlxde"},
     "mate": {"name": "MATE", "packages": ("mate-desktop-environment-core",), "session": "mate-session"},
     "gnome": {"name": "GNOME", "packages": ("gnome-core",), "session": "gnome-session"},
-    "plasma": {"name": "KDE Plasma", "packages": ("kde-plasma-desktop",), "session": "startplasma-x11"},
+    "plasma": {"name": "KDE Plasma", "packages": ("kde-plasma-desktop", "kwin-x11"), "session": "startplasma-x11"},
     "cinnamon": {"name": "Cinnamon", "packages": ("cinnamon-desktop-environment",), "session": "cinnamon-session"},
 }
 DEFAULT_DESKTOPS = ("xfce",)

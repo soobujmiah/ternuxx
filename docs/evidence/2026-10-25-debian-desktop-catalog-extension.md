@@ -82,3 +82,24 @@ Standalone `:0`: XFCE passed after the delayed check; the guest-user X tree show
 Nested `:2` through Native `:1`: XFCE passed after a delayed check; `xwininfo` showed top/bottom panel windows, the desktop surface, and `xfwm4`. The startup GLES context reported Zink/Vulkan Adreno 825 Turnip. With that session's configured Zink environment, `timeout 20s vkcube --gpu_number 0 --c 120` selected Adreno 825 and exited 0. Xephyr reports DRI3 unavailable; nested GLX is not verified. GNOME showed `gnome-session-failed` after 18 seconds. Plasma remained in `startplasma-x11`/`plasma_session` waiting for KSplash; KWin and plasmashell desktop surfaces did not appear, and logs reported GLX initialization failure. Cinnamon's session manager/settings daemons started, but `cinnamon.desktop` failed to register; its launcher reported a missing fallback and PRoot later reported `fork: Function not implemented` while the test was being interrupted. No nested Cinnamon desktop was accepted. After the test, the exact Debian `.l2s` stale `:2` lock/socket chain left by the interrupted process was recovered by the guarded launcher; it did not signal any process. A final nested XFCE run passed and Ctrl-C removed its socket/lock cleanly.
 
 Final live state: Native XFCE on `:1` running; standalone `:0` stopped; nested `:2` absent; `tx proot sessions list` empty. `gui_visible` remains unknown because this runtime has no Android screenshot/visibility channel. No password was used.
+
+
+## 2026-10-25 18:04 UTC follow-up: all installed desktops on nested `:2` and standalone `:0`
+
+I repeated the desktop checks against the current Debian guest and current launcher code. Its supported, fully installed desktop set is XFCE, GNOME, Plasma, and Cinnamon; LXQt, LXDE, and MATE are not installed in this guest. The guest-only `PATH` in both the nested and standalone launchers was active during these tests (`/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin`), so missing guest programs could not silently fall through to Termux host binaries.
+
+Nested `:2`, with Native XFCE kept live on `:1`:
+
+- XFCE passed: after startup, the guest-user `xwininfo -root -tree` showed `xfce4-session`, `xfwm4`, both `xfce4-panel` windows, and the `xfdesktop` surface. GLES startup context reported Zink/Vulkan on Adreno 825 Turnip. Xephyr continued to report DRI3 unavailable; nested GLX is not accepted.
+- GNOME failed: the root tree showed the full-screen `gnome-session-failed` window; its log reported no hardware 3D support from GNOME's acceleration check.
+- Plasma failed full-session acceptance: `startplasma-x11` and `plasma_session` remained alive, but KWin and `plasmashell` did not appear in the process tree after 45 seconds. Logs reported GLX configuration failure and `Could not initialize GLX`, even with the X11 `kwin-x11` package installed and the nested no-compositor environment setting.
+- Cinnamon failed: the root tree showed `Cinnamon just crashed`; the session manager stayed alive, but the Cinnamon shell did not. `cinnamon-launcher`'s fallback executable was absent from the isolated Debian guest PATH.
+
+Standalone `:0` (Native `:1` was stopped only for these checks and restored afterward):
+
+- XFCE passed: the guest-user root tree showed `xfce4-session`, `xfwm4`, top and bottom panel windows, and the desktop surface.
+- GNOME failed: the full-screen `gnome-session-failed` window remained after 30 seconds, alongside the same acceleration-check warning.
+- Plasma was partial: after 55 seconds, KWin, `ksmserver`, and `plasmashell` processes were live, but the root tree showed a full-screen `kscreenlocker_greet` and no panel or desktop surface. This is not a usable full-desktop pass.
+- Cinnamon was partial: Cinnamon/Muffin and Nemo's desktop surface were live, but no panel window appeared. The log showed Cinnamon applet errors; no usable full-desktop pass is claimed.
+
+Each standalone `tx pgui graphics verify` run created GLES and GLX contexts reporting Zink/Vulkan Adreno 825 Turnip and enumerated Adreno 825/llvmpipe devices. These are context/device probes only; no per-desktop application draw or Android frame presentation was verified. The focused GUI/catalog/setup suite passed 25/25 tests; `git diff --check` passed. Native XFCE was restored and verified live on `:1`; standalone `:0` and nested `:2` are stopped, `tx proot sessions list` is empty, and `gui_visible` remains unknown.

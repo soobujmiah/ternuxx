@@ -177,8 +177,10 @@ def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
     if status_hash != after_hash:
         raise DesktopSetupError("guest dpkg status changed during the read-only preview")
     transaction_packages = transaction["new_packages"]
-    versions = {name: version for name, version in transaction_packages}
-    missing = sorted(set(packages) - set(versions))
+    transaction_versions = {name: version for name, version in transaction_packages}
+    versions = {package: transaction_versions.get(package, before.get(package))
+                for package in packages}
+    missing = sorted(package for package, version in versions.items() if version is None)
     if missing:
         raise DesktopSetupError("APT did not include selected desktop packages: " + ", ".join(missing))
     body: dict[str, object] = {

@@ -20,7 +20,7 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["cinnamon", "plasma", "gnome"]),
                          ("gnome", "plasma", "cinnamon"))
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["gnome", "plasma", "cinnamon"]),
-                         ["gnome-core", "kde-plasma-desktop", "cinnamon-desktop-environment"])
+                         ["gnome-core", "kde-plasma-desktop", "kwin-x11", "cinnamon-desktop-environment"])
         self.assertEqual(proot_desktops.session_argv("debian-trixie", "gnome"),
                          ("gnome-session", "--session=gnome-xorg"))
         self.assertEqual(proot_desktops.session_argv("debian-trixie", "plasma"), ("startplasma-x11",))
@@ -49,13 +49,24 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         self.assertTrue({"xfce4", "xfce4-terminal"}.issubset(base))
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxqt"]), ["lxqt"])
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["gnome"]), ["gnome-core"])
-        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["plasma"]), ["kde-plasma-desktop"])
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["plasma"]), ["kde-plasma-desktop", "kwin-x11"])
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["cinnamon"]), ["cinnamon-desktop-environment"])
         setup = __import__("proot_fresh_setup")
         groups = ["base"]
         self.assertEqual(set(setup._workstation_packages(manifest, groups, ("lxqt",))), {"lxqt"}.union(
             set(base) - {"xfce4", "xfce4-terminal"}))
         self.assertEqual(set(setup._workstation_packages(manifest, groups, ("xfce",))), set(base))
+
+    def test_plasma_is_not_advertised_until_its_x11_window_manager_is_installed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            status = root / "var/lib/dpkg/status"
+            status.parent.mkdir(parents=True)
+            status.write_text("Package: kde-plasma-desktop\nStatus: install ok installed\n")
+            self.assertNotIn("plasma", proot_desktops.installed_desktops(root))
+            with status.open("a", encoding="utf-8") as stream:
+                stream.write("\nPackage: kwin-x11\nStatus: install ok installed\n")
+            self.assertIn("plasma", proot_desktops.installed_desktops(root))
 
     def test_inventory_reports_only_fully_installed_desktop_packages(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -67,6 +78,7 @@ class ProotDesktopCatalogTests(unittest.TestCase):
                               "Package: lxqt\nStatus: install ok installed\n\n"
                               "Package: gnome-core\nStatus: install ok installed\n\n"
                               "Package: kde-plasma-desktop\nStatus: install ok installed\n\n"
+                              "Package: kwin-x11\nStatus: install ok installed\n\n"
                               "Package: cinnamon-desktop-environment\nStatus: install ok installed\n\n"
                               "Package: lxde-core\nStatus: deinstall ok config-files\n")
             self.assertEqual(proot_desktops.installed_desktops(root),

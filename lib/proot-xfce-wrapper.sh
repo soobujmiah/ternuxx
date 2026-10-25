@@ -57,6 +57,7 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
   QT_X11_NO_MITSHM=1 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
   /bin/bash -c '
     set -eu
+    export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     printf "Ternuxx PRoot guest launcher entered: desktop=%s display=%s uid=%s\n" "$TERNUXX_DESKTOP_ID" "$DISPLAY" "$(id -u)" >&2
     state="$HOME/.local/share/ternuxx/proot-display0/$TERNUXX_DESKTOP_ID"
     mkdir -p "$state/config" "$state/cache" "$state/data" "$state/runtime"

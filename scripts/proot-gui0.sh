@@ -184,6 +184,7 @@ exit "$result"
       [ -n "$cookie" ] && [ -f "$cookie" ] && [ ! -L "$cookie" ] || { echo "Ternuxx Native PulseAudio cookie is unavailable; no PRoot GUI was started." >&2; exit 1; }
       guest_script=$(cat <<'GUEST'
 set -eu
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 state="$HOME/.local/share/ternuxx/proot-nested-gui/$TERNUXX_DESKTOP_ID"
 mkdir -p "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"
 chmod 700 "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"
@@ -198,7 +199,8 @@ case "$TERNUXX_DESKTOP_ID" in
   lxde) desktop_argv=(startlxde); export XDG_CURRENT_DESKTOP=LXDE XDG_SESSION_DESKTOP=LXDE DESKTOP_SESSION=lxde ;;
   mate) desktop_argv=(mate-session); export XDG_CURRENT_DESKTOP=MATE XDG_SESSION_DESKTOP=MATE DESKTOP_SESSION=mate ;;
   gnome) desktop_argv=(gnome-session --session=gnome-xorg); export XDG_CURRENT_DESKTOP=GNOME XDG_SESSION_DESKTOP=gnome DESKTOP_SESSION=gnome ;;
-  plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma ;;
+  # Xephyr lacks GLX; Debian KWin's X11 backend can manage windows with its compositor disabled.
+  plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma KWIN_COMPOSE=N ;;
   cinnamon) desktop_argv=(cinnamon-session); export XDG_CURRENT_DESKTOP=X-Cinnamon XDG_SESSION_DESKTOP=X-Cinnamon DESKTOP_SESSION=cinnamon ;;
   *) echo "Unsupported desktop selection" >&2; exit 2 ;;
 esac

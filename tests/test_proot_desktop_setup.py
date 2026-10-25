@@ -65,6 +65,29 @@ class DesktopInstallPlanTests(unittest.TestCase):
         self.assertEqual(result["desktop_environments"], ["gnome"])
         self.assertTrue(any("gnome-core=1:48+2" in call for call in self.calls))
 
+    def test_preview_repairs_a_missing_required_plasma_x11_package(self):
+        status = self.root / "var/lib/dpkg/status"
+        with status.open("a", encoding="utf-8") as stream:
+            stream.write("\n\nPackage: kde-plasma-desktop\nStatus: install ok installed\nVersion: 5:162\n")
+
+        def runner(args, **kwargs):
+            output = ("Inst kwin-x11 (4:6.3.6-1 Debian:13/stable [arm64])\n"
+                      "0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.\n")
+            if "--simulate" not in args:
+                output += ("Need to get 12 MB/14 MB of archives.\n"
+                           "After this operation, 40 MB of additional disk space will be used.\n"
+                           "Do you want to continue? [Y/n] N\nAbort.\n")
+            return subprocess.CompletedProcess(args, 0 if "--simulate" in args else 1, output, "")
+
+        with mock.patch.object(proot_desktop_setup.proot_guest_retirement, "_assert_idle"):
+            plan = proot_desktop_setup.preview(prefix=str(self.prefix), home=str(self.home),
+                state_dir=str(self.state), selected=["plasma"], runner=runner)
+        self.assertEqual(plan["operation"]["requested_packages"], ["kde-plasma-desktop", "kwin-x11"])
+        self.assertEqual(plan["operation"]["requested_versions"],
+                         [["kde-plasma-desktop", "5:162"], ["kwin-x11", "4:6.3.6-1"]])
+        self.assertEqual(plan["transaction"]["new_package_count"], 1)
+        self.assertTrue(plan["operation"]["guest_packages_changed"] is False)
+
     def test_os_release_symlink_is_allowed_only_inside_the_managed_rootfs(self):
         release = self.root / "etc/os-release"
         release.unlink()
