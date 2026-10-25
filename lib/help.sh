@@ -45,11 +45,14 @@ EOF
     proot|db|pgui|virgl)
       cat <<'EOF'
 Debian PRoot uses the Native Termux host. `tx install preview` includes the
-proot-distro runtime. Then use `tx proot setup fresh-preview --user NAME`,
-review the exact image/package plan, and apply it with
-`tx proot setup fresh-install --yes --plan-id ID`. The guest sudo password is
-entered twice in hidden prompts; never put it in command arguments. Fresh setup
-runs in an attached Native Termux terminal and preserves an existing guest.
+proot-distro runtime. Preview with `tx proot setup fresh-preview --user NAME
+--desktops xfce,lxqt`; desktop IDs are `xfce`, `lxqt`, `lxde`, and `mate`, and
+only selected desktops are installed (XFCE is the default). Review the exact
+image/package plan, then apply it with `tx proot setup fresh-install --yes
+--plan-id ID`. Choose `--sudo-mode password` for hidden guest-password prompts,
+or `passwordless` for NOPASSWD sudo inside the guest. Never put passwords in
+command arguments. Fresh setup runs in an attached Native Termux terminal and
+preserves an existing guest.
 `tx proot sessions list` inspects managed sessions;
 `tx proot sessions recovery-inspect SESSION_ID` and `reconcile-preview`
 inspect interrupted records. Apply reconciliation only when its exact preview

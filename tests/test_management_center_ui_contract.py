@@ -170,6 +170,8 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
 
     def test_gtk_proot_tools_explain_cli_setup_and_hidden_password_handoff(self):
         self.assertIn("tx proot setup fresh-preview --user NAME", SOURCE)
+        self.assertIn("only selected desktops are installed", SOURCE)
+        self.assertIn("does not ask for a guest password", SOURCE)
         self.assertIn("tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID", SOURCE)
         self.assertIn("hidden prompts", SOURCE)
 

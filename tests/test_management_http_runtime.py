@@ -775,8 +775,9 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
     def test_web_proot_setup_handoff_keeps_guest_password_in_attached_terminal(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()
         self.assertIn('tx proot setup fresh-preview --user NAME', page)
+        self.assertIn('only the selected desktop environments are installed', page)
         self.assertIn('tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID', page)
-        self.assertIn('mode for hidden password prompts', page)
+        self.assertIn('Use `--sudo-mode password` to enter that password at hidden prompts', page)
 
     def test_web_proot_shortcut_sync_and_rollback_are_preview_confirmed(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()
