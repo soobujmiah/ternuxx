@@ -71,8 +71,24 @@ termux_step_post_make_install() {
         generated_source.write_text("// generated fixture\n", encoding="utf-8")
         external_input = self.root / "protocol.xml"
         external_input.write_text("<protocol/>\n", encoding="utf-8")
+        binary_input = self.root / "libfixture.so"
+        binary_input.write_bytes(b"\x7fELF\0Copyright fake binary bytes")
         (build / "build.ninja").write_text(
-            f"build generated.o: custom {external_input}\n", encoding="utf-8")
+            f"build generated.o: custom {external_input} {binary_input}\n", encoding="utf-8")
+        source_root = self.root / "mesa-source"
+        rusticl = source_root / "src/gallium/frontends/rusticl"
+        rusticl.mkdir(parents=True)
+        (rusticl / "Cargo.toml").write_text("[package]\nname='rusticl'\n", encoding="utf-8")
+        (rusticl / "meson.build").write_text("project('rusticl')\n", encoding="utf-8")
+        (rusticl / "kernel.rs").write_text("// SPDX-License-Identifier: MIT\n", encoding="utf-8")
+        (rusticl / "bindings.h").write_text("/* SPDX-License-Identifier: MIT */\n", encoding="utf-8")
+        subprocess.run(["git", "init", "-q", str(source_root)], check=True)
+        subprocess.run(["git", "-C", str(source_root), "config", "user.name", "Fixture"], check=True)
+        subprocess.run(["git", "-C", str(source_root), "config", "user.email", "fixture@example.invalid"], check=True)
+        subprocess.run(["git", "-C", str(source_root), "add", "."], check=True)
+        subprocess.run(["git", "-C", str(source_root), "commit", "-qm", "fixture"], check=True)
+        termux_prefix = self.root / "termux-prefix"
+        (termux_prefix / "var/lib/dpkg").mkdir(parents=True)
         fake_meson = self.root / "fake_meson.py"
         fake_meson.write_text(
             "import json, os, sys\n"
@@ -88,6 +104,18 @@ termux_step_post_make_install() {
         fake_ninja = fake_bin / "ninja"
         fake_ninja.write_text("#!/bin/sh\necho fixture\n", encoding="utf-8")
         fake_ninja.chmod(0o700)
+        fake_query = fake_bin / "dpkg-query"
+        fake_query.write_text("""#!/usr/bin/env python3
+import sys
+args=sys.argv[1:]
+if '-S' in args and args[-1].endswith('protocol.xml'):
+ print('fixture-termux-dep: ' + args[-1])
+elif '-W' in args and args[-1] == 'fixture-termux-dep':
+ print('1.2.3')
+else:
+ raise SystemExit(1)
+""", encoding="utf-8")
+        fake_query.chmod(0o700)
         calls = self.root / "meson-calls.jsonl"
         env = {
             **os.environ,
@@ -95,7 +123,8 @@ termux_step_post_make_install() {
             "TERNUXX_MESA_EVIDENCE_DIR": str(self.root / "evidence"),
             "TERMUX_MESON": f"{sys.executable} {fake_meson}",
             "TERMUX_ARCH": "aarch64",
-            "TERMUX_PKG_SRCDIR": str(Path(__file__).resolve().parents[1]),
+            "TERMUX_PKG_SRCDIR": str(source_root),
+            "TERMUX_PREFIX": str(termux_prefix),
             "MESON_CALLS": str(calls),
             "GENERATED_SOURCE": str(generated_source),
             "PATH": f"{fake_bin}:{os.environ.get('PATH', '')}",
@@ -103,7 +132,7 @@ termux_step_post_make_install() {
             "BUILD_DIR": str(build),
         }
         result = subprocess.run(
-            ["bash", "-c", 'source "$1"; _ternuxx_capture_meson "$BUILD_DIR" host', "bash", str(self.recipe)],
+            ["bash", "-c", 'source "$1"; _ternuxx_capture_meson "$BUILD_DIR" target', "bash", str(self.recipe)],
             env=env, text=True, capture_output=True, timeout=10, check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -112,10 +141,25 @@ termux_step_post_make_install() {
         self.assertEqual(invocations[0][:2], ["introspect", str(build)])
         self.assertEqual(invocations[1][-1], "--targets")
         self.assertIn("--dry-run", invocations[5])
-        provenance = json.loads((self.root / "evidence/aarch64/host/generated-output-and-rust-provenance.json").read_text())
+        provenance = json.loads((self.root / "evidence/aarch64/target/generated-output-and-rust-provenance.json").read_text())
         generated = provenance["generated_text_outputs"][0]
         self.assertEqual(generated["sha256"], hashlib.sha256(generated_source.read_bytes()).hexdigest())
-        self.assertEqual(provenance["external_build_inputs"][0]["absolute_path"], str(external_input))
+        rust_names = {item["path"] for item in provenance["rust_source_inputs"]}
+        self.assertEqual(rust_names, {
+            "src/gallium/frontends/rusticl/Cargo.toml",
+            "src/gallium/frontends/rusticl/bindings.h",
+            "src/gallium/frontends/rusticl/kernel.rs",
+            "src/gallium/frontends/rusticl/meson.build",
+        })
+        protocol = next(item for item in provenance["external_build_inputs"]
+                        if item["absolute_path"] == str(external_input))
+        self.assertEqual(protocol["package"], "fixture-termux-dep")
+        self.assertEqual(protocol["package_version"], "1.2.3")
+        self.assertEqual(protocol["package_database"], str(termux_prefix / "var/lib/dpkg"))
+        binary = next(item for item in provenance["external_build_inputs"]
+                      if item["absolute_path"] == str(binary_input))
+        self.assertEqual(binary["header_license_status"], "BINARY_NOT_SCANNED")
+        self.assertEqual(binary["copyright_header_lines"], [])
 
     def test_instrumentation_is_idempotent(self) -> None:
         instrument_recipe(self.recipe)
@@ -148,6 +192,10 @@ class PackageStagingManifestTests(unittest.TestCase):
                 link.type = tarfile.SYMTYPE
                 link.linkname = "libmesa.so"
                 tar.addfile(link)
+                notice = b"Mesa license notice fixture\n"
+                notice_info = tarfile.TarInfo("./data/data/com.termux/files/usr/share/doc/mesa/license.rst")
+                notice_info.size = len(notice)
+                tar.addfile(notice_info, io.BytesIO(notice))
             encoded_tar = base64.b64encode(payload.getvalue()).decode("ascii")
             fake = root / "dpkg-deb-fixture"
             fake.write_text(
@@ -167,8 +215,12 @@ class PackageStagingManifestTests(unittest.TestCase):
             self.assertEqual(package["name"], "mesa")
             self.assertEqual(package["files"][0]["path"], "data/usr/lib/libmesa.so")
             self.assertEqual(package["files"][0]["sha256"], __import__("hashlib").sha256(b"payload bytes").hexdigest())
-            self.assertEqual(package["files"][1]["type"], "symlink")
-            self.assertEqual(package["files"][1]["link_target"], "libmesa.so")
+            link_record = next(item for item in package["files"] if item["path"].endswith("libmesa-link.so"))
+            self.assertEqual(link_record["type"], "symlink")
+            self.assertEqual(link_record["link_target"], "libmesa.so")
+            notice_record = next(item for item in package["files"] if item["path"].endswith("license.rst"))
+            self.assertEqual(notice_record["notice_text"], "Mesa license notice fixture\n")
+            self.assertEqual(notice_record["notice_text_sha256"], notice_record["sha256"])
 
     def test_selects_expected_packages_and_records_other_staging_archives(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -201,6 +253,9 @@ class PackageStagingManifestTests(unittest.TestCase):
             manifest = json.loads((output / "package-staging-manifests.json").read_text())
             self.assertEqual([item["name"] for item in manifest["packages"]], ["mesa"])
             self.assertEqual(manifest["other_staging_packages"], ["openssl_1_aarch64.deb"])
+            dependency_archive = next(item for item in manifest["staging_archives"]
+                                      if item["name"] == "openssl")
+            self.assertEqual(dependency_archive["archive_sha256"], hashlib.sha256(b"dependency archive").hexdigest())
             with self.assertRaisesRegex(EvidenceError, "requested package set mismatch"):
                 package_manifests(packages, output, dpkg_deb=str(fake),
                                   expected_packages={"mesa", "mesa-dev"})
@@ -235,9 +290,11 @@ class MesaCaptureValidationTests(unittest.TestCase):
             rust_records = [{"path": f"rusticl/generated-{index}.rs", "sha256": str(index) * 64}
                             for index in range(1, 6)] if role == "target" else []
             provenance = {
+                "schema_version": 2,
                 "generated_text_outputs": rust_records,
                 "rust_generated_outputs": rust_records,
-                "rust_source_inputs": [],
+                "rust_source_inputs": ([{"path": "src/gallium/frontends/rusticl/kernel.rs",
+                                         "sha256": "d" * 64}] if role == "target" else []),
                 "cargo_registry_archives": [],
                 "external_build_inputs": [],
                 "rust_tool_versions": {"cargo": "cargo 1.0", "rustc": "rustc 1.0"},
@@ -276,9 +333,20 @@ class MesaCaptureValidationTests(unittest.TestCase):
                 "files": [{"path": "data/usr/lib/libmesa.so", "type": "file",
                            "sha256": "c" * 64}],
             })
+        staging_archives = [{"name": item["name"], "version": item["version"],
+                             "architecture": item["architecture"], "filename": item["filename"],
+                             "size": 1, "archive_sha256": item["archive_sha256"]} for item in packages]
+        staging_archives.append({"name": "openssl", "version": "1", "architecture": "aarch64",
+                                 "filename": "openssl_1_aarch64.deb", "size": 1,
+                                 "archive_sha256": "e" * 64})
+        mesa = next(item for item in packages if item["name"] == "mesa")
+        mesa["files"].append({"path": "data/share/doc/mesa/license.rst", "type": "file",
+                              "sha256": "f" * 64, "notice_text_sha256": "f" * 64,
+                              "notice_text": "MIT notice fixture\n"})
         (self.root / "package-staging-manifests.json").write_text(
-            json.dumps({"schema_version": 1, "packages": packages,
-                        "other_staging_packages": ["openssl.deb"]}), encoding="utf-8")
+            json.dumps({"schema_version": 2, "packages": packages,
+                        "staging_archives": staging_archives,
+                        "other_staging_packages": ["openssl_1_aarch64.deb"]}), encoding="utf-8")
 
     def tearDown(self) -> None:
         self.temp.cleanup()

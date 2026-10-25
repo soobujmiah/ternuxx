@@ -60,6 +60,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 
@@ -104,23 +105,30 @@ for path in build_root.rglob("*.rs"):
 
 def file_record(path, root, kind):
     data = path.read_bytes()
-    head = data[:65536].decode("utf-8", "replace")
+    binary = b"\0" in data[:4096]
+    head = "" if binary else data[:65536].decode("utf-8", "replace")
     identifiers = sorted(set(re.findall(r"SPDX-License-Identifier:\s*([^\s*]+)", head)))
     copyrights = sorted(set(re.findall(r"Copyright[^\n]{0,240}", head, re.IGNORECASE)))[:16]
     return {"path": path.relative_to(root).as_posix(), "kind": kind,
             "size": len(data), "sha256": hashlib.sha256(data).hexdigest(),
             "spdx_header_identifiers": identifiers,
-            "header_license_status": "IDENTIFIER_PRESENT" if identifiers else "NOASSERTION",
+            "header_license_status": "BINARY_NOT_SCANNED" if binary else ("IDENTIFIER_PRESENT" if identifiers else "NOASSERTION"),
             "copyright_header_lines": copyrights}
 
 generated_records = [file_record(path, build_root, "generated-build-output")
                      for path in sorted(generated)]
-cargo_root = source_root / "src/gallium/frontends/rusticl"
-cargo_inputs = []
-if cargo_root.is_dir():
-    for path in sorted(cargo_root.rglob("*")):
-        if path.is_file() and path.name in {"Cargo.toml", "Cargo.lock", "build.rs"}:
-            cargo_inputs.append(file_record(path, source_root, "rust-source-or-manifest"))
+rusticl_root = source_root / "src/gallium/frontends/rusticl"
+rust_inputs = []
+if rusticl_root.is_dir():
+    for path in sorted(rusticl_root.rglob("*")):
+        if not path.is_file() or path.is_symlink():
+            continue
+        try:
+            resolved = path.resolve(strict=True)
+            resolved.relative_to(source_root)
+        except (OSError, ValueError):
+            continue
+        rust_inputs.append(file_record(resolved, source_root, "rusticl-source-input"))
 registry_archives = []
 cargo_home = Path(os.environ.get("CARGO_HOME", str(Path.home() / ".cargo"))).resolve()
 registry = cargo_home / "registry/cache"
@@ -170,29 +178,55 @@ for line in (build_root / "build.ninja").read_text(encoding="utf-8").splitlines(
                     pass
                 if resolved.is_file():
                     external_paths.add(resolved)
+def package_owner(path):
+    query_tool = shutil.which("dpkg-query")
+    if not query_tool:
+        return "unresolved", "unresolved", None
+    admin_dirs = []
+    for variable in ("TERMUX_PREFIX", "PREFIX"):
+        value = os.environ.get(variable)
+        if value:
+            candidate = Path(value) / "var/lib/dpkg"
+            if candidate.is_dir() and candidate not in admin_dirs:
+                admin_dirs.append(candidate)
+    hostbuild = os.environ.get("TERMUX_PKG_HOSTBUILD_DIR")
+    if hostbuild:
+        candidate = Path(hostbuild) / "ubuntu_packages/var/lib/dpkg"
+        if candidate.is_dir() and candidate not in admin_dirs:
+            admin_dirs.append(candidate)
+    for admin in [*admin_dirs, None]:
+        base = [query_tool]
+        if admin is not None:
+            base.extend(["--admindir", str(admin)])
+        try:
+            lines = subprocess.check_output([*base, "-S", str(path)], text=True,
+                                            stderr=subprocess.DEVNULL).splitlines()
+            match = next((line for line in lines if ": " in line), "")
+            package = match.partition(": ")[0].strip()
+            if not package:
+                continue
+            version = subprocess.check_output([*base, "-W", "-f=${Version}", package],
+                                              text=True, stderr=subprocess.DEVNULL).strip()
+            return package, version or "unresolved", str(admin) if admin is not None else None
+        except (OSError, subprocess.CalledProcessError, StopIteration):
+            continue
+    return "unresolved", "unresolved", None
+
 external_inputs = []
 for path in sorted(external_paths):
-    owner = "unresolved"
-    version = "unresolved"
-    try:
-        query = subprocess.check_output(["dpkg-query", "-S", str(path)], text=True,
-                                        stderr=subprocess.DEVNULL).splitlines()
-        package = query[0].partition(": ")[0]
-        owner = package
-        version = subprocess.check_output(["dpkg-query", "-W", "-f=${Version}", package],
-                                          text=True, stderr=subprocess.DEVNULL).strip()
-    except (OSError, subprocess.CalledProcessError, IndexError):
-        pass
+    owner, version, package_db = package_owner(path)
     record = file_record(path, Path("/"), "external-build-input")
     record["absolute_path"] = str(path)
     record["package"] = owner
     record["package_version"] = version
+    if package_db is not None:
+        record["package_database"] = package_db
     external_inputs.append(record)
-report = {"schema_version": 1, "generated_text_outputs": generated_records,
+report = {"schema_version": 2, "generated_text_outputs": generated_records,
           "rust_generated_outputs": [item for item in generated_records if item["path"].endswith(".rs")],
-          "rust_source_inputs": cargo_inputs, "cargo_registry_archives": registry_archives,
+          "rust_source_inputs": rust_inputs, "cargo_registry_archives": registry_archives,
           "external_build_inputs": external_inputs, "rust_tool_versions": rust_versions,
-          "scope_limit": "Hashes and leading notice metadata for generated text outputs and existing external build inputs, package-owner/version candidates, Rusticl manifests/build scripts, and cached Cargo archives; exact dependency .deb hashes and complete license conclusions remain outside this capture."}
+          "scope_limit": "Hashes and leading notice metadata for generated text outputs, Rusticl source inputs, Cargo archives, external build inputs and package-owner/version candidates; hashes all staged .deb archives and captures small shipped license/notice text. This is provenance evidence, not a complete license conclusion."}
 (evidence_dir / "generated-output-and-rust-provenance.json").write_text(
     json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 PY_CAPTURE
@@ -263,7 +297,17 @@ def _payload_manifest(package: Path, dpkg_deb: str) -> list[dict[str, object]]:
                         raise EvidenceError(f"cannot read package payload in {package.name}")
                     with source:
                         record["type"] = "file"
-                        record["sha256"] = _sha256_stream(source)
+                        is_notice = (path.name.lower() in {"copyright", "license", "licence", "copying", "notice"}
+                                     or path.name.lower().startswith(("license.", "licence.", "notice.")))
+                        if is_notice and member.size <= 1024 * 1024:
+                            content = source.read(1024 * 1024 + 1)
+                            record["sha256"] = hashlib.sha256(content).hexdigest()
+                            record["notice_text_sha256"] = record["sha256"]
+                            record["notice_text"] = content.decode("utf-8", "replace")
+                        else:
+                            record["sha256"] = _sha256_stream(source)
+                            if is_notice:
+                                record["notice_text_status"] = "oversize-not-captured"
                 elif member.issym():
                     record["type"] = "symlink"
                     record["link_target"] = member.linkname
@@ -313,8 +357,27 @@ def package_manifests(packages_dir: Path, output_dir: Path, *, dpkg_deb: str | N
         packages = selected
         other_staging_packages = sorted(path.name for path in staged_packages if path not in selected)
     output_dir.mkdir(parents=True, exist_ok=True)
-    manifest: dict[str, object] = {"schema_version": 1, "packages": [],
-                                   "other_staging_packages": other_staging_packages}
+    staging_archives: list[dict[str, object]] = []
+    for archive_path in staged_packages:
+        result = subprocess.run([executable, "--field", str(archive_path)], capture_output=True,
+                                text=True, timeout=30, check=False)
+        if result.returncode:
+            raise EvidenceError(f"dpkg-deb could not read staging metadata for {archive_path.name}")
+        fields: dict[str, str] = {}
+        for line in result.stdout.splitlines():
+            if line and not line[0].isspace() and ":" in line:
+                key, value = line.split(":", 1)
+                fields[key] = value.strip()
+        if not all(fields.get(key) for key in ("Package", "Version", "Architecture")):
+            raise EvidenceError(f"staging package metadata incomplete for {archive_path.name}")
+        staging_archives.append({
+            "filename": archive_path.name, "name": fields["Package"],
+            "version": fields["Version"], "architecture": fields["Architecture"],
+            "size": archive_path.stat().st_size, "archive_sha256": _sha256_file(archive_path),
+        })
+    manifest: dict[str, object] = {"schema_version": 2, "packages": [],
+                                   "other_staging_packages": other_staging_packages,
+                                   "staging_archives": staging_archives}
     for package in packages:
         result = subprocess.run([executable, "--field", str(package)], capture_output=True,
                                 text=True, timeout=30, check=False)
@@ -401,8 +464,8 @@ def validate_capture(evidence_dir: Path) -> None:
             if artifact.is_symlink() or not artifact.is_file() or artifact.stat().st_size == 0:
                 raise EvidenceError(f"{role} build graph/provenance evidence is missing or empty: {name}")
         provenance = read_json(role_dir / "generated-output-and-rust-provenance.json")
-        if not isinstance(provenance, dict):
-            raise EvidenceError(f"{role} generated-output provenance is malformed")
+        if not isinstance(provenance, dict) or provenance.get("schema_version") != 2:
+            raise EvidenceError(f"{role} generated-output provenance schema is unsupported")
         for key in ("generated_text_outputs", "rust_generated_outputs", "rust_source_inputs",
                     "cargo_registry_archives", "external_build_inputs"):
             if not isinstance(provenance.get(key), list):
@@ -421,6 +484,8 @@ def validate_capture(evidence_dir: Path) -> None:
                 raise EvidenceError(f"{role} Cargo archive inventory has an invalid record")
         if role == "target" and len(provenance["rust_generated_outputs"]) < 5:
             raise EvidenceError("target provenance does not include all five known Rusticl generated outputs")
+        if role == "target" and not provenance["rust_source_inputs"]:
+            raise EvidenceError("target provenance does not include Rusticl source inputs")
 
     target_graph_path = evidence_dir / "aarch64" / "target" / "meson-targets.json"
     target_graph = read_json(target_graph_path)
@@ -453,14 +518,36 @@ def validate_capture(evidence_dir: Path) -> None:
         raise EvidenceError("configured target-source map counts are inconsistent")
 
     manifest = read_json(evidence_dir / "package-staging-manifests.json")
-    if not isinstance(manifest, dict) or not isinstance(manifest.get("packages"), list):
-        raise EvidenceError("package staging manifest is malformed")
+    if (not isinstance(manifest, dict) or manifest.get("schema_version") != 2
+            or not isinstance(manifest.get("packages"), list)
+            or not isinstance(manifest.get("staging_archives"), list)
+            or not manifest["staging_archives"]):
+        raise EvidenceError("package staging manifest or staged archive inventory is malformed")
+    staged_archives = {}
+    for archive in manifest["staging_archives"]:
+        if (not isinstance(archive, dict) or not isinstance(archive.get("name"), str)
+                or not isinstance(archive.get("version"), str)
+                or not isinstance(archive.get("architecture"), str)
+                or not isinstance(archive.get("filename"), str)
+                or not archive["filename"].endswith(".deb")
+                or type(archive.get("size")) is not int or archive["size"] <= 0
+                or not isinstance(archive.get("archive_sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", archive["archive_sha256"])):
+            raise EvidenceError("staged dependency archive identity/hash is invalid")
+        if archive["filename"] in staged_archives:
+            raise EvidenceError("staged package archive inventory has duplicate filenames")
+        staged_archives[archive["filename"]] = archive
     packages = manifest["packages"]
     names = [item.get("name") for item in packages if isinstance(item, dict)]
     if any(not isinstance(name, str) for name in names) \
             or len(names) != len(packages) or len(names) != len(set(names)) \
             or set(names) != set(EXPECTED_PACKAGE_ARCHITECTURES):
         raise EvidenceError("package staging manifest does not contain the exact five Mesa splits")
+    expected_other = sorted(item["filename"] for item in manifest["staging_archives"]
+                            if item["name"] not in EXPECTED_PACKAGE_ARCHITECTURES)
+    if manifest.get("other_staging_packages") != expected_other:
+        raise EvidenceError("other staged archive list does not match the hashed dependency inventory")
+    notice_text_found = False
     for package in packages:
         assert isinstance(package, dict)
         name = package["name"]
@@ -478,6 +565,12 @@ def validate_capture(evidence_dir: Path) -> None:
         if not isinstance(package.get("archive_sha256"), str) \
                 or not re.fullmatch(r"[0-9a-f]{64}", package["archive_sha256"]):
             raise EvidenceError(f"package {name} archive hash is invalid")
+        staged = staged_archives.get(filename)
+        if (not isinstance(staged, dict) or staged.get("name") != name
+                or staged.get("version") != package.get("version")
+                or staged.get("architecture") != architecture
+                or staged.get("archive_sha256") != package["archive_sha256"]):
+            raise EvidenceError(f"package {name} does not match its exact staged archive record")
         if not isinstance(package.get("files"), list) or not package["files"]:
             raise EvidenceError(f"package {name} payload manifest is empty or malformed")
         payload_paths: set[str] = set()
@@ -492,6 +585,14 @@ def validate_capture(evidence_dir: Path) -> None:
             if item.get("type") == "file" and (not isinstance(item.get("sha256"), str)
                                                   or not re.fullmatch(r"[0-9a-f]{64}", item["sha256"])):
                 raise EvidenceError(f"package {name} has an invalid payload file hash")
+            if "notice_text" in item:
+                if (not isinstance(item["notice_text"], str)
+                        or item.get("notice_text_sha256") != item.get("sha256")):
+                    raise EvidenceError(f"package {name} has an invalid captured notice text")
+                if name == "mesa":
+                    notice_text_found = True
+    if not notice_text_found:
+        raise EvidenceError("mesa package payload does not include captured license/notice text")
 
 
 def _sha256_file(path: Path) -> str:
