@@ -98,3 +98,7 @@ bash tests/test_cli_help.sh
 Re-run status and capability checks after each significant configuration change. Keep shared Android storage out of all discovery and test paths.
 
 See the [latest `:0`/`:2` follow-up record](../evidence/2026-10-25-debian-desktop-catalog-extension.md#2026-10-25-follow-up-nested-2-and-standalone-0) for process-tree results and cleanup limits.
+
+### 2026-10-25 17:36 UTC fresh desktop route matrix
+
+Rechecked every installed Debian desktop on standalone `:0` and nested `:2` via Native `:1`. XFCE passed delayed panel/desktop window-tree checks on both routes. Standalone `:0` graphics verify reported Zink/Turnip Adreno 825 GLES/GLX contexts and device enumeration; nested XFCE's bounded `vkcube` selected Adreno 825 and exited 0, while nested Xephyr GLX remains unavailable without DRI3. GNOME showed `gnome-session-failed` on both routes. Standalone Plasma/Cinnamon created shell/desktop surfaces but no panel was verified; nested Plasma never started KWin/plasmashell and nested Cinnamon failed to register `cinnamon.desktop`. Thus XFCE is the only accepted full Debian desktop in this matrix. Native XFCE was restored on `:1`; standalone `:0`, nested `:2`, and managed guest sessions are all stopped. Visibility/presentation on Android remains unknown. Detailed observations and cleanup are recorded in the [fresh route matrix evidence](../evidence/2026-10-25-debian-desktop-catalog-extension.md#2026-10-25-1736-utc-fresh-route-matrix-standalone-0-nested-2).

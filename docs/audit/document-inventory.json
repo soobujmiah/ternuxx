@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 560,
-  "read_count": 168,
+  "read_count": 165,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "d08aec8db6d0819cd7bcb4ff4a19cacf34c292f2cf23eddbe8a5911b24e5fd0b",
+      "sha256": "94c18ccf50013b7117483c63ca11fc254877e5ca4a170092afd78fd8f846b5f5",
       "lines": 36,
-      "read_status": "read",
-      "read_sha256": "d08aec8db6d0819cd7bcb4ff4a19cacf34c292f2cf23eddbe8a5911b24e5fd0b"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "5a5c159c425678dc0c950b89c06970e82aa7055cc6ada9d2737b01aeabe23280",
-      "lines": 100,
-      "read_status": "read",
-      "read_sha256": "5a5c159c425678dc0c950b89c06970e82aa7055cc6ada9d2737b01aeabe23280"
+      "sha256": "9dfba4082fdb78566914b47dc19c00c33a9663443df93041cf23c362cff68c6c",
+      "lines": 104,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3427,10 +3427,10 @@
     {
       "path": "docs/evidence/2026-10-25-debian-desktop-catalog-extension.md",
       "kind": "narrative",
-      "sha256": "5b5b8680510d66fce1792e2ab907376228337e1655469d35c472c4a5181c8814",
-      "lines": 74,
-      "read_status": "read",
-      "read_sha256": "5b5b8680510d66fce1792e2ab907376228337e1655469d35c472c4a5181c8814"
+      "sha256": "bc32dad79ebfbe49b021139be4f45cbd9cc0316442797a2ea7c0ccd6ccfaa70d",
+      "lines": 84,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-25-gtk-management-center-owner-check.md",
