@@ -715,15 +715,27 @@ nt_cmd_install() {
     return 1
   fi
 
+  if ! _nt_write_install_record applying; then
+    nt_fail "Could not record the start of this package transaction; refusing to invoke APT."
+    return 1
+  fi
   if [ "$update" = "1" ]; then
     nt_step "Applying the reviewed Ternuxx core package update (preview $plan_id)..."
   else
-    nt_step "Installing the reviewed Ternuxx base workstation packages (preview $plan_id)..."
+    nt_step "Installing the reviewed Ternuxx Native profile $_NT_ACTIVE_PROFILE (preview $plan_id)..."
   fi
-  _nt_apply_install_transaction || {
-    nt_fail "APT reported an installation failure. Review its output before retrying."
+  if ! _nt_apply_install_transaction; then
+    if ! _nt_write_install_record failed; then
+      nt_warn "APT failed and the failure record could not be saved under $TERNUXX_STATE_DIR/install-transactions."
+    fi
+    local retry_preview="tx install update preview"
+    if [ "$update" != "1" ]; then
+      retry_preview="tx install preview --profile $_NT_ACTIVE_PROFILE"
+      [ "$_NT_ACTIVE_PROFILE" != "custom" ] || retry_preview="$retry_preview --components $_NT_ACTIVE_COMPONENTS"
+    fi
+    nt_fail "APT reported failure; some packages may have changed. Create and review a fresh plan with '$retry_preview', then apply its new ID. Do not assume the old plan still matches."
     return 1
-  }
+  fi
   if ! _nt_write_install_record applied; then
     nt_warn "Packages were installed, but the transaction record could not be persisted under $TERNUXX_STATE_DIR/install-transactions."
   fi

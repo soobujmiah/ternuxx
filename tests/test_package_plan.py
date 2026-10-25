@@ -298,6 +298,7 @@ if [ "$1" = "-s" ]; then
   exit 0
 fi
 printf '%s\n' "$@" >> "$APT_APPLY_CAPTURE"
+exit "${FIXTURE_APPLY_EXIT:-0}"
 """, encoding="utf-8")
         (fixture_bin / "dpkg-query").write_text("""#!/bin/sh
 for package in "$@"; do :; done
@@ -331,7 +332,7 @@ echo 'install ok installed'
             self.assertIn("install", capture.read_text(encoding="utf-8"))
             self.assertIn("xfce4-session=4.20.4-1", capture.read_text(encoding="utf-8"))
             records = list((Path(temporary) / "home/.local/share/ternuxx/install-transactions").glob("*.json"))
-            self.assertEqual({json.loads(item.read_text())["outcome"] for item in records}, {"preview", "applied"})
+            self.assertEqual({json.loads(item.read_text())["outcome"] for item in records}, {"preview", "applying", "applied"})
 
     def test_minimal_profile_uses_the_same_preview_and_exact_apply_engine(self):
         with tempfile.TemporaryDirectory(prefix="ternuxx-install-profile-flow-") as temporary:
@@ -358,6 +359,31 @@ echo 'install ok installed'
             applied_args = capture.read_text(encoding="utf-8")
             self.assertIn("python=3.14.8", applied_args)
             self.assertNotIn("xfce4-session", applied_args)
+
+    def test_failed_apply_records_partial_state_and_recommends_fresh_preview(self):
+        with tempfile.TemporaryDirectory(prefix="ternuxx-install-failed-flow-") as temporary:
+            env, _capture = self._install_command_fixture(temporary)
+            env["FIXTURE_MINIMAL"] = "1"
+            preview = subprocess.run(
+                ["bash", "-c", 'source "$1"; nt_require_termux() { return 0; }; nt_cmd_install preview --profile minimal-native',
+                 "bash", str(PHASES)], env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertEqual(preview.returncode, 0, preview.stderr)
+            import re
+            match = re.search(r"Preview ID: ([0-9a-f]{64})", preview.stderr)
+            self.assertIsNotNone(match, preview.stderr)
+            env["FIXTURE_APPLY_EXIT"] = "42"
+            applied = subprocess.run(
+                ["bash", "-c", 'source "$1"; nt_require_termux() { return 0; }; nt_cmd_install apply --profile minimal-native --yes --plan-id "$2"',
+                 "bash", str(PHASES), match.group(1)], env=env, text=True,
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertEqual(applied.returncode, 1)
+            self.assertIn("some packages may have changed", applied.stderr)
+            self.assertIn("fresh plan", applied.stderr)
+            records = [json.loads(item.read_text()) for item in
+                       (Path(temporary) / "home/.local/share/ternuxx/install-transactions").glob("*.json")]
+            self.assertEqual({record["outcome"] for record in records}, {"preview", "applying", "failed"})
 
     def test_install_capacity_preflight_refuses_estimated_payload_larger_than_free_space(self):
         estimates = json.dumps({"installed_kib": 5, "filesystem_free_bytes": 4096,

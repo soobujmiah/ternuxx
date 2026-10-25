@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "64840eb50eb0c1f4b948c3cc1834afcd183a67a328d0446a8f5855f7bc4d8fc8",
+      "sha256": "ebd998cfcea0592c682df1601299f107779f0e4334b9cbdd439e45505c9d9451",
       "lines": 32,
       "read_status": "read",
-      "read_sha256": "64840eb50eb0c1f4b948c3cc1834afcd183a67a328d0446a8f5855f7bc4d8fc8"
+      "read_sha256": "ebd998cfcea0592c682df1601299f107779f0e4334b9cbdd439e45505c9d9451"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -147,10 +147,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "60169ca3d3cf2937888eaf34fd47ce67f2c28d48de57571e0a74d83f13b9d24e",
+      "sha256": "f7c08343835cdaab91143d78a7425b629048f45445d9439588759a755cc6dc3a",
       "lines": 103,
       "read_status": "read",
-      "read_sha256": "60169ca3d3cf2937888eaf34fd47ce67f2c28d48de57571e0a74d83f13b9d24e"
+      "read_sha256": "f7c08343835cdaab91143d78a7425b629048f45445d9439588759a755cc6dc3a"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "27e94c0828c764bd39ba24dc0740509bb8c51ff35e14651f567b17000f8d72d6",
+      "sha256": "76775200780b82fabb1c88e40e702c35e2116ae58d298e0d35c9cdb0c3d89791",
       "lines": 61,
       "read_status": "read",
-      "read_sha256": "27e94c0828c764bd39ba24dc0740509bb8c51ff35e14651f567b17000f8d72d6"
+      "read_sha256": "76775200780b82fabb1c88e40e702c35e2116ae58d298e0d35c9cdb0c3d89791"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3435,10 +3435,10 @@
     {
       "path": "docs/evidence/2026-10-25-native-installer-profiles.md",
       "kind": "narrative",
-      "sha256": "b2c111bba70c66a5c9faabfd5c29e9ceb82b9c7487bbe1b1f6215bf6445f4933",
+      "sha256": "ba6c93d573b4f4b9455a06ed86a2da26c94244952d23c4ce7cee0e3ca117d5e1",
       "lines": 13,
       "read_status": "read",
-      "read_sha256": "b2c111bba70c66a5c9faabfd5c29e9ceb82b9c7487bbe1b1f6215bf6445f4933"
+      "read_sha256": "ba6c93d573b4f4b9455a06ed86a2da26c94244952d23c4ce7cee0e3ca117d5e1"
     },
     {
       "path": "docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md",

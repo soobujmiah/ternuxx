@@ -118,6 +118,7 @@ Profiles: minimal-native, full-native, graphical, developer, native-proot-provid
 Custom groups: desktop,audio,proot,graphics,developer. All profiles use the same
 repository and dependency checks. The PRoot-provider profile installs the runtime only;
 Debian guest creation remains a separate preview and exact-confirmation workflow.
+If APT fails, some packages may have changed; create a fresh preview before retrying.
 EOF
       ;;
     checkpoint) cat <<'EOF'
