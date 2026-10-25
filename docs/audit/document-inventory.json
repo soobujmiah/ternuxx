@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "caad228db8d6f857b005f8861b71cb60a755670f63389a145dcf9ec97adb9091",
+      "sha256": "3237f3bac2fd37c3baac75c472ccfb320bb4cadd891716037fc89a7c49904be3",
       "lines": 36,
       "read_status": "pending",
       "read_sha256": null
@@ -539,7 +539,7 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "f88276cb55d9c74a4c16f5cdfff470dc2b24a814a2f5271f65afceba573d8fe1",
+      "sha256": "04b38d8318089caa392fff2587a7377bd3434e070e67f4ae2e83fa71c31ac376",
       "lines": 70,
       "read_status": "pending",
       "read_sha256": null
