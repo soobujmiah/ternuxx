@@ -30,7 +30,7 @@ class QualificationCase:
 PROMPT_SUITE_ID = "arithmetic-operators-v1"
 QUALIFICATION_CASES = (
     QualificationCase("addition-2-plus-2-v1", "2 + 2? Reply with one digit.", r"2\s*\+\s*2", "4"),
-    QualificationCase("subtraction-9-minus-4-v1", "9 - 4? Reply with one digit.", r"9\s*-\s*4", "5"),
+    QualificationCase("subtraction-9-minus-4-v1", "What is 9 - 4? Answer with one digit.", r"9\s*-\s*4", "5"),
     QualificationCase("multiplication-3-times-2-v1", "3 * 2? Reply with one digit.", r"3\s*\*\s*2", "6"),
 )
 

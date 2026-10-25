@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The corrected pinned Mesa aarch64 build and capture workflow passed; its configured source map, split-package manifests, and candidate output audit are recorded. External/generated inputs, notice coverage, and per-file license gaps remain open. Native CPU/Vulkan/HTP qualification remains thermally guard-blocked.
+The corrected pinned Mesa aarch64 build and capture workflow passed; its configured source map, split-package manifests, and candidate output audit are recorded. External/generated inputs, notice coverage, and per-file license gaps remain open. Native `:1` Adreno 825 GLES and Vulkan draws now pass with the hash-checked experimental KGSL/Freedreno candidate; the bounded three-case CPU and Vulkan inference suites also pass with complete Vulkan offload. The thermal-limit override was explicitly requested by the owner; memory and timeout guards stayed active. The candidate remains community-built and has no clean-install path.
 
-**Next action:** Audit the 12 external source inputs and 75 generated outputs back to their generator inputs, source origins, license metadata, and shipped notice obligations; resolve the 1,165 source paths without recognized SPDX headers and strengthen package attribution beyond basename candidates. Resume Native CPU, Vulkan, and HTP workloads only when live sensors satisfy unchanged guards.
+**Next action:** Audit the 12 external source inputs and 75 generated outputs back to their generator inputs, source origins, license metadata, and shipped notice obligations; resolve the 1,165 source paths without recognized SPDX headers and strengthen package attribution beyond basename candidates. Keep sustained performance/thermal behavior, HTP multi-case coverage, clean-install provider setup, and visible GUI capture open.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -166,3 +166,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-three-backend-qualification-guard-cancel-2001z.md](evidence/2026-10-24-p12-three-backend-qualification-guard-cancel-2001z.md)
 - [docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md](evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md)
 - [docs/evidence/2026-10-25-p12-mesa-build-artifact-audit.md](evidence/2026-10-25-p12-mesa-build-artifact-audit.md)
+- [docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md](evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md)

@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 566,
-  "read_count": 172,
+  "document_count": 567,
+  "read_count": 176,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "2de27285e1eae34d299c03902068b3314d4243a0a7bc71ead4a5b9a4f459c9f9",
-      "lines": 38,
+      "sha256": "c6135aaf578f608dad1768aec1083f6e7abd9c21ef7b1ad2bd73ef1c23cfe7be",
+      "lines": 37,
       "read_status": "read",
-      "read_sha256": "2de27285e1eae34d299c03902068b3314d4243a0a7bc71ead4a5b9a4f459c9f9"
+      "read_sha256": "c6135aaf578f608dad1768aec1083f6e7abd9c21ef7b1ad2bd73ef1c23cfe7be"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -107,10 +107,10 @@
     {
       "path": "config/graphics/native-kgsl.json",
       "kind": "structured",
-      "sha256": "25787157706507aca7c98a664a163188527a97bc2a8d3ae8359323077efda121",
+      "sha256": "f9da1f77d21feac3c8a41548150d7a4720e941aaf69a44057d16f7c3e563d9ff",
       "lines": 76,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "f9da1f77d21feac3c8a41548150d7a4720e941aaf69a44057d16f7c3e563d9ff"
     },
     {
       "path": "config/proot/debian-trixie.json",
@@ -179,10 +179,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "66bfa0c05b52c044c02f188dad13ddc6ffb3293977123f8f18862788a1de261d",
-      "lines": 168,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "f67415d334365da030b264fe16a7f688ef87075f96596acb02468712a48b7dbd",
+      "lines": 169,
+      "read_status": "read",
+      "read_sha256": "f67415d334365da030b264fe16a7f688ef87075f96596acb02468712a48b7dbd"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "b46fea2d3bf7577b5b1376c95c867da860cd6dfa168516a785b53677de7a3624",
-      "lines": 123,
+      "sha256": "f2cc655fe2dffb174b6db1817a94583b74ce53c0e9eb7e868b7af037b336d91a",
+      "lines": 127,
       "read_status": "read",
-      "read_sha256": "b46fea2d3bf7577b5b1376c95c867da860cd6dfa168516a785b53677de7a3624"
+      "read_sha256": "f2cc655fe2dffb174b6db1817a94583b74ce53c0e9eb7e868b7af037b336d91a"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3561,6 +3561,14 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",
+      "kind": "narrative",
+      "sha256": "d6ea316c0494b057515fe4a148b48b4dd31558b86c21faca9768fd0bb1b27585",
+      "lines": 23,
+      "read_status": "read",
+      "read_sha256": "d6ea316c0494b057515fe4a148b48b4dd31558b86c21faca9768fd0bb1b27585"
+    },
+    {
       "path": "docs/evidence/2026-10-26-p12-thermal-override-and-native-graphics.md",
       "kind": "narrative",
       "sha256": "0868f530b52b1f08d064d131279872f09d769ba6498ac1e0ab3394b14a77854d",
@@ -4099,10 +4107,10 @@
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "9eaec8517d0924984705a762f39c7f804b88d820a5ce65d7cdf144dc81bf564a",
+      "sha256": "5c72118ae42dd05d3e1af956b5a8f048ad48ca1e3d31e9080625292a7e5aada1",
       "lines": 36,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "5c72118ae42dd05d3e1af956b5a8f048ad48ca1e3d31e9080625292a7e5aada1"
     },
     {
       "path": "docs/testing/KNOWN-LIMITATIONS.md",
@@ -4115,10 +4123,10 @@
     {
       "path": "docs/testing/NATIVE-ACCEL-QUALIFICATION.md",
       "kind": "narrative",
-      "sha256": "7f1ca57fb63dc5479b7035c6d78733b61f76b284b4001c182d6dc3946085cd5e",
+      "sha256": "c2e65c1514aa62513e354474f6a843553743dc6468a70d5cd2c0677e464292be",
       "lines": 46,
       "read_status": "read",
-      "read_sha256": "7f1ca57fb63dc5479b7035c6d78733b61f76b284b4001c182d6dc3946085cd5e"
+      "read_sha256": "c2e65c1514aa62513e354474f6a843553743dc6468a70d5cd2c0677e464292be"
     },
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
