@@ -1,0 +1,7 @@
+event_id: commit-d5b03bf16afd-0cf0010ff240cffa
+repository: soobujmiah/ternuxx
+commit: d5b03bf16afd3b0705a2c93a002d3242588d7260
+kind: commit
+occurred_at: '2026-10-25T16:21:39Z'
+status: completed
+summary: 'fix: reject short-lived desktop session startups'
