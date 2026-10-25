@@ -1,0 +1,7 @@
+event_id: commit-f9ab7ca6613a-63bd2cc570881a14
+repository: soobujmiah/ternuxx
+commit: f9ab7ca6613a4babc483466ea6c759bb3fe653f8
+kind: commit
+occurred_at: '2026-10-25T08:58:36Z'
+status: completed
+summary: 'feat(installer): add Native workstation profiles'
