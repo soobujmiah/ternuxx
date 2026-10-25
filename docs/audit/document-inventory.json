@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "30d24dbf484381ec3e287ca05cd2c98cdd0138349d4f1303e08d6e8c12c5ae77",
+      "sha256": "792161e963b420c7c3034a4b28d2961b41800a74f6e348d6b37e443e212d5634",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "30d24dbf484381ec3e287ca05cd2c98cdd0138349d4f1303e08d6e8c12c5ae77"
+      "read_sha256": "792161e963b420c7c3034a4b28d2961b41800a74f6e348d6b37e443e212d5634"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -267,10 +267,10 @@
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
       "kind": "narrative",
-      "sha256": "7aaa3607f7bb97f6f93a0c9b37ad824ed4c3870210ec41d54ed8ccc4b7af6a7f",
+      "sha256": "bb1565d7f51628d2f622aaadad2ef40dcf2dde15f547c45fae23b0b65ccd3b0c",
       "lines": 21,
       "read_status": "read",
-      "read_sha256": "7aaa3607f7bb97f6f93a0c9b37ad824ed4c3870210ec41d54ed8ccc4b7af6a7f"
+      "read_sha256": "bb1565d7f51628d2f622aaadad2ef40dcf2dde15f547c45fae23b0b65ccd3b0c"
     },
     {
       "path": "docs/architecture/CONTINUITY-IMPLEMENTATION.md",
@@ -3563,10 +3563,10 @@
     {
       "path": "docs/evidence/2026-10-26-distro-named-managed-install.md",
       "kind": "narrative",
-      "sha256": "c8a4ef6d8554089270b1a840eb3c6978a5337d5d9b506e89de9a05588812d55d",
+      "sha256": "889bc14262bb61af717944e16f6eb41f94908a27c27a515626c1481b14dd214d",
       "lines": 21,
       "read_status": "read",
-      "read_sha256": "c8a4ef6d8554089270b1a840eb3c6978a5337d5d9b506e89de9a05588812d55d"
+      "read_sha256": "889bc14262bb61af717944e16f6eb41f94908a27c27a515626c1481b14dd214d"
     },
     {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",

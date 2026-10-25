@@ -6,18 +6,20 @@ typedef struct { gchar *id, *category, *name, *status, *availability, *descripti
 typedef struct { GtkWidget *window, *category_list, *resource_list, *details, *notice, *search, *action_scroll;
                  GtkWidget *desktop_choice, *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *boot_cron_button, *boot_helpers_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *reboot_test_prepare_button, *reboot_test_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
                  *monitor_interval, *monitor_unit, *monitor_focus, *monitor_launch,
-                 *proot_box, *proot_help, *proot_setup_help, *proot_setup_button, *proot_desktop_entry, *proot_app_entry, *proot_shortcut_entry, *proot_sync_rollback_entry, *proot_session_entry,
+                 *proot_box, *proot_help, *proot_setup_help, *proot_setup_button, *proot_desktop_box, *proot_app_entry, *proot_shortcut_entry, *proot_sync_rollback_entry, *proot_session_entry,
                  *proot_replay_alias_entry, *proot_replay_backup_entry, *proot_replay_retire_button,
                  *proot_replay_restore_button, *proot_replay_review_box, *proot_replay_review_label,
                  *proot_replay_apply_button, *proot_replay_cancel_button,
                  *proot_app_button, *proot_shortcut_list_button, *proot_shortcut_add_button,
                  *proot_shortcut_remove_button, *proot_shortcut_sync_button, *proot_shortcut_rollback_list_button,
-                 *proot_shortcut_rollback_preview_button, *proot_session_stop_button, *proot_session_reconcile_button; GPtrArray *categories,
+                 *proot_shortcut_rollback_preview_button, *proot_session_stop_button, *proot_session_reconcile_button; GtkWidget *proot_desktop_checks[7]; GPtrArray *categories,
                  *resources; gchar *selected_category, *selected_resource_id, *replay_review_action,
                  *replay_review_alias, *replay_review_backup, *replay_review_plan; guint category_count; } Center;
 typedef struct { Center *center; gchar *action; gchar *resource_id; gchar *detail_id; gchar *plan_id; gchar *extra_id; } Request;
 typedef struct { Center *center; GPtrArray *ids; GPtrArray *labels; gchar *helper_id; } BootHelperChoice;
 static Center *app_center;
+static const gchar *PROOT_DESKTOP_IDS[] = {"xfce", "lxqt", "lxde", "mate", "plasma", "gnome", "cinnamon"};
+static const gchar *PROOT_DESKTOP_LABELS[] = {"XFCE (:0 and :2)", "LXQt (:0 and :2)", "LXDE (:0 and :2)", "MATE (:0 and :2)", "KDE Plasma (:0 only)", "GNOME (route unverified)", "Cinnamon (route unverified)"};
 static void run_bridge(Center *c, const gchar *action, const gchar *arg1, const gchar *arg2,
                        const gchar *arg3, const gchar *arg4, const gchar *arg5);
 static void run_bridge_full(Center *c, const gchar *action, const gchar *arg1, const gchar *arg2,
@@ -864,7 +866,7 @@ static void show_resource(Center *c, Resource *r) {
     gtk_widget_set_visible(c->proot_help, proot_workloads);
     gtk_widget_set_visible(c->proot_setup_help, proot_workloads);
     gtk_widget_set_visible(c->proot_setup_button, proot_workloads);
-    GtkWidget *workload_widgets[] = {c->proot_setup_button, c->proot_desktop_entry, c->proot_app_entry, c->proot_app_button, c->proot_shortcut_entry,
+    GtkWidget *workload_widgets[] = {c->proot_setup_button, c->proot_desktop_box, c->proot_app_entry, c->proot_app_button, c->proot_shortcut_entry,
         c->proot_shortcut_list_button, c->proot_shortcut_add_button, c->proot_shortcut_remove_button,
         c->proot_shortcut_sync_button, c->proot_shortcut_rollback_list_button, c->proot_sync_rollback_entry,
         c->proot_shortcut_rollback_preview_button, c->proot_session_entry, c->proot_session_stop_button,
@@ -1141,9 +1143,15 @@ static void open_debian_setup(GtkButton *button, gpointer data) {
         gtk_label_set_text(GTK_LABEL(c->notice), "The installed Native `tx` command is unavailable.");
         g_free(tx); return;
     }
-    const gchar *desktops = gtk_editable_get_text(GTK_EDITABLE(c->proot_desktop_entry));
-    if (!desktops || !g_regex_match_simple("^(xfce|lxqt|lxde|mate|plasma|gnome|cinnamon)(,(xfce|lxqt|lxde|mate|plasma|gnome|cinnamon))*$", desktops, 0, 0)) {
-        gtk_label_set_text(GTK_LABEL(c->notice), "Choose one or more comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate,plasma,gnome,cinnamon.");
+    GString *desktops = g_string_new(NULL);
+    for (guint i = 0; i < G_N_ELEMENTS(PROOT_DESKTOP_IDS); i++) {
+        if (!gtk_check_button_get_active(GTK_CHECK_BUTTON(c->proot_desktop_checks[i]))) continue;
+        if (desktops->len) g_string_append_c(desktops, ',');
+        g_string_append(desktops, PROOT_DESKTOP_IDS[i]);
+    }
+    if (!desktops->len) {
+        gtk_label_set_text(GTK_LABEL(c->notice), "Select at least one Debian desktop environment.");
+        g_string_free(desktops, TRUE);
         g_free(tx); return;
     }
     GtkWidget *window = gtk_window_new();
@@ -1160,9 +1168,10 @@ static void open_debian_setup(GtkButton *button, gpointer data) {
     gtk_box_append(GTK_BOX(box), GTK_WIDGET(terminal));
     gtk_window_set_child(GTK_WINDOW(window), box);
     gtk_window_present(GTK_WINDOW(window));
-    gchar *argv[] = {tx, "install", "debian", "--desktops", (gchar *)desktops, NULL};
+    gchar *argv[] = {tx, "install", "debian", "--desktops", desktops->str, NULL};
     vte_terminal_spawn_async(terminal, VTE_PTY_DEFAULT, NULL, argv, NULL,
         G_SPAWN_DEFAULT, NULL, NULL, NULL, -1, NULL, guest_setup_spawn_done, c);
+    g_string_free(desktops, TRUE);
     g_free(tx);
 }
 
@@ -2144,7 +2153,9 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     GtkWidget *proot_actions=gtk_box_new(GTK_ORIENTATION_VERTICAL,4);
     c->proot_help=gtk_label_new("Use an installed guest app ID. Shortcut edits and session stops show an exact preview first."); gtk_label_set_wrap(GTK_LABEL(c->proot_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_help);
     c->proot_setup_help=gtk_label_new("Choose one or more desktop IDs, then start the guided installer here. Review and confirm its pinned target in the embedded terminal; Ternuxx applies available graphics/audio integration. Existing guests are preserved."); gtk_label_set_wrap(GTK_LABEL(c->proot_setup_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_setup_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_help);
-    c->proot_desktop_entry=gtk_entry_new(); gtk_editable_set_text(GTK_EDITABLE(c->proot_desktop_entry),"xfce"); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_desktop_entry),"xfce,lxqt"); gtk_widget_set_tooltip_text(c->proot_desktop_entry,"Comma-separated Debian desktop IDs. Current catalog: xfce,lxqt,lxde,mate,plasma,gnome,cinnamon."); gtk_box_append(GTK_BOX(proot_actions),c->proot_desktop_entry);
+    c->proot_desktop_box=gtk_box_new(GTK_ORIENTATION_VERTICAL,2); gtk_box_append(GTK_BOX(proot_actions),c->proot_desktop_box);
+    GtkWidget *desktop_note=gtk_label_new("Desktop environments (select one or more)"); gtk_widget_set_halign(desktop_note,GTK_ALIGN_START); gtk_box_append(GTK_BOX(c->proot_desktop_box),desktop_note);
+    for (guint i=0;i<G_N_ELEMENTS(PROOT_DESKTOP_IDS);i++) { c->proot_desktop_checks[i]=gtk_check_button_new_with_label(PROOT_DESKTOP_LABELS[i]); gtk_check_button_set_active(GTK_CHECK_BUTTON(c->proot_desktop_checks[i]),i==0); gtk_box_append(GTK_BOX(c->proot_desktop_box),c->proot_desktop_checks[i]); }
     c->proot_setup_button=gtk_button_new_with_label("Install managed Debian…"); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_button);
     c->proot_app_entry=gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_app_entry), "Debian app ID (for example: firefox)"); gtk_box_append(GTK_BOX(proot_actions),c->proot_app_entry);
     c->proot_app_button=gtk_button_new_with_label("Launch Debian app"); gtk_box_append(GTK_BOX(proot_actions),c->proot_app_button);

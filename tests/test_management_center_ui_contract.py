@@ -34,6 +34,14 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
                 self.assertIn(contract, SOURCE)
         self.assertIn("start-desktop", BRIDGE)
 
+    def test_gtk_managed_guest_desktop_picker_is_a_multi_select_checkbox_group(self):
+        for contract in ("proot_desktop_checks[7]", "gtk_check_button_new_with_label",
+                         "gtk_check_button_get_active", "Desktop environments (select one or more)",
+                         '"install", "debian", "--desktops", desktops->str'):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, SOURCE)
+        self.assertNotIn("proot_desktop_entry", SOURCE)
+
     def test_review_instance_remains_available(self):
         self.assertIn('g_strcmp0(argv[1], "--review") == 0', SOURCE)
         self.assertIn('"dev.ternuxx.management-center.review"', SOURCE)
@@ -176,8 +184,9 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
 
     def test_gtk_proot_setup_launches_guided_installer_with_desktop_selection(self):
         self.assertIn("Install managed Debian", SOURCE)
-        self.assertIn("proot_desktop_entry", SOURCE)
-        self.assertIn('"install", "debian", "--desktops"', SOURCE)
+        self.assertIn("proot_desktop_checks[7]", SOURCE)
+        self.assertIn("gtk_check_button_get_active", SOURCE)
+        self.assertIn('"install", "debian", "--desktops", desktops->str', SOURCE)
         self.assertIn("Existing guests are preserved", SOURCE)
 
     def test_gtk_replay_guest_retirement_and_restore_use_inline_exact_plan_review(self):
@@ -216,10 +225,3 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-    def test_gtk_launches_guided_managed_debian_installer_with_desktop_selection(self):
-        self.assertIn('Install managed Debian', SOURCE)
-        self.assertIn('proot_desktop_entry', SOURCE)
-        self.assertIn('gtk_editable_get_text(GTK_EDITABLE(c->proot_desktop_entry))', SOURCE)
-        self.assertIn('"install", "debian", "--desktops"', SOURCE)
-        self.assertIn('Existing guests are preserved.', SOURCE)
