@@ -25,7 +25,7 @@ Preview every requested package and the complete dependency closure:
 ./tx install preview --verbose
 ```
 
-The preview shows package versions, APT's full simulation, download size, installed size, and the exact `PLAN_ID` to apply. Review the repository origins and confirm the plan ID before installing:
+The preview shows package versions, APT's full dependency simulation, approximate download and installed sizes from the signed package index, current free space on the Termux prefix filesystem, and a host memory snapshot. Add `--verbose` to see estimates per package. Memory and storage are observations, not guarantees. Review repository origins and the exact `PLAN_ID` before installing:
 
 ```sh
 ./tx install apply --yes --plan-id PLAN_ID

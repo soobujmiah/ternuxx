@@ -43,6 +43,66 @@ _NT_ACTIVE_PROFILE=full-native
 _NT_ACTIVE_COMPONENTS=""
 _NT_ACTIVE_SKIPPED_COMPONENTS=""
 _NT_PLAN_MODE=install
+_NT_PLAN_RESOURCE_ESTIMATES='{"schema_version":1,"complete":false,"packages":[]}'
+
+_nt_capture_install_resource_estimates() {
+  local estimate_helper="${_TN_LIB_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)}/package_estimates.py"
+  _NT_PLAN_RESOURCE_ESTIMATES="$(python3 "$estimate_helper" -- "${_NT_PLAN_TRANSACTION[@]}")" || {
+    _NT_PLAN_RESOURCE_ESTIMATES='{"schema_version":1,"complete":false,"packages":[]}';
+  }
+}
+
+_nt_print_install_resource_estimates() {
+  python3 - "$_NT_PLAN_RESOURCE_ESTIMATES" "${TERNUXX_VERBOSE:-0}" <<'PYESTIMATEPRINT'
+import json, sys
+try:
+    data = json.loads(sys.argv[1])
+except (ValueError, TypeError):
+    print("[INFO]  Resource estimates unavailable.", file=sys.stderr)
+    raise SystemExit(0)
+def mib(value): return f"{value / 1048576:.1f} MiB"
+def gib(value): return f"{value / 1073741824:.1f} GiB"
+if data.get("complete"):
+    print(f"[INFO]  Estimated package download: {mib(data['download_bytes'])}; installed payload: {mib(data['installed_kib'] * 1024)} (APT metadata; approximate).", file=sys.stderr)
+else:
+    print("[WARN]  Complete package size estimates are unavailable from the current APT metadata.", file=sys.stderr)
+free = data.get("filesystem_free_bytes")
+if isinstance(free, int):
+    print(f"[INFO]  Current free space on the Termux prefix filesystem: {gib(free)}.", file=sys.stderr)
+memory = data.get("memory", {})
+total, available = memory.get("total_bytes"), memory.get("available_bytes")
+if isinstance(total, int) and isinstance(available, int):
+    print(f"[INFO]  Host memory snapshot: {gib(available)} available of {gib(total)} total; this is not a workload guarantee.", file=sys.stderr)
+if sys.argv[2] == "1":
+    for package in data.get("packages", []):
+        size = package.get("download_bytes")
+        installed = package.get("installed_kib")
+        if isinstance(size, int) and isinstance(installed, int):
+            print(f"[INFO]  {package['package']}={package['version']}: {mib(size)} download, {mib(installed * 1024)} installed.", file=sys.stderr)
+        else:
+            print(f"[INFO]  {package.get('package', '?')}: size estimate unavailable.", file=sys.stderr)
+PYESTIMATEPRINT
+}
+
+_nt_install_capacity_preflight() {
+  python3 - "$_NT_PLAN_RESOURCE_ESTIMATES" <<'PYESTIMATECAPACITY'
+import json, sys
+try:
+    data = json.loads(sys.argv[1])
+except (ValueError, TypeError):
+    raise SystemExit(0)
+needed = data.get("installed_kib")
+free = data.get("filesystem_free_bytes")
+if not isinstance(needed, int) or not isinstance(free, int):
+    raise SystemExit(0)
+needed *= 1024
+if free < needed:
+    print(f"Estimated installed payload ({needed} bytes) exceeds current free Termux-prefix storage ({free} bytes); refusing to start APT.", file=sys.stderr)
+    raise SystemExit(1)
+if data.get("download_bytes") is not None and free < needed + data["download_bytes"]:
+    print("Warning: free space is below the estimated download-plus-installed peak; APT may run out of storage during unpack.", file=sys.stderr)
+PYESTIMATECAPACITY
+}
 
 _nt_select_install_profile() {
   local profile="${1:-}" components="${2:-}" group package
@@ -207,6 +267,7 @@ _nt_make_install_plan() {
 
   if [ ${#_NT_PLAN_PACKAGES[@]} -eq 0 ]; then
     _NT_PLAN_SIMULATION=""
+    _nt_capture_install_resource_estimates
     return 0
   fi
 
@@ -241,6 +302,7 @@ _nt_make_install_plan() {
     [ -n "$package" ] && _NT_PLAN_TRANSACTION+=("$package=$expected_version")
   done < <(printf '%s\n' "$simulation" | awk '$1 == "Inst" { version=$3; if (version == "(") version=$4; if (substr(version, 1, 1) == "(") version=substr(version, 2); print $2, version }')
   _NT_PLAN_SIMULATION="$simulation"
+  _nt_capture_install_resource_estimates
 }
 
 _nt_make_update_plan() {
@@ -559,6 +621,8 @@ nt_cmd_install() {
     return 0
   fi
 
+  if [ "$update" != "1" ]; then TERNUXX_VERBOSE="$verbose" _nt_print_install_resource_estimates; fi
+
   if [ "$apply" = "1" ] || [ "$verbose" = "1" ]; then
     if [ "$update" = "1" ]; then
       nt_info "Ternuxx Native core package update preview (official Termux repositories only):"
@@ -618,7 +682,7 @@ nt_cmd_install() {
       if [ "$update" = "1" ]; then
         printf '{"install":"update_preview","plan_id":"%s","packages":%s,"transaction":%s}\n' "$plan_id" "$package_json" "$transaction_json"
       else
-        printf '{"install":"preview","profile":"%s","skipped_components":"%s","plan_id":"%s","packages":%s,"transaction":%s}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS" "$plan_id" "$package_json" "$transaction_json"
+        printf '{"install":"preview","profile":"%s","skipped_components":"%s","plan_id":"%s","packages":%s,"transaction":%s,"resource_estimates":%s}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS" "$plan_id" "$package_json" "$transaction_json" "$_NT_PLAN_RESOURCE_ESTIMATES"
       fi
     fi
     return 0
@@ -646,6 +710,11 @@ nt_cmd_install() {
     return 0
   fi
 
+  if [ "$update" != "1" ] && ! _nt_install_capacity_preflight; then
+    nt_fail "Insufficient estimated storage; no package changes were started."
+    return 1
+  fi
+
   if [ "$update" = "1" ]; then
     nt_step "Applying the reviewed Ternuxx core package update (preview $plan_id)..."
   else
@@ -671,7 +740,7 @@ nt_cmd_install() {
     if [ "$update" = "1" ]; then
       printf '{"install":"updated","packages":%s,"transaction":%s}\n' "$package_json" "$transaction_json"
     else
-      printf '{"install":"complete","profile":"%s","skipped_components":"%s","packages":%s,"transaction":%s}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS" "$package_json" "$transaction_json"
+      printf '{"install":"complete","profile":"%s","skipped_components":"%s","packages":%s,"transaction":%s,"resource_estimates":%s}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS" "$package_json" "$transaction_json" "$_NT_PLAN_RESOURCE_ESTIMATES"
     fi
   fi
   return 0

@@ -344,7 +344,11 @@ echo 'install ok installed'
             self.assertEqual(preview.returncode, 0, preview.stderr)
             self.assertIn("Profile: minimal-native", preview.stderr)
             self.assertIn("Apply after review: tx install apply --profile minimal-native", preview.stderr)
-            self.assertIn('"profile":"minimal-native"', preview.stdout)
+            preview_json = json.loads(preview.stdout)
+            self.assertEqual(preview_json["profile"], "minimal-native")
+            self.assertIn("resource_estimates", preview_json)
+            self.assertEqual(preview_json["resource_estimates"]["schema_version"], 1)
+            self.assertFalse(preview_json["resource_estimates"]["complete"])
             import re
             match = re.search(r"Preview ID: ([0-9a-f]{64})", preview.stderr)
             self.assertIsNotNone(match, preview.stderr)
@@ -354,6 +358,17 @@ echo 'install ok installed'
             applied_args = capture.read_text(encoding="utf-8")
             self.assertIn("python=3.14.8", applied_args)
             self.assertNotIn("xfce4-session", applied_args)
+
+    def test_install_capacity_preflight_refuses_estimated_payload_larger_than_free_space(self):
+        estimates = json.dumps({"installed_kib": 5, "filesystem_free_bytes": 4096,
+                                "download_bytes": 1000, "complete": True})
+        result = subprocess.run(
+            ["bash", "-c", 'source "$1"; _NT_PLAN_RESOURCE_ESTIMATES="$2"; _nt_install_capacity_preflight',
+             "bash", str(PHASES), estimates],
+            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("refusing to start APT", result.stderr)
 
     def test_global_cli_verbose_flag_reaches_install_transaction_preview(self):
         with tempfile.TemporaryDirectory(prefix="ternuxx-install-global-verbose-") as temporary:

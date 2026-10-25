@@ -16,7 +16,7 @@ git clone https://github.com/soobujmiah/ternuxx.git "$HOME/ternuxx"
 cd "$HOME/ternuxx"
 ```
 
-Review the full Native package and dependency transaction before applying it:
+Review the full Native package/dependency transaction, including approximate package sizes and current host resources, before applying it:
 
 ```sh
 ./tx install preview --verbose

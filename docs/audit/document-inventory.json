@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "3cb87b53e3eb6a3fca35c1045468d9266dd0dde1bef57daba2638e3fec7f2653",
+      "sha256": "64840eb50eb0c1f4b948c3cc1834afcd183a67a328d0446a8f5855f7bc4d8fc8",
       "lines": 32,
       "read_status": "read",
-      "read_sha256": "3cb87b53e3eb6a3fca35c1045468d9266dd0dde1bef57daba2638e3fec7f2653"
+      "read_sha256": "64840eb50eb0c1f4b948c3cc1834afcd183a67a328d0446a8f5855f7bc4d8fc8"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "34e5927e6852bc54200610c5c38c4b98480cd9b337bd3d4c9462c502c577254d",
+      "sha256": "a23a29384bdb2e14960112bc9e70874bc1d2c819a9fc153c2a103344325e8f6f",
       "lines": 99,
       "read_status": "read",
-      "read_sha256": "34e5927e6852bc54200610c5c38c4b98480cd9b337bd3d4c9462c502c577254d"
+      "read_sha256": "a23a29384bdb2e14960112bc9e70874bc1d2c819a9fc153c2a103344325e8f6f"
     },
     {
       "path": "SECURITY.md",
@@ -147,10 +147,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "d4716dbc21ecd9fc9e470acfbe68f43cb791c40b724f49d132ae764c0156979a",
+      "sha256": "60169ca3d3cf2937888eaf34fd47ce67f2c28d48de57571e0a74d83f13b9d24e",
       "lines": 103,
       "read_status": "read",
-      "read_sha256": "d4716dbc21ecd9fc9e470acfbe68f43cb791c40b724f49d132ae764c0156979a"
+      "read_sha256": "60169ca3d3cf2937888eaf34fd47ce67f2c28d48de57571e0a74d83f13b9d24e"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "9c494e48ab90e9ddb7e77e0d08aac34023bbf138e52128f7d395637fe9ca864f",
+      "sha256": "27e94c0828c764bd39ba24dc0740509bb8c51ff35e14651f567b17000f8d72d6",
       "lines": 61,
       "read_status": "read",
-      "read_sha256": "9c494e48ab90e9ddb7e77e0d08aac34023bbf138e52128f7d395637fe9ca864f"
+      "read_sha256": "27e94c0828c764bd39ba24dc0740509bb8c51ff35e14651f567b17000f8d72d6"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3435,10 +3435,10 @@
     {
       "path": "docs/evidence/2026-10-25-native-installer-profiles.md",
       "kind": "narrative",
-      "sha256": "10797c98eaf9479aca967f0f925ebdaa3c27de73e67678e79ec3ce5351eee4d9",
+      "sha256": "b2c111bba70c66a5c9faabfd5c29e9ceb82b9c7487bbe1b1f6215bf6445f4933",
       "lines": 13,
       "read_status": "read",
-      "read_sha256": "10797c98eaf9479aca967f0f925ebdaa3c27de73e67678e79ec3ce5351eee4d9"
+      "read_sha256": "b2c111bba70c66a5c9faabfd5c29e9ceb82b9c7487bbe1b1f6215bf6445f4933"
     },
     {
       "path": "docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md",
