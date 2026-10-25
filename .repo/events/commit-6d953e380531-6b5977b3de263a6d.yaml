@@ -1,0 +1,7 @@
+event_id: commit-6d953e380531-6b5977b3de263a6d
+repository: soobujmiah/ternuxx
+commit: 6d953e38053140c94c005dfb589b49db48bc43f0
+kind: commit
+occurred_at: '2026-10-25T22:21:20Z'
+status: completed
+summary: 'test(installer): isolate guest guard from host detection'
