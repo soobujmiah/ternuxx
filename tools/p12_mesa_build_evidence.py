@@ -178,47 +178,112 @@ for line in (build_root / "build.ninja").read_text(encoding="utf-8").splitlines(
                     pass
                 if resolved.is_file():
                     external_paths.add(resolved)
-def package_owner(path):
-    query_tool = shutil.which("dpkg-query")
-    if not query_tool:
-        return "unresolved", "unresolved", None
-    admin_dirs = []
+def package_database_roots():
+    result = []
     for variable in ("TERMUX_PREFIX", "PREFIX"):
         value = os.environ.get(variable)
         if value:
-            candidate = Path(value) / "var/lib/dpkg"
-            if candidate.is_dir() and candidate not in admin_dirs:
-                admin_dirs.append(candidate)
+            root = Path(value).resolve()
+            admin = root / "var/lib/dpkg"
+            if admin.is_dir() and all(existing[0] != admin for existing in result):
+                result.append((admin, root))
     hostbuild = os.environ.get("TERMUX_PKG_HOSTBUILD_DIR")
     if hostbuild:
-        candidate = Path(hostbuild) / "ubuntu_packages/var/lib/dpkg"
-        if candidate.is_dir() and candidate not in admin_dirs:
-            admin_dirs.append(candidate)
-    for admin in [*admin_dirs, None]:
-        base = [query_tool]
-        if admin is not None:
-            base.extend(["--admindir", str(admin)])
+        root = Path(hostbuild).resolve() / "ubuntu_packages"
+        admin = root / "var/lib/dpkg"
+        if admin.is_dir() and all(existing[0] != admin for existing in result):
+            result.append((admin, root))
+    system = Path("/var/lib/dpkg")
+    if system.is_dir() and all(existing[0] != system for existing in result):
+        result.append((system, Path("/")))
+    return result
+
+def normalized_package_paths(path, root):
+    values = {str(path).lstrip("/")}
+    try:
+        relative = path.relative_to(root).as_posix()
+    except ValueError:
+        relative = None
+    if relative:
+        values.update({relative, "./" + relative, "/" + relative})
+        if root.name == "usr" and root.as_posix().endswith("/com.termux/files/usr"):
+            values.add("data/data/com.termux/files/usr/" + relative)
+            values.add("/data/data/com.termux/files/usr/" + relative)
+    return values
+
+package_roots = package_database_roots()
+package_file_owners = {}
+for admin, root in package_roots:
+    info = admin / "info"
+    if not info.is_dir():
+        continue
+    for listing in info.glob("*.list"):
+        package = listing.name[:-5]
         try:
-            lines = subprocess.check_output([*base, "-S", str(path)], text=True,
-                                            stderr=subprocess.DEVNULL).splitlines()
-            match = next((line for line in lines if ": " in line), "")
-            package = match.partition(": ")[0].strip()
-            if not package:
-                continue
-            version = subprocess.check_output([*base, "-W", "-f=${Version}", package],
-                                              text=True, stderr=subprocess.DEVNULL).strip()
-            return package, version or "unresolved", str(admin) if admin is not None else None
-        except (OSError, subprocess.CalledProcessError, StopIteration):
+            for line in listing.read_text(encoding="utf-8", errors="replace").splitlines():
+                normalized = line.strip()
+                if normalized.startswith("./"):
+                    normalized = normalized[2:]
+                normalized = normalized.lstrip("/")
+                if normalized:
+                    package_file_owners.setdefault((admin, normalized), set()).add(package)
+        except OSError:
             continue
-    return "unresolved", "unresolved", None
+
+def package_owner(path):
+    query_tool = shutil.which("dpkg-query")
+    candidates = {}
+    for admin, root in package_roots:
+        for package_path in normalized_package_paths(path, root):
+            for package in package_file_owners.get((admin, package_path), set()):
+                candidates[(package, str(admin))] = None
+    if query_tool:
+        for admin, root in package_roots:
+            base = [query_tool]
+            if admin is not None:
+                base.extend(["--admindir", str(admin)])
+            for package_path in normalized_package_paths(path, root):
+                try:
+                    lines = subprocess.check_output([*base, "-S", package_path], text=True,
+                                                    stderr=subprocess.DEVNULL).splitlines()
+                except (OSError, subprocess.CalledProcessError):
+                    continue
+                for line in lines:
+                    if ": " not in line:
+                        continue
+                    package = line.partition(": ")[0].strip()
+                    if package:
+                        candidates[(package, str(admin) if admin is not None else "")] = None
+    records = []
+    for package, admin_text in sorted(candidates):
+        version = "unresolved"
+        if query_tool:
+            base = [query_tool]
+            if admin_text:
+                base.extend(["--admindir", admin_text])
+            try:
+                version = subprocess.check_output([*base, "-W", "-f=${Version}", package],
+                                                  text=True, stderr=subprocess.DEVNULL).strip() or "unresolved"
+            except (OSError, subprocess.CalledProcessError):
+                pass
+        records.append({"name": package, "version": version,
+                        "package_database": admin_text or None})
+    if len(records) == 1:
+        owner, version, package_db = records[0]["name"], records[0]["version"], records[0]["package_database"]
+    elif records:
+        owner, version, package_db = "ambiguous", "unresolved", None
+    else:
+        owner, version, package_db = "unresolved", "unresolved", None
+    return owner, version, package_db, records
 
 external_inputs = []
 for path in sorted(external_paths):
-    owner, version, package_db = package_owner(path)
+    owner, version, package_db, candidates = package_owner(path)
     record = file_record(path, Path("/"), "external-build-input")
     record["absolute_path"] = str(path)
     record["package"] = owner
     record["package_version"] = version
+    record["package_candidates"] = candidates
     if package_db is not None:
         record["package_database"] = package_db
     external_inputs.append(record)
@@ -477,6 +542,29 @@ def validate_capture(evidence_dir: Path) -> None:
                     or not isinstance(record.get("sha256"), str) \
                     or not re.fullmatch(r"[0-9a-f]{64}", record["sha256"]):
                 raise EvidenceError(f"{role} generated-output provenance has an invalid file record")
+            if record in provenance["external_build_inputs"]:
+                candidates = record.get("package_candidates")
+                if not isinstance(candidates, list):
+                    raise EvidenceError(f"{role} external build input is missing package-owner candidates")
+                for candidate in candidates:
+                    if (not isinstance(candidate, dict)
+                            or not isinstance(candidate.get("name"), str)
+                            or not candidate["name"]
+                            or not isinstance(candidate.get("version"), str)
+                            or (candidate.get("package_database") is not None
+                                and not isinstance(candidate.get("package_database"), str))):
+                        raise EvidenceError(f"{role} external build input has an invalid package-owner candidate")
+                if len(candidates) == 1:
+                    candidate = candidates[0]
+                    if (record.get("package") != candidate["name"]
+                            or record.get("package_version") != candidate["version"]
+                            or record.get("package_database") != candidate.get("package_database")):
+                        raise EvidenceError(f"{role} external build input owner differs from its sole candidate")
+                elif len(candidates) > 1:
+                    if record.get("package") != "ambiguous" or record.get("package_version") != "unresolved":
+                        raise EvidenceError(f"{role} external build input hides multiple package owners")
+                elif record.get("package") != "unresolved" or record.get("package_version") != "unresolved":
+                    raise EvidenceError(f"{role} external build input claims an owner without candidates")
         for record in provenance["cargo_registry_archives"]:
             if not isinstance(record, dict) or not isinstance(record.get("path"), str) \
                     or not isinstance(record.get("sha256"), str) \

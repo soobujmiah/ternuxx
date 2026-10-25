@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Mesa generated-edge inputs are mapped; Wayland 1.49 source notices are checked. The pinned workflow capture helper now records generated text/Rust output hashes and notices, Cargo manifests/cache archives, Ninja external-input hashes/package-owner candidates, and a Meson install dry-run. Eleven focused capture fixtures pass; this extension has not yet been run in the pinned build. Exact dependency `.deb` hashes, package notice closure, and longer guarded workload qualification remain open.
+Mesa generated-edge inputs are mapped; Wayland 1.49 source notices are checked. The pinned workflow capture helper now records generated text/Rust output hashes and notices, Cargo manifests/cache archives, Ninja external-input hashes/package-owner candidates, and a Meson install dry-run. The pinned capture run 40241516521 passed and its artifact validates with generated/Rust inputs, all staged `.deb` hashes, and bounded Mesa notice text. Its external package-owner records remain unresolved. Twelve focused fixtures now cover dpkg file-list ownership and ambiguous owners; that latest correction still needs a pinned rerun. Package notice closure and longer guarded workload qualification remain open.
 
-**Next action:** Run the pinned workflow and audit its captured output, then establish shipped notice closure and remaining applicable license records. Continue longer bounded CPU/Vulkan/HTP qualification with memory, timeout and process guards active.
+**Next action:** Push the latest owner-capture correction, rerun the pinned workflow, and audit package-owner candidates against the captured dpkg metadata; then establish shipped notice closure and remaining applicable license records. Continue longer bounded CPU/Vulkan/HTP qualification with memory, timeout and process guards active.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

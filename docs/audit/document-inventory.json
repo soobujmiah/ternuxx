@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 574,
-  "read_count": 179,
+  "read_count": 176,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "792161e963b420c7c3034a4b28d2961b41800a74f6e348d6b37e443e212d5634",
+      "sha256": "b12d6bcdddebcc0f6ff1d581c6d2d3e157b34620881f3111f3dc84e7139504f8",
       "lines": 37,
-      "read_status": "read",
-      "read_sha256": "792161e963b420c7c3034a4b28d2961b41800a74f6e348d6b37e443e212d5634"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -179,7 +179,7 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "edb26aa7b1f113c4c35b7caf93fa753746bd6c2967030da194b4362ddadf31dd",
+      "sha256": "3030c95848d8e83b38255eb63142024321dc0ab867b95c76566068608096764f",
       "lines": 170,
       "read_status": "pending",
       "read_sha256": null
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "1c56a98bb12bdf69177a2a7ec65bae785f00cac662084cbe6a3afaf1e6a5a339",
+      "sha256": "1197b48d4d82c1c42c7c67d3632d0999bc9e96e512ede73ead6c7f6806ac11e6",
       "lines": 135,
-      "read_status": "read",
-      "read_sha256": "1c56a98bb12bdf69177a2a7ec65bae785f00cac662084cbe6a3afaf1e6a5a339"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3571,10 +3571,10 @@
     {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
       "kind": "narrative",
-      "sha256": "2c0062205d8a72c90c94e42acd270ddcd2765bab0ef81fc510a6e403288554c5",
-      "lines": 41,
-      "read_status": "read",
-      "read_sha256": "2c0062205d8a72c90c94e42acd270ddcd2765bab0ef81fc510a6e403288554c5"
+      "sha256": "8982205cfbe264982f04cf054183d55ca974d533f255363df50675466bc2746a",
+      "lines": 47,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",

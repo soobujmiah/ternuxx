@@ -69,7 +69,9 @@ termux_step_post_make_install() {
         build.mkdir()
         generated_source = build / "rusticl_generated.rs"
         generated_source.write_text("// generated fixture\n", encoding="utf-8")
-        external_input = self.root / "protocol.xml"
+        termux_prefix = self.root / "termux-prefix"
+        external_input = termux_prefix / "lib/protocol.xml"
+        external_input.parent.mkdir(parents=True)
         external_input.write_text("<protocol/>\n", encoding="utf-8")
         binary_input = self.root / "libfixture.so"
         binary_input.write_bytes(b"\x7fELF\0Copyright fake binary bytes")
@@ -87,8 +89,10 @@ termux_step_post_make_install() {
         subprocess.run(["git", "-C", str(source_root), "config", "user.email", "fixture@example.invalid"], check=True)
         subprocess.run(["git", "-C", str(source_root), "add", "."], check=True)
         subprocess.run(["git", "-C", str(source_root), "commit", "-qm", "fixture"], check=True)
-        termux_prefix = self.root / "termux-prefix"
-        (termux_prefix / "var/lib/dpkg").mkdir(parents=True)
+        dpkg_info = termux_prefix / "var/lib/dpkg/info"
+        dpkg_info.mkdir(parents=True)
+        (dpkg_info / "fixture-termux-dep.list").write_text(
+            "lib/protocol.xml\n", encoding="utf-8")
         fake_meson = self.root / "fake_meson.py"
         fake_meson.write_text(
             "import json, os, sys\n"
@@ -108,9 +112,7 @@ termux_step_post_make_install() {
         fake_query.write_text("""#!/usr/bin/env python3
 import sys
 args=sys.argv[1:]
-if '-S' in args and args[-1].endswith('protocol.xml'):
- print('fixture-termux-dep: ' + args[-1])
-elif '-W' in args and args[-1] == 'fixture-termux-dep':
+if '-W' in args and args[-1] == 'fixture-termux-dep':
  print('1.2.3')
 else:
  raise SystemExit(1)
@@ -156,6 +158,10 @@ else:
         self.assertEqual(protocol["package"], "fixture-termux-dep")
         self.assertEqual(protocol["package_version"], "1.2.3")
         self.assertEqual(protocol["package_database"], str(termux_prefix / "var/lib/dpkg"))
+        self.assertEqual(protocol["package_candidates"], [{
+            "name": "fixture-termux-dep", "version": "1.2.3",
+            "package_database": str(termux_prefix / "var/lib/dpkg"),
+        }])
         binary = next(item for item in provenance["external_build_inputs"]
                       if item["absolute_path"] == str(binary_input))
         self.assertEqual(binary["header_license_status"], "BINARY_NOT_SCANNED")
@@ -296,7 +302,15 @@ class MesaCaptureValidationTests(unittest.TestCase):
                 "rust_source_inputs": ([{"path": "src/gallium/frontends/rusticl/kernel.rs",
                                          "sha256": "d" * 64}] if role == "target" else []),
                 "cargo_registry_archives": [],
-                "external_build_inputs": [],
+                "external_build_inputs": ([{
+                    "path": "data/data/com.termux/files/usr/lib/libfixture.so",
+                    "absolute_path": "/data/data/com.termux/files/usr/lib/libfixture.so",
+                    "sha256": "e" * 64, "package": "fixture-termux-dep",
+                    "package_version": "1.2.3",
+                    "package_database": "/data/data/com.termux/files/usr/var/lib/dpkg",
+                    "package_candidates": [{"name": "fixture-termux-dep", "version": "1.2.3",
+                                             "package_database": "/data/data/com.termux/files/usr/var/lib/dpkg"}],
+                }] if role == "target" else []),
                 "rust_tool_versions": {"cargo": "cargo 1.0", "rustc": "rustc 1.0"},
             }
             (role_dir / "generated-output-and-rust-provenance.json").write_text(
@@ -353,6 +367,16 @@ class MesaCaptureValidationTests(unittest.TestCase):
 
     def test_validates_pinned_graphs_and_split_package_architectures(self) -> None:
         validate_capture(self.root)
+
+    def test_rejects_external_input_with_hidden_multiple_package_owners(self) -> None:
+        path = self.root / "aarch64/target/generated-output-and-rust-provenance.json"
+        provenance = json.loads(path.read_text(encoding="utf-8"))
+        record = provenance["external_build_inputs"][0]
+        record["package_candidates"].append({"name": "other-owner", "version": "9",
+                                             "package_database": "/other/dpkg"})
+        path.write_text(json.dumps(provenance), encoding="utf-8")
+        with self.assertRaisesRegex(EvidenceError, "hides multiple package owners"):
+            validate_capture(self.root)
 
     def test_rejects_missing_rust_generated_output_provenance(self) -> None:
         path = self.root / "aarch64/target/generated-output-and-rust-provenance.json"
