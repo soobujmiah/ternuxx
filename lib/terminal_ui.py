@@ -298,7 +298,7 @@ def _managed_ssh_action(screen: "curses._CursesWindow", resource: dict[str, Any]
     if "ssh.service.autostart.status" in operations:
         choices.append(("autostart", "Change SSH start-with-Termux-services setting"))
     if "ssh.keys.list" in operations:
-        choices.append(("keys", "View shared SSH key fingerprints"))
+        choices.append(("keys", "View authorized SSH key fingerprints"))
     if "ssh.keys.add.preview" in operations:
         choices.append(("enroll", "Enroll a public key from Native .ssh"))
     if "ssh.keys.remove.preview" in operations:
@@ -306,7 +306,7 @@ def _managed_ssh_action(screen: "curses._CursesWindow", resource: dict[str, Any]
     if "ssh.keys.rollback.list" in operations:
         choices.append(("rollback", "Restore a previous SSH key change"))
     if "ssh.service.deploy" in operations:
-        choices.append(("deploy", "Review and deploy the managed SSH service definition"))
+        choices.append(("deploy", "Set up or reconcile the managed SSH service"))
     if "ssh.service.deploy.rollback.preview" in operations:
         choices.append(("deploy-rollback", "Restore a previous SSH service definition"))
     action = _choose(screen, "Managed SSH · port 8023", choices)
@@ -334,7 +334,8 @@ def _managed_ssh_action(screen: "curses._CursesWindow", resource: dict[str, Any]
         _show_details(screen, plan)
         if not plan.get("can_restore"):
             return preview
-        confirm = _prompt(screen, "Restore exact previous SSH access for shared ports 8022 and 8023? Type yes")
+        confirm = _prompt(screen, "Restore the exact previous authorized-keys file affecting "
+                           + ", ".join(plan.get("affects_services", [])) + "? Type yes")
         if confirm.lower() != "yes":
             return {"ok": False, "error": {"code": "cancelled"}}
         result = _call("ssh.keys.rollback.apply", {"rollback_id": rollback_id,
@@ -351,7 +352,7 @@ def _managed_ssh_action(screen: "curses._CursesWindow", resource: dict[str, Any]
         plan_id = plan.get("plan_id") if isinstance(plan, dict) else None
         if not isinstance(plan, dict) or plan.get("requires_confirmation") is not True or not isinstance(plan_id, str):
             return preview
-        answer = _prompt(screen, "Deploy this exact fixed Runit definition? The current sshd will keep running; type yes")
+        answer = _prompt(screen, "Apply this exact managed SSH setup/reconciliation plan? Type yes")
         if answer.lower() != "yes":
             return {"ok": False, "error": {"code": "cancelled"}}
         return _call("ssh.service.deploy", {"confirmed": True, "plan_id": plan_id})
@@ -430,7 +431,8 @@ def _managed_ssh_action(screen: "curses._CursesWindow", resource: dict[str, Any]
         if not isinstance(key_plan, dict) or not key_plan.get("changed"):
             return {"ok": True, "data": {"key": data, "enrollment": key_preview}}
         _show_details(screen, key_plan)
-        if _prompt(screen, "Enroll this public key for both 8022 and 8023? Type yes").lower() != "yes":
+        if _prompt(screen, "Enroll this public key for "
+                   + ", ".join(key_plan.get("affects_services", [])) + "? Type yes").lower() != "yes":
             return {"ok": True, "data": {"key": data, "enrollment": "not enrolled"}}
         enrolled = _call("ssh.keys.add.apply", {"public_key": public_key,
             "confirmed": True, "plan_id": key_plan.get("plan_id")})
@@ -453,7 +455,7 @@ def _managed_ssh_action(screen: "curses._CursesWindow", resource: dict[str, Any]
             listed = _call("ssh.keys.list")
             inventory = listed.get("data", {}) if listed.get("ok") else {}
             keys = inventory.get("keys", []) if isinstance(inventory, dict) else []
-            selected = _choose(screen, "Select a shared authorized key",
+            selected = _choose(screen, "Select a Ternuxx SSH authorized key",
                 [(str(i), f"{item.get('key_type')} · {item.get('fingerprint')} · {item.get('label')}")
                  for i, item in enumerate(keys) if isinstance(item, dict)])
             if not selected.isdigit() or int(selected) >= len(keys):
@@ -470,7 +472,7 @@ def _managed_ssh_action(screen: "curses._CursesWindow", resource: dict[str, Any]
             return preview
         _show_details(screen, plan)
         confirm = _prompt(screen,
-            f"{title}. Affects SSH 8022 and 8023. Type yes to confirm")
+            f"{title}. Affects {', '.join(plan.get('affects_services', []))}. Type yes to confirm")
         if confirm.lower() != "yes":
             return {"ok": False, "error": {"code": "cancelled"}}
         apply_op = operation.replace(".preview", ".apply")
@@ -494,7 +496,7 @@ def _managed_ssh_action(screen: "curses._CursesWindow", resource: dict[str, Any]
     if not isinstance(plan_id, str):
         return {"ok": False, "error": {"code": "invalid_service_preview"}}
     impact = str(data.get("impact", "Only the Ternuxx-managed SSH service on 127.0.0.1:8023 will change."))
-    confirm = _prompt(screen, f"Impact: {impact} 8022 manual SSH is excluded. Type yes to {action}").lower()
+    confirm = _prompt(screen, f"Impact: {impact} other Native SSH configurations are excluded. Type yes to {action}").lower()
     if confirm != "yes":
         return {"ok": False, "error": {"code": "cancelled"}}
     return _call(operation, {"confirmed": True, "plan_id": plan_id})
@@ -1369,7 +1371,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
     if {"proot.shortcuts.list", "proot.shortcuts.preview", "proot.shortcuts.apply"} <= operations:
         choices.append(("shortcuts", "Preview and manage Debian app shortcuts"))
     if {"proot.shortcuts.sync.preview", "proot.shortcuts.sync.apply"} <= operations:
-        choices.append(("shortcut-sync", "Synchronize Debian app shortcuts"))
+        choices.append(("shortcut-sync", "Synchronize Debian app and desktop shortcuts"))
     if {"proot.shortcuts.sync.rollback.list", "proot.shortcuts.sync.rollback.preview",
         "proot.shortcuts.sync.rollback.apply"} <= operations:
         choices.append(("shortcut-rollback", "Review or restore a shortcut sync"))
@@ -1393,7 +1395,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
             return {"ok": True, "data": {"guest_status": "installed",
                 "next_step": "Debian is installed. Exit TUI and run `tx db` in an attached Native Termux terminal."}}
         return {"ok": True, "data": {"guest_status": "missing",
-            "next_step": "Fresh guest setup runs in an attached Native Termux terminal so its sudo password stays in hidden prompts. Run `tx proot setup fresh-preview --user NAME`, review the exact image/package plan, then run `tx proot setup fresh-install --yes --plan-id PLAN_ID`. Enter and confirm the guest password at the hidden prompts; never put it in command arguments. After setup, run `tx db`. Existing guests are preserved."}}
+            "next_step": "Fresh guest setup runs in an attached Native Termux terminal. Preview with `tx proot setup fresh-preview --user NAME --sudo-mode passwordless`, then apply with `tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID`; this sets guest-only NOPASSWD sudo inside PRoot. Choose `password` mode to enter a password at hidden prompts instead. After setup, run `tx db`. Existing guests are preserved."}}
     if action == "stop" and {"proot.stop.preview", "proot.stop"} <= operations:
         inventory = _call("proot.sessions.list")
         if not inventory.get("ok"):

@@ -39,6 +39,24 @@ class FreshProotSetupTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
+    def test_fresh_plan_binds_multiple_desktop_choices_and_required_packages(self):
+        with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False):
+            plan = proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="sobuj",
+                desktops=["lxqt", "mate"])
+        operation = plan["operation"]
+        self.assertEqual(operation["desktop_environments"], ["lxqt", "mate"])
+        self.assertIn("lxqt", operation["packages"])
+        self.assertIn("mate-desktop-environment-core", operation["packages"])
+        self.assertNotIn("startlxqt", operation["packages"])
+
+    def test_fresh_plan_rejects_unknown_or_duplicate_desktops(self):
+        for choices in (["invalid"], ["xfce", "xfce"], []):
+            with self.subTest(choices=choices), patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False), \
+                 self.assertRaises(proot_fresh_setup.FreshSetupError):
+                proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
+                    home=str(self.home), state_dir=str(self.state), user="sobuj", desktops=choices)
+
     def test_guest_password_accepts_user_selected_four_character_credential(self):
         proot_fresh_setup._validate_guest_password("1234")
 
@@ -486,6 +504,25 @@ class FreshProotSetupTests(unittest.TestCase):
                 home=str(self.home), state_dir=str(self.state), user="sbj",
                 plan_id=preview["plan_id"], confirmed=True, password="example-passphrase",
                 runner=lambda *_a, **_k: self.fail("CA drift must fail before any install command"))
+
+    def test_passwordless_sudo_mode_is_plan_bound_and_never_prompts_or_sets_a_password(self):
+        calls = []
+        with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False), \
+             patch.object(proot_fresh_setup.shutil, "which", return_value="/prefix/bin/proot-distro"):
+            plan = proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="chosen-user", sudo_mode="passwordless")
+            result = proot_fresh_setup.apply(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="chosen-user",
+                plan_id=plan["plan_id"], confirmed=True, runner=self._fixture_runner(calls))
+        script = next(args[-1] for args in calls if "/bin/bash" in args)
+        self.assertIn("chosen-user ALL=(ALL:ALL) NOPASSWD: ALL", script)
+        self.assertFalse(any(args[-1] == "/usr/sbin/chpasswd" for args in calls))
+        self.assertEqual(result["record"]["sudo_mode"], "passwordless")
+        with self.assertRaisesRegex(proot_fresh_setup.FreshSetupError, "do not provide a password"):
+            proot_fresh_setup.apply(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="chosen-user",
+                plan_id=plan["plan_id"], confirmed=True, password="ignored-secret",
+                sudo_mode="passwordless", runner=lambda *_a, **_k: self.fail("must reject password input"))
 
     def test_password_is_stdin_only_and_never_persisted(self):
         calls = []

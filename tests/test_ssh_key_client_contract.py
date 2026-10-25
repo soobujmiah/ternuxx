@@ -104,7 +104,9 @@ class SshKeyClientContractTests(unittest.TestCase):
         self.assertIn("Remove a key by fingerprint", page)
         self.assertIn("sshKeyPlan(\"ssh.keys.add.preview\"", page)
         self.assertIn("sshKeyPlan(\"ssh.keys.remove.preview\"", page)
-        self.assertIn("both owner-managed SSH 8022 and Ternuxx SSH 8023", page)
+        self.assertIn("Ternuxx SSH uses its dedicated authorized-key file", page)
+        self.assertIn("sshAffects(preview)", page)
+        self.assertNotIn("both owner-managed SSH and Ternuxx SSH", page)
 
     def test_tui_catalog_lists_only_owned_regular_public_key_files(self):
         with tempfile.TemporaryDirectory(prefix="tui-ssh-keys-") as temp:

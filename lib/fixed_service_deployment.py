@@ -17,8 +17,10 @@ import subprocess
 import time
 
 MONITOR_SERVICE_ID = "ternuxx-gui-monitor"
+SSH_SERVICE_ID = "ternuxx-sshd"
 TERMINAL_BROKER_SERVICE_ID = "ternuxx-terminal-broker"
 SERVICE_IMPACTS = {
+    SSH_SERVICE_ID: "Adds and starts only the Ternuxx SSH Runit service after its reviewed loopback, public-key-only config is installed; it does not change the owner-managed Native sshd_config or external SSH configuration.",
     TERMINAL_BROKER_SERVICE_ID: "Adds only the fixed Ternuxx terminal broker Runit service. Runit keeps the Native broker available; it does not start a PRoot guest, change Termux:Boot, or acquire a Wake Lock.",
     MONITOR_SERVICE_ID: "Adds only the fixed Ternuxx GUI monitor Runit scheduler. It delivers the existing saved Native monitoring policy; disabled policy stays idle. It does not enable monitoring, alter Activity/focus settings, change Termux:Boot, start a desktop, or acquire a Wake Lock.",
 }

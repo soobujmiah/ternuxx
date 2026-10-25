@@ -157,7 +157,7 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
         self.assertIn('Connected to Native Termux shared management service', SOURCE)
 
     def test_gtk_proot_shortcut_sync_and_rollback_are_preview_confirmed(self):
-        for contract in ("Preview shortcut synchronization", "List prior shortcut syncs",
+        for contract in ("Preview app and desktop shortcut synchronization", "List prior shortcut syncs",
                          "Preview shortcut sync restore", "proot-shortcut-sync-preview",
                          "proot-shortcut-rollback-preview", "proot-shortcut-sync-apply",
                          "proot-shortcut-rollback-apply"):
@@ -170,7 +170,7 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
 
     def test_gtk_proot_tools_explain_cli_setup_and_hidden_password_handoff(self):
         self.assertIn("tx proot setup fresh-preview --user NAME", SOURCE)
-        self.assertIn("tx proot setup fresh-install --yes --plan-id PLAN_ID", SOURCE)
+        self.assertIn("tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID", SOURCE)
         self.assertIn("hidden prompts", SOURCE)
 
     def test_gtk_replay_guest_retirement_and_restore_use_inline_exact_plan_review(self):

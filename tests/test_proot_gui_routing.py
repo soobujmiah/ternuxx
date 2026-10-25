@@ -26,16 +26,18 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertIn('query_display_geometry(os.environ["DISPLAY"])', script)
         self.assertIn('/usr/bin/Xephyr :2 -glamor_gles2 -screen "$native_geometry" -resizeable', script)
         self.assertIn('--env TERNUXX_REPO_ROOT="$ROOT"', script)
-        self.assertIn("DISPLAY=:2 dbus-launch --exit-with-session xfce4-session &", script)
-        self.assertNotIn("DISPLAY=:2 dbus-launch --exit-with-session startxfce4 &", script)
+        self.assertIn('case "$TERNUXX_DESKTOP_ID" in xfce) session=startxfce4 ;; lxqt) session=startlxqt', script)
+        self.assertIn('DISPLAY=:2 dbus-launch --exit-with-session "$TERNUXX_DESKTOP_SESSION" &', script)
+        self.assertIn('--desktop) [ "$#" -ge 2 ]', script)
         self.assertIn('DISPLAY=:2 es2_info 2>&1 | sed', script)
         self.assertIn('Use Termux:X11 fullscreen/orientation controls', script)
 
     def test_nested_route_starts_xfce_session_on_existing_xephyr_server(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
         self.assertIn("/usr/bin/Xephyr :2 -glamor_gles2 -screen", script)
-        self.assertIn("DISPLAY=:2 dbus-launch --exit-with-session xfce4-session &", script)
-        self.assertNotIn("DISPLAY=:2 dbus-launch --exit-with-session startxfce4 &", script)
+        self.assertIn('case "$TERNUXX_DESKTOP_ID" in xfce) session=startxfce4 ;; lxqt) session=startlxqt', script)
+        self.assertIn('DISPLAY=:2 dbus-launch --exit-with-session "$TERNUXX_DESKTOP_SESSION" &', script)
+        self.assertIn('--desktop) [ "$#" -ge 2 ]', script)
 
     def test_nested_route_refuses_an_unverified_display_before_guest_side_effects(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
@@ -48,7 +50,7 @@ class ProotGuiRoutingTests(unittest.TestCase):
 
     def test_standalone_supervisor_is_detached_from_terminal_lifecycle(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
-        self.assertIn('nohup setsid env TERNUXX_PULSE_COOKIE="$cookie" "$SUPERVISOR"', script)
+        self.assertIn('nohup setsid env TERNUXX_PULSE_COOKIE="$cookie" TERNUXX_DESKTOP_ID="$DESKTOP_ID"', script)
 
     def test_debian_xfce_gets_cpu_model_names_from_native_lscpu(self) -> None:
         wrapper = (ROOT / "lib/proot-xfce-wrapper.sh").read_text(encoding="utf-8")

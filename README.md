@@ -65,11 +65,11 @@ tx install apply --profile native-debian --user NAME --yes --plan-id NATIVE_PLAN
 tx proot status
 ```
 
-The combined profile reviews both Native packages and the fresh pinned guest before applying either. It applies Native packages first, then runs the guest setup. If Native packages are already installed, its preview prints an apply command that needs only `--guest-plan-id`. The install asks for the guest account password in hidden prompts; do not put it in a command or file. Existing guests are preserved. Guest-only preview/apply commands are in the [installation guide](docs/INSTALLATION.md).
+The combined profile reviews both Native packages and the fresh pinned guest before applying either. It applies Native packages first, then runs the guest setup. If Native packages are already installed, its preview prints an apply command that needs only `--guest-plan-id`. Guest setup supports hidden password prompts or guest-only passwordless sudo; the latter stays within PRoot and does not cross the Android app-UID boundary. Existing guests are preserved. Guest-only preview/apply commands are in the [installation guide](docs/INSTALLATION.md).
 
 ## SSH and services
 
-`tx ssh inspect` reports Native SSH state. Ternuxx's managed service is designed for loopback port 8023 and uses preview-confirmed lifecycle changes. Port 8022 belongs to a separate owner-managed channel and is outside Ternuxx service lifecycle control. Verify current configuration and listener evidence before enabling remote access; see [operations](docs/OPERATIONS.md) and [security](SECURITY.md).
+`tx ssh inspect` reports Native SSH state. Ternuxx's managed service is designed for loopback port 8023 and uses preview-confirmed lifecycle changes. Unmanaged Native SSH configuration is outside Ternuxx service lifecycle control. Verify current configuration and listener evidence before enabling remote access; see [operations](docs/OPERATIONS.md) and [security](SECURITY.md).
 
 ## Troubleshooting
 

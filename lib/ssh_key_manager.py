@@ -1,7 +1,7 @@
 """Preview-first enrollment and revocation for the shared Native Termux SSH account.
 
 Only public authorized_keys records are handled. Private keys are never accepted.
-The fixed file is shared by the owner-managed 8022 channel and Ternuxx 8023.
+The fixed file is selected only after verifying the effective authorized_keys path for the managed Ternuxx SSH service.
 """
 from __future__ import annotations
 
@@ -30,7 +30,8 @@ class SshKeyMutationError(RuntimeError):
     pass
 
 
-def _read_fixed(home: str | os.PathLike[str], uid: int) -> tuple[Path, bytes, int, bool]:
+def _read_fixed(home: str | os.PathLike[str], uid: int,
+                authorized_keys_file: str = ".ssh/authorized_keys") -> tuple[Path, bytes, int, bool]:
     root = Path(home)
     if not root.is_absolute() or ".." in root.parts:
         raise SshKeyMutationError("Native home path is invalid")
@@ -46,7 +47,18 @@ def _read_fixed(home: str | os.PathLike[str], uid: int) -> tuple[Path, bytes, in
     if (stat.S_ISLNK(dir_stat.st_mode) or not stat.S_ISDIR(dir_stat.st_mode)
             or dir_stat.st_uid != uid or stat.S_IMODE(dir_stat.st_mode) & 0o077):
         raise SshKeyMutationError("Native .ssh directory must be owned by this account and private")
-    path = ssh_dir / "authorized_keys"
+    if authorized_keys_file not in {".ssh/authorized_keys", ".ssh/ternuxx-keys/authorized_keys"}:
+        raise SshKeyMutationError("authorized_keys path is not in the fixed service allowlist")
+    path = root / authorized_keys_file
+    if authorized_keys_file == ".ssh/ternuxx-keys/authorized_keys":
+        try:
+            key_dir = path.parent
+            key_info = key_dir.lstat()
+        except OSError as exc:
+            raise SshKeyMutationError("Ternuxx SSH key directory is unavailable") from exc
+        if (stat.S_ISLNK(key_info.st_mode) or not stat.S_ISDIR(key_info.st_mode)
+                or key_info.st_uid != uid or stat.S_IMODE(key_info.st_mode) & 0o077):
+            raise SshKeyMutationError("Ternuxx SSH key directory identity is unsafe")
     try:
         before = path.lstat()
     except FileNotFoundError:
@@ -169,7 +181,8 @@ def _payload(action: str, raw: bytes, replacement: bytes) -> bytes:
 
 
 def preview(action: str, *, home: str | os.PathLike[str], uid: int,
-            fingerprint: str | None = None, public_key: str | None = None) -> dict[str, object]:
+            fingerprint: str | None = None, public_key: str | None = None,
+            authorized_keys_file: str = ".ssh/authorized_keys") -> dict[str, object]:
     if action not in {"add", "remove"}:
         raise SshKeyMutationError("action must be add or remove")
     if action == "add":
@@ -197,7 +210,7 @@ def preview(action: str, *, home: str | os.PathLike[str], uid: int,
             raise SshKeyMutationError("a valid SHA256 key fingerprint is required")
 
     assert fingerprint is not None
-    path, raw, _mode, before_exists = _read_fixed(home, uid)
+    path, raw, _mode, before_exists = _read_fixed(home, uid, authorized_keys_file)
     records = _records(raw)
     found = []
     kept = []
@@ -234,8 +247,10 @@ def preview(action: str, *, home: str | os.PathLike[str], uid: int,
         "action": action,
         "fingerprint": fingerprint,
         "key_type": sample.get("key_type", "unknown") if sample else "unknown",
-        "target": ".ssh/authorized_keys",
-        "affects_services": ["owner-managed SSH 8022", "Ternuxx managed SSH 8023"],
+        "target": authorized_keys_file,
+        "affects_services": (["Ternuxx managed SSH service"]
+                             if authorized_keys_file == ".ssh/ternuxx-keys/authorized_keys"
+                             else ["external Native SSH configurations using this file"]),
         "changed": changed,
         "requires_confirmation": changed,
         "plan_id": plan_id,
@@ -249,8 +264,9 @@ def preview(action: str, *, home: str | os.PathLike[str], uid: int,
 
 
 def apply(action: str, *, home: str | os.PathLike[str], uid: int, fingerprint: str | None = None,
-          confirmed: bool, plan_id: str, public_key: str | None = None) -> dict[str, object]:
-    path, _raw, _mode, _exists = _read_fixed(home, uid)
+          confirmed: bool, plan_id: str, public_key: str | None = None,
+          authorized_keys_file: str = ".ssh/authorized_keys") -> dict[str, object]:
+    path, _raw, _mode, _exists = _read_fixed(home, uid, authorized_keys_file)
     lock_path = path.parent / ".ternuxx-authorized-keys.lock"
     flags = os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
     try:
@@ -263,7 +279,8 @@ def apply(action: str, *, home: str | os.PathLike[str], uid: int, fingerprint: s
             raise SshKeyMutationError("SSH credential lock ownership is unverified")
         os.fchmod(lock_fd, 0o600)
         fcntl.flock(lock_fd, fcntl.LOCK_EX)
-        plan = preview(action, home=home, uid=uid, fingerprint=fingerprint, public_key=public_key)
+        plan = preview(action, home=home, uid=uid, fingerprint=fingerprint, public_key=public_key,
+                       authorized_keys_file=authorized_keys_file)
         if not plan["changed"]:
             return plan
         if not confirmed:
@@ -271,7 +288,7 @@ def apply(action: str, *, home: str | os.PathLike[str], uid: int, fingerprint: s
         if plan_id != plan["plan_id"]:
             return {**plan, "status": "stale_plan", "changed": False}
         fingerprint = str(plan["fingerprint"])
-        _path, current, current_mode, current_exists = _read_fixed(home, uid)
+        _path, current, current_mode, current_exists = _read_fixed(home, uid, authorized_keys_file)
         if action == "add":
             assert public_key is not None
             desired = _payload("add", current, public_key.strip().encode("utf-8"))
@@ -436,9 +453,10 @@ def _set_rollback_snapshot_status(ssh_dir: Path, uid: int, rollback_id: str, sta
     _atomic_private_json(root, rollback_id + ".json", value, uid)
 
 
-def rollback_list(*, home: str | os.PathLike[str], uid: int) -> dict[str, object]:
-    _path, _raw, _mode, _exists = _read_fixed(home, uid)
-    ssh_dir = Path(home) / ".ssh"
+def rollback_list(*, home: str | os.PathLike[str], uid: int,
+                  authorized_keys_file: str = ".ssh/authorized_keys") -> dict[str, object]:
+    _path, _raw, _mode, _exists = _read_fixed(home, uid, authorized_keys_file)
+    ssh_dir = _path.parent
     root = _rollback_root(ssh_dir, uid, create=False)
     entries = []
     if root.exists():
@@ -451,8 +469,9 @@ def rollback_list(*, home: str | os.PathLike[str], uid: int) -> dict[str, object
             "private_key_material_stored": False}
 
 
-def rollback_preview(rollback_id: str, *, home: str | os.PathLike[str], uid: int) -> dict[str, object]:
-    path, current, current_mode, current_exists = _read_fixed(home, uid)
+def rollback_preview(rollback_id: str, *, home: str | os.PathLike[str], uid: int,
+                     authorized_keys_file: str = ".ssh/authorized_keys") -> dict[str, object]:
+    path, current, current_mode, current_exists = _read_fixed(home, uid, authorized_keys_file)
     ssh_dir = path.parent
     _record_path, value = _read_rollback_snapshot(ssh_dir, uid, rollback_id)
     current_hash = hashlib.sha256(current).hexdigest()
@@ -465,10 +484,12 @@ def rollback_preview(rollback_id: str, *, home: str | os.PathLike[str], uid: int
     not_applied = value["status"] == "prepared" and matches_before
     conflict = not can_restore and not matches_before and not not_applied
     core = {"rollback_id": rollback_id, "action": value["action"], "fingerprint": value["fingerprint"],
-            "target": ".ssh/authorized_keys", "current_sha256": current_hash,
+            "target": authorized_keys_file, "current_sha256": current_hash,
             "before_sha256": before_hash, "after_sha256": after_hash,
             "can_restore": can_restore, "conflict": conflict,
-            "affects_services": ["owner-managed SSH 8022", "Ternuxx managed SSH 8023"],
+            "affects_services": (["Ternuxx managed SSH service"]
+                                 if authorized_keys_file == ".ssh/ternuxx-keys/authorized_keys"
+                                 else ["external Native SSH configurations using this file"]),
             "private_key_material_stored": False}
     plan_id = hashlib.sha256(json.dumps(core, sort_keys=True, separators=(",", ":")).encode()).hexdigest()[:24]
     status = "ready" if can_restore else ("conflict" if conflict else "not_applied" if not_applied else "already_restored")
@@ -478,8 +499,9 @@ def rollback_preview(rollback_id: str, *, home: str | os.PathLike[str], uid: int
 
 
 def rollback_apply(rollback_id: str, *, home: str | os.PathLike[str], uid: int,
-                  confirmed: bool, plan_id: str) -> dict[str, object]:
-    path, _raw, _mode, _exists = _read_fixed(home, uid)
+                  confirmed: bool, plan_id: str,
+                  authorized_keys_file: str = ".ssh/authorized_keys") -> dict[str, object]:
+    path, _raw, _mode, _exists = _read_fixed(home, uid, authorized_keys_file)
     lock_path = path.parent / ".ternuxx-authorized-keys.lock"
     flags = os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
     try:
@@ -492,7 +514,8 @@ def rollback_apply(rollback_id: str, *, home: str | os.PathLike[str], uid: int,
             raise SshKeyMutationError("SSH credential lock ownership is unverified")
         os.fchmod(lock_fd, 0o600)
         fcntl.flock(lock_fd, fcntl.LOCK_EX)
-        current = rollback_preview(rollback_id, home=home, uid=uid)
+        current = rollback_preview(rollback_id, home=home, uid=uid,
+                                   authorized_keys_file=authorized_keys_file)
         if not current["can_restore"]:
             return current
         if not confirmed:

@@ -426,13 +426,21 @@ class ProotShortcutTests(unittest.TestCase):
         prefix = Path(self.temp.name) / "termux"
         apps = prefix / "var/lib/proot-distro/containers/debian/rootfs/usr/share/applications"
         apps.mkdir(parents=True)
+        rootfs = prefix / "var/lib/proot-distro/containers/debian/rootfs"
         self.make_guest_executable(prefix)
+        (rootfs / "etc").mkdir(parents=True, exist_ok=True)
+        (rootfs / "etc/os-release").write_text("ID=debian\nVERSION_CODENAME=trixie\n")
+        status = rootfs / "var/lib/dpkg/status"
+        status.parent.mkdir(parents=True, exist_ok=True)
+        status.write_text("Package: xfce4\nStatus: install ok installed\n")
         (apps / "org.example.Editor.desktop").write_text(
             "[Desktop Entry]\nType=Application\nName=Editor\nExec=/usr/bin/editor %f\n")
         data = self.home / "xfce-data"
         config = self.home / "xfce-config"
+        native_data = self.home / ".local/share/ternuxx/xfce/data"
         kwargs = {"home": str(self.home), "prefix": str(prefix), "repo_root": str(self.repo),
-                  "xdg_data_home": str(data), "xdg_config_home": str(config)}
+                  "xdg_data_home": str(data), "xdg_config_home": str(config),
+                  "desktop_xdg_data_home": str(native_data)}
         plan = proot_shortcuts.preview_desktop_application_sync(**kwargs)
         self.assertTrue(plan["read_only"])
         self.assertTrue(plan["requires_confirmation"])
@@ -447,6 +455,7 @@ class ProotShortcutTests(unittest.TestCase):
             **kwargs, confirmed=True, plan_id=plan["plan_id"])
         self.assertEqual(applied["status"], "complete")
         self.assertTrue((data / "applications/ternuxx-proot-app-org.example.Editor.desktop").is_file())
+        self.assertTrue((native_data / "applications/ternuxx-proot-desktop-xfce.desktop").is_file())
         self.assertTrue((config / "menus/xfce-applications.menu").is_file())
         self.assertRegex(applied["rollback_id"], r"^[0-9a-f]{32}$")
         rollback_list = proot_shortcuts.list_desktop_application_sync_rollbacks(
@@ -460,6 +469,7 @@ class ProotShortcutTests(unittest.TestCase):
             confirmed=True, plan_id=rollback_preview["plan_id"])
         self.assertEqual(rolled_back["status"], "complete")
         self.assertFalse((data / "applications/ternuxx-proot-app-org.example.Editor.desktop").exists())
+        self.assertFalse((native_data / "applications/ternuxx-proot-desktop-xfce.desktop").exists())
         self.assertFalse((config / "menus/xfce-applications.menu").exists())
         self.assertEqual(proot_shortcuts.list_desktop_application_sync_rollbacks(
             home=str(self.home), state_dir=str(self.home / ".local/share/ternuxx"))["rollbacks"][0]["status"],
@@ -491,6 +501,26 @@ class ProotShortcutTests(unittest.TestCase):
         launcher = data / "applications/ternuxx-proot-app-org.example.Editor.desktop"
         self.assertFalse(launcher.exists())
         self.assertFalse(menu.exists())
+
+    def test_bulk_sync_preview_creates_a_launcher_for_each_installed_guest_desktop(self) -> None:
+        prefix = Path(self.temp.name) / "termux"
+        rootfs = prefix / "var/lib/proot-distro/containers/debian/rootfs"
+        status = rootfs / "var/lib/dpkg/status"
+        status.parent.mkdir(parents=True)
+        status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
+                          "Package: lxqt\nStatus: install ok installed\n")
+        (rootfs / "etc").mkdir(parents=True, exist_ok=True)
+        (rootfs / "etc/os-release").write_text("ID=debian\nVERSION_CODENAME=trixie\n")
+        kwargs = {"home": str(self.home), "prefix": str(prefix), "repo_root": str(self.repo)}
+        plan = proot_shortcuts.preview_desktop_application_sync(**kwargs)
+        self.assertEqual(plan["desktop_sessions"], ["xfce", "lxqt"])
+        targets = {item["path"] for item in plan["changes"]}
+        self.assertIn(".local/share/applications/ternuxx-proot-desktop-xfce.desktop", targets)
+        self.assertIn(".local/share/applications/ternuxx-proot-desktop-lxqt.desktop", targets)
+        xfce = proot_shortcuts._desktop_session_entry("xfce", cli=str(self.repo / "tx")).decode()
+        self.assertIn('pgui start --mode auto --desktop "xfce"', xfce)
+        self.assertIn("Terminal=true", xfce)
+        self.assertIn("X-Ternuxx-Generated=proot-desktop-v1", xfce)
 
     def test_bulk_sync_preview_preserves_unmanaged_conflicts(self) -> None:
         prefix = Path(self.temp.name) / "termux"

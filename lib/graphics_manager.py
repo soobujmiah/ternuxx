@@ -55,6 +55,17 @@ def _candidate_paths(state_dir: str) -> tuple[str, str]:
 
 def _native_env(*, home: str, state_dir: str, process_env: dict[str, str]) -> dict[str, str]:
     env = dict(process_env)
+    termux_prefix = process_env.get("PREFIX")
+    if termux_prefix and os.path.isabs(termux_prefix):
+        # Launchers may inject an incompatible host libc++ before Termux's
+        # Bionic runtime. Keep inherited paths available, but resolve Native
+        # graphics tools against the active Termux runtime first.
+        runtime_lib = os.path.join(termux_prefix, "lib")
+        inherited = env.get("LD_LIBRARY_PATH", "").split(os.pathsep)
+        env["LD_LIBRARY_PATH"] = os.pathsep.join(
+            path for index, path in enumerate([runtime_lib, *inherited])
+            if path and path not in [runtime_lib, *inherited][:index]
+        )
     session = Path(state_dir) / "session.json"
     try:
         data = json.loads(session.read_text(encoding="utf-8"))
@@ -139,8 +150,8 @@ def _gles_context(env: dict[str, str]) -> dict[str, object]:
     context_ok = code == 0 and bool(renderer and version)
     return {"status": "context-verified" if context_ok else ("failed" if code != 127 else "unavailable"),
             "context_verified": context_ok, "render_verified": False, "renderer": renderer,
-            "version": version, "accelerated": _renderer_accelerated(renderer) if context_ok else None,
-            "proof": "GLES context initialization only; no draw or presentation verified",
+            "version": version, "accelerated": None,
+            "proof": "GLES context initialization only; no draw or presentation verified; acceleration unverified",
             "exit_code": code}
 
 

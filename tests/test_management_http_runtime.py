@@ -564,7 +564,7 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn("KGSL is experimental, must already be extracted", page)
         self.assertIn("offline behavior is unverified", page)
         self.assertIn("Technical API response", page)
-        self.assertNotIn("network.ssh.manual-8022", page.split("manageSsh(operation)", 1)[-1].split("function drawCategories", 1)[0])
+        self.assertNotIn("network.ssh.external-native", page.split("manageSsh(operation)", 1)[-1].split("function drawCategories", 1)[0])
         self.assertIn("proot.session.manage", page)
         self.assertIn("xterm", page)
         self.assertIn('run("terminal.broker.status"', page)
@@ -775,8 +775,8 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
     def test_web_proot_setup_handoff_keeps_guest_password_in_attached_terminal(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()
         self.assertIn('tx proot setup fresh-preview --user NAME', page)
-        self.assertIn('tx proot setup fresh-install --yes --plan-id PLAN_ID', page)
-        self.assertIn('hidden prompts', page)
+        self.assertIn('tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID', page)
+        self.assertIn('mode for hidden password prompts', page)
 
     def test_web_proot_shortcut_sync_and_rollback_are_preview_confirmed(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()

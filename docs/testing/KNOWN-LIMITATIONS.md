@@ -11,7 +11,7 @@
 
 ## Lifecycle and recovery
 
-- Debian PRoot support and the installed Trixie guest are present. Automated fixture coverage and the one-device live checks do not equal clean-device installation qualification. Fresh setup runs in an attached Native Termux terminal so guest passwords stay in hidden prompts.
+- Debian PRoot support and the installed Trixie guest are present. Automated fixture coverage and the one-device live checks do not equal clean-device installation qualification. Fresh setup runs in an attached Native Termux terminal; it supports hidden-password and guest-only passwordless sudo modes.
 - Native desktop cold-boot delivery and automatic recovery are not release-qualified; recorded reboot checkpoints remain `NOT_READY` and automatic resume stays disabled.
 - Native SSH and the optional Debian terminal broker have separate ownership and security boundaries. The owner-managed development SSH endpoint must be reviewed independently; listener reachability and ownership are not inferred from its configuration file. The current security finding is in [SECURITY.md](../../SECURITY.md).
 - A 2026-10-24 read-only audit saw five defunct `proot` children under the persistent TUI process while all Ternuxx session records were stopped. The bounded-probe launcher now double-forks so future processes are not children of long-lived clients; fixture coverage verifies reparenting and exact-plan stop. The five pre-existing zombies remain unverified under the still-running TUI and were left untouched. See [live state reconciliation evidence](../evidence/2026-10-24-live-state-reconciliation.md).

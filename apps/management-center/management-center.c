@@ -1428,7 +1428,7 @@ static void ask_proot_confirmation(Center *c, const gchar *action, const gchar *
         : g_strcmp0(action, "proot-reconcile-apply") == 0
             ? "Reconcile this exited Ternuxx session record? No process will be signaled."
         : g_strcmp0(action, "proot-shortcut-sync-apply") == 0
-            ? "Synchronize these Debian app shortcuts?"
+            ? "Synchronize these Debian app and desktop shortcuts?"
         : g_strcmp0(action, "proot-shortcut-rollback-apply") == 0
             ? "Restore this previous Debian shortcut sync?"
             : "Change this Debian shortcut?";
@@ -1462,7 +1462,7 @@ static void ask_ssh_confirmation(Center *c, const gchar *preview_action, const g
     gboolean start = g_strcmp0(preview_action, "ssh-preview-start") == 0;
     gboolean restart = g_strcmp0(preview_action, "ssh-preview-restart") == 0;
     const gchar *verb = start ? "start" : restart ? "restart" : "stop";
-    gchar *message = g_strdup_printf("Confirm %s of the Ternuxx-managed SSH service on 127.0.0.1:8023?\n\n%s\n\nManual development SSH on port 8022 is excluded.", verb, impact);
+    gchar *message = g_strdup_printf("Confirm %s of the Ternuxx-managed SSH service on 127.0.0.1:8023?\n\n%s\n\nOther Native SSH configurations are excluded.", verb, impact);
     GtkAlertDialog *dialog = gtk_alert_dialog_new("%s", message);
     const char *choices[] = {"Cancel", "Confirm", NULL}; gtk_alert_dialog_set_buttons(dialog, choices);
     gtk_alert_dialog_set_default_button(dialog, 0);
@@ -1734,8 +1734,8 @@ static void ssh_key_dialog(Center *c, gboolean enroll) {
     gtk_widget_set_margin_top(box, 14); gtk_widget_set_margin_bottom(box, 14);
     gtk_widget_set_margin_start(box, 14); gtk_widget_set_margin_end(box, 14); gtk_window_set_child(GTK_WINDOW(window), box);
     GtkWidget *hint = gtk_label_new(enroll
-        ? "Paste one SSH public-key line. It grants access to both Native SSH ports 8022 and 8023. Never paste a private key."
-        : "Enter the SHA256 fingerprint shown in the shared SSH key inventory. Revocation affects both ports 8022 and 8023; the final valid key cannot be removed.");
+        ? "Paste one SSH public-key line for the Ternuxx-managed SSH service. It does not change external SSH configuration. Never paste a private key."
+        : "Enter the SHA256 fingerprint shown in the Ternuxx SSH key inventory. Revocation removes only that service's key; the final valid key cannot be removed.");
     gtk_label_set_wrap(GTK_LABEL(hint), TRUE); gtk_box_append(GTK_BOX(box), hint);
     GtkWidget *field;
     if (enroll) {
@@ -1783,7 +1783,7 @@ static void generate_ssh_key(GtkButton *button, gpointer data) {
     gtk_widget_set_margin_top(box, 14); gtk_widget_set_margin_bottom(box, 14);
     gtk_widget_set_margin_start(box, 14); gtk_widget_set_margin_end(box, 14);
     gtk_window_set_child(GTK_WINDOW(window), box);
-    GtkWidget *hint = gtk_label_new("Creates an unencrypted Ed25519 keypair in the private Native .ssh/ternuxx-keys directory. The private key is mode 0600. Creating it does not enroll it; enrollment is a separate action and grants access to ports 8022 and 8023.");
+    GtkWidget *hint = gtk_label_new("Creates an unencrypted Ed25519 keypair in the private Native .ssh/ternuxx-keys directory. The private key is mode 0600. Creating it does not enroll it; enrollment is a separate action and grants access to the applicable SSH configurations.");
     gtk_label_set_wrap(GTK_LABEL(hint), TRUE); gtk_box_append(GTK_BOX(box), hint);
     GtkWidget *field = gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(field), "Recovery key name (for example: phone-recovery)");
     gtk_editable_set_text(GTK_EDITABLE(field), "recovery8023"); gtk_box_append(GTK_BOX(box), field);
@@ -1825,7 +1825,7 @@ static void ask_ssh_autostart_confirmation(Center *c, const gchar *enabled,
     g_object_unref(dialog); g_free(message);
 }
 static void ask_ssh_deploy_confirmation(Center *c, const gchar *plan_id, const gchar *summary) {
-    gchar *message = g_strdup_printf("Review this exact SSH service-definition deployment?\n\n%s\n\nOnly the fixed Ternuxx Runit run definition will be atomically replaced. The current sshd process will keep running; manual SSH 8022 and SSH configuration are untouched.", summary);
+    gchar *message = g_strdup_printf("Review this exact SSH service-definition deployment?\n\n%s\n\nOnly the fixed Ternuxx Runit run definition will be atomically replaced. The current sshd process will keep running; external SSH configurations are untouched.", summary);
     GtkAlertDialog *dialog = gtk_alert_dialog_new("%s", message);
     const char *choices[] = {"Cancel", "Deploy definition", NULL};
     gtk_alert_dialog_set_buttons(dialog, choices); gtk_alert_dialog_set_default_button(dialog, 0);
@@ -1837,7 +1837,7 @@ static void ask_ssh_deploy_confirmation(Center *c, const gchar *plan_id, const g
 }
 static void ask_ssh_deploy_rollback_confirmation(Center *c, const gchar *operation_id,
                                                   const gchar *plan_id, const gchar *summary) {
-    gchar *message = g_strdup_printf("Review this exact SSH service-definition rollback?\n\n%s\n\nOnly the prior fixed Runit run definition will be restored. The current sshd process will keep running; manual SSH 8022 and SSH configuration are untouched.", summary);
+    gchar *message = g_strdup_printf("Review this exact SSH service-definition rollback?\n\n%s\n\nOnly the prior fixed Runit run definition will be restored. The current sshd process will keep running; external SSH configurations are untouched.", summary);
     GtkAlertDialog *dialog = gtk_alert_dialog_new("%s", message);
     const char *choices[] = {"Cancel", "Restore definition", NULL};
     gtk_alert_dialog_set_buttons(dialog, choices); gtk_alert_dialog_set_default_button(dialog, 0);
@@ -1851,7 +1851,7 @@ static void ask_ssh_deploy_rollback_confirmation(Center *c, const gchar *operati
 static void ask_ssh_key_confirmation(Center *c, const gchar *action, const gchar *subject,
                                      const gchar *plan_id, const gchar *fingerprint) {
     gboolean enroll = g_strcmp0(action, "ssh-key-add-preview") == 0;
-    gchar *message = g_strdup_printf("Confirm %s of SSH key %s?\n\nThis changes the shared Native authorized-key file used by owner-managed SSH 8022 and Ternuxx SSH 8023. The exact preview will be revalidated before writing.",
+    gchar *message = g_strdup_printf("Confirm %s of SSH key %s?\n\nThis changes the Ternuxx-managed SSH authorized-key file only. External SSH configuration and key files remain untouched. The exact preview will be revalidated before writing.",
         enroll ? "enrollment" : "revocation", fingerprint);
     GtkAlertDialog *dialog = gtk_alert_dialog_new("%s", message);
     const char *choices[] = {"Cancel", enroll ? "Enroll key" : "Revoke key", NULL};
@@ -1903,7 +1903,7 @@ static void rollback_ssh_definition(GtkButton *button, gpointer data) {
 }
 static void ask_ssh_rollback_confirmation(Center *c, const gchar *rollback_id,
                                           const gchar *plan_id, const gchar *effect) {
-    gchar *message = g_strdup_printf("Restore the exact previous authorized_keys file?\n\n%s\n\nThis affects owner-managed SSH 8022 and Ternuxx SSH 8023. Restore is refused if the file changed since this snapshot.", effect);
+    gchar *message = g_strdup_printf("Restore the exact previous authorized_keys file?\n\n%s\n\nThis restores only the Ternuxx-managed SSH authorized-key file. External SSH configuration and key files remain untouched. Restore is refused if the file changed since this snapshot.", effect);
     GtkAlertDialog *dialog = gtk_alert_dialog_new("%s", message);
     const char *choices[] = {"Cancel", "Restore saved key state", NULL};
     gtk_alert_dialog_set_buttons(dialog, choices); gtk_alert_dialog_set_default_button(dialog, 0);
@@ -2087,14 +2087,14 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     c->proot_box=gtk_expander_new("Debian guest tools"); gtk_widget_set_visible(c->proot_box,FALSE);
     GtkWidget *proot_actions=gtk_box_new(GTK_ORIENTATION_VERTICAL,4);
     c->proot_help=gtk_label_new("Use an installed guest app ID. Shortcut edits and session stops show an exact preview first."); gtk_label_set_wrap(GTK_LABEL(c->proot_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_help);
-    c->proot_setup_help=gtk_label_new("To provision a missing guest, use an attached Native Termux terminal: `tx proot setup fresh-preview --user NAME`, review the plan, then `tx proot setup fresh-install --yes --plan-id PLAN_ID`. The guest password is entered in hidden prompts, never command arguments. Existing guests are preserved."); gtk_label_set_wrap(GTK_LABEL(c->proot_setup_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_setup_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_help);
+    c->proot_setup_help=gtk_label_new("To provision a missing guest, use an attached Native Termux terminal: `tx proot setup fresh-preview --user NAME`, review the plan, then `tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID`. The guest password is entered in hidden prompts, never command arguments. Existing guests are preserved."); gtk_label_set_wrap(GTK_LABEL(c->proot_setup_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_setup_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_help);
     c->proot_app_entry=gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_app_entry), "Debian app ID (for example: firefox)"); gtk_box_append(GTK_BOX(proot_actions),c->proot_app_entry);
     c->proot_app_button=gtk_button_new_with_label("Launch Debian app"); gtk_box_append(GTK_BOX(proot_actions),c->proot_app_button);
     c->proot_shortcut_entry=gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_shortcut_entry), "Debian app ID for shortcut add/remove"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_entry);
     c->proot_shortcut_list_button=gtk_button_new_with_label("List Debian shortcuts"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_list_button);
     c->proot_shortcut_add_button=gtk_button_new_with_label("Preview shortcut add…"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_add_button); g_object_set_data(G_OBJECT(c->proot_shortcut_add_button), "proot-shortcut-action", "add");
     c->proot_shortcut_remove_button=gtk_button_new_with_label("Preview shortcut remove…"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_remove_button); g_object_set_data(G_OBJECT(c->proot_shortcut_remove_button), "proot-shortcut-action", "remove");
-    c->proot_shortcut_sync_button=gtk_button_new_with_label("Preview shortcut synchronization…"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_sync_button);
+    c->proot_shortcut_sync_button=gtk_button_new_with_label("Preview app and desktop shortcut synchronization…"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_sync_button);
     c->proot_shortcut_rollback_list_button=gtk_button_new_with_label("List prior shortcut syncs"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_rollback_list_button);
     c->proot_sync_rollback_entry=gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_sync_rollback_entry), "Applied shortcut sync rollback ID"); gtk_box_append(GTK_BOX(proot_actions),c->proot_sync_rollback_entry);
     c->proot_shortcut_rollback_preview_button=gtk_button_new_with_label("Preview shortcut sync restore…"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_rollback_preview_button);

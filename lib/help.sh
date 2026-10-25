@@ -135,8 +135,9 @@ EOF
       ;;
     ssh) cat <<'EOF'
 tx ssh inspect — Inspect Native SSH state
+tx ssh deploy — Preview first-time loopback 8023 config + Runit setup, then apply exact plan
 tx ssh start|stop|restart — Preview, then confirm with --yes --plan-id ID
-SSH key management distinguishes private keys from public authorized keys.
+SSH keys use the managed service’s validated AuthorizedKeysFile; inspect the preview impact.
 EOF
       ;;
     remote) cat <<'EOF'

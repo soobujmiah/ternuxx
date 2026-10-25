@@ -73,6 +73,14 @@ class GraphicsManagementTests(unittest.TestCase):
                                                state_dir=str(self.state), repo_root=str(self.repo))
         self.assertTrue(link.is_symlink())
 
+    def test_system_environment_prioritizes_termux_runtime_over_injected_loader_paths(self) -> None:
+        env = graphics_manager.native_process_environment(
+            home=str(self.home), state_dir=str(self.state),
+            process_env={"PATH": "/termux/bin", "PREFIX": "/termux",
+                         "LD_LIBRARY_PATH": "/codex/lib:/custom/lib"},
+        )
+        self.assertEqual(env["LD_LIBRARY_PATH"], "/termux/lib:/codex/lib:/custom/lib")
+
     def test_candidate_environment_prioritizes_termux_runtime_over_injected_loader_paths(self) -> None:
         graphics_manager.configure_native("kgsl-freedreno", home=str(self.home),
                                            state_dir=str(self.state), repo_root=str(self.repo))
@@ -89,6 +97,16 @@ class GraphicsManagementTests(unittest.TestCase):
                                          process_env={"PATH": "", "PREFIX": "/termux"}, prefix="/termux", repo_root=str(self.repo))
         self.assertEqual(native["status"], "unavailable")
         self.assertFalse(native["render_verified"])
+
+    def test_gles_context_renderer_name_does_not_claim_acceleration(self) -> None:
+        with patch.object(graphics_manager.shutil, "which", return_value="/fixture/es2_info"), \
+             patch.object(graphics_manager, "_run", return_value=(
+                 0, "GL_RENDERER: zink Vulkan (Adreno 825 / MESA_TURNIP)\nGL_VERSION: OpenGL ES 3.2 Mesa\n")):
+            result = graphics_manager._gles_context({"PATH": "/fixture"})
+        self.assertTrue(result["context_verified"])
+        self.assertFalse(result["render_verified"])
+        self.assertIsNone(result["accelerated"])
+        self.assertIn("acceleration unverified", result["proof"])
 
     def test_gles_draw_verification_reports_real_frames_and_renderer(self) -> None:
         with patch.object(graphics_manager, "_gles_draw", return_value={

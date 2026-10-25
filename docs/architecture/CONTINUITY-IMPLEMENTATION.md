@@ -30,6 +30,6 @@ Android procfs/netlink limits can leave socket-to-process ownership unknown. A b
 
 ## Preservation and remaining work
 
-Preserve Native Termux, development SSH 8022, managed 8023, and the current desktop. No broad cleanup, rootfs replacement or unrelated file mutation. Legacy launcher observations in history do not authorize invoking their cleanup routines.
+Preserve Native Termux, external Native SSH configuration and managed loopback SSH, and the current desktop. No broad cleanup, rootfs replacement or unrelated file mutation. Legacy launcher observations in history do not authorize invoking their cleanup routines.
 
 Per-service boot/Wake Lock controls, broader shared recovery actions, all-client Native workflow qualification and fully reproducible supported setup remain in the active audit. Fixtures and current source tests cannot substitute for physical boot or workload evidence. See [reboot qualification](../testing/REBOOT-RECOVERY-GUIDE.md) for evidence vocabulary and owner-operated boot handling.

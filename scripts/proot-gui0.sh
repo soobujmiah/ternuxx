@@ -17,10 +17,12 @@ DISPLAY_TOOL="$ROOT/lib/x11_display.py"
 ACTION="${1:-status}"
 shift || true
 MODE=auto
+DESKTOP_ID=""
 if [ "$ACTION" = start ]; then
   while [ "$#" -gt 0 ]; do
     case "$1" in
       --mode) [ "$#" -ge 2 ] || { echo "--mode needs auto|standalone|nested" >&2; exit 2; }; MODE="$2"; shift 2 ;;
+      --desktop) [ "$#" -ge 2 ] || { echo "--desktop needs an installed desktop ID" >&2; exit 2; }; DESKTOP_ID="$2"; shift 2 ;;
       --help|-h) ACTION=help; shift ;;
       *) echo "Unknown pgui start option: $1" >&2; exit 2 ;;
     esac
@@ -28,13 +30,36 @@ if [ "$ACTION" = start ]; then
   [[ "$MODE" = auto || "$MODE" = standalone || "$MODE" = nested ]] || { echo "--mode must be auto, standalone, or nested." >&2; exit 2; }
   if [ "$ACTION" = start ]; then
     guest_user="$(PYTHONPATH="$ROOT/lib" python3 -c 'import os,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro="debian",prefix=os.environ["PREFIX"]))')" 2>/dev/null || { echo "Could not resolve one ordinary Debian guest account; no desktop was started." >&2; exit 1; }
+    selection="$(PYTHONPATH="$ROOT/lib" python3 - "$PREFIX/var/lib/proot-distro/containers/debian/rootfs" "$DESKTOP_ID" <<'PYSEL'
+import sys
+import proot_desktops
+installed = proot_desktops.installed_desktops(sys.argv[1])
+requested = sys.argv[2]
+if requested:
+    if requested not in installed:
+        print("requested desktop is not installed; available: " + (", ".join(installed) or "none"), file=sys.stderr)
+        raise SystemExit(2)
+    choice = requested
+elif len(installed) == 1:
+    choice = installed[0]
+elif not installed:
+    print("no supported Debian desktop is installed", file=sys.stderr)
+    raise SystemExit(2)
+else:
+    print("choose an installed desktop with --desktop: " + ", ".join(installed), file=sys.stderr)
+    raise SystemExit(2)
+print(choice, proot_desktops.session_command("debian-trixie", choice))
+PYSEL
+)" || exit $?
+    read -r DESKTOP_ID DESKTOP_SESSION <<<"$selection"
   fi
 fi
 
 usage() { cat <<'USAGE'
-Usage: tx pgui [start [--mode auto|standalone|nested]|status|stop]
+Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate]|status|stop]
 Auto uses standalone :0 when Native GUI is stopped, otherwise nested Xephyr :2 inside Native :1.
 Standalone and Native desktop sessions cannot run together. Nested mode holds the lifecycle lock until closed.
+Choose an installed environment with `tx pgui start --desktop ID`; when several are installed, selection is required.
 Use tx pgui graphics verify to inspect the running Debian GUI's GLES, GLX, and Vulkan devices.
 USAGE
 }
@@ -150,11 +175,15 @@ exit "$result"
       [ -n "$cookie" ] && [ -f "$cookie" ] && [ ! -L "$cookie" ] || { echo "Ternuxx Native PulseAudio cookie is unavailable; no PRoot GUI was started." >&2; exit 1; }
       guest_script=$(cat <<'GUEST'
 set -eu
-state="$HOME/.local/share/ternuxx/proot-nested-gui"
-mkdir -p "$state" "$state/config/xfce4/xfconf/xfce-perchannel-xml" "$state/cache" "$state/data" "$state/runtime"
+state="$HOME/.local/share/ternuxx/proot-nested-gui/$TERNUXX_DESKTOP_ID"
+mkdir -p "$state" "$state/cache" "$state/data" "$state/runtime"
 chmod 700 "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"
 export XDG_CONFIG_HOME="$state/config" XDG_CACHE_HOME="$state/cache" XDG_DATA_HOME="$state/data" XDG_RUNTIME_DIR="$state/runtime"
-printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<channel name="xfwm4" version="1.0"><property name="general" type="empty"><property name="use_compositing" type="bool" value="false"/></property></channel>' > "$XDG_CONFIG_HOME/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
+if [ "$TERNUXX_DESKTOP_ID" = xfce ]; then
+  mkdir -p "$XDG_CONFIG_HOME/xfce4/xfconf/xfce-perchannel-xml"
+  printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<channel name="xfwm4" version="1.0"><property name="general" type="empty"><property name="use_compositing" type="bool" value="false"/></property></channel>' > "$XDG_CONFIG_HOME/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
+fi
+case "$TERNUXX_DESKTOP_ID" in xfce) session=startxfce4 ;; lxqt) session=startlxqt ;; lxde) session=startlxde ;; mate) session=mate-session ;; *) echo "Unsupported desktop selection" >&2; exit 2 ;; esac
 native_geometry="$(PYTHONPATH="$TERNUXX_REPO_ROOT/lib" python3 -c 'import os,proot_gui_geometry; print(proot_gui_geometry.query_display_geometry(os.environ["DISPLAY"]))')" || { echo "Could not read Native display geometry; nested GUI was not started." >&2; exit 1; }
 printf 'Starting Xephyr :2 at Native display size %s with a resizable host window; fullscreen/orientation resizing depends on Termux:X11 and window-manager bounds.\n' "$native_geometry"
 /usr/bin/Xephyr :2 -glamor_gles2 -screen "$native_geometry" -resizeable -no-host-grab -nolisten tcp >"$state/xephyr.log" 2>&1 &
@@ -178,15 +207,15 @@ for _ in $(seq 1 80); do
 done
 [ "$ready" -eq 1 ] || { echo "Xephyr :2 did not become ready; see $state/xephyr.log" >&2; exit 1; }
 renderer="$(DISPLAY=:2 es2_info 2>&1 | sed -n 's/^GL_RENDERER: //p' | head -n 1 || true)"
-printf 'Nested Debian XFCE display :2 is ready; GLES context renderer (draw/presentation not verified): %s\n' "${renderer:-unreported}"
-DISPLAY=:2 dbus-launch --exit-with-session xfce4-session &
+printf 'Nested Debian %s display :2 is ready; GLES context renderer (draw/presentation not verified): %s\n' "$TERNUXX_DESKTOP_ID" "${renderer:-unreported}"
+DISPLAY=:2 dbus-launch --exit-with-session "$TERNUXX_DESKTOP_SESSION" &
 xfce_pid=$!
 wait "$xfce_pid"
 GUEST
 )
       args=(login debian --shared-tmp --user "$guest_user"
         --bind "$cookie:/tmp/.ternuxx-pulse-cookie"
-        --env DISPLAY=:1 --env TERNUXX_REPO_ROOT="$ROOT" --env PULSE_SERVER=tcp:127.0.0.1:4713 --env PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie
+        --env DISPLAY=:1 --env TERNUXX_DESKTOP_ID="$DESKTOP_ID" --env TERNUXX_DESKTOP_SESSION="$DESKTOP_SESSION" --env TERNUXX_REPO_ROOT="$ROOT" --env PULSE_SERVER=tcp:127.0.0.1:4713 --env PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie
         --env GALLIUM_DRIVER=zink --env MESA_LOADER_DRIVER_OVERRIDE=zink
         --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw
         --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M
@@ -197,7 +226,7 @@ GUEST
         GALLIUM_DRIVER=zink MESA_LOADER_DRIVER_OVERRIDE=zink TU_DEBUG=sysmem,noconform MESA_VK_WSI_DEBUG=sw
         MESA_DISK_CACHE_SINGLE_FILE=1 MESA_SHADER_CACHE_MAX_SIZE=2048M QT_X11_NO_MITSHM=1 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
         /bin/bash -c "$guest_script")
-      echo "Starting full Debian XFCE nested in Native :1 through Xephyr :2 at Native display geometry. Use Termux:X11 fullscreen/orientation controls; the Xephyr host window is resizable. Press Ctrl-C in this terminal to close only the nested desktop."
+      printf "Starting Debian %s nested in Native :1 through Xephyr :2 at Native display geometry. Use Termux:X11 fullscreen/orientation controls; the Xephyr host window is resizable. Press Ctrl-C in this terminal to close only the nested desktop.\n" "$DESKTOP_ID"
       env -u DBUS_SESSION_BUS_ADDRESS -u DBUS_SESSION_BUS_PID -u DBUS_STARTER_ADDRESS -u DBUS_STARTER_BUS_TYPE -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE -u LD_LIBRARY_PATH -u LD_PRELOAD "$PREFIX/bin/proot-distro" "${args[@]}"
       exit $?
     fi
@@ -243,7 +272,7 @@ PY
     cookie="${TERNUXX_PULSE_COOKIE:-$(PYTHONPATH="$ROOT/lib" python3 -c 'import proot_diagnostics; print(proot_diagnostics._native_pulse_cookie_path() or "")' 2>/dev/null)}"
     [ -f "$cookie" ] && [ ! -L "$cookie" ] || { echo "Ternuxx Native PulseAudio cookie is unavailable; no PRoot GUI was started." >&2; exit 1; }
     touch "$STATE_DIR/desktop.log"; chmod 600 "$STATE_DIR/desktop.log"
-    nohup setsid env TERNUXX_PULSE_COOKIE="$cookie" "$SUPERVISOR" ":0" "$STATE_DIR" "$TMP_ROOT" \
+    nohup setsid env TERNUXX_PULSE_COOKIE="$cookie" TERNUXX_DESKTOP_ID="$DESKTOP_ID" "$SUPERVISOR" ":0" "$STATE_DIR" "$TMP_ROOT" \
       "$PREFIX/bin/termux-x11" "$ROOT/lib/proot-dbus-session.sh" "$WRAPPER" "$OWNED_EXEC" \
       proot-display0 proot >>"$STATE_DIR/desktop.log" 2>&1 </dev/null &
     ready=0
@@ -255,7 +284,7 @@ PY
       sleep 0.25
     done
     [ "$ready" -eq 1 ] || { echo "PRoot GUI did not become ready on :0. Inspect $STATE_DIR/desktop.log; no unrelated process was stopped." >&2; exit 1; }
-    echo "Ternuxx-owned Debian XFCE is running on standalone display :0. Open Termux:X11 to view it."
+    printf "Ternuxx-owned Debian %s is running on standalone display :0. Open Termux:X11 to view it.\n" "$DESKTOP_ID"
     echo "Graphics: Debian Zink/Turnip is configured per guest process; inspect the running GUI with 'tx pgui graphics verify'."
     echo "Audio: uses the authenticated Ternuxx Native PulseAudio client endpoint; the server remains Native-owned."
     ;;

@@ -28,6 +28,8 @@ import runtime_diagnostics
 import ssh_diagnostics
 import ssh_key_inventory
 import ssh_key_manager
+import ssh_managed_config
+import ssh_service_setup
 import ssh_client_keys
 import ssh_service_autostart
 import runit_service
@@ -239,6 +241,12 @@ def _proot_shortcut_xdg_homes(
             process_env.get("XDG_CONFIG_HOME") or config_home)
 
 
+def _ternuxx_ssh_key_path_verified(effective: object) -> bool:
+    return (isinstance(effective, dict)
+            and effective.get("authorized_keys_path_verified") is True
+            and effective.get("authorized_keys_file") == ".ssh/ternuxx-keys/authorized_keys")
+
+
 def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] | None = None) -> dict[str, object]:
     request_id = uuid.uuid4().hex
     if not isinstance(request, dict):
@@ -393,8 +401,10 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
         shortcut_xdg_data_home, shortcut_xdg_config_home = _proot_shortcut_xdg_homes(
             home, state_dir, process_env,
         )
+        desktop_shortcut_xdg_data_home = os.path.join(
+            state_dir or os.path.join(home, ".local/share/ternuxx"), "xfce/data")
     else:
-        shortcut_xdg_data_home = shortcut_xdg_config_home = ""
+        shortcut_xdg_data_home = shortcut_xdg_config_home = desktop_shortcut_xdg_data_home = ""
     if not home or ((operation.startswith(("continuity.", "wakelock.", "boot.profile.", "boot.helpers.", "backup.", "restore.", "recovery.rollback.", "recovery.service.", "recovery.resolve", "ssh.service.")) or operation == "desktop.monitor.configure") and not state_dir):
         return _error(request_id, "configuration_missing", "HOME and the native state directory must be configured")
 
@@ -655,6 +665,7 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 "repo_root": os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                 "xdg_data_home": shortcut_xdg_data_home,
                 "xdg_config_home": shortcut_xdg_config_home,
+                "desktop_xdg_data_home": desktop_shortcut_xdg_data_home,
             }
             if operation.endswith(".preview"):
                 data = proot_shortcuts.preview_desktop_application_sync(**sync_args)
@@ -689,6 +700,7 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             data = proot_shortcuts.list_shortcuts(
                 home=home, prefix=process_env["PREFIX"],
                 xdg_data_home=shortcut_xdg_data_home,
+                desktop_xdg_data_home=desktop_shortcut_xdg_data_home,
                 repo_root=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
             )
         elif operation in {"proot.shortcuts.preview", "proot.shortcuts.apply"}:
@@ -833,9 +845,10 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             data = ssh_key_inventory.list_managed_authorized_keys(home=home)
         elif operation == "ssh.keys.rollback.list":
             effective = ssh_key_inventory.list_managed_authorized_keys(home=home)
-            if effective.get("authorized_keys_path_verified") is not True:
-                return _error(request_id, "ssh_configuration_unverified", "managed SSH authorized-key path is not verified; no changes made")
-            data = ssh_key_manager.rollback_list(home=home, uid=os.getuid())
+            if not _ternuxx_ssh_key_path_verified(effective):
+                return _error(request_id, "ssh_configuration_unverified", "Ternuxx SSH key path is not verified as Ternuxx-owned; no changes made")
+            data = ssh_key_manager.rollback_list(home=home, uid=os.getuid(),
+                authorized_keys_file=".ssh/ternuxx-keys/authorized_keys")
         elif operation in {"ssh.keys.rollback.preview", "ssh.keys.rollback.apply"}:
             rollback_id = args.get("rollback_id")
             if not isinstance(rollback_id, str):
@@ -844,13 +857,15 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                     or not isinstance(args.get("plan_id"), str)):
                 return _error(request_id, "confirmation_required", "SSH credential restore requires its exact preview plan and explicit confirmation")
             effective = ssh_key_inventory.list_managed_authorized_keys(home=home)
-            if effective.get("authorized_keys_path_verified") is not True:
-                return _error(request_id, "ssh_configuration_unverified", "managed SSH authorized-key path is not verified; no changes made")
+            if not _ternuxx_ssh_key_path_verified(effective):
+                return _error(request_id, "ssh_configuration_unverified", "Ternuxx SSH key path is not verified as Ternuxx-owned; no changes made")
             if operation.endswith(".preview"):
-                data = ssh_key_manager.rollback_preview(rollback_id, home=home, uid=os.getuid())
+                data = ssh_key_manager.rollback_preview(rollback_id, home=home, uid=os.getuid(),
+                    authorized_keys_file=".ssh/ternuxx-keys/authorized_keys")
             else:
                 data = ssh_key_manager.rollback_apply(rollback_id, home=home, uid=os.getuid(),
-                    confirmed=args["confirmed"], plan_id=args["plan_id"])
+                    confirmed=args["confirmed"], plan_id=args["plan_id"],
+                    authorized_keys_file=".ssh/ternuxx-keys/authorized_keys")
         elif operation.startswith("ssh.keys."):
             if operation.endswith(".preview") or operation.endswith(".apply"):
                 action = "add" if ".add." in operation else "remove"
@@ -864,9 +879,10 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                         args.get("confirmed") is not True or not isinstance(args.get("plan_id"), str)):
                     return _error(request_id, "confirmation_required", "key changes require an exact preview plan and explicit confirmation")
                 effective = ssh_key_inventory.list_managed_authorized_keys(home=home)
-                if effective.get("authorized_keys_path_verified") is not True:
-                    return _error(request_id, "ssh_configuration_unverified", "managed SSH authorized-key path is not verified; no changes made")
-                common = {"home": home, "uid": os.getuid(), "fingerprint": args.get("fingerprint")}
+                if not _ternuxx_ssh_key_path_verified(effective):
+                    return _error(request_id, "ssh_configuration_unverified", "Ternuxx SSH key path is not verified as Ternuxx-owned; no changes made")
+                common = {"home": home, "uid": os.getuid(), "fingerprint": args.get("fingerprint"),
+                          "authorized_keys_file": ".ssh/ternuxx-keys/authorized_keys"}
                 if action == "add":
                     common["public_key"] = args["public_key"]
                 if operation.endswith(".preview"):
@@ -895,10 +911,19 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             plan_id = args.get("plan_id")
             if type(confirmed) is not bool or (plan_id is not None and not isinstance(plan_id, str)):
                 return _error(request_id, "invalid_arguments", "deployment confirmation or plan ID is invalid")
-            data = runit_deployment.apply(
-                prefix=process_env["PREFIX"], home=home, state_dir=state_dir,
-                confirmed=confirmed, plan_id=plan_id,
-            )
+            prefix_path = Path(process_env["PREFIX"])
+            managed_config = Path(home) / ".config/ternuxx/sshd_recovery.conf"
+            service_run = prefix_path / "var/service/ternuxx-sshd/run"
+            if not managed_config.exists() or not service_run.exists():
+                data = ssh_service_setup.apply(
+                    prefix=process_env["PREFIX"], home=home, state_dir=state_dir,
+                    confirmed=confirmed, plan_id=plan_id,
+                )
+            else:
+                data = runit_deployment.apply(
+                    prefix=process_env["PREFIX"], home=home, state_dir=state_dir,
+                    confirmed=confirmed, plan_id=plan_id,
+                )
         elif operation in {"ssh.service.deploy.rollback.preview", "ssh.service.deploy.rollback.apply"}:
             operation_id = args.get("operation_id")
             confirmed = args.get("confirmed", False)

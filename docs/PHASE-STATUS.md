@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Mesa source/target graph, split package manifests, and cautious package-to-target candidates are recorded. Corrected Mesa workflow remains in build. Fresh CPU, Vulkan and HTP repeat suites have each been guard-cancelled; the latest CPU attempt crossed 64.1°C after 5.476 seconds with zero completed cases.
+The corrected pinned Mesa aarch64 build and capture workflow passed; its configured source map, split-package manifests, and candidate output audit are recorded. External/generated inputs, notice coverage, and per-file license gaps remain open. Native CPU/Vulkan/HTP qualification remains thermally guard-blocked.
 
-**Next action:** Pass the corrected Mesa workflow; continue package install/source attribution beyond basename candidates, and audit generated/external inputs and notices. Resume repeated Native backend qualification only under unchanged live guards; broaden HTP coverage and validate experimental Vulkan install provenance.
+**Next action:** Audit the 12 external source inputs and 75 generated outputs back to their generator inputs, source origins, license metadata, and shipped notice obligations; resolve the 1,165 source paths without recognized SPDX headers and strengthen package attribution beyond basename candidates. Resume Native CPU, Vulkan, and HTP workloads only when live sensors satisfy unchanged guards.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -165,3 +165,4 @@ Evidence:
 - [docs/evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md](evidence/2026-10-24-p12-corrected-cpu-suite-guard-cancel.md)
 - [docs/evidence/2026-10-24-p12-three-backend-qualification-guard-cancel-2001z.md](evidence/2026-10-24-p12-three-backend-qualification-guard-cancel-2001z.md)
 - [docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md](evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md)
+- [docs/evidence/2026-10-25-p12-mesa-build-artifact-audit.md](evidence/2026-10-25-p12-mesa-build-artifact-audit.md)

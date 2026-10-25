@@ -74,21 +74,21 @@ tx install preview --profile native-debian --user NAME
 tx install apply --profile native-debian --user NAME --yes --plan-id NATIVE_PLAN_ID --guest-plan-id GUEST_PLAN_ID
 ```
 
-The guest phase still requests the selected account password twice in hidden terminal prompts.
+The combined `native-debian` profile currently uses the selected account password in hidden terminal prompts. Guest-only setup also supports an exact-plan-bound `passwordless` mode without secret input.
 
 For guest-only setup, check `tx proot status` first. Preview the pinned Debian Trixie image, package groups, storage availability, graphics inputs, and exact guest target:
 
 ```sh
-tx proot setup fresh-preview --user NAME
+tx proot setup fresh-preview --user NAME --sudo-mode passwordless --desktops xfce,lxqt
 ```
 
 If the preview names the intended fresh target and reports no existing guest, apply that plan:
 
 ```sh
-tx proot setup fresh-install --yes --plan-id PLAN_ID
+tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID
 ```
 
-The attached setup flow asks twice for a guest sudo password using hidden prompts. Type it directly into that prompt; do not place it in shell arguments, environment variables, logs, or files. Setup records package versions and verifies its owned guest configuration. Then inspect and enter the guest:
+Choose `--sudo-mode password` to set a guest-only password through hidden prompts, or `--sudo-mode passwordless` to avoid credential entry. Passwordless sudo applies only inside the PRoot guest; PRoot shares the Native Termux app's Android UID and is not a security boundary. The exact preview binds the choice, and setup validates sudoers before recording package versions. Then inspect and enter the guest:
 
 ```sh
 tx proot status
@@ -115,6 +115,6 @@ Inspect SSH before changing service state:
 tx ssh inspect
 ```
 
-The managed Ternuxx SSH service targets loopback port 8023 and uses a fixed Native Runit unit. Lifecycle changes require preview and exact-plan confirmation. Port 8022 is a separate owner-managed channel; Ternuxx does not manage that service. Listener ownership and authenticated access must be verified in the current runtime before reporting SSH ready.
+First-time setup uses `tx ssh deploy` to preview the exact dedicated config and Native Runit service, then applies with `tx ssh deploy --yes --plan-id PLAN_ID`. It binds only to `127.0.0.1:8023`, disables password and keyboard-interactive authentication, and uses `$HOME/.ssh/ternuxx-keys/authorized_keys`. Create a client key with `tx ssh client-key-preview --key-name NAME` and its exact apply command; enroll its `.pub` file with `tx ssh enroll-preview --public-key-stdin < "$HOME/.ssh/ternuxx-keys/NAME.pub"`, review the affected service, then apply the returned plan. `tx ssh inspect` verifies configuration, Runit and the loopback SSH banner; verify login separately with an actual client connection. Other Native SSH configurations remain outside Ternuxx control; its service and authorized keys are dedicated.
 
 For recovery, backup, remote-access, graphics, AI, or audio setup, follow the specific guide linked from the [documentation index](README.md).

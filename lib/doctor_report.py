@@ -554,7 +554,7 @@ def check_service_manager() -> None:
         checks = report.get("checks", {})
         service = checks.get("managed_service", {}) if isinstance(checks, dict) else {}
         configured_scope = checks.get("configured_listener_bind_scope", "unknown") if isinstance(checks, dict) else "unknown"
-        configured_policy = checks.get("configured_policy", {}) if isinstance(checks, dict) else {}
+        configured_policy = checks.get("external_config_authentication", {}) if isinstance(checks, dict) else {}
         password_values = configured_policy.get("passwordauthentication", []) if isinstance(configured_policy, dict) else []
         password_auth = "enabled" if any(str(value).lower() == "yes" for value in password_values) else "not_reported_enabled"
         manager = service.get("manager", "unknown") if isinstance(service, dict) else "unknown"

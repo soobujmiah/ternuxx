@@ -160,7 +160,7 @@ def preview(*, home: str | os.PathLike[str], uid: int, name: str) -> dict[str, o
             "private_key_path": f"~/.ssh/{_KEY_DIR}/{name}",
             "public_key_path": f"~/.ssh/{_KEY_DIR}/{name}.pub",
             "algorithm": "Ed25519", "passphrase": "none; protected by Native app sandbox and mode 0600",
-            "shared_account_impact": "The public key can later be enrolled for shared 8022 and 8023 access.",
+            "shared_account_impact": "Enrollment target is determined and shown by the later SSH key preview.",
             "plan_id": plan_id, "secret_values_returned": False}
 
 
@@ -238,7 +238,7 @@ def apply(*, home: str | os.PathLike[str], uid: int, name: str,
                     "private_key_mode": "0600", "public_key_mode": "0644",
                     "fingerprint": public[1], "key_type": public[2], "public_key": public[0],
                     "enrollment_required": True,
-                    "shared_account_impact": "Enrollment will authorize this public key for both 8022 and 8023.",
+                    "shared_account_impact": "The public key is not enrolled; the enrollment preview determines which service will receive it.",
                     "secret_values_returned": False}
             completed = True
             return response

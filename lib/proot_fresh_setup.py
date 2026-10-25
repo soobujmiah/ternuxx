@@ -7,6 +7,8 @@ import json
 import io
 import os
 from pathlib import Path
+
+import proot_desktops
 import re
 import shlex
 import shutil
@@ -233,7 +235,7 @@ def _packages(manifest: dict, selected: list[str] | None = None) -> list[str]:
 
 
 def _assert_resume_compatible(previous: dict, current: dict) -> None:
-    keys = ("schema_version", "alias", "guest_user", "image", "image_pin",
+    keys = ("schema_version", "alias", "guest_user", "sudo_mode", "desktop_environments", "image", "image_pin",
             "arch_manifest_digest", "config_digest", "layer_digest", "rootfs_target",
             "package_groups", "packages",
             "existing_debian_rootfs_changed")
@@ -265,9 +267,12 @@ def _assert_rootfs_idle_for_resume(state: Path, rootfs: Path) -> None:
 
 def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str,
             alias: str = ALIAS, resume_plan_id: str | None = None,
-            groups: list[str] | None = None) -> dict:
+            groups: list[str] | None = None, sudo_mode: str = "password",
+            desktops: list[str] | None = None) -> dict:
     if not re.fullmatch(r"[a-z_][a-z0-9_-]{0,31}", user) or user == "root":
         raise FreshSetupError("provide an ordinary Debian guest username")
+    if sudo_mode not in {"password", "passwordless"}:
+        raise FreshSetupError("select password or passwordless guest sudo mode")
     repo = Path(repo_root)
     manifest_path = repo / "config/proot/debian-trixie.json"
     raw = manifest_path.read_bytes()
@@ -282,8 +287,16 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
     if groups is None and container.exists() and resume_plan_id is not None:
         inherited = _read_private(previews / f"fresh-{resume_plan_id}.json")
         groups = inherited.get("package_groups")
+        if desktops is None:
+            desktops = inherited.get("desktop_environments")
     chosen_groups = _selected_groups(groups)
+    try:
+        chosen_desktops = proot_desktops.validate_selection("debian-trixie", desktops)
+    except proot_desktops.DesktopError as exc:
+        raise FreshSetupError(str(exc)) from exc
     packages = _packages(manifest, chosen_groups)
+    packages.extend(package for package in proot_desktops.packages_for("debian-trixie", chosen_desktops)
+                    if package not in packages)
     ca_path, ca_sha256 = _native_ca_bundle(prefix)
     guest_ca_path = "/tmp/ternuxx-native-ca.pem"
     kgsl = _kgsl_accessible()
@@ -299,7 +312,9 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
         "layer_digest": manifest["fresh_install"]["layer_digest"],
         "manifest_sha256": hashlib.sha256(raw).hexdigest(),
         "rootfs_target": str(rootfs), "guest_user": user,
+        "sudo_mode": sudo_mode,
         "package_groups": chosen_groups,
+        "desktop_environments": list(chosen_desktops),
         "packages": packages,
         "apt_snapshot": manifest["fresh_install"]["apt_snapshot"],
         "https_bootstrap": {"source": str(ca_path), "sha256": ca_sha256,
@@ -547,12 +562,9 @@ def _validate_guest_password(password: str) -> None:
 
 def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str | None = None,
           plan_id: str, confirmed: bool, runner=subprocess.run, alias: str | None = None,
-          password: str | None = None) -> dict:
+          password: str | None = None, sudo_mode: str | None = None) -> dict:
     if confirmed is not True:
         raise FreshSetupError("fresh Debian install requires explicit confirmation")
-    if password is None:
-        raise FreshSetupError("fresh Debian setup requires a sudo password for the selected guest user")
-    _validate_guest_password(password)
     if not re.fullmatch(r"[0-9a-f]{64}", plan_id):
         raise FreshSetupError("valid fresh setup preview ID required")
     manifest_path = Path(repo_root) / "config/proot/debian-trixie.json"
@@ -566,6 +578,15 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
     planned_alias = plan.get("alias")
     user = planned_user if user is None else user
     alias = planned_alias if alias is None else alias
+    sudo_mode = plan.get("sudo_mode", "password") if sudo_mode is None else sudo_mode
+    if sudo_mode not in {"password", "passwordless"} or plan.get("sudo_mode", "password") != sudo_mode:
+        raise FreshSetupError("guest sudo mode differs from the reviewed plan")
+    if sudo_mode == "password":
+        if password is None:
+            raise FreshSetupError("fresh Debian setup requires a sudo password for the selected guest user")
+        _validate_guest_password(password)
+    elif password is not None:
+        raise FreshSetupError("do not provide a password with passwordless guest sudo mode")
     if not isinstance(user, str) or not isinstance(alias, str):
         raise FreshSetupError("fresh setup preview lacks its selected guest account or target")
     alias = _alias(alias)
@@ -687,21 +708,24 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
             f"usermod -aG sudo {guest_user}", "update-locale LANG=en_US.UTF-8",
             # PRoot's login helper does not reliably populate Debian supplementary
             # groups, so grant sudo to this validated account explicitly.
-            "printf '%s\\n' " + shlex.quote(user + " ALL=(ALL:ALL) ALL") + " > /etc/sudoers.d/ternuxx-guest-user",
+            "printf '%s\\n' " + shlex.quote(user + (" ALL=(ALL:ALL) NOPASSWD: ALL" if sudo_mode == "passwordless" else " ALL=(ALL:ALL) ALL")) + " > /etc/sudoers.d/ternuxx-guest-user",
             "chmod 0440 /etc/sudoers.d/ternuxx-guest-user",
             "visudo -cf /etc/sudoers.d/ternuxx-guest-user",
         ])
+        if sudo_mode == "passwordless":
+            script += "\nrunuser -u " + guest_user + " -- sudo -n true"
         _verify_owned_target(prefix, alias, owned)
         result = runner([manager, "login", "--isolated", "--user", "root", alias,
                          "--", "/bin/bash", "-lc", script], check=False, timeout=3600)
         if result.returncode:
             raise FreshSetupError("Debian package setup failed; new alias retained for inspection")
-        # Secret is sent only over stdin; never place it in argv, script, logs, plans, or receipts.
-        result = runner([manager, "login", "--isolated", "--user", "root", alias,
-                         "--", "/usr/sbin/chpasswd"], input=f"{user}:{password}\n",
-                        text=True, capture_output=True, check=False, timeout=120)
-        if result.returncode:
-            raise FreshSetupError("Debian guest password could not be configured")
+        if sudo_mode == "password":
+            # Secret is sent only over stdin; never place it in argv, script, logs, plans, or receipts.
+            result = runner([manager, "login", "--isolated", "--user", "root", alias,
+                             "--", "/usr/sbin/chpasswd"], input=f"{user}:{password}\n",
+                            text=True, capture_output=True, check=False, timeout=120)
+            if result.returncode:
+                raise FreshSetupError("Debian guest password could not be configured")
         release = (rootfs / "etc/os-release").read_text(encoding="utf-8")
         release_values = dict(line.split("=", 1) for line in release.splitlines() if "=" in line)
         if (release_values.get("ID", "").strip('"') != "debian"
@@ -739,6 +763,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                 pass
         record = {
             "schema_version": 1, "plan_id": plan_id, "alias": alias, "guest_user": user,
+            "sudo_mode": sudo_mode, "desktop_environments": plan["desktop_environments"],
             "manifest_sha256": plan["manifest_sha256"], "release": "Debian Trixie",
             "package_versions_sha256": hashlib.sha256(out.encode() if isinstance(out, str) else b"").hexdigest(),
             "package_versions_recorded": True, "requested_packages_verified_installed": True,

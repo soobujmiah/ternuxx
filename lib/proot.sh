@@ -354,7 +354,7 @@ nt_cmd_proot() {
     db) _nt_use launch; nt_cmd_db "$@" ;;
     gui)   _nt_proot_gui "$@" ;;
     setup)
-      local action="${1:-status}" user="" plan_id="" backup_id="" guest_alias="" package_groups="" migration_id="" confirmed=0 option
+      local action="${1:-status}" user="" plan_id="" backup_id="" guest_alias="" package_groups="" desktop_choices="" sudo_mode="password" migration_id="" confirmed=0 option
       [ $# -eq 0 ] || shift
       case "$action" in
         status|adopt-preview|adopt|adoption-rollback-preview|adoption-rollback|fresh-preview|fresh-resume-preview|fresh-install|retire-preview|retire|restore-preview|restore|icd-migrate-preview|icd-migrate|icd-rollback-preview|icd-rollback) ;;
@@ -369,6 +369,8 @@ nt_cmd_proot() {
             guest_alias="$1"; shift ;;
           --plan-id) [ "$#" -gt 0 ] || { nt_fail "--plan-id needs a value."; return 2; }; plan_id="$1"; shift ;;
           --groups) [ "$#" -gt 0 ] && [ -n "$1" ] || { nt_fail "--groups needs comma-separated package groups."; return 2; }; package_groups="$1"; shift ;;
+          --desktops) [ "$#" -gt 0 ] && [ -n "$1" ] || { nt_fail "--desktops needs comma-separated desktop IDs."; return 2; }; desktop_choices="$1"; shift ;;
+          --sudo-mode) [ "$#" -gt 0 ] || { nt_fail "--sudo-mode needs password or passwordless."; return 2; }; sudo_mode="$1"; shift ;;
           --backup-id) [ "$#" -gt 0 ] || { nt_fail "--backup-id needs a value."; return 2; }; backup_id="$1"; shift ;;
           --operation-id) [ "$#" -gt 0 ] || { nt_fail "--operation-id needs a value."; return 2; }; migration_id="$1"; shift ;;
           --yes) confirmed=1 ;;
@@ -429,6 +431,7 @@ nt_cmd_proot() {
         python3 "$repo_root/lib/management_service.py" "${retirement_args[@]}"
         return $?
       fi
+      case "$sudo_mode" in password|passwordless) ;; *) nt_fail "--sudo-mode must be password or passwordless."; return 2 ;; esac
       local setup_args=("$action" --repo-root "$repo_root" --json)
       case "$action" in
         status) [ -z "$user" ] && [ -z "$plan_id" ] && [ "$confirmed" -eq 0 ] || {
@@ -448,14 +451,20 @@ nt_cmd_proot() {
         }; setup_args+=(--user "$user" --yes --plan-id "$plan_id") ;;
         fresh-install) [ -n "$plan_id" ] && [ "$confirmed" -eq 1 ] || {
           nt_fail "Fresh install requires --yes --plan-id ID from the matching preview."; return 2;
-        }; [ -z "$user" ] || setup_args+=(--user "$user"); setup_args+=(--yes --plan-id "$plan_id") ;;
+        }; [ -z "$user" ] || setup_args+=(--user "$user"); setup_args+=(--sudo-mode "$sudo_mode" --yes --plan-id "$plan_id") ;;
         fresh-preview) [ -n "$user" ] && [ -z "$plan_id" ] && [ "$confirmed" -eq 0 ] || {
-          nt_fail "Usage: tx proot setup fresh-preview --user NAME [--groups base,fonts]"; return 2;
-        }; setup_args+=(--user "$user") ;;
+          nt_fail "Usage: tx proot setup fresh-preview --user NAME [--groups base,fonts] [--desktops xfce,lxqt,lxde,mate] [--sudo-mode password|passwordless]"; return 2;
+        }; setup_args+=(--user "$user" --sudo-mode "$sudo_mode") ;;
         fresh-resume-preview) [ -n "$user" ] && [ -n "$plan_id" ] && [ "$confirmed" -eq 0 ] || {
-          nt_fail "Usage: tx proot setup fresh-resume-preview --user NAME --plan-id FAILED_PLAN_ID [--groups base,fonts]"; return 2;
-        }; setup_args+=(--user "$user" --plan-id "$plan_id") ;;
+          nt_fail "Usage: tx proot setup fresh-resume-preview --user NAME --plan-id FAILED_PLAN_ID [--groups base,fonts] [--desktops xfce,lxqt,lxde,mate] [--sudo-mode password|passwordless]"; return 2;
+        }; setup_args+=(--user "$user" --plan-id "$plan_id" --sudo-mode "$sudo_mode") ;;
       esac
+      if [ -n "$desktop_choices" ]; then
+        case "$action" in
+          fresh-preview|fresh-resume-preview) setup_args+=(--desktops "$desktop_choices") ;;
+          *) nt_fail "--desktops is supported only by fresh preview actions."; return 2 ;;
+        esac
+      fi
       if [ -n "$package_groups" ]; then
         case "$action" in
           fresh-preview|fresh-resume-preview) setup_args+=(--groups "$package_groups") ;;

@@ -464,7 +464,7 @@ def main(argv: list[str]) -> int:
         if rid == "graphics.native":
             operation = "graphics.provider.status"
             operation_args = {"provider": "native"}
-        elif rid == "network.ssh.manual-8022":
+        elif rid == "network.ssh.external-native":
             operation = "ssh.inspect"
         elif rid == "native.acceleration.qualification":
             operation = "doctor.report"

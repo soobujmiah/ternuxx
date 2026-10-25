@@ -715,9 +715,10 @@ def inspect_native(
     listener_sockets, listener_observation = _read_tcp_listener_sockets_detailed(
         proc_path, netlink_reader=netlink_reader)
     listener_status = listener_observation["observation"]
-    listener_rows = [{"address": row["address"], "port": row["port"]} for row in listener_sockets]
+    # Keep concrete endpoints private to correlation logic; public diagnostics
+    # expose only whether listener observation was available.
     report: dict[str, object] = {
-        "schema_version": 1,
+        "schema_version": 2,
         "component": "native_ssh_diagnostics",
         "environment": "native_termux",
         "observed_at": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z"),
@@ -727,7 +728,7 @@ def inspect_native(
             "config_syntax": "unknown",
             "policy_context": "default_without_connection_context",
             "daemon_process_present": _proc_has_sshd(proc_path),
-            "configured_policy": {},
+            "external_config_authentication": {},
             "configured_listener_bind_scope": "unknown",
             "managed_service": {
                 "service_id": "ternuxx-sshd",
@@ -747,7 +748,7 @@ def inspect_native(
                     "seconds_after_kernel_boot": None,
                 },
             },
-            "observed_tcp_listeners_all_processes": listener_rows,
+            "observed_tcp_listener_count": len(listener_sockets),
             "tcp_listener_observation": listener_status,
             "tcp_listener_procfs_observation": listener_observation["procfs"],
             "tcp_listener_netlink_observation": listener_observation["netlink"],
@@ -833,8 +834,12 @@ def inspect_native(
         checks["policy_context"] = "native_user_loopback"
     effective = _run_readonly(runner, effective_args)
     if effective is not None and effective.returncode == 0:
-        checks["configured_policy"] = _effective_policy(effective.stdout)
-        checks["configured_listener_bind_scope"] = listener_bind_scope(checks["configured_policy"])
+        effective_policy = _effective_policy(effective.stdout)
+        checks["external_config_authentication"] = {
+            key: values for key, values in effective_policy.items()
+            if key in {"passwordauthentication", "pubkeyauthentication", "kbdinteractiveauthentication", "permitrootlogin"}
+        }
+        checks["configured_listener_bind_scope"] = listener_bind_scope(effective_policy)
     else:
         checks["config_syntax"] = "invalid_or_unavailable"
     return report
@@ -855,7 +860,7 @@ def main(argv: list[str] | None = None) -> int:
         checks = report["checks"]
         assert isinstance(checks, dict)
         print("Native SSH diagnostic (read-only)")
-        for key in ("sshd_available", "config_present", "config_syntax", "daemon_process_present", "observed_tcp_listeners_all_processes", "listener_daemon_correlation", "service_supervisor", "termux_boot_directory", "configuration_owner", "authenticated_connection_test"):
+        for key in ("sshd_available", "config_present", "config_syntax", "daemon_process_present", "observed_tcp_listener_count", "tcp_listener_observation", "listener_daemon_correlation", "service_supervisor", "termux_boot_directory", "configuration_owner", "authenticated_connection_test"):
             print(f"  {key}: {checks[key]}")
         print(f"  managed_service: {checks['managed_service']}")
         print("  Credentials and raw configuration: not read or displayed")

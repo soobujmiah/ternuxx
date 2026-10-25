@@ -88,6 +88,35 @@ class ProotSetupTests(unittest.TestCase):
         self.assertEqual(stat.S_IMODE(record.stat().st_mode), 0o600)
         self.assertEqual(self._guest_digest(), before)
 
+    def test_fresh_install_receipt_reports_managed_guest_without_adoption(self) -> None:
+        state_root = self.state / "proot-setup"
+        state_root.mkdir(parents=True, mode=0o700)
+        version_path = state_root / "debian-package-versions.txt"
+        versions = b"ii \tbase=1.0\n"
+        version_path.write_bytes(versions)
+        version_path.chmod(0o600)
+        container = self.root.parent
+        container_info = container.stat()
+        root_info = self.root.stat()
+        manifest_hash = hashlib.sha256((self.repo / "config/proot/debian-trixie.json").read_bytes()).hexdigest()
+        receipt = {"schema_version": 1, "origin": "fresh-preview-confirmed-install",
+            "plan_id": "a" * 64, "alias": "debian", "guest_user": "sobuj", "sudo_mode": "passwordless",
+            "manifest_sha256": manifest_hash, "package_versions_sha256": hashlib.sha256(versions).hexdigest(),
+            "package_versions_file": str(version_path), "package_versions_recorded": True,
+            "requested_packages_verified_installed": True,
+            "rootfs_identity": {"container_device": container_info.st_dev, "container_inode": container_info.st_ino,
+                "rootfs_device": root_info.st_dev, "rootfs_inode": root_info.st_ino}}
+        record = state_root / "fresh-provider.json"
+        record.write_text(json.dumps(receipt), encoding="utf-8")
+        record.chmod(0o600)
+        result = proot_setup.status(repo_root=str(self.repo), prefix=str(self.prefix),
+            home=str(self.home), state_dir=str(self.state))
+        self.assertEqual(result["status"], "fresh_installed")
+        self.assertEqual(result["recorded_guest_user"], "sobuj")
+        self.assertEqual(result["sudo_mode"], "passwordless")
+        self.assertEqual(result["package_baseline"]["status"], "verified_at_install")
+        self.assertEqual(result["next_action"], "none")
+
     def test_apply_requires_confirmation_and_unchanged_preview(self) -> None:
         preview = proot_setup.preview_adoption(repo_root=str(self.repo), prefix=str(self.prefix),
                                                 home=str(self.home), state_dir=str(self.state), user="sbj")
@@ -363,13 +392,15 @@ class ProotSetupTests(unittest.TestCase):
         argv = ["proot_setup.py", "fresh-preview", "--repo-root", str(self.repo),
                 "--prefix", str(self.prefix), "--home", str(self.home),
                 "--state-dir", str(self.state), "--user", "sbj",
-                "--alias", "ternuxx-replay-cli", "--groups", "base,fonts"]
+                "--alias", "ternuxx-replay-cli", "--groups", "base,fonts", "--desktops", "lxqt,mate", "--sudo-mode", "passwordless"]
         with patch.object(sys, "argv", argv), \
              patch.object(proot_setup.proot_fresh_setup, "preview", return_value=preview) as fresh_preview, \
              redirect_stdout(io.StringIO()):
             self.assertEqual(proot_setup.main(), 0)
         self.assertEqual(fresh_preview.call_args.kwargs["alias"], "ternuxx-replay-cli")
         self.assertEqual(fresh_preview.call_args.kwargs["groups"], ["base", "fonts"])
+        self.assertEqual(fresh_preview.call_args.kwargs["desktops"], ["lxqt", "mate"])
+        self.assertEqual(fresh_preview.call_args.kwargs["sudo_mode"], "passwordless")
         self.assertNotIn("resume_plan_id", fresh_preview.call_args.kwargs)
 
     def test_fresh_apply_cli_uses_preview_bound_account_and_alias(self) -> None:
@@ -388,6 +419,21 @@ class ProotSetupTests(unittest.TestCase):
         self.assertEqual(fresh_apply.call_args.kwargs["plan_id"], plan_id)
         self.assertEqual(fresh_apply.call_args.kwargs["password"], "private-passphrase")
         self.assertNotIn("private-passphrase", output.getvalue())
+
+    def test_passwordless_fresh_apply_cli_never_opens_password_prompt(self) -> None:
+        plan_id = "e" * 64
+        result = {"status": "installed", "record": {"guest_user": "workuser", "sudo_mode": "passwordless"}}
+        argv = ["proot_setup.py", "fresh-install", "--repo-root", str(self.repo),
+                "--prefix", str(self.prefix), "--home", str(self.home),
+                "--state-dir", str(self.state), "--plan-id", plan_id,
+                "--sudo-mode", "passwordless", "--yes"]
+        with patch.object(sys, "argv", argv), \
+             patch.object(proot_setup.getpass, "getpass", side_effect=AssertionError("must not prompt")), \
+             patch.object(proot_setup.proot_fresh_setup, "apply", return_value=result) as fresh_apply, \
+             redirect_stdout(io.StringIO()):
+            self.assertEqual(proot_setup.main(), 0)
+        self.assertIsNone(fresh_apply.call_args.kwargs["password"])
+        self.assertEqual(fresh_apply.call_args.kwargs["sudo_mode"], "passwordless")
 
     def test_fresh_resume_preview_cli_forwards_failed_plan_and_groups(self) -> None:
         failed_id = "b" * 64

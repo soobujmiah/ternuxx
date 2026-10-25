@@ -34,7 +34,7 @@ class SshClientKeyTests(unittest.TestCase):
         plan = self.preview()
         self.assertEqual(plan["status"], "ready")
         self.assertTrue(plan["requires_confirmation"])
-        self.assertIn("8022 and 8023", plan["shared_account_impact"])
+        self.assertIn("later SSH key preview", plan["shared_account_impact"])
         result = self.apply(plan)
         private = self.ssh / "ternuxx-keys" / "recovery"
         public = Path(str(private) + ".pub")

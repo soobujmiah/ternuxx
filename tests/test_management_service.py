@@ -360,8 +360,10 @@ class ManagementServiceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="ssh-key-service-") as temp:
             home = Path(temp)
             (home / ".ssh").mkdir(mode=0o700)
+            (home / ".ssh/ternuxx-keys").mkdir(mode=0o700)
             os.chown(home, os.getuid(), -1)
             os.chown(home / ".ssh", os.getuid(), -1)
+            os.chown(home / ".ssh/ternuxx-keys", os.getuid(), -1)
             key_path = home / "test-key"
             generated = management_service.subprocess.run(
                 ["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-C",
@@ -373,7 +375,7 @@ class ManagementServiceTests(unittest.TestCase):
             env = {**NATIVE_ENV, "HOME": str(home),
                    "TERNUXX_STATE_DIR": str(home / ".local/share/ternuxx")}
             with patch.object(management_service.ssh_key_inventory, "list_managed_authorized_keys",
-                              return_value={"authorized_keys_path_verified": True}):
+                              return_value={"authorized_keys_path_verified": True, "authorized_keys_file": ".ssh/ternuxx-keys/authorized_keys"}):
                 preview = management_service.dispatch(request("ssh.keys.add.preview", {
                     "public_key": public_key}), env=env)
                 self.assertTrue(preview["ok"])
@@ -383,8 +385,10 @@ class ManagementServiceTests(unittest.TestCase):
                     "public_key": public_key, "confirmed": True,
                     "plan_id": preview["data"]["plan_id"]}), env=env)
             self.assertTrue(applied["ok"])
-            self.assertEqual((home / ".ssh/authorized_keys").read_text(), public_key + "\n")
-            self.assertEqual((home / ".ssh/authorized_keys").stat().st_mode & 0o777, 0o600)
+            managed_keys = home / ".ssh/ternuxx-keys/authorized_keys"
+            self.assertEqual(managed_keys.read_text(), public_key + "\n")
+            self.assertEqual(managed_keys.stat().st_mode & 0o777, 0o600)
+            self.assertFalse((home / ".ssh/authorized_keys").exists())
 
     def test_curated_file_handoff_is_read_only_and_only_accepts_directory_tree(self) -> None:
         with patch.object(management_service.optional_software, "inspect_directory_tree",
@@ -405,8 +409,10 @@ class ManagementServiceTests(unittest.TestCase):
             ssh = home / ".ssh"
             home.mkdir(mode=0o700, exist_ok=True)
             ssh.mkdir(mode=0o700)
+            (ssh / "ternuxx-keys").mkdir(mode=0o700)
             os.chown(home, os.getuid(), -1)
             os.chown(ssh, os.getuid(), -1)
+            os.chown(ssh / "ternuxx-keys", os.getuid(), -1)
             source = home / "test-key"
             generated = management_service.subprocess.run(
                 ["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-f", str(source)],
@@ -415,7 +421,7 @@ class ManagementServiceTests(unittest.TestCase):
             public_key = source.with_suffix(".pub").read_text(encoding="utf-8").strip()
             env = {**NATIVE_ENV, "HOME": str(home)}
             with patch.object(management_service.ssh_key_inventory, "list_managed_authorized_keys",
-                              return_value={"authorized_keys_path_verified": True}):
+                              return_value={"authorized_keys_path_verified": True, "authorized_keys_file": ".ssh/ternuxx-keys/authorized_keys"}):
                 preview = management_service.dispatch(request("ssh.keys.add.preview", {
                     "public_key": public_key}), env=env)
                 apply_result = management_service.dispatch(request("ssh.keys.add.apply", {
@@ -472,6 +478,16 @@ class ManagementServiceTests(unittest.TestCase):
     def test_ssh_key_changes_fail_closed_without_verified_managed_key_path(self) -> None:
         result = management_service.dispatch(request("ssh.keys.remove.preview", {
             "fingerprint": "SHA256:abc"}), env=NATIVE_ENV)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"]["code"], "ssh_configuration_unverified")
+
+    def test_ssh_key_changes_refuse_external_authorized_keys_even_when_configured(self) -> None:
+        external_path = {"authorized_keys_path_verified": True,
+                         "authorized_keys_file": ".ssh/authorized_keys"}
+        with patch.object(management_service.ssh_key_inventory,
+                          "list_managed_authorized_keys", return_value=external_path):
+            result = management_service.dispatch(request("ssh.keys.add.preview", {
+                "public_key": "ssh-ed25519 AAAA valid"}), env=NATIVE_ENV)
         self.assertFalse(result["ok"])
         self.assertEqual(result["error"]["code"], "ssh_configuration_unverified")
 

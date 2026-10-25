@@ -33,7 +33,7 @@ class SshKeyInventoryTests(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def test_managed_inventory_requires_the_effective_fixed_key_path(self):
+    def test_managed_inventory_refuses_external_native_key_path(self):
         config = self.home / ".config/ternuxx/sshd_recovery.conf"
         config.parent.mkdir(parents=True)
         config.write_text("Port 8023\n")
@@ -46,11 +46,33 @@ class SshKeyInventoryTests(unittest.TestCase):
                 stdout="authorizedkeysfile .ssh/authorized_keys\n", stderr="")
         result = ssh_key_inventory.list_managed_authorized_keys(
             home=self.home, uid=self.uid, which=lambda _name: "/fixture/sshd", runner=runner)
-        self.assertEqual(result["status"], "available")
-        self.assertTrue(result["authorized_keys_path_verified"])
-        self.assertEqual(result["service_id"], "ternuxx-sshd")
+        self.assertEqual(result["status"], "unsupported_path")
+        self.assertNotIn("authorized_keys_file", result)
+        self.assertEqual(result["keys"], [])
         self.assertEqual(calls[0][0][1:4], ["-T", "-f", str(config)])
         self.assertIn("user=", calls[0][0][-1])
+
+    def test_managed_inventory_uses_isolated_ternuxx_key_file_when_configured(self):
+        config = self.home / ".config/ternuxx/sshd_recovery.conf"
+        config.parent.mkdir(parents=True)
+        config.write_text("Port 8023\n")
+        dedicated = self.ssh_dir / "ternuxx-keys"
+        dedicated.mkdir(mode=0o700)
+        os.chown(dedicated, self.uid, -1)
+        managed_keys = dedicated / "authorized_keys"
+        managed_keys.write_text(entry(comment="Ternuxx-only") + "\n")
+        managed_keys.chmod(0o600)
+        self.keys.write_text(entry(comment="Owner external SSH") + "\n")
+        self.keys.chmod(0o600)
+        result = ssh_key_inventory.list_managed_authorized_keys(
+            home=self.home, uid=self.uid, which=lambda _name: "/fixture/sshd",
+            runner=lambda argv, **kwargs: subprocess.CompletedProcess(
+                argv, 0, stdout="authorizedkeysfile .ssh/ternuxx-keys/authorized_keys\n", stderr=""))
+        self.assertEqual(result["status"], "available")
+        self.assertEqual(result["authorized_keys_file"], ".ssh/ternuxx-keys/authorized_keys")
+        self.assertEqual(result["key_count"], 1)
+        self.assertEqual(result["keys"][0]["label"], "Ternuxx-only")
+        self.assertNotIn("Owner external SSH", repr(result))
 
     def test_managed_inventory_rejects_configured_alternate_key_paths(self):
         config = self.home / ".config/ternuxx/sshd_recovery.conf"

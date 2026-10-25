@@ -168,7 +168,7 @@ def preview(
         "requires_confirmation": changed,
         "read_only": True,
         "diff": diff,
-        "impact": ("Atomically replaces only the fixed Runit run definition. It does not stop or restart the running service, change SSH configuration, or alter port 8022. The current process continues with its already-loaded definition; the replacement applies on a future supervisor start."),
+        "impact": ("Atomically replaces only the fixed Runit run definition. It does not stop or restart the running service, change SSH configuration, or alter external SSH configuration. The current process continues with its already-loaded definition; the replacement applies on a future supervisor start."),
     }
 
 
@@ -288,7 +288,7 @@ def preview_rollback(
         "plan_id": _plan_id(core) if core["changed"] else None,
         "requires_confirmation": bool(core["changed"]), "read_only": True,
         "diff": _diff(current, original),
-        "impact": "Atomically restores the exact pre-deployment run definition. It does not stop/restart the service or alter SSH configuration or port 8022.",
+        "impact": "Atomically restores the exact pre-deployment run definition. It does not stop/restart the service or alter SSH configuration or external SSH configuration.",
     }
 
 

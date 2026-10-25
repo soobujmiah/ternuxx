@@ -559,10 +559,10 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
                 self.assertEqual(bridge.main(["inspect", "native.system.health"]), 0)
         self.assertIn(mock.call("doctor.report", {"graphics": False}), dispatch.call_args_list)
 
-    def test_port_8022_uses_read_only_ssh_inspection(self) -> None:
+    def test_external_ssh_resource_uses_read_only_ssh_inspection(self) -> None:
         with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {}}) as dispatch:
             with redirect_stdout(StringIO()):
-                self.assertEqual(bridge.main(["inspect", "network.ssh.manual-8022"]), 0)
+                self.assertEqual(bridge.main(["inspect", "network.ssh.external-native"]), 0)
         dispatch.assert_called_once_with("ssh.inspect")
 
     def test_managed_ssh_resource_uses_the_same_canonical_inspection_operation(self) -> None:

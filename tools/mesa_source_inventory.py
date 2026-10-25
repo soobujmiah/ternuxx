@@ -21,7 +21,7 @@ SOURCE_SUFFIXES = {
     ".inl", ".S", ".s", ".py", ".sh", ".m", ".mm", ".rs", ".cl",
     ".glsl", ".vert", ".frag", ".comp", ".l", ".ll", ".y", ".yy",
     ".xml", ".json", ".conf", ".txt", ".csv", ".rnc", ".yaml", ".yml",
-    ".xsd", ".def", ".in",
+    ".xsd", ".dtd", ".def", ".in",
 }
 _SPDX_HEADER = re.compile(
     rb"^\s*(?:(?:/\*+|\*|//|#|<!--|;|--)\s*)?"

@@ -59,14 +59,18 @@ def _parse_line(line: str) -> dict[str, str] | None:
     return {"status": "invalid", "key_type": "unknown", "fingerprint": "", "label": "Invalid entry"}
 
 
-def list_authorized_keys(*, home: str | os.PathLike[str], uid: int | None = None) -> dict[str, object]:
-    """Read only the fixed HOME/.ssh/authorized_keys file; fail closed on links."""
+def list_authorized_keys(*, home: str | os.PathLike[str], uid: int | None = None,
+                         relative_path: str = ".ssh/authorized_keys") -> dict[str, object]:
+    """Read one allowlisted authorized_keys path; fail closed on links."""
     expected_uid = os.getuid() if uid is None else uid
     home_path = Path(home)
     if not home_path.is_absolute() or ".." in home_path.parts:
         return {"status": "unavailable", "reason": "invalid_home", "keys": [], "invalid_entries": 0}
+    allowed = {".ssh/authorized_keys", ".ssh/ternuxx-keys/authorized_keys"}
+    if relative_path not in allowed:
+        return {"status": "unavailable", "reason": "authorized_keys_path_not_allowlisted", "keys": [], "invalid_entries": 0}
     ssh_dir = home_path / ".ssh"
-    path = ssh_dir / "authorized_keys"
+    path = home_path / relative_path
     try:
         home_stat = home_path.lstat()
         dir_stat = ssh_dir.lstat()
@@ -75,6 +79,12 @@ def list_authorized_keys(*, home: str | os.PathLike[str], uid: int | None = None
             return {"status": "unsafe_path", "reason": "home_identity_unverified", "keys": [], "invalid_entries": 0}
         if stat.S_ISLNK(dir_stat.st_mode) or not stat.S_ISDIR(dir_stat.st_mode) or dir_stat.st_uid != expected_uid:
             return {"status": "unsafe_path", "reason": "ssh_directory_untrusted", "keys": [], "invalid_entries": 0}
+        if relative_path == ".ssh/ternuxx-keys/authorized_keys":
+            key_dir = home_path / ".ssh/ternuxx-keys"
+            key_info = key_dir.lstat()
+            if (stat.S_ISLNK(key_info.st_mode) or not stat.S_ISDIR(key_info.st_mode)
+                    or key_info.st_uid != expected_uid or stat.S_IMODE(key_info.st_mode) & 0o077):
+                return {"status": "unsafe_path", "reason": "ternuxx_key_directory_untrusted", "keys": [], "invalid_entries": 0}
         file_stat = path.lstat()
     except FileNotFoundError:
         return {"status": "missing", "reason": "authorized_keys_not_present", "keys": [], "invalid_entries": 0}
@@ -153,10 +163,12 @@ def list_managed_authorized_keys(
         fields = line.split()
         if len(fields) >= 2 and fields[0].casefold() == "authorizedkeysfile":
             effective_paths.extend(fields[1:])
-    if effective_paths != [".ssh/authorized_keys"]:
-        return {"status": "unsupported_path", "reason": "managed_authorized_keys_path_not_supported",
+    if len(effective_paths) != 1 or effective_paths[0] != ".ssh/ternuxx-keys/authorized_keys":
+        return {"status": "unsupported_path", "reason": "managed_authorized_keys_path_not_ternuxx_owned",
                 "keys": [], "invalid_entries": 0}
-    inventory = list_authorized_keys(home=home_path, uid=expected_uid)
+    relative_path = effective_paths[0]
+    inventory = list_authorized_keys(home=home_path, uid=expected_uid, relative_path=relative_path)
     inventory["authorized_keys_path_verified"] = True
+    inventory["authorized_keys_file"] = relative_path
     inventory["service_id"] = "ternuxx-sshd"
     return inventory

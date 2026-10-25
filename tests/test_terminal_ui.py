@@ -266,7 +266,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         managed = next(item for item in management_service.management_catalog.RESOURCES
                        if item["id"] == "network.ssh.managed-8023")
         manual = next(item for item in management_service.management_catalog.RESOURCES
-                      if item["id"] == "network.ssh.manual-8022")
+                      if item["id"] == "network.ssh.external-native")
         managed_actions = terminal_ui._available_action_labels(managed)
         manual_actions = terminal_ui._available_action_labels(manual)
         self.assertIn("start SSH 8023 (preview)", managed_actions)
@@ -308,7 +308,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
             result = terminal_ui._proot_workload_action(object(), resource)
         self.assertEqual(result["data"]["guest_status"], "missing")
         self.assertIn("tx proot setup fresh-preview", result["data"]["next_step"])
-        self.assertIn("tx proot setup fresh-install --yes --plan-id PLAN_ID", result["data"]["next_step"])
+        self.assertIn("tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID", result["data"]["next_step"])
         self.assertIn("hidden prompts", result["data"]["next_step"])
 
     def test_proot_stop_uses_only_verified_running_sessions_and_exact_preview(self) -> None:
@@ -543,7 +543,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
             self.assertIs(terminal_ui._operation_history(resource), result)
         dispatch.assert_called_once_with("recovery.status")
         with mock.patch.object(terminal_ui, "_call") as dispatch:
-            denied = terminal_ui._operation_history({"id": "network.ssh.manual-8022", "supported_operations": ["ssh.inspect"]})
+            denied = terminal_ui._operation_history({"id": "network.ssh.external-native", "supported_operations": ["ssh.inspect"]})
         self.assertEqual(denied["error"]["code"], "history_unavailable")
         dispatch.assert_not_called()
 
@@ -664,7 +664,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         managed = next(item for item in management_service.management_catalog.RESOURCES
                        if item["id"] == "network.ssh.managed-8023")
         manual = next(item for item in management_service.management_catalog.RESOURCES
-                      if item["id"] == "network.ssh.manual-8022")
+                      if item["id"] == "network.ssh.external-native")
         preview = {"ok": True, "data": {"requires_confirmation": True,
                    "plan_id": "b" * 64, "impact": "Client connections may close."}}
         with mock.patch.object(terminal_ui, "_choose", return_value="stop"), \

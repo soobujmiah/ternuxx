@@ -44,12 +44,12 @@ class SshKeyManagerTests(unittest.TestCase):
     def tearDown(self):
         self.tmp.cleanup()
 
-    def test_preview_add_contains_no_key_bytes_and_discloses_shared_service_impact(self):
+    def test_preview_add_contains_no_key_bytes_and_discloses_external_file_impact(self):
         plan = ssh_key_manager.preview("add", home=self.home, uid=self.uid,
                                        fingerprint=self.fp1, public_key=self.first)
         self.assertEqual(plan["status"], "ready")
         self.assertEqual(plan["affects_services"],
-                         ["owner-managed SSH 8022", "Ternuxx managed SSH 8023"])
+                         ["external Native SSH configurations using this file"])
         self.assertNotIn(self.first, repr(plan))
         self.assertNotIn("fixture-key-one", repr(plan))
 
@@ -64,6 +64,40 @@ class SshKeyManagerTests(unittest.TestCase):
         again = ssh_key_manager.preview("add", home=self.home, uid=self.uid,
                                         fingerprint=self.fp1, public_key=self.first)
         self.assertFalse(again["changed"])
+
+    def test_dedicated_managed_enrollment_leaves_external_keys_unchanged(self):
+        self.keys.write_text(self.first + "\n")
+        self.keys.chmod(0o600)
+        managed_dir = self.ssh / "ternuxx-keys"
+        managed_dir.mkdir(mode=0o700)
+        os.chown(managed_dir, self.uid, -1)
+        managed = managed_dir / "authorized_keys"
+        preview = ssh_key_manager.preview("add", home=self.home, uid=self.uid,
+            fingerprint=self.fp2, public_key=self.second,
+            authorized_keys_file=".ssh/ternuxx-keys/authorized_keys")
+        self.assertEqual(preview["target"], ".ssh/ternuxx-keys/authorized_keys")
+        self.assertEqual(preview["affects_services"], ["Ternuxx managed SSH service"])
+        result = ssh_key_manager.apply("add", home=self.home, uid=self.uid,
+            fingerprint=self.fp2, public_key=self.second, confirmed=True, plan_id=preview["plan_id"],
+            authorized_keys_file=".ssh/ternuxx-keys/authorized_keys")
+        self.assertEqual(result["status"], "complete")
+        self.assertEqual(managed.read_text(), self.second + "\n")
+        self.assertEqual(managed.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(self.keys.read_text(), self.first + "\n")
+        entries = ssh_key_manager.rollback_list(home=self.home, uid=self.uid,
+            authorized_keys_file=".ssh/ternuxx-keys/authorized_keys")
+        self.assertEqual(entries["count"], 1)
+        rollback_id = entries["entries"][0]["rollback_id"]
+        rollback = ssh_key_manager.rollback_preview(rollback_id, home=self.home, uid=self.uid,
+            authorized_keys_file=".ssh/ternuxx-keys/authorized_keys")
+        self.assertTrue(rollback["can_restore"])
+        self.assertEqual(rollback["affects_services"], ["Ternuxx managed SSH service"])
+        restored = ssh_key_manager.rollback_apply(rollback_id, home=self.home, uid=self.uid,
+            confirmed=True, plan_id=rollback["plan_id"],
+            authorized_keys_file=".ssh/ternuxx-keys/authorized_keys")
+        self.assertEqual(restored["status"], "complete")
+        self.assertFalse(managed.exists())
+        self.assertEqual(self.keys.read_text(), self.first + "\n")
 
     def test_stale_plan_does_not_overwrite_concurrent_key_changes(self):
         plan = ssh_key_manager.preview("add", home=self.home, uid=self.uid,

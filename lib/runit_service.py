@@ -102,7 +102,7 @@ def _snapshot(
     # Restart is an explicit operation even if the current state is running.
     changed = action == "restart" or current != target
     if action == "restart":
-        impact = "Restarts only the fixed Ternuxx Runit unit; active SSH clients on 127.0.0.1:8023 may disconnect. Port 8022 is excluded."
+        impact = "Restarts only the fixed Ternuxx Runit unit; active SSH clients on 127.0.0.1:8023 may disconnect. Other Native SSH services are excluded."
     elif action == "stop":
         impact = "Stops only the fixed Ternuxx Runit unit; clients connected to its managed SSH port may disconnect."
     else:

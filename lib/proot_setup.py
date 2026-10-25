@@ -896,6 +896,53 @@ def status(*, repo_root: str, prefix: str, home: str, state_dir: str) -> dict[st
     except SetupError as exc:
         return {"status": "missing_or_unavailable", "detail": str(exc),
                 "manifest_sha256": manifest_hash, "fresh_setup_profile": "debian-trixie-workstation"}
+    fresh_record_path = root / "fresh-provider.json"
+    if fresh_record_path.exists() or fresh_record_path.is_symlink():
+        try:
+            fresh_raw = _read_stable_regular_file(fresh_record_path, max_bytes=1024 * 1024, mode=0o600)
+            fresh = json.loads(fresh_raw.decode("utf-8"))
+        except (OSError, SetupError, UnicodeError, json.JSONDecodeError) as exc:
+            raise SetupError("fresh Debian install receipt is invalid or unsafe") from exc
+        if not isinstance(fresh, dict) or fresh.get("origin") != "fresh-preview-confirmed-install":
+            raise SetupError("fresh Debian install receipt has an unsupported identity")
+        container_info = rootfs.parent.stat()
+        expected_identity = {"container_device": container_info.st_dev,
+                             "container_inode": container_info.st_ino,
+                             "rootfs_device": identity.st_dev, "rootfs_inode": identity.st_ino}
+        if fresh.get("alias") != "debian" or fresh.get("rootfs_identity") != expected_identity:
+            return {"status": "fresh_install_stale", "rootfs": str(rootfs),
+                    "manifest_sha256": manifest_hash,
+                    "recorded_manifest_sha256": fresh.get("manifest_sha256"),
+                    "detail": "fresh setup receipt belongs to a different rootfs identity",
+                    "next_action": "review the current rootfs and setup receipt before adopting or reinstalling"}
+        versions_path = root / "debian-package-versions.txt"
+        try:
+            versions = _read_stable_regular_file(versions_path, max_bytes=4 * 1024 * 1024, mode=0o600)
+        except (OSError, SetupError) as exc:
+            raise SetupError("fresh Debian package-version receipt is invalid or unsafe") from exc
+        versions_hash = hashlib.sha256(versions).hexdigest()
+        if (fresh.get("package_versions_file") != str(versions_path)
+                or fresh.get("package_versions_sha256") != versions_hash
+                or fresh.get("package_versions_recorded") is not True
+                or fresh.get("requested_packages_verified_installed") is not True):
+            raise SetupError("fresh Debian package-version receipt does not match its verified inventory")
+        if fresh.get("manifest_sha256") != manifest_hash:
+            return {"status": "fresh_profile_changed", "rootfs": str(rootfs),
+                    "manifest_sha256": manifest_hash,
+                    "recorded_manifest_sha256": fresh.get("manifest_sha256"),
+                    "guest_user": fresh.get("guest_user"),
+                    "desktop_environments": fresh.get("desktop_environments", ["xfce"]),
+                    "detail": "current setup manifest differs from the successful fresh-install receipt; guest drift is not inferred",
+                    "next_action": "review the recorded and current manifest hashes before changing guest state"}
+        return {"status": "fresh_installed", "rootfs": str(rootfs),
+                "rootfs_device": identity.st_dev, "rootfs_inode": identity.st_ino,
+                "manifest_sha256": manifest_hash, "profile_id": "ternuxx-debian-trixie-workstation",
+                "recorded_guest_user": fresh.get("guest_user"),
+                "desktop_environments": fresh.get("desktop_environments", ["xfce"]),
+                "sudo_mode": fresh.get("sudo_mode", "password"),
+                "package_baseline": {"status": "verified_at_install", "changed_groups": []},
+                "package_versions_sha256": versions_hash, "ternux_cli_dependency": False,
+                "next_action": "none"}
     adoption_bytes, adoption = _existing_adoption(record_path)
     if adoption is not None:
         if (adoption.get("rootfs_device"), adoption.get("rootfs_inode")) != (identity.st_dev, identity.st_ino):
@@ -948,6 +995,9 @@ def main() -> int:
     parser.add_argument("--plan-id", default="")
     parser.add_argument("--backup-id", default="")
     parser.add_argument("--groups", help="comma-separated fresh Debian package groups; base is required")
+    parser.add_argument("--desktops", help="comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate")
+    parser.add_argument("--sudo-mode", choices=("password", "passwordless"), default="password",
+                        help="guest account sudo authentication; passwordless is scoped to the PRoot guest")
     parser.add_argument("--yes", action="store_true")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args()
@@ -958,18 +1008,21 @@ def main() -> int:
             parser.error("--alias is supported only by fresh setup")
         if args.groups is not None and args.action not in {"fresh-preview", "fresh-resume-preview"}:
             parser.error("--groups is supported only by fresh preview actions")
+        if args.desktops is not None and args.action not in {"fresh-preview", "fresh-resume-preview"}:
+            parser.error("--desktops is supported only by fresh preview actions")
         groups = None if args.groups is None else args.groups.split(",")
+        desktops = None if args.desktops is None else args.desktops.split(",")
         if args.action == "status":
             if args.backup_id or args.plan_id or args.user or args.yes:
                 parser.error("status does not accept setup options")
             result = status(repo_root=args.repo_root, prefix=args.prefix, home=args.home, state_dir=args.state_dir)
         elif args.action == "adoption-rollback-preview":
-            if not args.backup_id or args.plan_id or args.yes or args.user or args.alias or args.groups:
+            if not args.backup_id or args.plan_id or args.yes or args.user or args.alias or args.groups or args.desktops:
                 parser.error("adoption-rollback-preview requires --backup-id only")
             result = preview_adoption_rollback(prefix=args.prefix, home=args.home,
                                                state_dir=args.state_dir, backup_id=args.backup_id)
         elif args.action == "adoption-rollback":
-            if not args.backup_id or not args.plan_id or not args.yes or args.user or args.alias or args.groups:
+            if not args.backup_id or not args.plan_id or not args.yes or args.user or args.alias or args.groups or args.desktops:
                 parser.error("adoption-rollback requires --backup-id --plan-id ID --yes")
             result = apply_adoption_rollback(prefix=args.prefix, home=args.home,
                                             state_dir=args.state_dir, backup_id=args.backup_id,
@@ -985,25 +1038,27 @@ def main() -> int:
             result = proot_fresh_setup.preview(repo_root=args.repo_root, prefix=args.prefix,
                                                home=args.home, state_dir=args.state_dir, user=args.user,
                                                alias=args.alias if args.alias is not None else proot_fresh_setup.ALIAS,
-                                               groups=groups)
+                                               groups=groups, sudo_mode=args.sudo_mode, desktops=desktops)
         elif args.action == "fresh-resume-preview":
             if not args.user or not args.plan_id or args.yes or args.backup_id:
                 parser.error("fresh-resume-preview requires --user NAME --plan-id FAILED_PLAN_ID")
             result = proot_fresh_setup.preview(repo_root=args.repo_root, prefix=args.prefix,
                                                home=args.home, state_dir=args.state_dir, user=args.user,
                                                alias=args.alias if args.alias is not None else proot_fresh_setup.ALIAS,
-                                               resume_plan_id=args.plan_id, groups=groups)
+                                               resume_plan_id=args.plan_id, groups=groups, desktops=desktops)
         elif args.action == "fresh-install":
             if not args.plan_id or not args.yes or args.backup_id or args.groups:
                 parser.error("fresh-install requires --yes --plan-id ID; --user and --alias are optional checks against the saved preview")
-            password = getpass.getpass("Create sudo password for the selected Debian guest user: ")
-            confirm_password = getpass.getpass("Confirm guest sudo password: ")
-            if password != confirm_password:
-                raise proot_fresh_setup.FreshSetupError("password entries did not match")
+            password = None
+            if args.sudo_mode == "password":
+                password = getpass.getpass("Create sudo password for the selected Debian guest user: ")
+                confirm_password = getpass.getpass("Confirm guest sudo password: ")
+                if password != confirm_password:
+                    raise proot_fresh_setup.FreshSetupError("password entries did not match")
             result = proot_fresh_setup.apply(repo_root=args.repo_root, prefix=args.prefix,
                                              home=args.home, state_dir=args.state_dir, user=args.user or None,
                                              plan_id=args.plan_id, confirmed=True, password=password,
-                                             alias=args.alias)
+                                             sudo_mode=args.sudo_mode, alias=args.alias)
             password = confirm_password = ""
         else:
             if not args.user or not args.plan_id or not args.yes or args.backup_id:

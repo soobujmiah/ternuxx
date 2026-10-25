@@ -38,7 +38,7 @@ Read-only status distinguishes Linux health, Android availability/focus, last re
 
 ## Qualification and current evidence
 
-[Live deployment](../evidence/2026-10-22-monitor-live-deployment.json) verifies the installed run definition against source, the worker command against the canonical checkout, and running_idle with the workstation policy still off. Native desktop, SSH 8022, broker and the working Codex guest were preserved.
+[Live deployment](../evidence/2026-10-22-monitor-live-deployment.json) verifies the installed run definition against source, the worker command against the canonical checkout, and running_idle with the workstation policy still off. Native desktop, SSH service, broker and the working Codex guest were preserved.
 
 [Private replay](../evidence/2026-10-22-monitor-service-replay.json) uses an isolated Runit service root and private monitoring state. It verifies fresh registration, idle defaults, two Linux-only checks 30 seconds apart, unchanged workstation policy, and exact test-service exit/cleanup. Run it explicitly with `python3 tools/check_monitor_service.py --interval-check`. It does not install packages or restart the workstation.
 

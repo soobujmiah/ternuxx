@@ -55,7 +55,7 @@ tx start
 
 ## SSH ও পুনরুদ্ধার
 
-`tx ssh inspect` Native SSH-এর অবস্থা দেখায়। পরিচালিত SSH সেবার প্রতিটি চালু, বন্ধ বা পুনরারম্ভের আগে পূর্বরূপ ও নিশ্চিতকরণ লাগে। Ternuxx-এর পরিচালিত সেবা স্থানীয় সংযোগ-দ্বার 8023-এ চলে; সংযোগ-দ্বার 8022 আলাদা উন্নয়ন সংযোগ।
+`tx ssh inspect` Native SSH-এর অবস্থা দেখায়। পরিচালিত SSH সেবার প্রতিটি চালু, বন্ধ বা পুনরারম্ভের আগে পূর্বরূপ ও নিশ্চিতকরণ লাগে। Ternuxx-এর পরিচালিত সেবা স্থানীয় সংযোগ-দ্বার 8023-এ চলে; অন্য Native SSH কনফিগারেশন Ternuxx পরিচালনা করে না।
 
 `tx backup`, `tx recovery` এবং `tx checkpoint` Native অবস্থার ব্যাকআপ ও পুনরুদ্ধারে সহায়তা করে। পরিবর্তনের আগে লক্ষ্য ও পরিকল্পনা যাচাই করুন। Ternuxx যৌথ সংরক্ষণস্থান খোঁজে না বা নির্বিচারে ফাইল পরিচালনা করে না।
 
@@ -68,12 +68,12 @@ tx install preview --profile native-debian --user USER
 tx install apply --profile native-debian --user USER --yes --plan-id NATIVE_PLAN_ID --guest-plan-id GUEST_PLAN_ID
 ```
 
-Guest account-এর password দুবার গোপন terminal prompt-এ দিতে হবে।
+Guest-only setup-e `--sudo-mode password` dile password gopon prompt-e dite hoy; `--sudo-mode passwordless` dile kono secret lage na, ebong NOPASSWD sudhu PRoot guest-er moddhe kaj kore. Combined `native-debian` profile ekhono password prompt use kore.
 
 আগে `tx proot status` দিয়ে Native `proot`/`proot-distro` ও Debian পরিবেশের তালিকা দেখুন। নতুন Debian পরিবেশের জন্য নির্দিষ্ট ব্যবহারকারীর নামসহ পূর্বরূপ তৈরি করুন, লক্ষ্য ও ডিস্ক-ছবির নির্দিষ্ট SHA-256 পরিচিতি যাচাই করুন, তারপর শুধু সেই পরিকল্পনা প্রয়োগ করুন:
 
 ```sh
-tx proot setup fresh-preview --user USER
+tx proot setup fresh-preview --user USER --sudo-mode passwordless --desktops xfce,lxqt
 tx proot setup fresh-install --yes --plan-id PLAN_ID
 ```
 

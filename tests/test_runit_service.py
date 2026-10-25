@@ -125,7 +125,7 @@ class RunitServiceTests(unittest.TestCase):
         plan = runit_service.preview("restart", prefix=self.prefix, source=self.source, runner=self.runner)
         self.assertEqual(plan["target_status"], "running")
         self.assertTrue(plan["requires_confirmation"])
-        self.assertIn("8022 is excluded", plan["impact"])
+        self.assertIn("Other Native SSH services are excluded", plan["impact"])
         result = runit_service.apply(
             "restart", prefix=self.prefix, home=self.home, state_dir=self.state,
             confirmed=True, plan_id=str(plan["plan_id"]), source=self.source, runner=self.runner,

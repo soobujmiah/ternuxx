@@ -279,7 +279,7 @@ class DoctorReportTest(unittest.TestCase):
 
     def test_doctor_warns_on_wildcard_native_ssh_config_without_claiming_reachability(self):
         result = {"checks": {"configured_listener_bind_scope": "wildcard",
-                  "configured_policy": {"port": ["8022"], "passwordauthentication": ["yes"]},
+                  "external_config_authentication": {"passwordauthentication": ["yes"]},
                   "managed_service": {"manager": "runit", "service_id": "ternuxx-sshd",
                   "status": "running", "config_syntax": "valid", "loopback_ssh_probe": {"status": "ssh_banner"}}}}
         doctor_report.FINDINGS.clear()
