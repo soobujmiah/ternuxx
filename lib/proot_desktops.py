@@ -49,7 +49,7 @@ def session_argv(provider: str, selected: str) -> tuple[str, ...]:
     if provider != "debian-trixie" or selected not in DEBIAN_DESKTOPS:
         raise DesktopError("unsupported PRoot desktop selection")
     if selected == "gnome":
-        return ("gnome-session", "--session=gnome-xorg")
+        return ("gnome-session", "--session=gnome")
     return (str(DEBIAN_DESKTOPS[selected]["session"]),)
 
 

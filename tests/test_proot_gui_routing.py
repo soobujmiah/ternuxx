@@ -38,7 +38,7 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertIn('query_display_geometry(os.environ["DISPLAY"])', script)
         self.assertIn('/usr/bin/Xephyr :2 -glamor_gles2 -screen "$native_geometry" -resizeable', script)
         self.assertIn('--env TERNUXX_REPO_ROOT="$ROOT"', script)
-        self.assertIn('gnome) desktop_argv=(gnome-session --session=gnome-xorg)', script)
+        self.assertIn('gnome) desktop_argv=(gnome-session --session=gnome)', script)
         self.assertIn('plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma KWIN_COMPOSE=N', script)
         self.assertIn('cinnamon) desktop_argv=(cinnamon-session)', script)
         self.assertIn('DISPLAY=:2 dbus-launch --exit-with-session "${desktop_argv[@]}" &', script)
@@ -58,7 +58,7 @@ class ProotGuiRoutingTests(unittest.TestCase):
     def test_nested_route_starts_xfce_session_on_existing_xephyr_server(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
         self.assertIn("/usr/bin/Xephyr :2 -glamor_gles2 -screen", script)
-        self.assertIn('gnome) desktop_argv=(gnome-session --session=gnome-xorg)', script)
+        self.assertIn('gnome) desktop_argv=(gnome-session --session=gnome)', script)
         self.assertIn('plasma) desktop_argv=(startplasma-x11)', script)
         self.assertIn('cinnamon) desktop_argv=(cinnamon-session)', script)
         self.assertIn('DISPLAY=:2 dbus-launch --exit-with-session "${desktop_argv[@]}" &', script)

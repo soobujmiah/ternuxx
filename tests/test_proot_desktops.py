@@ -22,12 +22,12 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["gnome", "plasma", "cinnamon"]),
                          ["gnome-core", "kde-plasma-desktop", "kwin-x11", "cinnamon-desktop-environment"])
         self.assertEqual(proot_desktops.session_argv("debian-trixie", "gnome"),
-                         ("gnome-session", "--session=gnome-xorg"))
+                         ("gnome-session", "--session=gnome"))
         self.assertEqual(proot_desktops.session_argv("debian-trixie", "plasma"), ("startplasma-x11",))
         self.assertEqual(proot_desktops.session_argv("debian-trixie", "cinnamon"), ("cinnamon-session",))
         scripts = ((ROOT / "scripts/proot-gui0.sh").read_text(),
                    (ROOT / "lib/proot-xfce-wrapper.sh").read_text())
-        for desktop, argv in (("gnome", "gnome-session --session=gnome-xorg"),
+        for desktop, argv in (("gnome", "gnome-session --session=gnome"),
                               ("plasma", "startplasma-x11"),
                               ("cinnamon", "cinnamon-session")):
             for script in scripts:
