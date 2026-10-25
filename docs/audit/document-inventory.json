@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 573,
-  "read_count": 178,
+  "document_count": 574,
+  "read_count": 179,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -3563,10 +3563,10 @@
     {
       "path": "docs/evidence/2026-10-26-distro-named-managed-install.md",
       "kind": "narrative",
-      "sha256": "889bc14262bb61af717944e16f6eb41f94908a27c27a515626c1481b14dd214d",
+      "sha256": "813d0ebbb303198e93fcf2553f70e4a4d4aa5d2078d9c9e2d4fbe2577f3fc113",
       "lines": 21,
       "read_status": "read",
-      "read_sha256": "889bc14262bb61af717944e16f6eb41f94908a27c27a515626c1481b14dd214d"
+      "read_sha256": "813d0ebbb303198e93fcf2553f70e4a4d4aa5d2078d9c9e2d4fbe2577f3fc113"
     },
     {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
@@ -3607,6 +3607,14 @@
       "lines": 37,
       "read_status": "pending",
       "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-26-supervisor-test-timeout.md",
+      "kind": "narrative",
+      "sha256": "ac436733362831adfe8510d142243817371a5567dbaf3aff784260d0fc55b953",
+      "lines": 20,
+      "read_status": "read",
+      "read_sha256": "ac436733362831adfe8510d142243817371a5567dbaf3aff784260d0fc55b953"
     },
     {
       "path": "docs/evidence/P0-foundation.md",

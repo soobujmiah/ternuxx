@@ -106,13 +106,38 @@ class DesktopSupervisorProcessGroupTest(unittest.TestCase):
         self.fail("session did not reach state %r; supervisor=%r; state=%s; log=%s" %
                   (wanted, self.supervisor.poll(), state_text, log_text))
 
+    def _terminate_recorded_fixture_group(self, role):
+        """Keep a failed shutdown assertion from leaking its exact fixture group."""
+        try:
+            state = json.loads((self.state / "session.json").read_text(encoding="utf-8"))
+            identity = state[role]
+            pid, pgid, sid = identity["pid"], identity["pgid"], identity["sid"]
+            expected_ticks = identity["start_ticks"]
+            raw = Path(f"/proc/{pid}/stat").read_text(encoding="ascii")
+            fields = raw[raw.rfind(")") + 2:].split()
+            actual_ticks = str(int(fields[19]))
+            if (type(pid) is int and pid == pgid == sid and actual_ticks == expected_ticks
+                    and os.getpgid(pid) == pgid and os.getsid(pid) == sid):
+                os.killpg(pgid, signal.SIGKILL)
+        except (OSError, ValueError, KeyError, IndexError, TypeError, ProcessLookupError):
+            pass
+
     def _stop_supervisor(self):
         if self.supervisor is not None and self.supervisor.poll() is None:
             self.supervisor.send_signal(signal.SIGTERM)
             try:
-                self.supervisor.wait(timeout=8)
+                self.supervisor.wait(timeout=20)
             except subprocess.TimeoutExpired:
-                self.fail("supervisor did not exit after SIGTERM")
+                try:
+                    state = json.loads((self.state / "session.json").read_text(encoding="utf-8"))
+                    diagnostic = {name: state.get(name) for name in ("status", "error", "x11", "desktop")}
+                except (OSError, ValueError):
+                    diagnostic = "session state unavailable"
+                for role in ("desktop", "x11"):
+                    self._terminate_recorded_fixture_group(role)
+                self.supervisor.kill()
+                self.supervisor.wait(timeout=2)
+                self.fail(f"supervisor did not exit after SIGTERM; recorded state: {diagnostic}")
 
     def _assert_pid_not_live(self, pid):
         deadline = time.monotonic() + 3
