@@ -1,0 +1,7 @@
+event_id: commit-e160a281313b-7bdeab311c6e190a
+repository: soobujmiah/ternuxx
+commit: e160a281313b1ef77d57b379ce0f67c34cad3c72
+kind: commit
+occurred_at: '2026-10-25T09:33:29Z'
+status: completed
+summary: 'fix(installer): handle empty package plans cleanly'
