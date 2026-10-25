@@ -200,8 +200,33 @@ nt_cmd_graphics() {
   esac
 }
 
+
+nt_cmd_desktop() {
+  local action="${1:-list}"
+  [ $# -eq 0 ] || shift
+  case "$action" in
+    list)
+      [ $# -eq 0 ] || { nt_fail "Usage: tx desktop list"; return 2; }
+      PYTHONPATH="$_TN_LIB_DIR" python3 - "$TERNUXX_JSON" <<'PY_DESKTOP_LIST'
+import json, sys
+import native_desktops
+items = native_desktops.list_desktops()
+if sys.argv[1] == "1":
+    print(json.dumps({"provider": "native-termux", "default": "xfce", "desktops": items}, sort_keys=True))
+else:
+    print("Native Termux desktop sessions (start with tx start --desktop ID):")
+    for item in items:
+        state = "installed" if item["installed"] else "not installed"
+        suffix = " · default" if item["default"] else ""
+        print(f"  {item['id']:<10} {item['name']:<14} {state} ({item['package']}){suffix}")
+PY_DESKTOP_LIST
+      ;;
+    *) nt_fail "Use 'tx desktop list' or 'tx start --desktop ID'."; return 2 ;;
+  esac
+}
+
 nt_cmd_start() {
-  local display_number="" arg state_root supervisor owned_exec log_file tmp_root operation_id mesa_prefix=""
+  local display_number="" desktop_id="xfce" desktop_command="" desktop_marker="" desktop_name="" desktop_json="" arg state_root supervisor owned_exec log_file tmp_root operation_id mesa_prefix=""
   local -a launch_env=()
   local stale_display="" stale_display_number="" stale_x11_pid="" stale_artifact_state=""
   while [ $# -gt 0 ]; do
@@ -212,12 +237,20 @@ nt_cmd_start() {
         display_number="${1#:}"; shift
         [[ "$display_number" =~ ^[0-9]{1,2}$ ]] || { nt_fail "Invalid display number"; return 2; }
         ;;
+      --desktop)
+        [ $# -gt 0 ] || { nt_fail "--desktop needs an installed Native desktop ID"; return 2; }
+        desktop_id="$1"; shift
+        ;;
       *) nt_fail "Unknown start option: $arg"; return 2 ;;
     esac
   done
 
   nt_require_termux || return 1
-  for tool in termux-x11 dbus-launch xfce4-session python3 nohup setsid; do
+  desktop_json="$(PYTHONPATH="$_TN_LIB_DIR" python3 -c 'import json,native_desktops,sys; print(json.dumps(native_desktops.resolve(sys.argv[1])))' "$desktop_id" 2>&1)" || { nt_fail "$desktop_json"; return 1; }
+  desktop_command="$(printf '%s' "$desktop_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["command"])')"
+  desktop_marker="$(printf '%s' "$desktop_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["marker"])')"
+  desktop_name="$(printf '%s' "$desktop_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["name"])')"
+  for tool in termux-x11 dbus-launch "$desktop_command" python3 nohup setsid; do
     nt_require_command "$tool" || return 1
   done
   supervisor="$_TN_LIB_DIR/desktop-supervisor.sh"
@@ -250,6 +283,9 @@ nt_cmd_start() {
       _nt_use audio && nt_audio_ensure || true
       nt_ok "Ternuxx desktop is already running and its recorded process and display identities are verified."
       nt_info "Display: $active_display"
+      local active_desktop
+      active_desktop="$(_nt_state_value desktop_id 2>/dev/null || printf xfce)"
+      if [ "$active_desktop" != "$desktop_id" ]; then nt_fail "Native $active_desktop is running; stop it before selecting $desktop_id."; return 1; fi
       if [ "$TERNUXX_JSON" = "1" ]; then
         nt_json_object "start" "running" "display" "$active_display" "activity_request" "disabled_by_default" "gui_visible" "unknown" "audio_owner" "ternuxx-native"
       fi
@@ -277,7 +313,27 @@ nt_cmd_start() {
     starting|stopping)
       nt_fail "A Ternuxx desktop lifecycle operation is $session_state; no duplicate session was started."; return 1 ;;
     failed)
-      nt_fail "The prior Ternuxx session is failed. Review $state_root/desktop.log and session.json; no process was signaled."; return 1 ;;
+      if python3 - "$session_report" <<'PY_FAILED_SESSION_SAFE'
+import json,sys
+try:
+    report=json.loads(sys.argv[1])
+    processes=report.get("processes", {})
+    safe=(report.get("state")=="failed" and report.get("display_state")=="absent"
+          and set(processes)=={"supervisor","x11","desktop"}
+          and all(value=="absent" for value in processes.values()))
+except (ValueError,AttributeError,TypeError):
+    safe=False
+raise SystemExit(0 if safe else 1)
+PY_FAILED_SESSION_SAFE
+      then
+        local failed_archive="$state_root/session.failed.$(date +%s).json"
+        [ ! -e "$failed_archive" ] || { nt_fail "A failed-session archive already exists; preserving the record."; return 1; }
+        mv -- "$state_root/session.json" "$failed_archive" || { nt_fail "Could not preserve the failed-session record; no process was started."; return 1; }
+        chmod 600 "$failed_archive"
+        nt_warn "Archived the failed session after verifying every recorded process and its display artifacts are absent."
+      else
+        nt_fail "The prior Ternuxx session is failed or ambiguous. Review $state_root/desktop.log and session.json; no process was signaled."; return 1
+      fi ;;
     *)
       nt_fail "Session state is $session_state and cannot be safely reconciled. Processes and files were preserved."; return 1 ;;
   esac
@@ -331,10 +387,10 @@ nt_cmd_start() {
   touch "$log_file" || { _nt_journal_update "$operation_id" failed "desktop log could not be created" || true; nt_fail "Cannot create the Ternuxx desktop log"; return 1; }
   chmod 600 "$log_file" 2>/dev/null || true
   rm -f "$state_root/session.ready" 2>/dev/null || true
-  nt_step "Starting Ternuxx-owned X11 and XFCE on :$display_number..."
+  nt_step "Starting Ternuxx-owned X11 and $desktop_name on :$display_number..."
   nohup setsid env "${launch_env[@]}" "$supervisor" ":$display_number" "$state_root" "$tmp_root" \
     "$(command -v termux-x11)" "$(command -v dbus-launch)" \
-    "$(command -v xfce4-session)" "$owned_exec" >> "$log_file" 2>&1 </dev/null &
+    "$desktop_command" "$owned_exec" "$desktop_marker" native "$desktop_id" >> "$log_file" 2>&1 </dev/null &
 
   local ready=0 result
   for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do
@@ -485,24 +541,38 @@ PY
 
 nt_cmd_restart() {
   nt_require_termux || return 1
+  local desktop_id="xfce" arg
+  local -a restart_args=("$@")
+  while [ "$#" -gt 0 ]; do
+    arg="$1"; shift
+    case "$arg" in
+      --desktop) [ "$#" -gt 0 ] || { nt_fail "--desktop needs an installed Native desktop ID"; return 2; }; desktop_id="$1"; shift ;;
+      --display) [ "$#" -gt 0 ] && [[ "${1#:}" =~ ^[0-9]{1,2}$ ]] || { nt_fail "--display needs a numeric X11 display"; return 2; }; shift ;;
+      *) nt_fail "Unknown restart option: $arg"; return 2 ;;
+    esac
+  done
+  PYTHONPATH="$_TN_LIB_DIR" python3 -c 'import native_desktops,sys; native_desktops.resolve(sys.argv[1])' "$desktop_id" 2>/dev/null || {
+    nt_fail "Native desktop '$desktop_id' is unknown or not installed; current desktop was left running."; return 1;
+  }
   nt_cmd_stop || return $?
-  nt_cmd_start "$@"
+  nt_cmd_start "${restart_args[@]}"
 }
 
 nt_cmd_status() {
   _nt_adopt_live_session_state
-  local file report lifecycle reason display supervisor_live x11_live desktop_live
+  local file report lifecycle reason display desktop_id supervisor_live x11_live desktop_live
   file="$(_nt_session_file)"
   report="$(python3 "$_TN_LIB_DIR/desktop_session_state.py" inspect "$HOME" "$TERNUXX_STATE_DIR" /proc "${TMPDIR:-/data/data/com.termux/files/usr/tmp}" 2>/dev/null || true)"
   lifecycle="$(printf '%s' "$report" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("state", "unknown"))' 2>/dev/null || printf unknown)"
   reason="$(printf '%s' "$report" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("reason", "classification unavailable"))' 2>/dev/null || printf 'classification unavailable')"
   display="$(_nt_state_value display 2>/dev/null || printf none)"
+  desktop_id="$(_nt_state_value desktop_id 2>/dev/null || printf xfce)"
   supervisor_live="$(printf '%s' "$report" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("processes", {}).get("supervisor", "absent"))' 2>/dev/null || printf unknown)"
   x11_live="$(printf '%s' "$report" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("processes", {}).get("x11", "absent"))' 2>/dev/null || printf unknown)"
   desktop_live="$(printf '%s' "$report" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("processes", {}).get("desktop", "absent"))' 2>/dev/null || printf unknown)"
 
   if [ "$TERNUXX_JSON" = "1" ]; then
-    nt_json_object "status" "$lifecycle" "display" "$display" \
+    nt_json_object "status" "$lifecycle" "display" "$display" "desktop_id" "$desktop_id" \
       "supervisor" "$supervisor_live" "x11" "$x11_live" \
       "xfce4_session" "$desktop_live" "reconciliation_state" "$lifecycle" \
       "reconciliation_reason" "$reason" "gui_visible" "unknown" \

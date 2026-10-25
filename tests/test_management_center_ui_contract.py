@@ -28,6 +28,12 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
             with self.subTest(unsafe=unsafe):
                 self.assertNotIn(unsafe, SOURCE)
 
+    def test_native_desktop_selector_is_exposed_in_gtk(self):
+        for contract in ("desktop_choice", "XFCE (default)", "KDE Plasma", "start-desktop", "desktop_id"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, SOURCE)
+        self.assertIn("start-desktop", BRIDGE)
+
     def test_review_instance_remains_available(self):
         self.assertIn('g_strcmp0(argv[1], "--review") == 0', SOURCE)
         self.assertIn('"dev.ternuxx.management-center.review"', SOURCE)

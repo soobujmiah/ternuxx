@@ -10,6 +10,8 @@ import stat
 import sys
 import tempfile
 
+import native_desktops
+
 MARKERS = {"supervisor": "desktop-supervisor.sh", "x11": "termux-x11", "desktop": "xfce4-session"}
 DESKTOP_MARKERS = {"native": "xfce4-session", "proot": "proot-display0"}
 
@@ -36,8 +38,20 @@ def _proc_state(role: str, record: object, proc: Path, expected_marker: str | No
     pid, ticks, marker = record.get("pid"), record.get("start_ticks"), record.get("command_marker")
     if pid is None and role in ("x11", "desktop"):
         return "absent"
-    if type(pid) is not int or pid < 1 or not isinstance(ticks, str) or not ticks.isdigit() or marker != (expected_marker or MARKERS[role]):
+    expected = expected_marker or MARKERS[role]
+    if type(pid) is not int or pid < 1 or marker != expected:
         raise StateError(f"recorded {role} identity is invalid")
+    if not isinstance(ticks, str) or not ticks.isdigit():
+        # Failed startup may persist the expected marker/PID before proc identity
+        # sampling completes. Treat it as absent only when that PID is gone;
+        # a present or unreadable PID remains ambiguous and cannot be signaled.
+        try:
+            (proc / str(pid) / "stat").read_text(encoding="ascii")
+        except FileNotFoundError:
+            return "absent"
+        except OSError:
+            return "unknown"
+        return "unknown"
     if role != "supervisor" and (record.get("pgid") != pid or record.get("sid") != pid):
         raise StateError(f"recorded {role} group/session identity is unsafe")
     root = proc / str(pid)
@@ -183,7 +197,13 @@ def inspect(home: Path, state_dir: Path, proc: Path, tmp_root: Path) -> dict:
             raise StateError("session record is not a recognized schema-v2 Ternuxx desktop session")
         if not proc.is_dir():
             return {"state": "unknown", "reason": "process inventory unavailable"}
-        expected_desktop = DESKTOP_MARKERS.get(data.get("provider"))
+        provider = data.get("provider")
+        desktop_id = data.get("desktop_id", "xfce")
+        if provider == "native":
+            native_item = native_desktops.NATIVE_DESKTOPS.get(desktop_id)
+            expected_desktop = native_item["command"] if native_item else None
+        else:
+            expected_desktop = DESKTOP_MARKERS.get(provider)
         recorded_desktop = data.get("desktop", {}).get("command_marker")
         if not expected_desktop or recorded_desktop != expected_desktop:
             raise StateError("recorded desktop marker is invalid")

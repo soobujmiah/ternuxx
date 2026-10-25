@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 559,
-  "read_count": 164,
+  "document_count": 560,
+  "read_count": 166,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -147,7 +147,7 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "93283b75e96369a6dfd9d7043f8eda873920ac051549875acdf6baf39fd01983",
+      "sha256": "8ebbadf9ce4aecf50cc156df66ff551568d1370cfb179e7d185fb73bce71d025",
       "lines": 120,
       "read_status": "pending",
       "read_sha256": null
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "9c36db688f6424c62901e6c08a399c66efd7275648a0ace358a4c7d1abf5a45d",
+      "sha256": "07aa7c44930f86b30cef1967e8f929a5334573fac4e8cee8a8eaacc4b0ecebff",
       "lines": 84,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "07aa7c44930f86b30cef1967e8f929a5334573fac4e8cee8a8eaacc4b0ecebff"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3423,6 +3423,14 @@
       "lines": 40,
       "read_status": "pending",
       "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-25-debian-desktop-catalog-extension.md",
+      "kind": "narrative",
+      "sha256": "c00a825c09941e818b951bb634ce4ce4b773deb5ab76b5d453d9872f6c2d3613",
+      "lines": 15,
+      "read_status": "read",
+      "read_sha256": "c00a825c09941e818b951bb634ce4ce4b773deb5ab76b5d453d9872f6c2d3613"
     },
     {
       "path": "docs/evidence/2026-10-25-gtk-management-center-owner-check.md",

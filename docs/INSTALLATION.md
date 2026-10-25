@@ -48,7 +48,7 @@ tx install preview --profile minimal-native --verbose
 tx install apply --profile minimal-native --yes --plan-id PLAN_ID
 ```
 
-Available presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, `native-debian`, and `custom`. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, and `developer` with `--components`. The PRoot-provider preset installs only the provider package. `native-debian` reviews the full Native package plan and fresh pinned Debian guest plan together, then applies Native packages before creating the guest. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
+Available presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, `native-debian`, and `custom`. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, `developer`, `lxqt`, `mate`, `cinnamon`, and `plasma` with `--components`. The four alternate Native desktop groups resolve to the distro package for that session; XFCE remains the default and GNOME is not packaged in the Native Termux repository. The PRoot-provider preset installs only the provider package. `native-debian` reviews the full Native package plan and fresh pinned Debian guest plan together, then applies Native packages before creating the guest. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
 
 Run read-only checks after installation:
 

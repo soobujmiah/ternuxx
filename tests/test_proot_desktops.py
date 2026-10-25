@@ -17,6 +17,21 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxde", "lxqt"]),
                          ["lxqt", "lxde-core"])
         self.assertEqual(proot_desktops.session_command("debian-trixie", "mate"), "mate-session")
+        self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["cinnamon", "plasma", "gnome"]),
+                         ("gnome", "plasma", "cinnamon"))
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["gnome", "plasma", "cinnamon"]),
+                         ["gnome-core", "kde-plasma-desktop", "cinnamon-desktop-environment"])
+        self.assertEqual(proot_desktops.session_argv("debian-trixie", "gnome"),
+                         ("gnome-session", "--session=gnome-xorg"))
+        self.assertEqual(proot_desktops.session_argv("debian-trixie", "plasma"), ("startplasma-x11",))
+        self.assertEqual(proot_desktops.session_argv("debian-trixie", "cinnamon"), ("cinnamon-session",))
+        scripts = ((ROOT / "scripts/proot-gui0.sh").read_text(),
+                   (ROOT / "lib/proot-xfce-wrapper.sh").read_text())
+        for desktop, argv in (("gnome", "gnome-session --session=gnome-xorg"),
+                              ("plasma", "startplasma-x11"),
+                              ("cinnamon", "cinnamon-session")):
+            for script in scripts:
+                self.assertIn(f"{desktop}) desktop_argv=({argv})", script)
 
     def test_invalid_or_unsupported_selections_fail_closed(self):
         for selection in ([], ["xfce", "xfce"], ["xfce;id"], ["unknown"]):
@@ -33,6 +48,9 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         base = manifest["packages"]["base"]
         self.assertTrue({"xfce4", "xfce4-terminal"}.issubset(base))
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxqt"]), ["lxqt"])
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["gnome"]), ["gnome-core"])
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["plasma"]), ["kde-plasma-desktop"])
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["cinnamon"]), ["cinnamon-desktop-environment"])
         setup = __import__("proot_fresh_setup")
         groups = ["base"]
         self.assertEqual(set(setup._workstation_packages(manifest, groups, ("lxqt",))), {"lxqt"}.union(
@@ -47,8 +65,12 @@ class ProotDesktopCatalogTests(unittest.TestCase):
             status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
                               "Package: xfce4-terminal\nStatus: install ok installed\n\n"
                               "Package: lxqt\nStatus: install ok installed\n\n"
+                              "Package: gnome-core\nStatus: install ok installed\n\n"
+                              "Package: kde-plasma-desktop\nStatus: install ok installed\n\n"
+                              "Package: cinnamon-desktop-environment\nStatus: install ok installed\n\n"
                               "Package: lxde-core\nStatus: deinstall ok config-files\n")
-            self.assertEqual(proot_desktops.installed_desktops(root), ["xfce", "lxqt"])
+            self.assertEqual(proot_desktops.installed_desktops(root),
+                             ["xfce", "lxqt", "gnome", "plasma", "cinnamon"])
 
 
 if __name__ == "__main__":

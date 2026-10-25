@@ -21,6 +21,7 @@ import boot_helpers
 import termux_boot_cron
 import continuity
 import desktop_session_state
+import native_desktops
 import config_recovery
 import operation_journal
 import reboot_recovery
@@ -103,9 +104,9 @@ OPERATIONS = {
     "desktop.status": {"args": set()},
     "desktop.monitor.status": {"args": set()},
     "desktop.monitor.configure": {"args": {"enabled", "interval_value", "unit", "activity_launch", "focus_check"}},
-    "desktop.start": {"args": {"display"}},
+    "desktop.start": {"args": {"display", "desktop_id"}},
     "desktop.stop": {"args": set()},
-    "desktop.restart": {"args": {"display"}},
+    "desktop.restart": {"args": {"display", "desktop_id"}},
     "proot.status": {"args": set()},
     "proot.profiles.list": {"args": set()},
     "proot.profiles.show": {"args": {"profile"}},
@@ -806,6 +807,11 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                        "--json", action]
             if action in {"start", "restart"} and display is not None:
                 command.extend(("--display", display.lstrip(":")))
+            desktop_id = args.get("desktop_id")
+            if action in {"start", "restart"} and desktop_id is not None:
+                if not isinstance(desktop_id, str) or desktop_id not in native_desktops.NATIVE_DESKTOPS:
+                    return _error(request_id, "invalid_arguments", "desktop_id must be a supported Native desktop ID")
+                command.extend(("--desktop", desktop_id))
             completed = subprocess.run(command, env=dict(process_env), capture_output=True,
                                        text=True, timeout=180, check=False)
             if completed.returncode != 0:
@@ -814,6 +820,8 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 data = json.loads(completed.stdout)
             except json.JSONDecodeError:
                 return _error(request_id, "desktop_operation_failed", "desktop command returned no structured result")
+            if action == "status":
+                data["desktop_options"] = native_desktops.list_desktops()
         elif operation == "desktop.monitor.status":
             data = gui_monitoring.status(state_dir or os.path.join(home, ".local/share/ternuxx"),
                                         home=home, tmp_root=process_env.get("TMPDIR"))

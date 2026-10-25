@@ -357,7 +357,7 @@ nt_cmd_proot() {
       local action="${1:-status}" user="" plan_id="" backup_id="" guest_alias="" package_groups="" desktop_choices="" sudo_mode="password" migration_id="" confirmed=0 option
       [ $# -eq 0 ] || shift
       case "$action" in
-        status|adopt-preview|adopt|adoption-rollback-preview|adoption-rollback|fresh-preview|fresh-resume-preview|fresh-install|retire-preview|retire|restore-preview|restore|icd-migrate-preview|icd-migrate|icd-rollback-preview|icd-rollback) ;;
+        status|adopt-preview|adopt|adoption-rollback-preview|adoption-rollback|fresh-preview|fresh-resume-preview|fresh-install|desktop-preview|desktop-install|desktop-resume-preview|desktop-resume|retire-preview|retire|restore-preview|restore|icd-migrate-preview|icd-migrate|icd-rollback-preview|icd-rollback) ;;
         *) nt_fail "Use tx proot setup status|adopt-preview|adopt|fresh-preview|fresh-install|icd-migrate-preview|icd-migrate|icd-rollback-preview|icd-rollback|retire-preview|retire|restore-preview|restore."; return 2 ;;
       esac
       while [ "$#" -gt 0 ]; do
@@ -449,19 +449,31 @@ nt_cmd_proot() {
         adopt) [ -n "$user" ] && [ -n "$plan_id" ] && [ "$confirmed" -eq 1 ] || {
           nt_fail "Adoption requires --user NAME --yes --plan-id ID from the matching preview."; return 2;
         }; setup_args+=(--user "$user" --yes --plan-id "$plan_id") ;;
+        desktop-install) [ -n "$plan_id" ] && [ "$confirmed" -eq 1 ] && [ -z "$user$package_groups$desktop_choices$guest_alias$backup_id$migration_id" ] || {
+          nt_fail "Desktop install requires --yes --plan-id ID from its exact preview."; return 2;
+        }; setup_args+=(--yes --plan-id "$plan_id") ;;
+        desktop-resume-preview) [ -n "$plan_id" ] && [ "$confirmed" -eq 0 ] && [ -z "$user$package_groups$desktop_choices$guest_alias$backup_id$migration_id" ] || {
+          nt_fail "Desktop resume preview requires --plan-id FAILED_PLAN_ID."; return 2;
+        }; setup_args+=(--plan-id "$plan_id") ;;
+        desktop-resume) [ -n "$plan_id" ] && [ "$confirmed" -eq 1 ] && [ -z "$user$package_groups$desktop_choices$guest_alias$backup_id$migration_id" ] || {
+          nt_fail "Desktop resume requires --yes --plan-id RECOVERY_PLAN_ID."; return 2;
+        }; setup_args+=(--yes --plan-id "$plan_id") ;;
+        desktop-preview) [ -n "$desktop_choices" ] && [ -z "$user$plan_id$package_groups$guest_alias$backup_id$migration_id" ] && [ "$confirmed" -eq 0 ] || {
+          nt_fail "Usage: tx proot setup desktop-preview --desktops ID[,ID...]"; return 2;
+        }; setup_args+=(--desktops "$desktop_choices") ;;
         fresh-install) [ -n "$plan_id" ] && [ "$confirmed" -eq 1 ] || {
           nt_fail "Fresh install requires --yes --plan-id ID from the matching preview."; return 2;
         }; [ -z "$user" ] || setup_args+=(--user "$user"); setup_args+=(--sudo-mode "$sudo_mode" --yes --plan-id "$plan_id") ;;
         fresh-preview) [ -n "$user" ] && [ -z "$plan_id" ] && [ "$confirmed" -eq 0 ] || {
-          nt_fail "Usage: tx proot setup fresh-preview --user NAME [--groups base,fonts] [--desktops xfce,lxqt,lxde,mate] [--sudo-mode password|passwordless]"; return 2;
+          nt_fail "Usage: tx proot setup fresh-preview --user NAME [--groups base,fonts] [--desktops xfce,lxqt,lxde,mate,gnome,plasma,cinnamon] [--sudo-mode password|passwordless]"; return 2;
         }; setup_args+=(--user "$user" --sudo-mode "$sudo_mode") ;;
         fresh-resume-preview) [ -n "$user" ] && [ -n "$plan_id" ] && [ "$confirmed" -eq 0 ] || {
-          nt_fail "Usage: tx proot setup fresh-resume-preview --user NAME --plan-id FAILED_PLAN_ID [--groups base,fonts] [--desktops xfce,lxqt,lxde,mate] [--sudo-mode password|passwordless]"; return 2;
+          nt_fail "Usage: tx proot setup fresh-resume-preview --user NAME --plan-id FAILED_PLAN_ID [--groups base,fonts] [--desktops xfce,lxqt,lxde,mate,gnome,plasma,cinnamon] [--sudo-mode password|passwordless]"; return 2;
         }; setup_args+=(--user "$user" --plan-id "$plan_id" --sudo-mode "$sudo_mode") ;;
       esac
       if [ -n "$desktop_choices" ]; then
         case "$action" in
-          fresh-preview|fresh-resume-preview) setup_args+=(--desktops "$desktop_choices") ;;
+          fresh-preview|fresh-resume-preview|desktop-preview) setup_args+=(--desktops "$desktop_choices") ;;
           *) nt_fail "--desktops is supported only by fresh preview actions."; return 2 ;;
         esac
       fi

@@ -148,7 +148,7 @@ _nt_dispatch() {
         esac
       done
       ;;
-    start|stop|restart|status) lib_map="desktop" ;;
+    start|stop|restart|status|desktop) lib_map="desktop" ;;
     audio)                     lib_map="audio" ;;
     ai)                        lib_map="ai" ;;
     app)                       lib_map="management" ;;

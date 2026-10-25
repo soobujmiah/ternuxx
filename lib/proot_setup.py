@@ -934,11 +934,17 @@ def status(*, repo_root: str, prefix: str, home: str, state_dir: str) -> dict[st
                     "desktop_environments": fresh.get("desktop_environments", ["xfce"]),
                     "detail": "current setup manifest differs from the successful fresh-install receipt; guest drift is not inferred",
                     "next_action": "review the recorded and current manifest hashes before changing guest state"}
+        try:
+            import proot_desktops
+            installed_desktops = proot_desktops.installed_desktops(rootfs)
+        except (OSError, ValueError):
+            installed_desktops = []
         return {"status": "fresh_installed", "rootfs": str(rootfs),
                 "rootfs_device": identity.st_dev, "rootfs_inode": identity.st_ino,
                 "manifest_sha256": manifest_hash, "profile_id": "ternuxx-debian-trixie-workstation",
                 "recorded_guest_user": fresh.get("guest_user"),
-                "desktop_environments": fresh.get("desktop_environments", ["xfce"]),
+                "desktop_environments": installed_desktops,
+                "fresh_setup_desktop_environments": fresh.get("desktop_environments", ["xfce"]),
                 "sudo_mode": fresh.get("sudo_mode", "password"),
                 "package_baseline": {"status": "verified_at_install", "changed_groups": []},
                 "package_versions_sha256": versions_hash, "ternux_cli_dependency": False,
@@ -985,7 +991,7 @@ def status(*, repo_root: str, prefix: str, home: str, state_dir: str) -> dict[st
 
 def main() -> int:
     parser = argparse.ArgumentParser(prog="tx proot setup")
-    parser.add_argument("action", choices=("status", "adopt-preview", "adopt", "adoption-rollback-preview", "adoption-rollback", "fresh-preview", "fresh-resume-preview", "fresh-install"))
+    parser.add_argument("action", choices=("status", "adopt-preview", "adopt", "adoption-rollback-preview", "adoption-rollback", "fresh-preview", "fresh-resume-preview", "fresh-install", "desktop-preview", "desktop-install", "desktop-resume-preview", "desktop-resume"))
     parser.add_argument("--repo-root", required=True)
     parser.add_argument("--prefix", default=os.environ.get("PREFIX", ""))
     parser.add_argument("--home", default=os.environ.get("HOME", ""))
@@ -995,7 +1001,7 @@ def main() -> int:
     parser.add_argument("--plan-id", default="")
     parser.add_argument("--backup-id", default="")
     parser.add_argument("--groups", help="comma-separated fresh Debian package groups; base is required")
-    parser.add_argument("--desktops", help="comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate")
+    parser.add_argument("--desktops", help="comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate,gnome,plasma,cinnamon")
     parser.add_argument("--sudo-mode", choices=("password", "passwordless"), default="password",
                         help="guest account sudo authentication; passwordless is scoped to the PRoot guest")
     parser.add_argument("--yes", action="store_true")
@@ -1008,11 +1014,37 @@ def main() -> int:
             parser.error("--alias is supported only by fresh setup")
         if args.groups is not None and args.action not in {"fresh-preview", "fresh-resume-preview"}:
             parser.error("--groups is supported only by fresh preview actions")
-        if args.desktops is not None and args.action not in {"fresh-preview", "fresh-resume-preview"}:
-            parser.error("--desktops is supported only by fresh preview actions")
+        if args.desktops is not None and args.action not in {"fresh-preview", "fresh-resume-preview", "desktop-preview"}:
+            parser.error("--desktops is supported only by preview actions")
         groups = None if args.groups is None else args.groups.split(",")
         desktops = None if args.desktops is None else args.desktops.split(",")
-        if args.action == "status":
+        if args.action == "desktop-preview":
+            if not args.desktops or args.plan_id or args.yes or args.backup_id or args.user or args.groups or args.alias:
+                parser.error("desktop-preview requires --desktops and no apply options")
+            import proot_desktop_setup
+            result = proot_desktop_setup.preview(prefix=args.prefix, home=args.home,
+                                                 state_dir=args.state_dir, selected=desktops)
+        elif args.action == "desktop-resume-preview":
+            if not args.plan_id or args.yes or args.backup_id or args.user or args.groups or args.desktops or args.alias:
+                parser.error("desktop-resume-preview requires --plan-id FAILED_DESKTOP_PLAN_ID")
+            import proot_desktop_setup
+            result = proot_desktop_setup.resume_preview(prefix=args.prefix, home=args.home,
+                                                       state_dir=args.state_dir, failed_plan_id=args.plan_id)
+        elif args.action == "desktop-resume":
+            if not args.plan_id or not args.yes or args.backup_id or args.user or args.groups or args.desktops or args.alias:
+                parser.error("desktop-resume requires --yes --plan-id RECOVERY_PLAN_ID")
+            import proot_desktop_setup
+            result = proot_desktop_setup.resume_apply(prefix=args.prefix, home=args.home,
+                                                      state_dir=args.state_dir, plan_id=args.plan_id,
+                                                      confirmed=True)
+        elif args.action == "desktop-install":
+            if not args.plan_id or not args.yes or args.backup_id or args.user or args.groups or args.desktops or args.alias:
+                parser.error("desktop-install requires --yes --plan-id ID")
+            import proot_desktop_setup
+            result = proot_desktop_setup.apply(prefix=args.prefix, home=args.home,
+                                               state_dir=args.state_dir, plan_id=args.plan_id,
+                                               confirmed=True)
+        elif args.action == "status":
             if args.backup_id or args.plan_id or args.user or args.yes:
                 parser.error("status does not accept setup options")
             result = status(repo_root=args.repo_root, prefix=args.prefix, home=args.home, state_dir=args.state_dir)

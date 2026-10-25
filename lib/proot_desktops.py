@@ -12,6 +12,9 @@ DEBIAN_DESKTOPS = {
     "lxqt": {"name": "LXQt", "packages": ("lxqt",), "session": "startlxqt"},
     "lxde": {"name": "LXDE", "packages": ("lxde-core",), "session": "startlxde"},
     "mate": {"name": "MATE", "packages": ("mate-desktop-environment-core",), "session": "mate-session"},
+    "gnome": {"name": "GNOME", "packages": ("gnome-core",), "session": "gnome-session"},
+    "plasma": {"name": "KDE Plasma", "packages": ("kde-plasma-desktop",), "session": "startplasma-x11"},
+    "cinnamon": {"name": "Cinnamon", "packages": ("cinnamon-desktop-environment",), "session": "cinnamon-session"},
 }
 DEFAULT_DESKTOPS = ("xfce",)
 
@@ -42,10 +45,17 @@ def packages_for(provider: str, selected: list[str] | tuple[str, ...] | None = N
     return list(dict.fromkeys(package for item in choices for package in DEBIAN_DESKTOPS[item]["packages"]))
 
 
-def session_command(provider: str, selected: str) -> str:
+def session_argv(provider: str, selected: str) -> tuple[str, ...]:
     if provider != "debian-trixie" or selected not in DEBIAN_DESKTOPS:
         raise DesktopError("unsupported PRoot desktop selection")
-    return str(DEBIAN_DESKTOPS[selected]["session"])
+    if selected == "gnome":
+        return ("gnome-session", "--session=gnome-xorg")
+    return (str(DEBIAN_DESKTOPS[selected]["session"]),)
+
+
+def session_command(provider: str, selected: str) -> str:
+    """Return the validated entry executable (legacy display label helper)."""
+    return session_argv(provider, selected)[0]
 
 
 def desktop_id(value: str) -> str:

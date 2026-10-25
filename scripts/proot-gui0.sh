@@ -46,7 +46,7 @@ elif not installed:
     print("no supported Debian desktop is installed", file=sys.stderr)
     raise SystemExit(2)
 else:
-    print("choose an installed desktop with --desktop: " + ", ".join(installed), file=sys.stderr)
+    print("choose an installed Debian desktop with --desktop: " + ", ".join(installed), file=sys.stderr)
     raise SystemExit(2)
 print(choice, proot_desktops.session_command("debian-trixie", choice))
 PYSEL
@@ -56,7 +56,7 @@ PYSEL
 fi
 
 usage() { cat <<'USAGE'
-Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate]|status|stop]
+Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|gnome|plasma|cinnamon]|status|stop]
 Auto uses standalone :0 when Native GUI is stopped, otherwise nested Xephyr :2 inside Native :1.
 Standalone and Native desktop sessions cannot run together. Nested mode holds the lifecycle lock until closed.
 Choose an installed environment with `tx pgui start --desktop ID`; when several are installed, selection is required.
@@ -183,7 +183,16 @@ if [ "$TERNUXX_DESKTOP_ID" = xfce ]; then
   mkdir -p "$XDG_CONFIG_HOME/xfce4/xfconf/xfce-perchannel-xml"
   printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<channel name="xfwm4" version="1.0"><property name="general" type="empty"><property name="use_compositing" type="bool" value="false"/></property></channel>' > "$XDG_CONFIG_HOME/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
 fi
-case "$TERNUXX_DESKTOP_ID" in xfce) session=startxfce4 ;; lxqt) session=startlxqt ;; lxde) session=startlxde ;; mate) session=mate-session ;; *) echo "Unsupported desktop selection" >&2; exit 2 ;; esac
+case "$TERNUXX_DESKTOP_ID" in
+  xfce) desktop_argv=(startxfce4) ;;
+  lxqt) desktop_argv=(startlxqt) ;;
+  lxde) desktop_argv=(startlxde) ;;
+  mate) desktop_argv=(mate-session) ;;
+  gnome) desktop_argv=(gnome-session --session=gnome-xorg) ;;
+  plasma) desktop_argv=(startplasma-x11) ;;
+  cinnamon) desktop_argv=(cinnamon-session) ;;
+  *) echo "Unsupported desktop selection" >&2; exit 2 ;;
+esac
 native_geometry="$(PYTHONPATH="$TERNUXX_REPO_ROOT/lib" python3 -c 'import os,proot_gui_geometry; print(proot_gui_geometry.query_display_geometry(os.environ["DISPLAY"]))')" || { echo "Could not read Native display geometry; nested GUI was not started." >&2; exit 1; }
 printf 'Starting Xephyr :2 at Native display size %s with a resizable host window; fullscreen/orientation resizing depends on Termux:X11 and window-manager bounds.\n' "$native_geometry"
 /usr/bin/Xephyr :2 -glamor_gles2 -screen "$native_geometry" -resizeable -no-host-grab -nolisten tcp >"$state/xephyr.log" 2>&1 &
@@ -208,7 +217,7 @@ done
 [ "$ready" -eq 1 ] || { echo "Xephyr :2 did not become ready; see $state/xephyr.log" >&2; exit 1; }
 renderer="$(DISPLAY=:2 es2_info 2>&1 | sed -n 's/^GL_RENDERER: //p' | head -n 1 || true)"
 printf 'Nested Debian %s display :2 is ready; GLES context renderer (draw/presentation not verified): %s\n' "$TERNUXX_DESKTOP_ID" "${renderer:-unreported}"
-DISPLAY=:2 dbus-launch --exit-with-session "$TERNUXX_DESKTOP_SESSION" &
+DISPLAY=:2 dbus-launch --exit-with-session "${desktop_argv[@]}" &
 xfce_pid=$!
 wait "$xfce_pid"
 GUEST

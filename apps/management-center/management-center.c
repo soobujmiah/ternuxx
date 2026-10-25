@@ -4,7 +4,7 @@
 
 typedef struct { gchar *id, *category, *name, *status, *availability, *description, *operations; } Resource;
 typedef struct { GtkWidget *window, *category_list, *resource_list, *details, *notice, *search, *action_scroll;
-                 GtkWidget *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *boot_cron_button, *boot_helpers_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *reboot_test_prepare_button, *reboot_test_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
+                 GtkWidget *desktop_choice, *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *boot_cron_button, *boot_helpers_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *reboot_test_prepare_button, *reboot_test_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
                  *monitor_interval, *monitor_unit, *monitor_focus, *monitor_launch,
                  *proot_box, *proot_help, *proot_setup_help, *proot_app_entry, *proot_shortcut_entry, *proot_sync_rollback_entry, *proot_session_entry,
                  *proot_replay_alias_entry, *proot_replay_backup_entry, *proot_replay_retire_button,
@@ -876,7 +876,7 @@ static void show_resource(Center *c, Resource *r) {
     gtk_widget_set_visible(c->graphics_api_button, graphics);
     gtk_button_set_label(GTK_BUTTON(c->start_button), managed_ssh ? "Start managed SSH (8023)" : "Start desktop");
     gtk_button_set_label(GTK_BUTTON(c->stop_button), managed_ssh ? "Stop managed SSH (8023)" : "Stop desktop");
-    gtk_widget_set_visible(c->start_button, desktop || managed_ssh || graphics || proot_workloads); gtk_widget_set_visible(c->stop_button, desktop || managed_ssh || graphics || proot_workloads);
+    gtk_widget_set_visible(c->start_button, desktop || managed_ssh || graphics || proot_workloads); gtk_widget_set_visible(c->desktop_choice, desktop); gtk_widget_set_visible(c->stop_button, desktop || managed_ssh || graphics || proot_workloads);
     gtk_button_set_label(GTK_BUTTON(c->ssh_restart_button), "Restart managed SSH (8023)");
     gtk_widget_set_visible(c->ssh_restart_button, managed_ssh);
     gtk_widget_set_visible(c->ssh_keys_button, managed_ssh);
@@ -1045,6 +1045,8 @@ static void confirmed_action(GObject *source, GAsyncResult *result, gpointer use
             run_bridge(request->center, "reboot-test-prepare-apply", request->resource_id, request->plan_id, "confirmed", NULL, NULL);
         else if (g_strcmp0(request->action, "reboot-test-verify-apply") == 0)
             run_bridge(request->center, "reboot-test-verify-apply", request->resource_id, request->plan_id, "confirmed", NULL, NULL);
+        else if (g_strcmp0(request->action, "start-desktop") == 0)
+            run_bridge(request->center, request->action, "confirmed", request->resource_id, NULL, NULL, NULL);
         else if (g_strcmp0(request->action, "software-apply") == 0) {
             gchar *confirmation = g_ascii_strup(request->detail_id, -1);
             run_bridge(request->center, "software-apply", request->resource_id, request->detail_id,
@@ -1495,6 +1497,11 @@ static void confirm_action(GtkButton *button, gpointer data) {
     const char *choices[]={"Cancel","Confirm",NULL}; gtk_alert_dialog_set_buttons(dialog,choices);
     gtk_alert_dialog_set_default_button(dialog,0); Request *request=g_new0(Request,1);
     request->center=c; request->action=g_strdup(start?"start-desktop":"stop-desktop");
+    if (start) {
+        static const char *desktop_ids[] = {"xfce", "lxqt", "mate", "cinnamon", "plasma"};
+        guint selected = gtk_drop_down_get_selected(GTK_DROP_DOWN(c->desktop_choice));
+        request->resource_id = g_strdup(selected < G_N_ELEMENTS(desktop_ids) ? desktop_ids[selected] : "xfce");
+    }
     gtk_alert_dialog_choose(dialog,GTK_WINDOW(c->window),NULL,confirmed_action,request); g_object_unref(dialog);
 }
 static void graphics_select_done(GObject *source, GAsyncResult *result, gpointer user_data) {
@@ -2029,6 +2036,8 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     c->desktop_log_button=gtk_button_new_with_label("Read Native desktop log (may include app output)"); gtk_widget_set_visible(c->desktop_log_button,FALSE);
     c->logs_button=gtk_button_new_with_label("Read Cron scheduler log"); gtk_widget_set_visible(c->logs_button,FALSE);
     c->audit_logs_button=gtk_button_new_with_label("Read management audit log"); gtk_widget_set_visible(c->audit_logs_button,FALSE);
+    const char *native_desktops[] = {"XFCE (default)", "LXQt", "MATE", "Cinnamon", "KDE Plasma", NULL};
+    c->desktop_choice=gtk_drop_down_new_from_strings(native_desktops); gtk_widget_set_visible(c->desktop_choice,FALSE);
     c->start_button=gtk_button_new_with_label("Start desktop"); c->stop_button=gtk_button_new_with_label("Stop desktop");
     c->ssh_restart_button=gtk_button_new_with_label("Restart managed SSH (8023)"); gtk_widget_set_visible(c->ssh_restart_button,FALSE);
     c->ssh_keys_button=gtk_button_new_with_label("View shared SSH key fingerprints"); gtk_widget_set_visible(c->ssh_keys_button,FALSE);
@@ -2088,7 +2097,7 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     c->proot_box=gtk_expander_new("Debian guest tools"); gtk_widget_set_visible(c->proot_box,FALSE);
     GtkWidget *proot_actions=gtk_box_new(GTK_ORIENTATION_VERTICAL,4);
     c->proot_help=gtk_label_new("Use an installed guest app ID. Shortcut edits and session stops show an exact preview first."); gtk_label_set_wrap(GTK_LABEL(c->proot_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_help);
-    c->proot_setup_help=gtk_label_new("To provision a missing guest, use an attached Native Termux terminal. Choose desktops with `--desktops xfce,lxqt,lxde,mate`; only selected desktops are installed. Preview with `tx proot setup fresh-preview --user NAME --desktops xfce,lxqt`, review the plan, then apply with `tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID` or select password mode for hidden prompts. `--sudo-mode passwordless` grants NOPASSWD sudo inside this guest and does not ask for a guest password; `--sudo-mode password` asks for the guest password in hidden prompts, never command arguments. Existing guests are preserved."); gtk_label_set_wrap(GTK_LABEL(c->proot_setup_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_setup_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_help);
+    c->proot_setup_help=gtk_label_new("To provision a missing guest, use an attached Native Termux terminal. Choose desktops with `--desktops xfce,lxqt,lxde,mate,gnome,plasma,cinnamon`; only selected desktops are installed. Preview with `tx proot setup fresh-preview --user NAME --desktops xfce,lxqt`, review the plan, then apply with `tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID` or select password mode for hidden prompts. `--sudo-mode passwordless` grants NOPASSWD sudo inside this guest and does not ask for a guest password; `--sudo-mode password` asks for the guest password in hidden prompts, never command arguments. Existing guests are preserved."); gtk_label_set_wrap(GTK_LABEL(c->proot_setup_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_setup_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_help);
     c->proot_app_entry=gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_app_entry), "Debian app ID (for example: firefox)"); gtk_box_append(GTK_BOX(proot_actions),c->proot_app_entry);
     c->proot_app_button=gtk_button_new_with_label("Launch Debian app"); gtk_box_append(GTK_BOX(proot_actions),c->proot_app_button);
     c->proot_shortcut_entry=gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_shortcut_entry), "Debian app ID for shortcut add/remove"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_entry);

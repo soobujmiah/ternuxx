@@ -496,6 +496,7 @@ class ManagementServiceTests(unittest.TestCase):
         from types import SimpleNamespace
         expected = {"status": "stale", "reconciliation_state": "stale", "display": ":1",
                     "supervisor": "absent", "x11": "absent", "xfce4_session": "absent"}
+        expected["desktop_options"] = management_service.native_desktops.list_desktops()
         with patch.object(management_service.subprocess, "run", return_value=SimpleNamespace(
                 returncode=0, stdout=json.dumps(expected), stderr="")) as run:
             result = management_service.dispatch(request("desktop.status"), env=NATIVE_ENV)
@@ -503,6 +504,18 @@ class ManagementServiceTests(unittest.TestCase):
         self.assertEqual(result["data"], expected)
         command = run.call_args.args[0]
         self.assertEqual(command[-2:], ["--json", "status"])
+
+    def test_native_desktop_start_forwards_allowlisted_selector_to_shared_cli(self) -> None:
+        from types import SimpleNamespace
+        result_data = {"status": "running", "display": ":1", "desktop_id": "plasma"}
+        with patch.object(management_service.subprocess, "run", return_value=SimpleNamespace(
+                returncode=0, stdout=json.dumps(result_data), stderr="")) as run:
+            result = management_service.dispatch(request("desktop.start", {"desktop_id": "plasma"}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(run.call_args.args[0][-2:], ["--desktop", "plasma"])
+        invalid = management_service.dispatch(request("desktop.start", {"desktop_id": "gnome"}), env=NATIVE_ENV)
+        self.assertFalse(invalid["ok"])
+        self.assertEqual(invalid["error"]["code"], "invalid_arguments")
 
     def test_gui_monitor_status_and_configuration_share_the_management_api(self) -> None:
         import tempfile

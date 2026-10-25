@@ -10,6 +10,7 @@ import re
 import stat
 
 import operation_journal
+import native_desktops
 
 
 class DesktopRecoveryError(RuntimeError):
@@ -19,7 +20,7 @@ class DesktopRecoveryError(RuntimeError):
 _MARKERS = {"supervisor": "desktop-supervisor.sh", "x11": "termux-x11", "desktop": "xfce4-session"}
 
 
-def _process_state(role: str, value: object, *, proc_root: Path) -> str:
+def _process_state(role: str, value: object, *, proc_root: Path, expected_desktop: str = "xfce4-session") -> str:
     if not isinstance(value, dict):
         raise DesktopRecoveryError(f"Recorded {role} process identity is invalid")
     pid = value.get("pid")
@@ -28,7 +29,7 @@ def _process_state(role: str, value: object, *, proc_root: Path) -> str:
     ticks = value.get("start_ticks")
     marker = value.get("command_marker")
     if (type(pid) is not int or pid < 1 or not isinstance(ticks, str) or not re.fullmatch(r"[0-9]+", ticks)
-            or marker != _MARKERS[role]):
+            or marker != (expected_desktop if role == "desktop" else _MARKERS[role])):
         raise DesktopRecoveryError(f"Recorded {role} process identity is incomplete or unexpected")
     if role != "supervisor" and (type(value.get("pgid")) is not int or type(value.get("sid")) is not int
             or value["pgid"] != pid or value["sid"] != pid):
@@ -128,7 +129,12 @@ def _snapshot(operation_id: str, *, home: str | os.PathLike[str], state_dir: str
         states = {role: "absent" for role in _MARKERS}
         observed = "absent"
     else:
-        states = {role: _process_state(role, session.get(role), proc_root=proc_root) for role in _MARKERS}
+        desktop_id = session.get("desktop_id", "xfce")
+        native_item = native_desktops.NATIVE_DESKTOPS.get(desktop_id)
+        expected_desktop = (native_item["command"] if native_item else None) if session.get("provider", "native") == "native" else ("proot-display0" if session.get("provider") == "proot" else None)
+        if not expected_desktop:
+            raise DesktopRecoveryError("Recorded desktop provider or environment is not supported")
+        states = {role: _process_state(role, session.get(role), proc_root=proc_root, expected_desktop=expected_desktop) for role in _MARKERS}
         observed = str(session["status"])
 
     if kind == "desktop.start":

@@ -10,7 +10,7 @@ import stat
 MAX_TAIL_BYTES = 256 * 1024
 ANSI = re.compile(r"\x1b(?:\[[0-?]*[ -/]*[@-~]|\][^\x07]*(?:\x07|\x1b\\))")
 SOURCES = {
-    "native-desktop": ("Native desktop session (XFCE)", ("desktop.log",)),
+    "native-desktop": ("Native desktop session", ("desktop.log",)),
     "cron-scheduler": ("Cron scheduler", ("cron", "scheduler.log")),
     "management-api": ("Management API audit", ("management-api", "audit.jsonl")),
 }
@@ -82,6 +82,22 @@ def _clean_line(line: str) -> str:
     line = ANSI.sub("", line)
     return "".join(ch for ch in line if ch == "\t" or (ord(ch) >= 32 and ord(ch) != 127))[:4096]
 
+def _native_desktop_label(root: Path) -> str:
+    """Name the desktop recorded by the Native supervisor, defaulting to XFCE."""
+    try:
+        from native_desktops import NATIVE_DESKTOPS
+        path, info = _inspect(root, ("session.json",))
+        if info is not None:
+            raw = path.read_text(encoding="utf-8")
+            if len(raw) <= 64 * 1024:
+                desktop_id = json.loads(raw).get("desktop_id")
+                item = NATIVE_DESKTOPS.get(desktop_id)
+                if item:
+                    return f"Native desktop session ({item['name']})"
+    except (OSError, ValueError, TypeError):
+        pass
+    return "Native desktop session (XFCE)"
+
 def read_log(state_dir: str, *, home: str, source_id: str, limit: int = 100) -> dict[str, object]:
     if source_id not in SOURCES:
         raise LogReadError("unknown log source")
@@ -89,6 +105,8 @@ def read_log(state_dir: str, *, home: str, source_id: str, limit: int = 100) -> 
         raise LogReadError("line limit must be between 1 and 300")
     label, parts = SOURCES[source_id]
     root = _root(state_dir, home)
+    if source_id == "native-desktop":
+        label = _native_desktop_label(root)
     path, before = _inspect(root, parts)
     if before is None:
         return {"source_id": source_id, "label": label, "status": "missing", "lines": [], "truncated": False, "read_only": True}

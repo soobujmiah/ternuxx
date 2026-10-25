@@ -215,9 +215,19 @@ def _desktop_action(screen: "curses._CursesWindow", resource: dict[str, Any]) ->
     operation = {"start": "desktop.start", "stop": "desktop.stop"}.get(action)
     if not operation or operation not in resource.get("supported_operations", []):
         return {"ok": False, "error": {"code": "action_unavailable"}}
+    args: dict[str, object] = {}
+    if action == "start":
+        status = _call("desktop.status")
+        options = status.get("data", {}).get("desktop_options", []) if status.get("ok") else []
+        choices = [(str(item.get("id")), f"{item.get('name')} · {'installed' if item.get('installed') else 'install ' + str(item.get('package'))}")
+                   for item in options if isinstance(item, dict) and item.get("id")]
+        selected = _choose(screen, "Native desktop on :1", choices)
+        if not selected:
+            return {"ok": False, "error": {"code": "cancelled"}}
+        args["desktop_id"] = selected
     if _prompt(screen, f"Confirm {action} native desktop? type yes").lower() != "yes":
         return {"ok": False, "error": {"code": "cancelled"}}
-    return _call(operation)
+    return _call(operation, args)
 
 
 def _public_key_catalog() -> list[dict[str, str]]:
@@ -1395,7 +1405,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
             return {"ok": True, "data": {"guest_status": "installed",
                 "next_step": "Debian is installed. Exit TUI and run `tx db` in an attached Native Termux terminal."}}
         return {"ok": True, "data": {"guest_status": "missing",
-            "next_step": "Fresh guest setup runs in an attached Native Termux terminal. Preview with `tx proot setup fresh-preview --user NAME --sudo-mode passwordless`, then apply with `tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID`; this sets guest-only NOPASSWD sudo inside PRoot. Choose `password` mode to enter a password at hidden prompts instead. After setup, run `tx db`. Existing guests are preserved."}}
+            "next_step": "Fresh guest setup runs in an attached Native Termux terminal. Preview with `tx proot setup fresh-preview --user NAME --desktops xfce,lxqt,lxde,mate,gnome,plasma,cinnamon --sudo-mode passwordless`, then apply with `tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID`; this sets guest-only NOPASSWD sudo inside PRoot. Choose `password` mode to enter a password at hidden prompts instead. After setup, run `tx db`. Existing guests are preserved."}}
     if action == "stop" and {"proot.stop.preview", "proot.stop"} <= operations:
         inventory = _call("proot.sessions.list")
         if not inventory.get("ok"):

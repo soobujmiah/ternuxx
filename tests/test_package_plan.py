@@ -94,6 +94,9 @@ printf 'COMBINED %s\n' "${_NT_BASE_PACKAGES[*]}"
 printf 'COMBINED_SKIP %s\n' "$_NT_ACTIVE_SKIPPED_COMPONENTS"
 _nt_select_install_profile custom 'desktop,proot,developer,desktop'
 printf 'CUSTOM %s\n' "${_NT_BASE_PACKAGES[*]}"
+_nt_select_install_profile custom 'lxqt,mate,cinnamon,plasma'
+printf 'ALT %s\n' "${_NT_BASE_PACKAGES[*]}"
+printf 'ALT_SKIP %s\n' "$_NT_ACTIVE_SKIPPED_COMPONENTS"
 """
         result = subprocess.run(
             ["bash", "-c", command, "bash", str(PHASES)],
@@ -108,6 +111,8 @@ printf 'CUSTOM %s\n' "${_NT_BASE_PACKAGES[*]}"
         self.assertIn("CUSTOM python termux-x11-nightly dbus xfce4-session", result.stdout)
         custom = result.stdout.split("CUSTOM ", 1)[1].splitlines()[0].split()
         self.assertEqual(len(custom), len(set(custom)))
+        self.assertIn("ALT python lxqt mate-session-manager cinnamon-session plasma-workspace\n", result.stdout)
+        self.assertIn("ALT_SKIP desktop,audio,proot,graphics,developer,guest\n", result.stdout)
 
     def test_native_debian_combined_preview_contains_both_exact_plans(self):
         script = """source "$1"

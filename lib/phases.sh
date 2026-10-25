@@ -14,6 +14,10 @@ _NT_DESKTOP_PACKAGES=(
   termux-x11-nightly dbus xfce4-session xfce4-panel xfce4-settings xfwm4
   xfdesktop xfconf thunar xfce4-terminal
 )
+_NT_LXQT_PACKAGES=(lxqt)
+_NT_MATE_PACKAGES=(mate-session-manager)
+_NT_CINNAMON_PACKAGES=(cinnamon-session)
+_NT_PLASMA_PACKAGES=(plasma-workspace)
 _NT_AUDIO_PACKAGES=(pulseaudio)
 _NT_PROOT_PACKAGES=(proot-distro)
 _NT_GRAPHICS_PACKAGES=(glmark2 mesa-demos mesa-vulkan-icd-freedreno vulkan-tools xorg-server-xvfb xdotool)
@@ -141,7 +145,11 @@ _nt_select_install_profile() {
           proot) selected+=("${_NT_PROOT_PACKAGES[@]}") ;;
           graphics) selected+=("${_NT_GRAPHICS_PACKAGES[@]}") ;;
           developer) selected+=("${_NT_DEVELOPER_PACKAGES[@]}") ;;
-          *) nt_fail "Unknown component group '$group'. Choose desktop,audio,proot,graphics,developer."; return 2 ;;
+          lxqt) selected+=("${_NT_LXQT_PACKAGES[@]}") ;;
+          mate) selected+=("${_NT_MATE_PACKAGES[@]}") ;;
+          cinnamon) selected+=("${_NT_CINNAMON_PACKAGES[@]}") ;;
+          plasma) selected+=("${_NT_PLASMA_PACKAGES[@]}") ;;
+          *) nt_fail "Unknown component group '$group'. Choose desktop,audio,proot,graphics,developer,lxqt,mate,cinnamon,plasma."; return 2 ;;
         esac
       done ;;
     *) nt_fail "Unknown install profile '$profile'. Choose minimal-native, full-native, graphical, developer, native-proot-provider, native-debian, or custom."; return 2 ;;
@@ -156,7 +164,7 @@ _nt_select_install_profile() {
   _NT_ACTIVE_PROFILE="$profile"
   _NT_ACTIVE_COMPONENTS="$components"
   local -a omitted=()
-  for group in desktop audio proot graphics developer; do
+  for group in desktop audio proot graphics developer lxqt mate cinnamon plasma; do
     case "$profile" in
       full-native) [[ "$group" == developer ]] && omitted+=("$group") ;;
       graphical) [[ "$group" == proot || "$group" == developer ]] && omitted+=("$group") ;;
@@ -217,7 +225,7 @@ _nt_choose_install_profile() {
     4) _nt_select_install_profile developer ;;
     5) _nt_select_install_profile native-proot-provider ;;
     6)
-      read -r -p 'Groups (desktop,audio,proot,graphics,developer): ' components || return 2
+      read -r -p 'Groups (desktop,audio,proot,graphics,developer,lxqt,mate,cinnamon,plasma): ' components || return 2
       _nt_select_install_profile custom "$components" ;;
     7)
       read -r -p 'New Debian guest username: ' guest_user || return 2

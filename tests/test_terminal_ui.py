@@ -582,11 +582,14 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertEqual(result["error"]["code"], "cancelled")
         dispatch.assert_not_called()
         success = {"ok": True, "data": {"state": "running"}}
-        with mock.patch.object(terminal_ui, "_choose", return_value="start"), \
+        status = {"ok": True, "data": {"desktop_options": [
+            {"id": "xfce", "name": "XFCE", "installed": True, "package": "xfce4-session"}]}}
+        with mock.patch.object(terminal_ui, "_choose", side_effect=["start", "xfce"]), \
              mock.patch.object(terminal_ui, "_prompt", return_value="yes"), \
-             mock.patch.object(terminal_ui, "_call", return_value=success) as dispatch:
+             mock.patch.object(terminal_ui, "_call", side_effect=[status, success]) as dispatch:
             self.assertIs(terminal_ui._desktop_action(object(), resource), success)
-        dispatch.assert_called_once_with("desktop.start")
+        self.assertEqual(dispatch.call_args_list, [mock.call("desktop.status"),
+                                                   mock.call("desktop.start", {"desktop_id": "xfce"})])
 
     def test_managed_ssh_action_previews_and_confirms_only_8023(self) -> None:
         resource = next(item for item in management_service.management_catalog.RESOURCES

@@ -946,6 +946,13 @@ def main(argv: list[str]) -> int:
         result = call(operation, {"confirmed": True, "plan_id": plan_id})
         print(management_presentation.format_report(result))
         return 0 if result.get("ok") else 1
+    if action == "start-desktop" and len(argv) == 3 and argv[1] == "confirmed":
+        desktop_id = argv[2]
+        if desktop_id not in {"xfce", "lxqt", "mate", "cinnamon", "plasma"}:
+            print(json.dumps({"ok": False, "error": {"code": "invalid_desktop_id"}})); return 2
+        result = call("desktop.start", {"desktop_id": desktop_id})
+        print(management_presentation.format_report(result))
+        return 0 if result.get("ok") else 1
     if action in {"start-desktop", "stop-desktop"} and len(argv) == 2 and argv[1] == "confirmed":
         result = call("desktop.start" if action == "start-desktop" else "desktop.stop")
         print(management_presentation.format_report(result))

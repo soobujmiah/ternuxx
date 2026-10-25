@@ -21,6 +21,7 @@ DESKTOP_PGID=""
 DESKTOP_SID=""
 DESKTOP_MARKER="${8:-xfce4-session}"
 PROVIDER="${9:-native}"
+DESKTOP_ID="${10:-${TERNUXX_DESKTOP_ID:-xfce}}"
 STOP_REASON=""
 STARTUP_FAILED=0
 
@@ -127,7 +128,7 @@ write_state() {
   local phase="$1" error_text="${2:-}"
   python3 - "$STATE_FILE" "$phase" "$DISPLAY_VALUE" "$$" "$(proc_ticks "$$")" \
     "$X11_PID" "$X11_TICKS" "$X11_PGID" "$X11_SID" \
-    "$DESKTOP_PID" "$DESKTOP_TICKS" "$DESKTOP_PGID" "$DESKTOP_SID" "$error_text" "$DESKTOP_MARKER" "$PROVIDER" <<'PY'
+    "$DESKTOP_PID" "$DESKTOP_TICKS" "$DESKTOP_PGID" "$DESKTOP_SID" "$error_text" "$DESKTOP_MARKER" "$PROVIDER" "$DESKTOP_ID" <<'PY'
 import json
 import os
 import sys
@@ -136,14 +137,14 @@ from datetime import datetime, timezone
 
 (path, phase, display, supervisor_pid, supervisor_ticks, x11_pid, x11_ticks,
  x11_pgid, x11_sid, desktop_pid, desktop_ticks, desktop_pgid, desktop_sid,
- error, desktop_marker, provider) = sys.argv[1:]
+ error, desktop_marker, provider, desktop_id) = sys.argv[1:]
 def role(pid, ticks, pgid, sid, marker):
     return {"pid": int(pid) if pid else None, "start_ticks": ticks or None,
             "pgid": int(pgid) if pgid else None, "sid": int(sid) if sid else None,
             "command_marker": marker}
 state = {
     "schema": 2, "owner": "ternuxx", "provider": provider,
-    "display": display, "status": phase,
+    "display": display, "status": phase, "desktop_id": desktop_id,
     "supervisor": {"pid": int(supervisor_pid), "start_ticks": supervisor_ticks,
                    "command_marker": "desktop-supervisor.sh"},
     "x11": role(x11_pid, x11_ticks, x11_pgid, x11_sid, "termux-x11"),
@@ -211,7 +212,15 @@ trap on_signal TERM INT HUP
 [ -d "$TMP_ROOT/.X11-unix" ] || fail "Termux X11 socket directory missing"
 [ -x "$X11_BIN" ] || fail "termux-x11 executable missing"
 [ -x "$DBUS_LAUNCH_BIN" ] || fail "dbus-launch executable missing"
-[ -x "$XFCE_BIN" ] || fail "xfce4-session executable missing"
+[ -x "$XFCE_BIN" ] || fail "desktop session executable missing"
+if [[ "$PROVIDER" == native ]]; then
+  PYTHONPATH="$(dirname "$0")" python3 - "$DESKTOP_ID" "$DESKTOP_MARKER" "$XFCE_BIN" <<'PY_NATIVE' || fail "Native desktop identity is not allowlisted"
+import native_desktops, sys
+item = native_desktops.NATIVE_DESKTOPS.get(sys.argv[1])
+if not item or item["command"] != sys.argv[2] or not sys.argv[3].endswith("/" + item["command"]):
+    raise SystemExit(1)
+PY_NATIVE
+fi
 [ -x "$OWNED_EXEC_BIN" ] || fail "owned process launcher missing"
 
 write_state starting
@@ -232,29 +241,29 @@ for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
 done
 [ "$ready" -eq 1 ] || fail "Termux:X11 display socket did not become ready"
 
-mkdir -p "$STATE_DIR/xfce/config" "$STATE_DIR/xfce/cache" "$STATE_DIR/xfce/data" "$STATE_DIR/xfce/runtime"
-chmod 700 "$STATE_DIR/xfce" "$STATE_DIR/xfce/config" "$STATE_DIR/xfce/cache" "$STATE_DIR/xfce/data" "$STATE_DIR/xfce/runtime" 2>/dev/null || true
+mkdir -p "$STATE_DIR/$DESKTOP_ID/config" "$STATE_DIR/$DESKTOP_ID/cache" "$STATE_DIR/$DESKTOP_ID/data" "$STATE_DIR/$DESKTOP_ID/runtime"
+chmod 700 "$STATE_DIR/$DESKTOP_ID" "$STATE_DIR/$DESKTOP_ID/config" "$STATE_DIR/$DESKTOP_ID/cache" "$STATE_DIR/$DESKTOP_ID/data" "$STATE_DIR/$DESKTOP_ID/runtime" 2>/dev/null || true
 
 DISPLAY="$DISPLAY_VALUE" \
-XDG_CONFIG_HOME="$STATE_DIR/xfce/config" XDG_CACHE_HOME="$STATE_DIR/xfce/cache" \
-XDG_DATA_HOME="$STATE_DIR/xfce/data" XDG_RUNTIME_DIR="$STATE_DIR/xfce/runtime" \
+XDG_CONFIG_HOME="$STATE_DIR/$DESKTOP_ID/config" XDG_CACHE_HOME="$STATE_DIR/$DESKTOP_ID/cache" \
+XDG_DATA_HOME="$STATE_DIR/$DESKTOP_ID/data" XDG_RUNTIME_DIR="$STATE_DIR/$DESKTOP_ID/runtime" \
   "$OWNED_EXEC_BIN" "$DBUS_LAUNCH_BIN" --exit-with-session "$XFCE_BIN" >> "$STATE_DIR/desktop.log" 2>&1 &
 DESKTOP_PID="$!"
-desktop_identity="$(capture_owned_group "$DESKTOP_PID" "$DESKTOP_MARKER")" || fail "could not verify XFCE owned process group"
+desktop_identity="$(capture_owned_group "$DESKTOP_PID" "$DESKTOP_MARKER")" || fail "could not verify desktop owned process group"
 read -r DESKTOP_TICKS DESKTOP_PGID DESKTOP_SID <<EOF_ID
 $desktop_identity
 EOF_ID
 desktop_ready=0
 for _ in 1 2 3 4 5 6 7 8 9 10; do
   matches_owned_process "$DESKTOP_PID" "$DESKTOP_TICKS" "$DESKTOP_MARKER" && { desktop_ready=1; break; }
-  kill -0 "$DESKTOP_PID" 2>/dev/null || fail "XFCE launcher exited before session readiness"
+  kill -0 "$DESKTOP_PID" 2>/dev/null || fail "desktop launcher exited before session readiness"
   sleep 0.1
 done
-[ "$desktop_ready" -eq 1 ] || fail "XFCE session process identity did not become verifiable"
+[ "$desktop_ready" -eq 1 ] || fail "desktop session process identity did not become verifiable"
 write_state running
 
 wait "$DESKTOP_PID"
 result=$?
-STOP_REASON="XFCE session exited with status $result"
+STOP_REASON="$DESKTOP_ID session exited with status $result"
 cleanup
 exit "$result"

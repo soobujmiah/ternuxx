@@ -789,7 +789,7 @@ def _sync_record_changes(record: dict[str, Any], rollback_id: str) -> list[dict[
         if not isinstance(item, dict) or set(item) != fields:
             raise ShortcutError("shortcut rollback entry is malformed")
         rel = Path(item["path"]) if isinstance(item["path"], str) else Path("/")
-        session_launcher = bool(re.fullmatch(r"ternuxx-proot-desktop-(?:xfce|lxqt|lxde|mate)\.desktop", rel.name))
+        session_launcher = bool(re.fullmatch(r"ternuxx-proot-desktop-(?:xfce|lxqt|lxde|mate|gnome|plasma|cinnamon)\.desktop", rel.name))
         if (rel.is_absolute() or not rel.parts or any(part in {"", ".", ".."} for part in rel.parts)
                 or not (rel.name.startswith("ternuxx-proot-app-") and rel.name.endswith(".desktop")
                         or session_launcher

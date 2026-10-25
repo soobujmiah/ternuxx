@@ -97,6 +97,21 @@ class DesktopSessionStateTests(unittest.TestCase):
         self._session("failed", process_ticks="999")
         self.assertEqual(self._inspect()["state"], "failed")
 
+    def test_incomplete_desktop_identity_is_absent_only_when_recorded_pid_is_gone(self) -> None:
+        session = self._session("failed")
+        desktop_pid = session["desktop"]["pid"]
+        (self.proc / str(desktop_pid)).rename(self.proc / f"{desktop_pid}.saved")
+        session["desktop"].update(start_ticks=None, pgid=None, sid=None)
+        path = self.state / "session.json"
+        path.write_text(json.dumps(session), encoding="utf-8")
+        path.chmod(0o600)
+        result = self._inspect()
+        self.assertEqual(result["state"], "failed")
+        self.assertEqual(result["processes"]["desktop"], "absent")
+        (self.proc / str(desktop_pid)).mkdir()
+        (self.proc / str(desktop_pid) / "stat").write_text(f"{desktop_pid} (fixture) S 1 1 1 0\n", encoding="ascii")
+        self.assertEqual(self._inspect()["state"], "unknown")
+
     def test_proot_provider_record_is_classified_with_its_own_process_marker(self) -> None:
         session = self._session("failed", process_ticks="999")
         session["provider"] = "proot"
