@@ -161,6 +161,14 @@ def _snapshot() -> dict[str, float | int | None]:
     return values
 
 
+def active_temperature_limits(args: argparse.Namespace) -> dict[str, float]:
+    """Return enforced thermal limits; explicit owner override keeps readings observational."""
+    if getattr(args, "ignore_thermal_limits", False):
+        return {}
+    return {"cpu": args.cpu_stop_c, "gpu": args.gpu_stop_c, "htp": args.htp_stop_c,
+            "battery": args.battery_stop_c, "socd": args.socd_stop_c}
+
+
 def _render_report(args: argparse.Namespace, rows: list[dict[str, object]],
                    preflight: dict[str, float | int | None], limits: dict[str, float],
                    minimum_mem_kib: int) -> dict[str, object]:
@@ -177,6 +185,7 @@ def _render_report(args: argparse.Namespace, rows: list[dict[str, object]],
         "max_tokens": args.max_tokens,
         "guards": {**limits, "minimum_memavailable_mib": minimum_mem_kib // 1024,
                    "note": "Conservative test guards selected for this run; not OEM-rated limits."},
+        "thermal_limits_ignored": bool(getattr(args, "ignore_thermal_limits", False)),
         "preflight": preflight,
         "completed_runs": sum(row["status"] == "passed" for row in rows),
         "requested_runs": args.runs,
@@ -223,12 +232,11 @@ def _stop_process(proc: subprocess.Popen[str], sig: int, grace: float) -> None:
 
 
 def run(args: argparse.Namespace) -> int:
-    limits = {"cpu": args.cpu_stop_c, "gpu": args.gpu_stop_c, "htp": args.htp_stop_c,
-              "battery": args.battery_stop_c, "socd": args.socd_stop_c}
+    limits = active_temperature_limits(args)
     minimum_mem_kib = args.minimum_mem_mib * 1024
     required_sensor = {"cpu": "cpu", "vulkan": "gpu", "npu": "htp"}[args.backend]
     preflight = _snapshot()
-    if "cpu" not in preflight or required_sensor not in preflight:
+    if limits and ("cpu" not in preflight or required_sensor not in preflight):
         report = _preflight_failure_report(
             args, f"required {required_sensor}/CPU thermal zone is unavailable", preflight,
             limits, minimum_mem_kib)
@@ -369,6 +377,8 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--htp-stop-c", type=float, default=60)
     result.add_argument("--battery-stop-c", type=float, default=45)
     result.add_argument("--socd-stop-c", type=float, default=70)
+    result.add_argument("--ignore-thermal-limits", action="store_true",
+                        help="continue despite temperature readings; memory, timeout, and process guards remain active")
     result.add_argument("--preview", action="store_true", help="validate and print plan without inference")
     return result
 
@@ -395,7 +405,8 @@ def main(argv: list[str] | None = None) -> int:
                               "htp": args.htp_stop_c, "battery": args.battery_stop_c,
                               "socd": args.socd_stop_c},
                           "minimum_mem_mib": args.minimum_mem_mib,
-                          "guard_notice": "Conservative test guards only; not OEM-rated thermal limits.",
+                          "thermal_limits_ignored": args.ignore_thermal_limits,
+                          "guard_notice": "Temperature readings are advisory when --ignore-thermal-limits is set; memory and timeout bounds remain active.",
                           "will_start_inference": False}, indent=2))
         return 0
     return run(args)

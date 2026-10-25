@@ -7,6 +7,7 @@ import unittest
 from tools.native_accel_qualify import (
     QUALIFICATION_CASES,
     _preflight_failure_report,
+    active_temperature_limits,
     parse_result,
     process_snapshot,
     qualification_case_for_run,
@@ -49,6 +50,15 @@ class NativeAccelQualificationTests(unittest.TestCase):
         low_memory = {**below, "memavailable_kib": 2 * 1024 * 1024 - 1}
         self.assertTrue(any("MemAvailable" in item
                             for item in resource_violations(low_memory, limits, 2 * 1024 * 1024)))
+
+    def test_temperature_limits_can_be_observed_without_blocking_explicit_run(self):
+        args = Namespace(cpu_stop_c=60.0, gpu_stop_c=60.0, htp_stop_c=60.0,
+                         battery_stop_c=45.0, socd_stop_c=70.0, ignore_thermal_limits=True)
+        self.assertEqual(active_temperature_limits(args), {})
+        self.assertEqual(resource_violations({"socd": 90.0, "memavailable_kib": 3 * 1024 * 1024},
+                                             active_temperature_limits(args), 2 * 1024 * 1024), [])
+        args.ignore_thermal_limits = False
+        self.assertEqual(active_temperature_limits(args)["socd"], 70.0)
 
     def test_memavailable_parser(self):
         with tempfile.TemporaryDirectory() as directory:
