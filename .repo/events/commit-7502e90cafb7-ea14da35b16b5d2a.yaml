@@ -1,0 +1,7 @@
+event_id: commit-7502e90cafb7-ea14da35b16b5d2a
+repository: soobujmiah/ternuxx
+commit: 7502e90cafb763f67152cdecb0932a5d76f37129
+kind: commit
+occurred_at: '2026-10-25T19:45:10Z'
+status: completed
+summary: 'docs(evidence): qualify nested Adreno smoke with thermal result'
