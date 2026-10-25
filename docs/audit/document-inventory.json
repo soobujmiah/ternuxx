@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "e3dcaddc76bfbb3601f8bf94c33a9e2b1fae59330973889d1288697015db1c96",
+      "sha256": "505726167511b5a9982deae7959352e7a852e2c1a0358353cd8a200ccf3c68d5",
       "lines": 31,
       "read_status": "read",
-      "read_sha256": "e3dcaddc76bfbb3601f8bf94c33a9e2b1fae59330973889d1288697015db1c96"
+      "read_sha256": "505726167511b5a9982deae7959352e7a852e2c1a0358353cd8a200ccf3c68d5"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "a61e267749844d536c328e7e07713512f14816982db7b4c53cb5940c9e3edb09",
+      "sha256": "282aeb38d28d17995cf6dc24feec18ec14dcd98e1c91c89333b618455b0fc8e2",
       "lines": 60,
       "read_status": "read",
-      "read_sha256": "a61e267749844d536c328e7e07713512f14816982db7b4c53cb5940c9e3edb09"
+      "read_sha256": "282aeb38d28d17995cf6dc24feec18ec14dcd98e1c91c89333b618455b0fc8e2"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
