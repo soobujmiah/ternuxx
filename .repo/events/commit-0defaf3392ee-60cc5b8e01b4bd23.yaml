@@ -1,0 +1,7 @@
+event_id: commit-0defaf3392ee-60cc5b8e01b4bd23
+repository: soobujmiah/ternuxx
+commit: 0defaf3392ee623ab4284acb762bbdfbf1470e80
+kind: commit
+occurred_at: '2026-10-25T23:42:44Z'
+status: completed
+summary: 'ci: clear inherited library path for repository tests'
