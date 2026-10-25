@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 560,
-  "read_count": 166,
+  "read_count": 167,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "3237f3bac2fd37c3baac75c472ccfb320bb4cadd891716037fc89a7c49904be3",
+      "sha256": "d0dddb3e4622333d897c61e8e39818bbf279e995bff866bd6f0c3fbc8cabb41d",
       "lines": 36,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "d0dddb3e4622333d897c61e8e39818bbf279e995bff866bd6f0c3fbc8cabb41d"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "96c534c7c0b74b1e217631a82080d687c3c42cf13595f9249be431dc6b1bf279",
+      "sha256": "b16536991ed40e4e2bbb00a672add2968f84afffd5c89690ffa020a401523a4e",
       "lines": 92,
       "read_status": "read",
-      "read_sha256": "96c534c7c0b74b1e217631a82080d687c3c42cf13595f9249be431dc6b1bf279"
+      "read_sha256": "b16536991ed40e4e2bbb00a672add2968f84afffd5c89690ffa020a401523a4e"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3427,10 +3427,10 @@
     {
       "path": "docs/evidence/2026-10-25-debian-desktop-catalog-extension.md",
       "kind": "narrative",
-      "sha256": "0aba88ff5360cd678e1cbef4336ac4b5fa2849692a1e4501b123cc9aeff108b0",
-      "lines": 43,
+      "sha256": "6eb68fbaa0f72044638cca1a18a86de5760f791962b49c9fd8840d3605b0780a",
+      "lines": 47,
       "read_status": "read",
-      "read_sha256": "0aba88ff5360cd678e1cbef4336ac4b5fa2849692a1e4501b123cc9aeff108b0"
+      "read_sha256": "6eb68fbaa0f72044638cca1a18a86de5760f791962b49c9fd8840d3605b0780a"
     },
     {
       "path": "docs/evidence/2026-10-25-gtk-management-center-owner-check.md",
