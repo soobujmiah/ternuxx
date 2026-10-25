@@ -133,3 +133,21 @@ Standalone `:0` results:
 - Cinnamon remained partial: Cinnamon and Nemo were live and the X tree showed Nemo's 752x1590 desktop surface, but no panel appeared.
 
 The nested launcher printed a Zink/Vulkan Adreno 825 Turnip GLES context string. This confirms context/device selection only; this run did not measure application rendering or Android frame presentation. `gui_visible` remains unknown. Native XFCE was restored and verified running on `:1`; `:0` and `:2` were stopped/absent afterward, and `tx proot sessions list` was empty. No package install, guest reset, or password entry occurred.
+
+## 2026-10-25 18:53 UTC complete Debian catalog matrix: nested `:2` and standalone `:0`
+
+I installed the three remaining catalog environments on the existing Debian guest from an exact preview. The preview for `lxqt,lxde,mate` listed 133 new packages, 87.7 MB download and 378 MB installed size, with no upgrades/removals. The APT run was interrupted after several minutes without terminal progress; its exact failed-plan journal was retained. An exact `desktop-resume-preview`/apply configured 119 pending packages and repaired one archive, after which `dpkg --audit` was clean. A fresh preview then offered the remaining 21 packages for `lxqt,mate` (198 MB installed size, zero upgrades/removals); that apply completed. `lxde` was already fully installed by the recovery. The final guest inventory reports all seven catalog environments installed, and `dpkg --audit` is clean.
+
+All seven environments were tested on both routes. “Pass” means the selected session, window manager, panel, and desktop surface appeared in the X window tree; partial does not count as usable full-desktop acceptance.
+
+| Debian desktop | Nested through Native `:1` to Xephyr `:2` | Standalone `:0` |
+|---|---|---|
+| XFCE | Pass: XFCE session, WM, top/bottom panels, desktop | Pass: XFCE session, WM, top/bottom panels, desktop |
+| LXQt | Fail: `lxqt-session` plus Welcome dialog only; `LockScreenManager` could not start | Fail: same Welcome-only state; no verified WM/panel/desktop |
+| LXDE | Pass: LXSession, Openbox, 752x26 panel, PCManFM desktop | Pass: same complete session tree and desktop surface |
+| MATE | Pass: MATE session, Marco, top/bottom panels, Caja desktop | Pass: same complete session tree and desktop surface |
+| GNOME | Fail: full-screen `gnome-session-failed` | Fail: full-screen `gnome-session-failed` |
+| KDE Plasma | Fail: after 35 seconds, only `startplasma-x11`/`plasma_session`; no KWin or shell | Pass after about 45 seconds: KWin, KSMServer, `plasmashell`, 752x56 panel, desktop surface |
+| Cinnamon | Fail: `Cinnamon just crashed`; no shell/panel | Partial: Cinnamon/Muffin and Nemo desktop surface, no panel |
+
+Nested sessions continued to report Zink/Vulkan Adreno 825 Turnip GLES context selection. This is not proof of rendered application frames or Android presentation. Standalone graphics probes were not repeated in this added three-desktop run. `gui_visible` remains unknown. Final state was verified: Native XFCE running on `:1`, standalone `:0` stopped, nested `:2` socket absent, managed guest-session list empty, and Debian `dpkg --audit` clean. No guest reset or password entry occurred.
