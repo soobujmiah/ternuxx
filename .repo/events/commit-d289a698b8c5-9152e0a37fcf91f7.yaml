@@ -1,0 +1,7 @@
+event_id: commit-d289a698b8c5-9152e0a37fcf91f7
+repository: soobujmiah/ternuxx
+commit: d289a698b8c55f782bb062255d88a12333e96d55
+kind: commit
+occurred_at: '2026-10-25T09:02:06Z'
+status: completed
+summary: 'docs(installer): correct apply syntax and CI state'
