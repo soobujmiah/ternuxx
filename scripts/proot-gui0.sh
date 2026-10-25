@@ -207,6 +207,7 @@ cleanup() {
   [ -z "${xfce_pid:-}" ] || wait "$xfce_pid" 2>/dev/null || true
   [ -z "${system_bus_pid:-}" ] || kill -TERM "$system_bus_pid" 2>/dev/null || true
   [ -z "${system_bus_pid:-}" ] || wait "$system_bus_pid" 2>/dev/null || true
+  [ -z "${system_bus_dir:-}" ] || { [ ! -S "$system_bus_dir/bus" ] || rm -f -- "$system_bus_dir/bus"; }
   [ -z "${system_bus_dir:-}" ] || rmdir "$system_bus_dir" 2>/dev/null || true
   [ -z "${xephyr_pid:-}" ] || kill -TERM "$xephyr_pid" 2>/dev/null || true
   [ -z "${xephyr_pid:-}" ] || wait "$xephyr_pid" 2>/dev/null || true

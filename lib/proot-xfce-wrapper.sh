@@ -57,6 +57,7 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
   QT_X11_NO_MITSHM=1 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
   /bin/bash -c '
     set -eu
+    printf "Ternuxx PRoot guest launcher entered: desktop=%s display=%s uid=%s\n" "$TERNUXX_DESKTOP_ID" "$DISPLAY" "$(id -u)" >&2
     state="$HOME/.local/share/ternuxx/proot-display0/$TERNUXX_DESKTOP_ID"
     mkdir -p "$state/config" "$state/cache" "$state/data" "$state/runtime"
     chmod 700 "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"
@@ -88,29 +89,40 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
     system_bus_dir="$(mktemp -d "$XDG_RUNTIME_DIR/system-bus.XXXXXX")"
     system_bus_address="unix:path=$system_bus_dir/bus"
     system_bus_pid=
+    printf "Ternuxx PRoot private bus directory allocated: %s\n" "$system_bus_dir" >&2
     cleanup_system_bus() {
       [ -z "${system_bus_pid:-}" ] || kill -TERM "$system_bus_pid" 2>/dev/null || true
       [ -z "${system_bus_pid:-}" ] || wait "$system_bus_pid" 2>/dev/null || true
-      rmdir "$system_bus_dir" 2>/dev/null || true
+      [ -z "${system_bus_dir:-}" ] || { [ ! -S "$system_bus_dir/bus" ] || rm -f -- "$system_bus_dir/bus"; }
+      [ -z "${system_bus_dir:-}" ] || rmdir "$system_bus_dir" 2>/dev/null || true
     }
     trap cleanup_system_bus EXIT
-    trap 'exit 130' INT
-    trap 'exit 143' TERM
-    trap 'exit 129' HUP
+    trap "exit 130" INT
+    trap "exit 143" TERM
+    trap "exit 129" HUP
+    [ -x /usr/bin/dbus-daemon ] || { echo "Debian dbus-daemon is unavailable." >&2; exit 127; }
+    printf "Ternuxx PRoot starting private dbus-daemon: %s\n" "$system_bus_address" >&2
     /usr/bin/dbus-daemon --session --address="$system_bus_address" --nofork >"$state/system-bus.log" 2>&1 &
     system_bus_pid=$!
     for _ in $(seq 1 80); do
       [ -S "$system_bus_dir/bus" ] && break
-      kill -0 "$system_bus_pid" 2>/dev/null || { wait "$system_bus_pid" || true; exit 1; }
+      if ! kill -0 "$system_bus_pid" 2>/dev/null; then
+        if wait "$system_bus_pid"; then bus_status=0; else bus_status=$?; fi
+        printf "Ternuxx PRoot private dbus-daemon exited before socket readiness: status=%s\n" "$bus_status" >&2
+        exit 1
+      fi
       sleep 0.05
     done
     [ -S "$system_bus_dir/bus" ] || { kill -TERM "$system_bus_pid" 2>/dev/null || true; wait "$system_bus_pid" 2>/dev/null || true; rmdir "$system_bus_dir"; echo "Private Debian system bus did not become ready." >&2; exit 1; }
     export DBUS_SYSTEM_BUS_ADDRESS="$system_bus_address"
+    printf "Ternuxx PRoot private system bus ready; launching: %s\n" "${desktop_argv[*]}" >&2
     dbus-launch --exit-with-session "${desktop_argv[@]}" &
     desktop_pid=$!
     if wait "$desktop_pid"; then result=0; else result=$?; fi
+    printf "Ternuxx PRoot desktop command exited: desktop=%s status=%s\n" "$TERNUXX_DESKTOP_ID" "$result" >&2
     exit "$result"
   ')
+printf 'Ternuxx PRoot host launcher: desktop=%s display=:0 user=%s\n' "$desktop_id" "$guest_user" >&2
 exec env -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT \
   -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT \
   -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE \

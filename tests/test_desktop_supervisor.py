@@ -169,6 +169,49 @@ class DesktopSupervisorProcessGroupTest(unittest.TestCase):
         self.assertIn(b"XDG_CURRENT_DESKTOP=GNOME", environ)
         self._stop_supervisor()
 
+    def test_proot_exec_transition_preserves_owned_process_group(self):
+        session = self.root / "proot-display0"
+        self._write_executable(
+            session,
+            "#!/usr/bin/env python3\nimport os,time\ntime.sleep(0.6)\nos.execv('/bin/sleep',['sleep','90'])\n",
+        )
+        self.supervisor = subprocess.Popen(
+            ["bash", str(SUPERVISOR), ":91", str(self.state), str(self.tmp),
+             str(self.x11), str(self.dbus), str(session), str(OWNED_EXEC),
+             "proot-display0", "proot", "xfce"],
+            cwd=ROOT, env=self.environment, stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        state = self._wait_for_state("running")
+        self.assertEqual(state["provider"], "proot")
+        self.assertEqual(state["desktop"]["command_marker"], "proot-display0")
+        self.assertNotIn(b"proot-display0", Path(f"/proc/{state['desktop']['pid']}/cmdline").read_bytes())
+        self._stop_supervisor()
+        self.assertEqual(
+            json.loads((self.state / "session.json").read_text())["status"], "stopped",
+            (self.state / "session.json").read_text())
+
+    def test_proot_parent_exit_keeps_supervisor_on_owned_session_group(self):
+        session = self.root / "proot-display0"
+        self._write_executable(
+            session,
+            "#!/usr/bin/env python3\nimport os,subprocess,time\nchild=subprocess.Popen(['/bin/sleep','90'])\nopen(os.environ['FAKE_XFCE_CHILD_PID'],'w').write(str(child.pid))\ntime.sleep(0.6)\n",
+        )
+        self.supervisor = subprocess.Popen(
+            ["bash", str(SUPERVISOR), ":91", str(self.state), str(self.tmp),
+             str(self.x11), str(self.dbus), str(session), str(OWNED_EXEC),
+             "proot-display0", "proot", "xfce"],
+            cwd=ROOT, env=self.environment, stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        state = self._wait_for_state("running")
+        child_pid = int(self.child_pid_file.read_text(encoding="utf-8"))
+        self.assertNotEqual(state["desktop"]["pid"], child_pid)
+        self.assertFalse(Path(f"/proc/{state['desktop']['pid']}").exists())
+        self._stop_supervisor()
+        self.assertEqual(
+            json.loads((self.state / "session.json").read_text())["status"], "stopped",
+            (self.state / "session.json").read_text())
+        self._assert_pid_not_live(child_pid)
+
     def test_clean_exit_during_stabilization_is_not_reported_running(self):
         self._write_executable(
             self.xfce,

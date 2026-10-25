@@ -46,7 +46,8 @@ for entry in Path("/proc").iterdir():
             if (not isinstance(child,int) or item.get("command_marker")!=marker
                 or item.get("pgid")!=child or item.get("sid")!=child
                 or item.get("start_ticks")!=ticks(child)
-                or marker not in Path(f"/proc/{child}/cmdline").read_bytes().decode("utf-8","replace")):
+                or (marker not in Path(f"/proc/{child}/cmdline").read_bytes().decode("utf-8","replace")
+                    and not (state.get("provider") == "proot" and name == "desktop"))):
                 valid=False
                 break
         if valid:

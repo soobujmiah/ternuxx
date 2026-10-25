@@ -135,6 +135,52 @@ class DesktopSessionStateTests(unittest.TestCase):
         self.assertEqual(result["display_state"], "absent")
         self.assertEqual(result["processes"], {"supervisor": "absent", "x11": "absent", "desktop": "absent"})
 
+    def test_proot_exec_transition_uses_frozen_process_group_identity(self) -> None:
+        session = self._session()
+        session["provider"] = "proot"
+        session["desktop"]["command_marker"] = "proot-display0"
+        desktop_cmdline = self.proc / str(session["desktop"]["pid"]) / "cmdline"
+        desktop_cmdline.write_bytes(b"/prefix/bin/proot\0login debian\0")
+        path = self.state / "session.json"
+        path.write_text(json.dumps(session), encoding="utf-8")
+        path.chmod(0o600)
+        socket_path = self.tmp / ".X11-unix/X1"
+        listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        listener.bind(str(socket_path))
+        listener.listen(2)
+        self.addCleanup(listener.close)
+        (self.tmp / ".X1-lock").write_text("102\n", encoding="ascii")
+        result = self._inspect()
+        self.assertEqual(result["state"], "running")
+        self.assertEqual(result["processes"]["desktop"], "live")
+
+    def test_proot_running_group_is_live_after_launcher_pid_exits(self) -> None:
+        session = self._session()
+        session["provider"] = "proot"
+        session["desktop"]["command_marker"] = "proot-display0"
+        leader_pid = session["desktop"]["pid"]
+        import shutil
+        shutil.rmtree(self.proc / str(leader_pid))
+        member_pid = 104
+        member = self.proc / str(member_pid)
+        member.mkdir()
+        fields = ["S", "1", str(leader_pid), str(leader_pid)] + ["0"] * 15 + ["789"]
+        (member / "stat").write_text(f"{member_pid} (proot-child) {' '.join(fields)}\n", encoding="ascii")
+        (member / "cmdline").write_bytes(b"/prefix/bin/proot\0login debian\0")
+        (member / "status").write_text(f"Name:\tproot\nUid:\t{os.getuid()}\t{os.getuid()}\t{os.getuid()}\t{os.getuid()}\n", encoding="ascii")
+        path = self.state / "session.json"
+        path.write_text(json.dumps(session), encoding="utf-8")
+        path.chmod(0o600)
+        socket_path = self.tmp / ".X11-unix/X1"
+        listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        listener.bind(str(socket_path))
+        listener.listen(2)
+        self.addCleanup(listener.close)
+        (self.tmp / ".X1-lock").write_text("102\n", encoding="ascii")
+        result = self._inspect()
+        self.assertEqual(result["state"], "running")
+        self.assertEqual(result["processes"]["desktop"], "live")
+
     def test_unavailable_process_inventory_is_unknown(self) -> None:
         self._session()
         self.assertEqual(desktop_session_state.inspect(self.home, self.state, self.proc / "missing", self.tmp)["state"], "unknown")

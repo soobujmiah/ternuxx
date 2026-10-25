@@ -33,6 +33,7 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertIn('dbus-daemon --session --address="$system_bus_address" --nofork', script)
         self.assertIn('export DBUS_SYSTEM_BUS_ADDRESS="$system_bus_address"', script)
         self.assertIn('trap cleanup EXIT', script)
+        self.assertIn('rm -f -- "$system_bus_dir/bus"', script)
         self.assertIn('rmdir "$system_bus_dir" 2>/dev/null || true', script)
         self.assertIn('export XDG_SESSION_TYPE=x11', script)
         self.assertIn('cinnamon) desktop_argv=(cinnamon-session); export XDG_CURRENT_DESKTOP=X-Cinnamon', script)
@@ -70,6 +71,14 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertIn('export XDG_SESSION_TYPE=x11', wrapper)
         self.assertIn('cinnamon) desktop_argv=(cinnamon-session); export XDG_CURRENT_DESKTOP=X-Cinnamon', wrapper)
         self.assertIn('-u DBUS_SYSTEM_BUS_ADDRESS', wrapper)
+        self.assertIn('Ternuxx PRoot guest launcher entered', wrapper)
+        self.assertIn('Ternuxx PRoot desktop command exited', wrapper)
+        self.assertIn('Ternuxx PRoot host launcher', wrapper)
+        self.assertIn('rm -f -- "$system_bus_dir/bus"', wrapper)
+        payload = wrapper.split("/bin/bash -c '", 1)[1].split("\n  ')\nexec env", 1)[0]
+        self.assertIn('trap "exit 130" INT', payload)
+        self.assertIn('trap "exit 143" TERM', payload)
+        self.assertNotIn("trap 'exit", payload)
 
     def test_debian_xfce_gets_cpu_model_names_from_native_lscpu(self) -> None:
         wrapper = (ROOT / "lib/proot-xfce-wrapper.sh").read_text(encoding="utf-8")

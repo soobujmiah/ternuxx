@@ -62,6 +62,16 @@ matches_owned_process() {
   [[ "$command" == *"$marker"* ]]
 }
 
+matches_owned_identity() {
+  local pid="$1" ticks="$2" pgid="$3" sid="$4" actual_ticks actual_pgid actual_sid
+  [ -n "$pid" ] && [ -n "$ticks" ] && [ -n "$pgid" ] && [ -n "$sid" ] || return 1
+  actual_ticks="$(proc_ticks "$pid")" || return 1
+  actual_pgid="$(proc_pgid "$pid")" || return 1
+  actual_sid="$(proc_sid "$pid")" || return 1
+  [ "$actual_ticks" = "$ticks" ] && [ "$actual_pgid" = "$pgid" ] && [ "$actual_sid" = "$sid" ] &&
+    [ "$pid" = "$pgid" ] && [ "$pgid" = "$sid" ]
+}
+
 capture_owned_group() {
   local pid="$1" marker="$2" attempt ticks pgid sid
   for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
@@ -90,6 +100,29 @@ group_has_live_process() {
     case "$1" in Z|X) continue ;; esac
     pgid="$3"
     [ "$pgid" = "$wanted" ] && return 0
+  done
+  [ "$visible" -gt 0 ] || return 2
+  return 1
+}
+
+owned_session_group_has_live_process() {
+  local wanted_pgid="$1" wanted_sid="$2" path stat rest proc_uid status uid visible=0
+  for path in /proc/[0-9]*/stat; do
+    [ -r "$path" ] || continue
+    visible=$((visible + 1))
+    IFS= read -r stat < "$path" || continue
+    rest="${stat##*) }"
+    set -- $rest
+    [ "$#" -ge 4 ] || continue
+    case "$1" in Z|X) continue ;; esac
+    [ "$3" = "$wanted_pgid" ] && [ "$4" = "$wanted_sid" ] || continue
+    proc_uid="${path%/stat}"
+    status="$proc_uid/status"
+    [ -r "$status" ] || return 2
+    uid="$(sed -n 's/^Uid:[[:space:]]*\([0-9][0-9]*\).*/\1/p' "$status" | head -n 1)"
+    [ -n "$uid" ] || return 2
+    [ "$uid" = "$(id -u)" ] || return 2
+    return 0
   done
   [ "$visible" -gt 0 ] || return 2
   return 1
@@ -165,28 +198,46 @@ PY
 }
 
 stop_group() {
-  local pid="$1" ticks="$2" marker="$3" pgid="$4" sid="$5" attempt rc
+  local pid="$1" ticks="$2" marker="$3" pgid="$4" sid="$5" attempt rc session_group=0
+  [ "$PROVIDER" = proot ] && [ "$marker" = "$DESKTOP_MARKER" ] && session_group=1
   [ -n "$pid" ] && [ -n "$pgid" ] && [ -n "$sid" ] || return 0
-  matches_owned_process "$pid" "$ticks" "$marker" || return 0
-  [ "$pid" = "$pgid" ] && [ "$pgid" = "$sid" ] || return 1
-  [ "$(proc_pgid "$pid")" = "$pgid" ] && [ "$(proc_sid "$pid")" = "$sid" ] || return 1
-  matches_owned_process "$pid" "$ticks" "$marker" || return 1
+  if [ "$session_group" -eq 1 ]; then
+    owned_session_group_has_live_process "$pgid" "$sid"; rc=$?
+    [ "$rc" -eq 1 ] && return 0
+    [ "$rc" -eq 0 ] || return 1
+  else
+    matches_owned_identity "$pid" "$ticks" "$pgid" "$sid" || return 0
+  fi
   kill -TERM -- "-$pgid" 2>/dev/null || return 1
   for attempt in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
-    group_has_live_process "$pgid"; rc=$?
+    if [ "$session_group" -eq 1 ]; then
+      owned_session_group_has_live_process "$pgid" "$sid"; rc=$?
+    else
+      group_has_live_process "$pgid"; rc=$?
+    fi
     [ "$rc" -eq 1 ] && return 0
     [ "$rc" -eq 2 ] && return 1
     sleep 0.2
   done
-  group_has_live_process "$pgid"; rc=$?
+  if [ "$session_group" -eq 1 ]; then
+    owned_session_group_has_live_process "$pgid" "$sid"; rc=$?
+  else
+    group_has_live_process "$pgid"; rc=$?
+  fi
   [ "$rc" -eq 1 ]
 }
 
 cleanup() {
   local failed=0
   trap - TERM INT HUP
-  stop_group "$DESKTOP_PID" "$DESKTOP_TICKS" "$DESKTOP_MARKER" "$DESKTOP_PGID" "$DESKTOP_SID" || failed=1
-  stop_group "$X11_PID" "$X11_TICKS" "termux-x11" "$X11_PGID" "$X11_SID" || failed=1
+  if ! stop_group "$DESKTOP_PID" "$DESKTOP_TICKS" "$DESKTOP_MARKER" "$DESKTOP_PGID" "$DESKTOP_SID"; then
+    failed=1
+    STOP_REASON="desktop process group could not be verified stopped"
+  fi
+  if ! stop_group "$X11_PID" "$X11_TICKS" "termux-x11" "$X11_PGID" "$X11_SID"; then
+    failed=1
+    STOP_REASON="Termux:X11 process group could not be verified stopped"
+  fi
   if [ "$failed" -eq 0 ]; then
     cleanup_owned_display_artifacts || failed=1
   fi
@@ -286,14 +337,38 @@ done
 # before the caller's first status query. Keep the record in `starting` until
 # the exact owned launcher survives a bounded stabilization window.
 for _ in 1 2 3 4 5 6 7 8; do
-  matches_owned_process "$DESKTOP_PID" "$DESKTOP_TICKS" "$DESKTOP_MARKER" ||
-    fail "desktop launcher exited before startup stabilization"
+  if ! matches_owned_identity "$DESKTOP_PID" "$DESKTOP_TICKS" "$DESKTOP_PGID" "$DESKTOP_SID"; then
+    group_status=1
+    if [ "$PROVIDER" = proot ]; then
+      owned_session_group_has_live_process "$DESKTOP_PGID" "$DESKTOP_SID"; group_status=$?
+      [ "$group_status" -eq 0 ] && { sleep 0.25; continue; }
+    fi
+    actual_identity="$(proc_values "$DESKTOP_PID" 2>/dev/null || true)"
+    if [ -n "$actual_identity" ]; then
+      read -r actual_ticks actual_pgid actual_sid <<EOF_IDENTITY
+$actual_identity
+EOF_IDENTITY
+      fail "desktop identity changed during startup (recorded pid/ticks/pgid/sid=$DESKTOP_PID/$DESKTOP_TICKS/$DESKTOP_PGID/$DESKTOP_SID actual=$DESKTOP_PID/$actual_ticks/$actual_pgid/$actual_sid group_status=$group_status)"
+    fi
+    fail "owned desktop process group exited before startup stabilization (pid=$DESKTOP_PID group_status=$group_status)"
+  fi
   sleep 0.25
 done
 write_state running
 
-wait "$DESKTOP_PID"
-result=$?
+if [ "$PROVIDER" = proot ]; then
+  while true; do
+    owned_session_group_has_live_process "$DESKTOP_PGID" "$DESKTOP_SID"; rc=$?
+    [ "$rc" -eq 0 ] && { sleep 0.25; continue; }
+    [ "$rc" -eq 1 ] && break
+    result=1
+    break
+  done
+  if wait "$DESKTOP_PID"; then result=0; else result=$?; fi
+else
+  wait "$DESKTOP_PID"
+  result=$?
+fi
 STOP_REASON="$DESKTOP_ID session exited with status $result"
 cleanup
 exit "$result"

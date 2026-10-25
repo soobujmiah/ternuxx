@@ -32,7 +32,45 @@ def _read_session_file(path: Path) -> tuple[bytes, os.stat_result]:
     finally:
         os.close(fd)
 
-def _proc_state(role: str, record: object, proc: Path, expected_marker: str | None = None) -> str:
+def _session_group_state(pgid: int, sid: int, proc: Path, *,
+                         anchor_pid: int, anchor_ticks: str) -> str:
+    """Verify a PRoot-owned session group after its original launcher execs/exits."""
+    if pgid < 1 or sid != pgid or not proc.is_dir():
+        return "unknown"
+    uncertain = False
+    for entry in proc.iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            raw = (entry / "stat").read_text(encoding="ascii")
+            _comm, sep, tail = raw.rpartition(")")
+            fields = tail.strip().split() if sep else []
+            if len(fields) < 4 or fields[0] in ("Z", "X"):
+                continue
+            if fields[2] != str(pgid) or fields[3] != str(sid):
+                continue
+            # A reused anchor PID can create a new same-numbered session after
+            # the original group vanished. It is not evidence for this record.
+            if int(entry.name) == anchor_pid and fields[19] != anchor_ticks:
+                continue
+            status = (entry / "status").read_text(encoding="ascii")
+        except FileNotFoundError:
+            continue
+        except OSError:
+            uncertain = True
+            continue
+        uid_match = re.search(r"^Uid:\s+(\d+)", status, re.M)
+        if not uid_match:
+            uncertain = True
+        elif int(uid_match.group(1)) != os.getuid():
+            return "unsafe"
+        else:
+            return "live"
+    return "unknown" if uncertain else "absent"
+
+
+def _proc_state(role: str, record: object, proc: Path, expected_marker: str | None = None,
+                allow_exec_transition: bool = False) -> str:
     if not isinstance(record, dict):
         raise StateError(f"recorded {role} identity is malformed")
     pid, ticks, marker = record.get("pid"), record.get("start_ticks"), record.get("command_marker")
@@ -58,6 +96,9 @@ def _proc_state(role: str, record: object, proc: Path, expected_marker: str | No
     try:
         raw = (root / "stat").read_text(encoding="ascii")
     except FileNotFoundError:
+        if allow_exec_transition and role == "desktop":
+            return _session_group_state(record.get("pgid"), record.get("sid"), proc,
+                                        anchor_pid=pid, anchor_ticks=ticks)
         return "absent"
     except OSError as exc:
         if exc.errno in (13, 1):
@@ -75,12 +116,30 @@ def _proc_state(role: str, record: object, proc: Path, expected_marker: str | No
     except OSError:
         return "unknown"
     uid_match = re.search(r"^Uid:\s+(\d+)", status, re.M)
-    if fields[19] != ticks or marker not in cmd:
+    if fields[19] != ticks:
+        if allow_exec_transition and role == "desktop":
+            return _session_group_state(record.get("pgid"), record.get("sid"), proc,
+                                        anchor_pid=pid, anchor_ticks=ticks)
         return "absent"  # The recorded process ended or its PID was reused.
     if role != "supervisor" and (fields[2] != str(pid) or fields[3] != str(pid)):
+        if allow_exec_transition and role == "desktop":
+            return _session_group_state(record.get("pgid"), record.get("sid"), proc,
+                                        anchor_pid=pid, anchor_ticks=ticks)
         return "absent"
     if not uid_match or int(uid_match.group(1)) != os.getuid():
+        if allow_exec_transition and role == "desktop":
+            return _session_group_state(record.get("pgid"), record.get("sid"), proc,
+                                        anchor_pid=pid, anchor_ticks=ticks)
         return "unsafe"
+    # The initial PRoot wrapper is marker-checked when its process group is
+    # captured. PRoot then execs through proot-distro into the guest launcher,
+    # so argv can legitimately lose the marker while PID/start-time/group stay
+    # fixed. Accept only that provider-specific, exact process identity.
+    if marker not in cmd and allow_exec_transition and role == "desktop":
+        return _session_group_state(record.get("pgid"), record.get("sid"), proc,
+                                        anchor_pid=pid, anchor_ticks=ticks)
+    if marker not in cmd:
+        return "absent"
     return "live"
 
 def _display_state(session: dict, tmp_root: Path, *, require_ready: bool) -> str:
@@ -207,7 +266,14 @@ def inspect(home: Path, state_dir: Path, proc: Path, tmp_root: Path) -> dict:
         recorded_desktop = data.get("desktop", {}).get("command_marker")
         if not expected_desktop or recorded_desktop != expected_desktop:
             raise StateError("recorded desktop marker is invalid")
-        roles = {name: _proc_state(name, data.get(name), proc, expected_desktop if name == "desktop" else None) for name in MARKERS}
+        roles = {
+            name: _proc_state(
+                name, data.get(name), proc,
+                expected_desktop if name == "desktop" else None,
+                allow_exec_transition=(provider == "proot" and name == "desktop"),
+            )
+            for name in MARKERS
+        }
         if "unsafe" in roles.values():
             return {"state": "unsafe", "reason": "recorded process identity belongs to a different owner", "processes": roles}
         if "unknown" in roles.values():
