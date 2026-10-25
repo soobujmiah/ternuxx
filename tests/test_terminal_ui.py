@@ -307,9 +307,16 @@ class TerminalUISharedServiceTests(unittest.TestCase):
                 mock.patch.object(terminal_ui, "_call", return_value=missing):
             result = terminal_ui._proot_workload_action(object(), resource)
         self.assertEqual(result["data"]["guest_status"], "missing")
-        self.assertIn("tx proot setup fresh-preview", result["data"]["next_step"])
-        self.assertIn("tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID", result["data"]["next_step"])
-        self.assertIn("hidden prompts", result["data"]["next_step"])
+        self.assertIn("tx install debian --user NAME", result["data"]["next_step"])
+        self.assertIn("single plan ID", result["data"]["next_step"])
+        self.assertIn("Other distro profiles are not yet available", result["data"]["next_step"])
+
+    def test_proot_management_offers_distro_named_optional_setup(self) -> None:
+        resource = {"supported_operations": ["proot.status"]}
+        with mock.patch.object(terminal_ui, "_choose", return_value="install"):
+            result = terminal_ui._proot_workload_action(object(), resource)
+        self.assertEqual(result["data"]["guest_status"], "setup_handoff")
+        self.assertIn("tx install debian --user NAME", result["data"]["next_step"])
 
     def test_proot_stop_uses_only_verified_running_sessions_and_exact_preview(self) -> None:
         resource = {"supported_operations": ["proot.sessions.list", "proot.stop.preview", "proot.stop"]}

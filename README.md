@@ -34,7 +34,7 @@ tx doctor
 
 Use the exact plan ID printed by the preview. The installer refuses removals, upgrades, unapproved repositories, and a changed plan. It installs Native XFCE/Termux:X11 support, diagnostics, audio, and the PRoot runtime. The matching Termux:X11 Android app is installed separately.
 
-Run `tx install interactive` for named presets, or select one for automation with `--profile NAME`; both use the same exact preview/apply engine. Repeat a non-default profile when applying its plan. The PRoot-provider preset installs the runtime only. The `native-debian` preset reviews Native packages and a fresh guest together before applying either. See the [installation guide](docs/INSTALLATION.md) for profiles and custom components.
+Run `tx install interactive` for Native workstation presets, or select one for automation with `--profile NAME`; both use the same exact preview/apply engine. Native install previews suggest the optional Debian guest command below. Repeat a non-default Native profile when applying its plan. The PRoot-provider preset installs the runtime only. See the [installation guide](docs/INSTALLATION.md) for profiles and custom components.
 
 ## Open the workstation
 
@@ -60,12 +60,12 @@ Each client exposes its supported operations through the shared management servi
 Preview and install a fresh, pinned Debian Trixie guest with a named guest account:
 
 ```sh
-tx install preview --profile native-debian --user NAME
-tx install apply --profile native-debian --user NAME --yes --plan-id NATIVE_PLAN_ID --guest-plan-id GUEST_PLAN_ID
+tx install debian --user NAME
+tx install debian apply --user NAME --yes --plan-id GUEST_PLAN_ID
 tx proot status
 ```
 
-The combined profile reviews both Native packages and the fresh pinned guest before applying either. It applies Native packages first, then runs the guest setup. If Native packages are already installed, its preview prints an apply command that needs only `--guest-plan-id`. Guest setup supports hidden password prompts or guest-only passwordless sudo; the latter stays within PRoot and does not cross the Android app-UID boundary. Existing guests are preserved. Guest-only preview/apply commands are in the [installation guide](docs/INSTALLATION.md).
+The first command previews the optional guest and prints a matching one-plan apply command. It defaults to XFCE; choose other catalogued desktops with `--desktops`. The managed profile applies Ternuxx guest configuration, including its available graphics setup and Native PulseAudio handoff. Password mode uses hidden prompts; guest-only passwordless sudo is also available. Existing rootfs data is preserved. Debian is currently the only distro with a pinned managed profile; the advanced `native-debian` compatibility profile still combines Native and guest plans. See the [installation guide](docs/INSTALLATION.md) for details.
 
 ## SSH and services
 

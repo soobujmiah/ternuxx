@@ -41,14 +41,14 @@ tx install apply --yes --plan-id PLAN_ID
 
 The transaction refuses removals, upgrades, recommendations, changed plans, and packages outside the official Termux repositories. It installs the current Native CLI dependencies, XFCE/Termux:X11 desktop packages, audio support, `glxinfo`/`vulkaninfo` inspection tools, the official `mesa-vulkan-icd-freedreno` package, and the `proot-distro` runtime. On Adreno/KGSL devices, `tx mng graphics select native termux-zink` can select stock Termux Mesa's Zink path for future desktop starts only after the installed ICD successfully enumerates a supported Vulkan device. This selection is not an acceleration claim: start a fresh Ternuxx desktop and run `tx mng graphics verify native opengl` and `tx mng graphics verify native vulkan`; only a rendered workload reporting the Adreno device counts as verified. `tx mng graphics select native system` returns future starts to the default Termux stack. Tool availability does not qualify a renderer or workload. It does not create a Debian guest. If APT fails or is interrupted, some packages may already have changed: read the error, create a fresh preview for the same profile, and apply only its newly reviewed ID; do not assume the old plan still matches.
 
-For an interactive profile chooser, run `tx install interactive`; it previews the selected profile without applying it. Automated profile selection uses the same dependency resolver and exact-plan apply path:
+For an interactive Native profile chooser, run `tx install interactive`; it previews the selected profile without applying it and suggests the optional Debian one-plan command. Automated profile selection uses the same dependency resolver and exact-plan apply path:
 
 ```sh
 tx install preview --profile minimal-native --verbose
 tx install apply --profile minimal-native --yes --plan-id PLAN_ID
 ```
 
-Available presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, `native-debian`, and `custom`. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, `developer`, `mate`, and `plasma` with `--components`. The two route-verified alternate Native desktop groups (MATE and Plasma) resolve to the distro package for that session; XFCE remains the default and GNOME is not packaged in the Native Termux repository. The PRoot-provider preset installs only the provider package. `native-debian` reviews the full Native package plan and fresh pinned Debian guest plan together, then applies Native packages before creating the guest. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
+Available Native presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, `native-debian`, and `custom`. For direct optional managed guest setup, use `tx install debian`. Debian is currently the only distro with a pinned Ternuxx setup profile; other providers remain unavailable until they have distro-specific configuration and verification. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, `developer`, `mate`, and `plasma` with `--components`. The two route-verified alternate Native desktop groups (MATE and Plasma) resolve to the distro package for that session; XFCE remains the default and GNOME is not packaged in the Native Termux repository. The PRoot-provider preset installs only the provider package. The advanced `native-debian` compatibility profile reviews the full Native package plan and fresh pinned Debian guest plan together, then applies Native packages before creating the guest. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
 
 Run read-only checks after installation:
 
@@ -67,25 +67,26 @@ tx start
 
 ## Create an optional Debian guest
 
-For a combined first-time Native workstation and fresh guest install, preview both plans together. Supply the exact IDs printed by the preview when applying; if the Native profile is already installed, the preview omits its Native plan ID:
+For a fresh managed Debian guest, the short distro-named command previews one guest plan and prints the exact apply command:
 
 ```sh
-tx install preview --profile native-debian --user NAME
-tx install apply --profile native-debian --user NAME --yes --plan-id NATIVE_PLAN_ID --guest-plan-id GUEST_PLAN_ID
+tx install debian --user NAME
+# Review the plan, then use its printed command:
+tx install debian apply --user NAME --yes --plan-id GUEST_PLAN_ID
 ```
 
-The combined `native-debian` profile currently uses the selected account password in hidden terminal prompts. Guest-only setup also supports an exact-plan-bound `passwordless` mode without secret input.
+The shortcut defaults to XFCE and uses the pinned Debian setup profile, including Ternuxx guest configuration and available graphics/audio integration. Password mode prompts in the attached terminal; guest-only `passwordless` sudo is also available. Existing rootfs data is preserved. The older combined `native-debian` profile remains available for a combined Native+guest setup with both plan IDs.
 
 For guest-only setup, check `tx proot status` first. Preview the pinned Debian Trixie image, package groups, storage availability, graphics inputs, and exact guest target:
 
 ```sh
-tx proot setup fresh-preview --user NAME --sudo-mode passwordless --desktops xfce,lxqt
+tx install debian --user NAME --sudo-mode passwordless --desktops xfce,lxqt
 ```
 
-If the preview names the intended fresh target and reports no existing guest, apply that plan:
+If the preview names the intended fresh target and reports no existing guest, apply the exact command printed by `tx install debian`. For example:
 
 ```sh
-tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID
+tx install debian apply --user NAME --sudo-mode passwordless --yes --plan-id PLAN_ID
 ```
 
 Choose `--sudo-mode password` to set a guest-only password through hidden prompts, or `--sudo-mode passwordless` to avoid credential entry. Passwordless sudo applies only inside the PRoot guest; PRoot shares the Native Termux app's Android UID and is not a security boundary. The exact preview binds the choice, and setup validates sudoers before recording package versions. Then inspect and enter the guest:

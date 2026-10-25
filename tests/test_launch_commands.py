@@ -287,10 +287,11 @@ class LaunchCommandTests(unittest.TestCase):
         self.assertEqual(legacy_proot.returncode, 0, legacy_proot.stderr)
         self.assertIn("proot_distribution_inventory", legacy_proot.stdout)
 
-    def test_unknown_install_guest_target_is_rejected_before_package_checks(self):
+    def test_distro_named_debian_install_requests_account_before_guest_preview(self):
         result = self.cli("install", "debian", "preview")
         self.assertEqual(result.returncode, 2)
-        self.assertIn("Unknown install option", result.stderr)
+        self.assertIn("Choose a Debian guest account with --user NAME", result.stderr)
+        self.assertNotIn("Unknown install option", result.stderr)
 
 
 if __name__ == "__main__":

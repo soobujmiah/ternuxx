@@ -202,7 +202,7 @@ _nt_apply_combined_guest() {
 }
 
 _nt_choose_install_profile() {
-  local choice components guest_user
+  local choice components
   [ -t 0 ] || { nt_fail "Interactive install needs a terminal; use tx install preview --profile NAME for automatic selection."; return 2; }
   printf '%s\n' \
     'Choose a Native workstation profile:' \
@@ -211,9 +211,8 @@ _nt_choose_install_profile() {
     '  3) Graphical Workstation (XFCE, audio, graphics diagnostics)' \
     '  4) Developer Workstation (CLI core + compiler/debug tools)' \
     '  5) Native + PRoot provider (provider only)' \
-    '  6) Custom component groups' \
-    '  7) Full Native Workstation + fresh Debian guest'
-  read -r -p 'Selection [1-7]: ' choice || return 2
+    '  6) Custom component groups'
+  read -r -p 'Selection [1-6]: ' choice || return 2
   case "$choice" in
     1) _nt_select_install_profile minimal-native ;;
     2) _nt_select_install_profile full-native ;;
@@ -223,12 +222,7 @@ _nt_choose_install_profile() {
     6)
       read -r -p 'Groups (desktop,audio,proot,graphics,developer,mate,plasma): ' components || return 2
       _nt_select_install_profile custom "$components" ;;
-    7)
-      read -r -p 'New Debian guest username: ' guest_user || return 2
-      [ -n "$guest_user" ] || { nt_fail "A Debian guest username is required."; return 2; }
-      _NT_INSTALL_GUEST_USER="$guest_user"
-      _nt_select_install_profile native-debian ;;
-    *) nt_fail "Choose a profile number from 1 to 7."; return 2 ;;
+    *) nt_fail "Choose a profile number from 1 to 6."; return 2 ;;
   esac
 }
 
@@ -586,6 +580,15 @@ nt_cmd_install() {
   # value into this command as well as accepting the direct helper argument.
   local apply=0 consent=0 update=0 interactive=0 profile="full-native" profile_set=0 components="" verbose="${TERNUXX_VERBOSE:-0}" arg plan_id="" guest_plan_id="" guest_user=""
   local combined_guest=0
+  case "${1:-}" in
+    debian)
+      shift
+      _nt_install_debian_guest "$@"
+      return $? ;;
+    ubuntu|alpine|archlinux|fedora|void)
+      nt_fail "Ternuxx does not yet have a managed ${1} setup profile. Debian is currently supported with distro-specific pinned configuration."
+      return 2 ;;
+  esac
   _NT_INSTALL_GUEST_USER=""
   _NT_COMBINED_GUEST_JSON=""
   _NT_COMBINED_GUEST_PLAN_ID=""
@@ -685,6 +688,7 @@ nt_cmd_install() {
       return 0
     fi
     nt_ok "Ternuxx profile $_NT_ACTIVE_PROFILE packages are already installed."
+    [ "$combined_guest" = "1" ] || nt_info "Optional managed Debian guest: tx install debian --user NAME (preview-first, one guest plan)."
     nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
     if [ "$combined_guest" = "1" ]; then
       if [ "$apply" = "1" ]; then
@@ -770,6 +774,7 @@ nt_cmd_install() {
     else
       nt_info "Apply after review: tx install apply --profile $_NT_ACTIVE_PROFILE --yes --plan-id $plan_id"
     fi
+    [ "$combined_guest" = "1" ] || [ "$update" = "1" ] || nt_info "Optional managed Debian guest: tx install debian --user NAME (separate preview, one guest plan)."
     if [ "$TERNUXX_JSON" = "1" ]; then
       local package_json
       package_json="$(nt_json_array "${_NT_PLAN_VERSIONS[@]}")"
@@ -809,6 +814,7 @@ nt_cmd_install() {
   fi
   if [ ${#_NT_PLAN_PACKAGES[@]} -eq 0 ]; then
     nt_ok "Ternuxx profile $_NT_ACTIVE_PROFILE packages are already installed."
+    [ "$combined_guest" = "1" ] || nt_info "Optional managed Debian guest: tx install debian --user NAME (preview-first, one guest plan)."
     nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
     _NT_COMBINED_GUEST_PLAN_ID="$guest_plan_id"
     _nt_apply_combined_guest || return $?
@@ -855,6 +861,7 @@ nt_cmd_install() {
     _nt_apply_combined_guest || return $?
   else
     nt_ok "Ternuxx Native profile $_NT_ACTIVE_PROFILE installed. The Termux:X11 Android app still must be installed separately if absent."
+    nt_info "Optional managed Debian guest: tx install debian --user NAME (preview-first, one guest plan)."
   fi
   if [ "$TERNUXX_JSON" = "1" ]; then
     local package_json
@@ -870,4 +877,57 @@ nt_cmd_install() {
     fi
   fi
   return 0
+}
+
+
+# Short distro-named entrypoint for the managed guest installer. It retains
+# the same exact preview/apply plan and hidden password prompt as proot setup.
+_nt_install_debian_guest() {
+  local action=preview consent=0 user="" plan_id="" sudo_mode=password desktops="xfce" arg repo_root output
+  while [ $# -gt 0 ]; do
+    arg="$1"; shift
+    case "$arg" in
+      preview) action=preview ;;
+      apply) action=apply ;;
+      --user) [ $# -gt 0 ] || { nt_fail "--user needs the Debian guest username."; return 2; }; user="$1"; shift ;;
+      --plan-id) [ $# -gt 0 ] || { nt_fail "--plan-id needs the exact ID from the Debian preview."; return 2; }; plan_id="$1"; shift ;;
+      --sudo-mode) [ $# -gt 0 ] || { nt_fail "--sudo-mode needs password or passwordless."; return 2; }; sudo_mode="$1"; shift ;;
+      --desktops) [ $# -gt 0 ] || { nt_fail "--desktops needs comma-separated desktop IDs."; return 2; }; desktops="$1"; shift ;;
+      --yes) action=apply; consent=1 ;;
+      *) nt_fail "Unknown Debian install option: $arg"; return 2 ;;
+    esac
+  done
+  if [ -z "$user" ]; then
+    [ -t 0 ] || { nt_fail "Choose a Debian guest account with --user NAME."; return 2; }
+    read -r -p 'New Debian guest username: ' user || return 2
+  fi
+  [[ "$user" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { nt_fail "Invalid Debian guest username."; return 2; }
+  case "$sudo_mode" in password|passwordless) ;; *) nt_fail "Choose --sudo-mode password or passwordless."; return 2 ;; esac
+  repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
+  nt_require_termux || return 1
+  nt_require_command python3 || return 1
+  if [ "$action" = preview ]; then
+    [ -z "$plan_id" ] || { nt_fail "A preview does not accept --plan-id."; return 2; }
+    local -a args=(fresh-preview --repo-root "$repo_root" --user "$user" --sudo-mode "$sudo_mode" --desktops "$desktops")
+    [ "${TERNUXX_JSON:-0}" = 1 ] && args+=(--json)
+    output="$(python3 "$repo_root/lib/proot_setup.py" "${args[@]}")" || return $?
+    printf '%s\n' "$output"
+    if [ "${TERNUXX_JSON:-0}" != 1 ]; then
+      local id
+      id="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["plan_id"])' "$output")" || return 1
+      nt_info "Apply after review: tx install debian apply --user $user --sudo-mode $sudo_mode --yes --plan-id $id"
+      nt_info "This installs the pinned Debian guest with Ternuxx's selected desktop, graphics, and audio integration. Existing guests are preserved."
+    fi
+    return 0
+  fi
+  [ "$consent" = 1 ] || { nt_fail "Apply requires --yes after reviewing the exact preview."; return 2; }
+  if [ "$sudo_mode" = password ] && [ ! -t 0 ]; then
+    nt_fail "Password mode needs an attached Native terminal for hidden prompts; use --sudo-mode passwordless only if you want guest-only NOPASSWD sudo."
+    return 2
+  fi
+  [ -n "$plan_id" ] || { nt_fail "Apply requires the exact --plan-id from a reviewed preview."; return 2; }
+  [[ "$plan_id" =~ ^[0-9a-f]{64}$ ]] || { nt_fail "--plan-id must be the 64-character ID from a Debian preview."; return 2; }
+  local -a args=(fresh-install --repo-root "$repo_root" --user "$user" --sudo-mode "$sudo_mode" --plan-id "$plan_id" --yes)
+  [ "${TERNUXX_JSON:-0}" = 1 ] && args+=(--json)
+  python3 "$repo_root/lib/proot_setup.py" "${args[@]}"
 }

@@ -577,7 +577,7 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn("applications.launch", page)
         self.assertIn("applications.shortcuts.manage", page)
         self.assertIn("Preview bounded headless guest probe", page)
-        self.assertIn("tx proot setup fresh-preview", page)
+        self.assertIn("tx install debian --user NAME", page)
 
     def test_boot_cron_web_scope_is_opt_in_and_narrow(self) -> None:
         ui = (ROOT / "lib" / "management_web_ui.html").read_text(encoding="utf-8")
@@ -774,10 +774,10 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
 
     def test_web_proot_setup_handoff_keeps_guest_password_in_attached_terminal(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()
-        self.assertIn('tx proot setup fresh-preview --user NAME', page)
-        self.assertIn('only the selected desktop environments are installed', page)
-        self.assertIn('tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID', page)
-        self.assertIn('Use `--sudo-mode password` to enter that password at hidden prompts', page)
+        self.assertIn('tx install debian --user NAME', page)
+        self.assertIn('defaults to XFCE', page)
+        self.assertIn('one-plan apply command', page)
+        self.assertIn('Other distro setup profiles are not yet available', page)
 
     def test_web_proot_shortcut_sync_and_rollback_are_preview_confirmed(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()

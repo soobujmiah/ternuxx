@@ -1376,6 +1376,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
                ("sessions", "Inspect owned guest sessions"),
                ("probe", "Start bounded headless Debian probe"),
                ("login", "Read interactive Debian login instructions")]
+    choices.append(("install", "Set up the optional managed Debian guest"))
     if "proot.shortcuts.list" in operations:
         choices.append(("apps", "Browse and launch an allowlisted Debian app"))
     if {"proot.shortcuts.list", "proot.shortcuts.preview", "proot.shortcuts.apply"} <= operations:
@@ -1396,6 +1397,9 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
         return _call("proot.profiles.list")
     if action == "sessions":
         return _call("proot.sessions.list")
+    if action == "install":
+        return {"ok": True, "data": {"guest_status": "setup_handoff",
+            "next_step": "Open an attached Native Termux terminal and run `tx install debian --user NAME`. It previews the pinned Debian guest with XFCE and prints a one-plan apply command. Ternuxx applies managed graphics/audio configuration where available. Other distro setup profiles are not yet available; existing guests are preserved."}}
     if action == "login":
         status = _call("proot.status")
         if not status.get("ok"):
@@ -1405,7 +1409,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
             return {"ok": True, "data": {"guest_status": "installed",
                 "next_step": "Debian is installed. Exit TUI and run `tx db` in an attached Native Termux terminal."}}
         return {"ok": True, "data": {"guest_status": "missing",
-            "next_step": "Fresh guest setup runs in an attached Native Termux terminal. Preview with `tx proot setup fresh-preview --user NAME --desktops xfce,lxqt,lxde,mate,plasma,gnome,cinnamon --sudo-mode passwordless`, then apply with `tx proot setup fresh-install --sudo-mode passwordless --yes --plan-id PLAN_ID`; this sets guest-only NOPASSWD sudo inside PRoot. Choose `password` mode to enter a password at hidden prompts instead. XFCE, LXQt, LXDE, and MATE have accepted standalone/nested launch routes; Plasma has an accepted standalone :0 route only; GNOME and Cinnamon remain install-catalog choices without an accepted launch route. After setup, run `tx db`. Existing guests are preserved."}}
+            "next_step": "Optional managed Debian setup runs in an attached Native Termux terminal. Run `tx install debian --user NAME` to preview the pinned guest with XFCE, Ternuxx graphics/audio configuration, and a single plan ID; then run the exact apply command it prints. Choose `--desktops xfce,lxqt,lxde,mate,plasma` to select other catalogued desktops. Password prompts are hidden; `--sudo-mode passwordless` is an optional guest-only mode. Other distro profiles are not yet available. Existing guests are preserved."}}
     if action == "stop" and {"proot.stop.preview", "proot.stop"} <= operations:
         inventory = _call("proot.sessions.list")
         if not inventory.get("ok"):
