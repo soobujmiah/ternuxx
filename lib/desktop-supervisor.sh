@@ -282,6 +282,14 @@ for _ in 1 2 3 4 5 6 7 8 9 10; do
   sleep 0.1
 done
 [ "$desktop_ready" -eq 1 ] || fail "desktop session process identity did not become verifiable"
+# A short-lived wrapper can briefly satisfy the PID check and then exit cleanly
+# before the caller's first status query. Keep the record in `starting` until
+# the exact owned launcher survives a bounded stabilization window.
+for _ in 1 2 3 4 5 6 7 8; do
+  matches_owned_process "$DESKTOP_PID" "$DESKTOP_TICKS" "$DESKTOP_MARKER" ||
+    fail "desktop launcher exited before startup stabilization"
+  sleep 0.25
+done
 write_state running
 
 wait "$DESKTOP_PID"

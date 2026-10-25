@@ -169,6 +169,21 @@ class DesktopSupervisorProcessGroupTest(unittest.TestCase):
         self.assertIn(b"XDG_CURRENT_DESKTOP=GNOME", environ)
         self._stop_supervisor()
 
+    def test_clean_exit_during_stabilization_is_not_reported_running(self):
+        self._write_executable(
+            self.xfce,
+            "#!/usr/bin/env python3\nimport time\ntime.sleep(0.45)\n",
+        )
+        self._start()
+        deadline = time.monotonic() + 8
+        while time.monotonic() < deadline and self.supervisor.poll() is None:
+            time.sleep(0.05)
+        self.assertIsNotNone(self.supervisor.poll(), "short-lived session was accepted as running")
+        state = json.loads((self.state / "session.json").read_text(encoding="utf-8"))
+        self.assertEqual(state["status"], "failed")
+        self.assertIn("exited before startup stabilization", state["error"])
+        self._assert_pid_not_live(state["x11"]["pid"])
+
     def test_stop_terminates_only_owned_groups_and_descendants(self):
         self.unrelated = subprocess.Popen(["/bin/sleep", "90"])
         self._start()
