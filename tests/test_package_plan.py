@@ -132,6 +132,8 @@ class PackagePlanTest(unittest.TestCase):
         self.assertIn("proot-distro", roots)
         self.assertNotIn("virglrenderer-android", roots)
         self.assertIn("xfce4-session", roots)
+        self.assertIn("mesa-demos", roots)
+        self.assertIn("vulkan-tools", roots)
 
     def test_candidate_repository_is_checked_from_policy_origin_lines(self):
         policy = """xfce4-session:
@@ -278,6 +280,19 @@ echo 'install ok installed'
             self.assertIn("xfce4-session=4.20.4-1", capture.read_text(encoding="utf-8"))
             records = list((Path(temporary) / "home/.local/share/ternuxx/install-transactions").glob("*.json"))
             self.assertEqual({json.loads(item.read_text())["outcome"] for item in records}, {"preview", "applied"})
+
+    def test_global_cli_verbose_flag_reaches_install_transaction_preview(self):
+        with tempfile.TemporaryDirectory(prefix="ternuxx-install-global-verbose-") as temporary:
+            env, _capture = self._install_command_fixture(temporary)
+            env["TERNUXX_VERBOSE"] = "1"
+            result = subprocess.run(
+                ["bash", "-c", 'source "$1"; nt_require_termux() { return 0; }; nt_cmd_install preview',
+                 "bash", str(PHASES)],
+                env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("Reading package lists", result.stdout)
+            self.assertIn("Resolved APT transaction", result.stderr)
 
     def test_install_preview_is_concise_and_verbose_mode_shows_simulation(self):
         with tempfile.TemporaryDirectory(prefix="ternuxx-install-output-") as temporary:

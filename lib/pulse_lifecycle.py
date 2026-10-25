@@ -142,15 +142,46 @@ def _read_private_file(path: Path, *, maximum: int) -> bytes:
 
 def _cookie(paths: dict[str, Path]) -> Path:
     config_dir = paths["cookie"].parent
-    config_info = config_dir.lstat()
-    if (not stat.S_ISDIR(config_info.st_mode) or config_info.st_uid != os.getuid()
-            or config_info.st_mode & 0o077 or config_dir.is_symlink()
-            or config_dir.absolute() != config_dir.resolve(strict=False)):
-        raise PulseError("Native PulseAudio cookie directory is unsafe")
-    payload = _read_private_file(paths["cookie"], maximum=256)
+    config_root = config_dir.parent
+    for directory in (config_root, config_dir):
+        try:
+            info = directory.lstat()
+        except FileNotFoundError:
+            directory.mkdir(mode=0o700)
+            info = directory.lstat()
+        unsafe_mode = info.st_mode & (0o022 if directory == config_root else 0o077)
+        if (not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid()
+                or unsafe_mode or directory.is_symlink()
+                or directory.absolute() != directory.resolve(strict=False)):
+            raise PulseError("Native PulseAudio cookie directory is unsafe")
+    cookie = paths["cookie"]
+    try:
+        info = cookie.lstat()
+    except FileNotFoundError:
+        flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        fd = os.open(cookie, flags, 0o600)
+        try:
+            os.fchmod(fd, 0o600)
+            with os.fdopen(fd, "wb", closefd=True) as stream:
+                stream.write(os.urandom(256))
+                stream.flush()
+                os.fsync(stream.fileno())
+        except BaseException:
+            try:
+                os.close(fd)
+            except OSError:
+                pass
+            raise
+        info = cookie.lstat()
+    if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid()
+            or info.st_mode & 0o077):
+        raise PulseError("unsafe private PulseAudio file: cookie")
+    payload = _read_private_file(cookie, maximum=256)
     if len(payload) != 256:
-        raise PulseError("Native PulseAudio cookie is missing or has an unexpected size")
-    return paths["cookie"]
+        raise PulseError("PulseAudio cookie has an unexpected size")
+    return cookie
 
 
 def managed_config(source: str, cookie_path: str) -> str:

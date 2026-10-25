@@ -24,6 +24,8 @@ _NT_BASE_PACKAGES=(
   thunar
   xfce4-terminal
   glmark2
+  mesa-demos
+  vulkan-tools
   xorg-server-xvfb
   xdotool
 )
@@ -95,7 +97,7 @@ _nt_make_install_plan() {
       continue
     fi
     case "$package" in
-      dbus|pulseaudio|python|proot-distro) expected_repo="termux-main" ;;
+      dbus|pulseaudio|python|proot-distro|vulkan-tools) expected_repo="termux-main" ;;
       *) expected_repo="termux-x11" ;;
     esac
     candidate="$(_nt_package_candidate_from_official_repo "$package" "$expected_repo")" || {
@@ -155,7 +157,7 @@ _nt_make_update_plan() {
   for package in "${_NT_BASE_PACKAGES[@]}"; do
     _nt_package_installed "$package" || continue
     case "$package" in
-      dbus|pulseaudio|python|proot-distro) expected_repo="termux-main" ;;
+      dbus|pulseaudio|python|proot-distro|vulkan-tools) expected_repo="termux-main" ;;
       *) expected_repo="termux-x11" ;;
     esac
     installed="$(dpkg-query -W -f='${Version}' "$package" 2>/dev/null)" || {
@@ -377,7 +379,9 @@ PYRECORD
 }
 
 nt_cmd_install() {
-  local apply=0 consent=0 update=0 verbose=0 arg plan_id=""
+  # `bin/tx` consumes --verbose as a global flag before dispatch, so carry its
+  # value into this command as well as accepting the direct helper argument.
+  local apply=0 consent=0 update=0 verbose="${TERNUXX_VERBOSE:-0}" arg plan_id=""
   while [ $# -gt 0 ]; do
     arg="$1"; shift
     case "$arg" in

@@ -21,6 +21,35 @@ def snapshot(path, expected):
     return item.st_dev, item.st_ino
 
 
+def ensure_socket_directory(root):
+    """Create the Native X11 socket directory only under a real owned temp root."""
+    root = os.path.abspath(root)
+    try:
+        root_stat = os.lstat(root)
+    except OSError:
+        return "unsafe"
+    if (stat.S_ISLNK(root_stat.st_mode) or not stat.S_ISDIR(root_stat.st_mode)
+            or root_stat.st_uid != os.getuid() or os.path.realpath(root) != root):
+        return "unsafe"
+
+    socket_dir = os.path.join(root, ".X11-unix")
+    try:
+        os.mkdir(socket_dir, 0o700)
+        created = True
+    except FileExistsError:
+        created = False
+    except OSError:
+        return "unsafe"
+    try:
+        directory_stat = os.lstat(socket_dir)
+    except OSError:
+        return "unsafe"
+    if (stat.S_ISLNK(directory_stat.st_mode) or not stat.S_ISDIR(directory_stat.st_mode)
+            or directory_stat.st_uid != os.getuid()):
+        return "unsafe"
+    return "created" if created else "existing"
+
+
 def prepare(root, number):
     if not number.isdigit() or not 0 <= int(number) <= 10:
         return "busy"
@@ -142,11 +171,13 @@ def recover(root, number, expected_pid):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 3 and sys.argv[1] == "ensure-directory":
+        result = ensure_socket_directory(sys.argv[2])
+    elif len(sys.argv) == 3:
         result = prepare(sys.argv[1], sys.argv[2])
     elif len(sys.argv) == 5 and sys.argv[1] == "recover":
         result = recover(sys.argv[2], sys.argv[3], sys.argv[4])
     else:
         raise SystemExit(2)
     print(result)
-    raise SystemExit(0 if result in ("available", "recovered") else 1)
+    raise SystemExit(0 if result in ("available", "recovered", "created", "existing") else 1)

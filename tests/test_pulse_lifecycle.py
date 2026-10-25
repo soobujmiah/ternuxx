@@ -95,6 +95,42 @@ class PulseLifecycleTests(unittest.TestCase):
             with self.assertRaisesRegex(pulse_lifecycle.PulseError, "unexpected size"):
                 pulse_lifecycle._cookie({"cookie": cookie})
 
+    def test_cookie_creates_missing_private_native_config_and_cookie(self):
+        with tempfile.TemporaryDirectory() as directory:
+            cookie = Path(directory) / ".config" / "pulse" / "cookie"
+            result = pulse_lifecycle._cookie({"cookie": cookie})
+            self.assertEqual(result, cookie)
+            self.assertEqual(stat.S_IMODE(cookie.parent.parent.stat().st_mode), 0o700)
+            self.assertEqual(stat.S_IMODE(cookie.parent.stat().st_mode), 0o700)
+            self.assertEqual(stat.S_IMODE(cookie.stat().st_mode), 0o600)
+            self.assertEqual(len(cookie.read_bytes()), 256)
+            original = cookie.read_bytes()
+            self.assertEqual(pulse_lifecycle._cookie({"cookie": cookie}), cookie)
+            self.assertEqual(cookie.read_bytes(), original)
+
+    def test_cookie_allows_non_writable_shared_config_root_but_keeps_pulse_private(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            config = root / ".config"
+            config.mkdir(mode=0o755)
+            config.chmod(0o755)
+            cookie = config / "pulse" / "cookie"
+            pulse_lifecycle._cookie({"cookie": cookie})
+            self.assertEqual(stat.S_IMODE(config.stat().st_mode), 0o755)
+            self.assertEqual(stat.S_IMODE(cookie.parent.stat().st_mode), 0o700)
+            self.assertEqual(stat.S_IMODE(cookie.stat().st_mode), 0o600)
+
+    def test_cookie_refuses_symlinked_config_root(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            actual = root / "actual"
+            actual.mkdir(mode=0o700)
+            (root / ".config").symlink_to(actual)
+            cookie = root / ".config" / "pulse" / "cookie"
+            with self.assertRaisesRegex(pulse_lifecycle.PulseError, "directory is unsafe"):
+                pulse_lifecycle._cookie({"cookie": cookie})
+            self.assertFalse((actual / "pulse").exists())
+
     def test_audio_record_rejects_symlink_and_unsafe_mode(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

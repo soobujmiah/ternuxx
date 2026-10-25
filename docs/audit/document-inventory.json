@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 543,
-  "read_count": 174,
+  "document_count": 544,
+  "read_count": 175,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "4ccb9db16537658fc8a940d5a42ef9d1aabbd2ed3cfe8705221bcf215dadb769",
-      "lines": 29,
+      "sha256": "e3dcaddc76bfbb3601f8bf94c33a9e2b1fae59330973889d1288697015db1c96",
+      "lines": 31,
       "read_status": "read",
-      "read_sha256": "4ccb9db16537658fc8a940d5a42ef9d1aabbd2ed3cfe8705221bcf215dadb769"
+      "read_sha256": "e3dcaddc76bfbb3601f8bf94c33a9e2b1fae59330973889d1288697015db1c96"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "ce544a9db0e1c548204f659502407d0b6da883bf515a431b2241139152c711f6",
-      "lines": 57,
+      "sha256": "328615df02c1e0e4c7fdbf3a9af6b66be1622b50f37ecf258c8bd0594fa6d399",
+      "lines": 97,
       "read_status": "read",
-      "read_sha256": "ce544a9db0e1c548204f659502407d0b6da883bf515a431b2241139152c711f6"
+      "read_sha256": "328615df02c1e0e4c7fdbf3a9af6b66be1622b50f37ecf258c8bd0594fa6d399"
     },
     {
       "path": "SECURITY.md",
@@ -147,10 +147,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "4581bfd6bc1f5ed712b3df3de8912ed1d54406af24c44601677fbc24dec2bc15",
-      "lines": 82,
+      "sha256": "ab3375c2ce0f37a123c65406e0966eb7408698bca9e25a532209818d9b279010",
+      "lines": 94,
       "read_status": "read",
-      "read_sha256": "4581bfd6bc1f5ed712b3df3de8912ed1d54406af24c44601677fbc24dec2bc15"
+      "read_sha256": "ab3375c2ce0f37a123c65406e0966eb7408698bca9e25a532209818d9b279010"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -535,6 +535,14 @@
       "lines": 180,
       "read_status": "read",
       "read_sha256": "d071d65ea4179a9984d27a493060cdfe6f6c445ff23f1db9b1141b3155a62f28"
+    },
+    {
+      "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
+      "kind": "narrative",
+      "sha256": "a61e267749844d536c328e7e07713512f14816982db7b4c53cb5940c9e3edb09",
+      "lines": 60,
+      "read_status": "read",
+      "read_sha256": "a61e267749844d536c328e7e07713512f14816982db7b4c53cb5940c9e3edb09"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",

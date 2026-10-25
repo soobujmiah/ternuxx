@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from lib.x11_display import prepare, recover
+from lib.x11_display import ensure_socket_directory, prepare, recover
 
 
 class DisplayZeroRecoveryTest(unittest.TestCase):
@@ -19,6 +19,51 @@ class DisplayZeroRecoveryTest(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+    def test_startup_creates_missing_socket_directory_under_owned_root(self):
+        socket_dir = self.root / ".X11-unix"
+        socket_dir.rmdir()
+        self.assertEqual(ensure_socket_directory(str(self.root)), "created")
+        self.assertTrue(socket_dir.is_dir())
+        self.assertEqual(socket_dir.stat().st_mode & 0o777, 0o700)
+        self.assertEqual(prepare(str(self.root), "1"), "available")
+
+    def test_startup_preserves_existing_socket_directory(self):
+        socket_dir = self.root / ".X11-unix"
+        before = socket_dir.stat()
+        self.assertEqual(ensure_socket_directory(str(self.root)), "existing")
+        after = socket_dir.stat()
+        self.assertEqual((after.st_ino, after.st_mode), (before.st_ino, before.st_mode))
+
+    def test_startup_rejects_symlinked_socket_directory(self):
+        socket_dir = self.root / ".X11-unix"
+        socket_dir.rmdir()
+        target = self.root / "elsewhere"
+        target.mkdir()
+        socket_dir.symlink_to(target, target_is_directory=True)
+        self.assertEqual(ensure_socket_directory(str(self.root)), "unsafe")
+        self.assertTrue(target.is_dir())
+
+    def test_startup_rejects_symlinked_temp_root(self):
+        link = self.root.parent / (self.root.name + "-link")
+        link.symlink_to(self.root, target_is_directory=True)
+        try:
+            self.assertEqual(ensure_socket_directory(str(link)), "unsafe")
+        finally:
+            link.unlink()
+
+    def test_startup_rejects_symlinked_temp_root_ancestor(self):
+        real_root = self.root / "real-root"
+        real_root.mkdir(mode=0o700)
+        nested = real_root / "tmp"
+        nested.mkdir(mode=0o700)
+        link = self.root / "ancestor-link"
+        link.symlink_to(real_root, target_is_directory=True)
+        try:
+            self.assertEqual(ensure_socket_directory(str(link / "tmp")), "unsafe")
+            self.assertFalse((nested / ".X11-unix").exists())
+        finally:
+            link.unlink()
 
     def test_empty_display_zero_is_available(self):
         self.assertEqual(prepare(str(self.root), "0"), "available")

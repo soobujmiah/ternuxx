@@ -258,6 +258,11 @@ nt_cmd_start() {
   esac
 
   tmp_root="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+  if [ -f "$_TN_LIB_DIR/x11_display.py" ]; then
+    python3 "$_TN_LIB_DIR/x11_display.py" ensure-directory "$tmp_root" >/dev/null 2>&1 || {
+      nt_fail "Native X11 socket directory is unsafe or unavailable; no display process was started."; return 1;
+    }
+  fi
   if [ -z "$display_number" ]; then
     display_number="$(nt_find_free_display)" || { nt_fail "Canonical Native Termux display :1 is occupied or ambiguous; inspect its owner instead of starting a duplicate display."; return 1; }
   fi
