@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 568,
+  "document_count": 572,
   "read_count": 170,
   "reading_complete": false,
   "broken_local_links": [],
@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "c8897bccadfec0f411a417b9d662ea27c60bdbe6f33da8f738c14c149cbd5c23",
+      "sha256": "a510dbf4f82575ff86850179fb1d452d44daf25475f742c67c672d90a858286f",
       "lines": 37,
       "read_status": "pending",
       "read_sha256": null
@@ -179,8 +179,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "6a0eb7a8fa3e2857297650d357311fb944c8fff59043122c94fe30e448560a47",
-      "lines": 169,
+      "sha256": "46c8d4ce293f2d129d8bcb73d0e72b2945574550b39c5965a1eea60baa04d652",
+      "lines": 170,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -235,7 +235,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "0578af58c678b91ad3d7765db3c6274b7fab79b1fefcd9873460eea3a7e03233",
+      "sha256": "950027ddc48d687102dfc82f01a87f3f509222819f03540c1d9bad00acb9fd1f",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -539,8 +539,8 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "31f8ed583333852c82fc9a1181a8e692734caefe8538dee103e735e2004e30ed",
-      "lines": 131,
+      "sha256": "f7fae9ca42869152fa9ac611a84fcce804e6575997dc5abe2a8fbf70b01cd7c0",
+      "lines": 135,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3561,6 +3561,14 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
+      "kind": "narrative",
+      "sha256": "6f655a27f4e5054963748de9dd4a8a5004570388cc9df6176c1621a050c9cd25",
+      "lines": 29,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",
       "kind": "narrative",
       "sha256": "27b8cd0ace883489395669f9fa69229dd52457681cb39d6e8803311a59b23020",
@@ -3845,6 +3853,30 @@
       "kind": "structured",
       "sha256": "71b832a840fb8d68538954aec752d4adaf2a03f79862ff6da46cb55533c47fce",
       "lines": 1,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/data/2026-10-26-p12-mesa-generated-source-audit-40128850286.json",
+      "kind": "structured",
+      "sha256": "c3cc97633bf17e57f428c54f97a6e9a7f99508cf09f3cb61bd923bb7d60ea0f8",
+      "lines": 23883,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/data/2026-10-26-p12-mesa-source-tree-supplement-40128850286.json",
+      "kind": "structured",
+      "sha256": "721ce1aad9d1535aa53f502d7ed961592feb089b948c4a6678facf9dc138cc80",
+      "lines": 15,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/data/2026-10-26-p12-wayland-protocol-inputs-40128850286.json",
+      "kind": "structured",
+      "sha256": "f42313bdaff0372590cd74b3b37f1b341de7d9d49beba48af734fc9068d38931",
+      "lines": 97,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -4187,8 +4219,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "81156a564c3a2769973e46e284c1d8b7ad8be986914a0fb36c447a8eaae3a419",
-      "lines": 272,
+      "sha256": "a5293a4a5852c6d371870120b6d08b6150d71e7fb825fb4b76ac75e903e27184",
+      "lines": 273,
       "read_status": "pending",
       "read_sha256": null
     },

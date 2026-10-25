@@ -11,6 +11,10 @@ This tracker follows the owner-authorized clean-room workstation mandate. It rec
 
 Live Debian desktop routes: XFCE/LXQt/LXDE/MATE pass on standalone `:0` and nested `:2`; Plasma passes standalone only and remains disabled on nested. GNOME and Cinnamon remain install-catalog choices without an accepted route and are not installed. The failed desktop packages/dependencies were previewed and cleaned, Plasma was restored from its exact package preview after reconciling newer standalone evidence, and launch shortcuts now match the accepted matrix. Native XFCE is restored/live on `:1`, with a fresh Adreno 825 GLES and Vulkan draw check. GUI visibility remains unknown without Android capture. See [PRoot desktop route requalification](../evidence/2026-10-26-proot-desktop-route-requalification.md).
 
+## P12 source-provenance checkpoint (2026-10-26)
+
+The pinned Mesa build-graph audit now maps all 75 generated outputs and 12 paths outside the Mesa source tree. Seven external Wayland protocol XML inputs are traced to the checksum-matched 1.49 source release; five Rust binding outputs, exact dependency package bytes, generated-file notices, and package attribution remain open. This audit does not make a redistribution or licensing conclusion. See [P12 generated/external source follow-up](../evidence/2026-10-26-p12-mesa-generated-source-follow-up.md).
+
 ## Baseline observed
 
 - The checkout remote is `https://github.com/soobujmiah/ternuxx.git`; the initial `main` tree was clean.

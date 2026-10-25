@@ -65,9 +65,16 @@ def _edge_index(build_ninja: str) -> dict[str, dict[str, object]]:
     return edges
 
 
+def _canonical_path(raw: str, root: str) -> str:
+    """Normalize Ninja absolute paths, including valid implementation-defined // prefixes."""
+    if raw.startswith("/"):
+        return posixpath.normpath("/" + raw.lstrip("/"))
+    return posixpath.normpath(posixpath.join(root, raw))
+
+
 def _classify_input(raw: str, *, build_root: str, source_root: str,
                     inventory: dict[str, dict[str, object]], generated_paths: set[str]) -> dict[str, object]:
-    normalized = posixpath.normpath(raw if raw.startswith("/") else posixpath.join(build_root, raw))
+    normalized = _canonical_path(raw, build_root)
     prefix = source_root.rstrip("/") + "/"
     if normalized.startswith(prefix):
         relative = normalized[len(prefix):]
@@ -88,7 +95,8 @@ def _classify_input(raw: str, *, build_root: str, source_root: str,
 
 
 def audit_generated_outputs(build_ninja_path: Path, source_map_path: Path,
-                            inventory_path: Path) -> dict[str, object]:
+                            inventory_path: Path,
+                            supplemental_inventory_path: Path | None = None) -> dict[str, object]:
     graph = _read_json(source_map_path)
     inventory_doc = _read_json(inventory_path)
     if not isinstance(graph, dict) or not isinstance(graph.get("generated_outputs"), list):
@@ -109,6 +117,27 @@ def audit_generated_outputs(build_ninja_path: Path, source_map_path: Path,
         if not isinstance(item.get("sha256"), str):
             raise GeneratedAuditError(f"source inventory has no hash for {item['path']}")
         inventory[item["path"]] = item
+    supplemental_inventory_sha256 = None
+    if supplemental_inventory_path is not None:
+        supplemental_doc = _read_json(supplemental_inventory_path)
+        if (not isinstance(supplemental_doc, dict)
+                or supplemental_doc.get("source_commit") != graph.get("source_commit")
+                or supplemental_doc.get("source_repository") != graph.get("source_repository")
+                or not isinstance(supplemental_doc.get("files"), list)):
+            raise GeneratedAuditError("supplemental inventory provenance does not match the source graph")
+        supplemental_inventory_sha256 = _sha256(supplemental_inventory_path)
+        for item in supplemental_doc["files"]:
+            if (not isinstance(item, dict) or not isinstance(item.get("path"), str)
+                    or not isinstance(item.get("sha256"), str)
+                    or not re.fullmatch(r"[0-9a-f]{64}", item["sha256"])
+                    or not isinstance(item.get("git_blob_sha1"), str)
+                    or not re.fullmatch(r"[0-9a-f]{40}", item["git_blob_sha1"])
+                    or item.get("header_license_status") not in {"IDENTIFIER_PRESENT", "NOASSERTION"}
+                    or not isinstance(item.get("spdx_header_identifiers"), list)):
+                raise GeneratedAuditError("supplemental source record is malformed")
+            if item["path"] in inventory:
+                raise GeneratedAuditError(f"supplemental source repeats indexed path {item['path']}")
+            inventory[item["path"]] = item
     try:
         text = build_ninja_path.read_text(encoding="utf-8")
     except (OSError, UnicodeError) as exc:
@@ -174,7 +203,7 @@ def audit_generated_outputs(build_ninja_path: Path, source_map_path: Path,
     for item in outside_items:
         if not isinstance(item, dict) or not isinstance(item.get("path"), str):
             raise GeneratedAuditError("source map contains a malformed outside-root input")
-        path = posixpath.normpath(item["path"])
+        path = _canonical_path(item["path"], build_root)
         record: dict[str, object] = {"path": path, "target_ids": item.get("target_ids", [])}
         if path.startswith(build_root.rstrip("/") + "/"):
             relative = posixpath.relpath(path, build_root)
@@ -192,8 +221,7 @@ def audit_generated_outputs(build_ninja_path: Path, source_map_path: Path,
             for edge in {id(value): value for value in edges.values()}.values():
                 sections = edge["inputs"]
                 assert isinstance(sections, dict)
-                if any(posixpath.normpath(raw if raw.startswith("/") else
-                       posixpath.join(build_root, raw)) == path
+                if any(_canonical_path(raw, build_root) == path
                        for paths in sections.values() for raw in paths):
                     references.append({"outputs": edge["outputs"], "rule": edge["rule"],
                                        "ninja_line": edge["line"]})
@@ -205,6 +233,8 @@ def audit_generated_outputs(build_ninja_path: Path, source_map_path: Path,
     if unmatched_outside:
         raise GeneratedAuditError(f"{len(unmatched_outside)} outside-source paths have no Ninja edge: "
                                   + ", ".join(unmatched_outside[:3]))
+    indexed_source_inputs = [record for output in output_records for record in output["inputs"]
+                             if record["kind"] == "source"]
     return {
         "schema_version": 1,
         "source_commit": graph.get("source_commit"),
@@ -213,12 +243,17 @@ def audit_generated_outputs(build_ninja_path: Path, source_map_path: Path,
         "source_inventory_archive_sha256": inventory_doc.get("source_archive_sha256"),
         "target_build_ninja_sha256": _sha256(build_ninja_path),
         "source_map_sha256": _sha256(source_map_path),
+        "supplemental_source_inventory_sha256": supplemental_inventory_sha256,
         "scope_limit": "Direct Ninja build-edge inputs for configured generated outputs; this does not infer transitive link inputs or conclude licenses for generated code.",
         "counts": {"generated_outputs": len(output_records),
                    "outputs_with_ninja_edges": len(output_records),
                    "outside_source_root_paths": len(outside_records),
                    "outside_paths_mapped_to_ninja_edges": len(outside_records) - len(unmatched_outside),
                    "unique_source_inputs": len(source_inputs),
+                   "unique_source_inputs_with_spdx_header": len({str(item["path"]) for item in indexed_source_inputs
+                       if item.get("spdx_header_identifiers")}),
+                   "unique_source_inputs_without_recognized_spdx_header": len({str(item["path"]) for item in indexed_source_inputs
+                       if not item.get("spdx_header_identifiers")}),
                    "unindexed_source_inputs": len(unindexed_sources),
                    "unique_external_inputs": len(external_inputs),
                    "unique_external_tool_or_input_paths": len(tool_inputs),
@@ -235,10 +270,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--build-ninja", type=Path, required=True)
     parser.add_argument("--source-map", type=Path, required=True)
     parser.add_argument("--inventory", type=Path, required=True)
+    parser.add_argument("--supplemental-inventory", type=Path,
+                        help="optional commit-matched Git-tree source records absent from the source archive")
     parser.add_argument("--output", type=Path)
     args = parser.parse_args(argv)
     try:
-        result = audit_generated_outputs(args.build_ninja, args.source_map, args.inventory)
+        result = audit_generated_outputs(args.build_ninja, args.source_map, args.inventory,
+                                         args.supplemental_inventory)
         encoded = json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
         if args.output:
             args.output.write_text(encoded, encoding="utf-8")

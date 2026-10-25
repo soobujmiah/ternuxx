@@ -1,0 +1,97 @@
+{
+  "external_protocol_files": [
+    {
+      "copyright_lines": [
+        "Copyright © 2013-2014 Collabora, Ltd."
+      ],
+      "embedded_mit_permission_notice": true,
+      "mesa_build_path": "/data/data/com.termux/files/usr/share/wayland-protocols/stable/presentation-time/presentation-time.xml",
+      "sha256": "dffac93bcb2bb1d8c385e72b8a8c2c0d4d79a336866322f3ba886dce2b27b1e2",
+      "source_path": "wayland-protocols-1.49/stable/presentation-time/presentation-time.xml",
+      "spdx_header_identifiers": []
+    },
+    {
+      "copyright_lines": [
+        "Copyright 2019 Sebastian Wick",
+        "Copyright 2019 Erwin Burema",
+        "Copyright 2020 AMD",
+        "Copyright 2020-2024 Collabora, Ltd.",
+        "Copyright 2024 Xaver Hugl",
+        "Copyright 2022-2025 Red Hat, Inc."
+      ],
+      "embedded_mit_permission_notice": true,
+      "mesa_build_path": "/data/data/com.termux/files/usr/share/wayland-protocols/staging/color-management/color-management-v1.xml",
+      "sha256": "18a2678e3352c3be3fbeed20005d48852b7235d0d78f08b9c987a0b8e91449f9",
+      "source_path": "wayland-protocols-1.49/staging/color-management/color-management-v1.xml",
+      "spdx_header_identifiers": []
+    },
+    {
+      "copyright_lines": [
+        "Copyright © 2023 Valve Corporation"
+      ],
+      "embedded_mit_permission_notice": true,
+      "mesa_build_path": "/data/data/com.termux/files/usr/share/wayland-protocols/staging/commit-timing/commit-timing-v1.xml",
+      "sha256": "ff3fcf31d13d44bad756a50fda663a43008bacbbd2bf8cba3a1bf5ffe7f54172",
+      "source_path": "wayland-protocols-1.49/staging/commit-timing/commit-timing-v1.xml",
+      "spdx_header_identifiers": []
+    },
+    {
+      "copyright_lines": [
+        "Copyright © 2023 Valve Corporation"
+      ],
+      "embedded_mit_permission_notice": true,
+      "mesa_build_path": "/data/data/com.termux/files/usr/share/wayland-protocols/staging/fifo/fifo-v1.xml",
+      "sha256": "0b6c31dfe6bca19b712745c9de7a4a398558cfa1087b1938e96fd3b10ffc1069",
+      "source_path": "wayland-protocols-1.49/staging/fifo/fifo-v1.xml",
+      "spdx_header_identifiers": []
+    },
+    {
+      "copyright_lines": [
+        "Copyright 2016 The Chromium Authors.",
+        "Copyright 2017 Intel Corporation",
+        "Copyright 2018 Collabora, Ltd",
+        "Copyright 2021 Simon Ser"
+      ],
+      "embedded_mit_permission_notice": true,
+      "mesa_build_path": "/data/data/com.termux/files/usr/share/wayland-protocols/staging/linux-drm-syncobj/linux-drm-syncobj-v1.xml",
+      "sha256": "5ede41a56eced6aa635caa7ab2996066bff9fd211620dbf9f73aafab740bec71",
+      "source_path": "wayland-protocols-1.49/staging/linux-drm-syncobj/linux-drm-syncobj-v1.xml",
+      "spdx_header_identifiers": []
+    },
+    {
+      "copyright_lines": [
+        "Copyright © 2021 Xaver Hugl"
+      ],
+      "embedded_mit_permission_notice": true,
+      "mesa_build_path": "/data/data/com.termux/files/usr/share/wayland-protocols/staging/tearing-control/tearing-control-v1.xml",
+      "sha256": "846895b4a90ba1ddd75673cefc596480beef318f1694ec7dbca0fec54bb27043",
+      "source_path": "wayland-protocols-1.49/staging/tearing-control/tearing-control-v1.xml",
+      "spdx_header_identifiers": []
+    },
+    {
+      "copyright_lines": [
+        "Copyright © 2014, 2015 Collabora, Ltd."
+      ],
+      "embedded_mit_permission_notice": true,
+      "mesa_build_path": "/data/data/com.termux/files/usr/share/wayland-protocols/unstable/linux-dmabuf/linux-dmabuf-unstable-v1.xml",
+      "sha256": "0681c01199393662229b0d9f71a4bd502350ea8f782a7049fa30e392b50fb2c8",
+      "source_path": "wayland-protocols-1.49/unstable/linux-dmabuf/linux-dmabuf-unstable-v1.xml",
+      "spdx_header_identifiers": []
+    }
+  ],
+  "mesa_build_run": "https://github.com/soobujmiah/ternuxx/actions/runs/40128850286",
+  "mesa_configure_log_confirms_version": "1.49",
+  "package_recipe": "https://github.com/lfdevs/termux-packages/blob/0219ff84b372c9d38aad4e40f448c20ec3d1588e/packages/libwayland-protocols/build.sh",
+  "package_recipe_commit": "0219ff84b372c9d38aad4e40f448c20ec3d1588e",
+  "schema_version": 1,
+  "scope_limit": "The archive hash equals the pinned Termux recipe source checksum; each listed XML contains a copyright and MIT permission/warranty notice. The Mesa capture confirms dependency version and paths, but did not record the exact dependency .deb hash or source-file hashes inside the builder. Generated C/header output content, installed package-to-target attribution, and final notice closure remain unverified.",
+  "source_archive_copying_sha256": "f1a2b233e8a9a71c40f4aa885be08a0842ac85bb8588703c1dd7e6e6502e3124",
+  "source_archive_sha256": "ec4c8f74942d6dff7ace8b4ce4764f0ef9ff618a935d974ea77edee2ad240b14",
+  "source_archive_url": "https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.49/downloads/wayland-protocols-1.49.tar.xz",
+  "source_release": "1.49",
+  "source_repository": "https://gitlab.freedesktop.org/wayland/wayland-protocols",
+  "termux_declared_license": "MIT",
+  "termux_package": "libwayland-protocols",
+  "termux_package_version": "1.49",
+  "termux_source_archive_sha256": "ec4c8f74942d6dff7ace8b4ce4764f0ef9ff618a935d974ea77edee2ad240b14"
+}

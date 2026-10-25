@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Pinned CPU, Adreno 825 Vulkan, and experimental SM8735 HTP inference each passed ten-call answer-verified repeats using the owner's explicit thermal-limit override; Vulkan and HTP proved complete 29/29 layer offload on every call, with memory, timeout, fallback, and process checks active. Experimental KGSL Mesa GLES/Vulkan draws pass; source/notice/license closure and wider sustained/operator qualification remain open.
+Mesa generated-edge inputs are mapped; Wayland 1.49 source notices are checked; Rust generator provenance, package notice closure, and longer guarded workload qualification remain open.
 
-**Next action:** Complete the 12 external-input and 75 generated-output Mesa source, SPDX, attribution, and shipped-notice audit; then measure longer bounded CPU/Vulkan/HTP workloads with memory, timeout, and process guards active and thermal readings observed. Keep experimental Mesa and HTP status clearly labeled; no stable clean-install path is qualified.
+**Next action:** Extend the pinned workflow to capture external dependency file/package hashes, Rust/Cargo generator inputs and generated-output hashes/headers, and Meson install-plan/package provenance; audit shipped notice closure and remaining applicable license records, then continue longer bounded CPU/Vulkan/HTP qualification with memory, timeout and process guards active.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -167,3 +167,4 @@ Evidence:
 - [docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md](evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md)
 - [docs/evidence/2026-10-25-p12-mesa-build-artifact-audit.md](evidence/2026-10-25-p12-mesa-build-artifact-audit.md)
 - [docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md](evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md)
+- [docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md](evidence/2026-10-26-p12-mesa-generated-source-follow-up.md)

@@ -1,0 +1,15 @@
+{
+  "files": [
+    {
+      "git_blob_sha1": "45df8e9fd7ff88e1a13606ee5ceb1f96660fb0ba",
+      "header_license_status": "NOASSERTION",
+      "path": "src/mesa/glapi/glapi/gen/gl_API.dtd",
+      "sha256": "8ad2f9d85ef66bcf0c422bb7e78177f097173e4f458b570e6b3677e4004b4591",
+      "spdx_header_identifiers": []
+    }
+  ],
+  "provenance": "GitHub Git tree blob at the pinned source commit; Git blob SHA-1 recomputed from retrieved content.",
+  "schema_version": 1,
+  "source_commit": "98f3d6229d61452cef80f8563af7c56ae599dc14",
+  "source_repository": "https://github.com/lfdevs/mesa-for-android-container"
+}
