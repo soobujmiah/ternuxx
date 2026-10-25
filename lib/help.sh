@@ -120,14 +120,15 @@ EOF
     install) cat <<'EOF'
 tx install debian [--user NAME] — Guided setup of the managed Debian guest
 tx install debian preview --user NAME — Advanced review-only form; no guest changes
-tx install interactive — Choose and install a Native workstation profile
+tx install interactive — Choose, preview, and confirm a Native workstation profile in one session
 tx install preview [--profile NAME] [--components GROUPS] — Review exact package transaction
 tx install update preview — Review Native Ternuxx core updates
 tx install apply [--profile NAME] --yes --plan-id ID — Apply the exact saved plan
 Profiles: minimal-native, full-native, graphical, developer, native-proot-provider, native-debian (advanced combined), custom.
-Native profile installation offers optional managed Debian setup. The distro-named
-entrypoint shows the exact guest target and asks before applying it in the same
-terminal flow. Plan-ID commands are for explicit review and automation.
+The guided Native flow previews the transaction and asks before installing; after
+it, you can also set up the optional managed Debian guest. `tx install debian`
+shows its pinned target and confirms the same plan in one terminal flow. Plan-ID
+commands are for explicit review and automation.
 Custom groups: desktop,audio,proot,graphics,developer,mate,plasma. All profiles use the same
 repository and dependency checks. The PRoot-provider profile installs the runtime only.
 The native-debian profile is an advanced combined automation path.

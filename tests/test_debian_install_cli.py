@@ -77,6 +77,65 @@ nt_cmd_install debian --user sobuj
             self.assertIn("fresh-install", calls[1])
             self.assertIn(plan_id, calls[1])
 
+    def test_interactive_native_install_confirms_and_applies_without_plan_id_copy(self):
+        with tempfile.TemporaryDirectory(prefix="ternuxx-guided-native-") as tmp:
+            log = Path(tmp) / "calls.log"
+            script = '''source "$1"
+nt_require_termux() { return 0; }
+nt_require_command() { return 0; }
+_nt_package_index_fresh() { return 0; }
+_nt_choose_install_profile() { _nt_select_install_profile minimal-native; }
+_nt_make_install_plan() {
+  _NT_PLAN_PACKAGES=(python)
+  _NT_PLAN_VERSIONS=(python=3.14.8)
+  _NT_PLAN_TRANSACTION=(python=3.14.8)
+  _NT_PLAN_SIMULATION='Inst python (3.14.8 termux-main stable/main [aarch64])'
+  _NT_PLAN_RESOURCE_ESTIMATES='{"schema_version":1,"complete":true,"download_bytes":100,"installed_kib":200,"packages":[]}'
+}
+_nt_print_install_resource_estimates() { :; }
+_nt_write_install_record() { printf 'record:%s\n' "$1" >> "$CALL_LOG"; }
+_nt_compute_plan_id() { printf '%s\n' "$PLAN_ID"; }
+_nt_reviewed_preview_matches() { test "$1" = "$PLAN_ID"; }
+_nt_install_capacity_preflight() { return 0; }
+_nt_apply_install_transaction() { printf 'apply\n' >> "$CALL_LOG"; }
+_nt_offer_managed_debian() { printf 'guest-offer\n' >> "$CALL_LOG"; }
+nt_cmd_install interactive
+'''
+            master, slave = pty.openpty()
+            process = subprocess.Popen(
+                ["bash", "-c", script, "bash", str(ROOT / "lib" / "phases.sh")],
+                stdin=slave, stdout=slave, stderr=slave,
+                env={**os.environ, "CALL_LOG": str(log), "PLAN_ID": "d" * 64,
+                     "TERNUXX_JSON": "0", "TERMUX_VERSION": "fixture"},
+                close_fds=True, start_new_session=True,
+                preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0),
+            )
+            os.close(slave)
+            output = bytearray()
+            try:
+                while b"Install this Native workstation profile now?" not in output:
+                    ready, _, _ = select.select([master], [], [], 8)
+                    self.assertTrue(ready, "guided Native install did not reach confirmation")
+                    output.extend(os.read(master, 8192))
+                os.write(master, b"y\n")
+                while process.poll() is None:
+                    ready, _, _ = select.select([master], [], [], 8)
+                    if ready:
+                        try:
+                            output.extend(os.read(master, 8192))
+                        except OSError:
+                            break
+            finally:
+                os.close(master)
+                if process.poll() is None:
+                    process.kill()
+                    process.wait()
+            self.assertEqual(process.returncode, 0, output.decode(errors="replace"))
+            rendered = output.decode(errors="replace")
+            self.assertIn("Native preview: minimal-native", rendered)
+            self.assertNotIn("--plan-id", rendered)
+            self.assertEqual(log.read_text().splitlines(), ["record:preview", "record:applying", "apply", "record:applied", "guest-offer"])
+
     def test_unknown_generic_guest_route_is_rejected_before_package_probes(self):
         env = {
             **os.environ,

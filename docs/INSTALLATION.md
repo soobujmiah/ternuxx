@@ -27,28 +27,30 @@ python3 scripts/cli_entrypoint.py apply --yes --plan-id PLAN_ID
 tx help
 ```
 
-Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT` before using the shim. Preview every requested package and the complete dependency closure:
+Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT` before using the shim. For normal setup, run `tx install interactive` in the attached Native terminal. Choose a profile, review the short package summary, and answer `y` to install that exact transaction in the same session. Ternuxx then offers optional managed Debian setup. The normal path does not ask you to copy a plan ID.
+
+The guided transaction refuses removals, upgrades, recommendations, changed plans, and packages outside the official Termux repositories. It installs the selected Native packages; the Termux:X11 Android app is still installed separately. After setup, on Adreno/KGSL devices, `tx mng graphics select native termux-zink` can select stock Termux Mesa's Zink path for future desktop starts only after the installed ICD successfully enumerates a supported Vulkan device. This selection is not an acceleration claim: start a fresh Ternuxx desktop and run `tx mng graphics verify native opengl` and `tx mng graphics verify native vulkan`; only a rendered workload reporting the Adreno device counts as verified. `tx mng graphics select native system` returns future starts to the default Termux stack.
+
+For automation and detailed APT review, preview every requested package and the complete dependency closure:
 
 ```sh
 tx install preview --verbose
 ```
 
-The preview shows package versions, APT's full dependency simulation, approximate download and installed sizes from the signed package index, current free space on the Termux prefix filesystem, and a host memory snapshot. Add `--verbose` to see estimates per package. Memory and storage are observations, not guarantees. Review repository origins and the exact `PLAN_ID` before installing:
+The preview shows package versions, APT's full dependency simulation, approximate download and installed sizes from the signed package index, current free space on the Termux prefix filesystem, and a host memory snapshot. Memory and storage are observations, not guarantees. Review repository origins and the exact `PLAN_ID` before applying:
 
 ```sh
 tx install apply --yes --plan-id PLAN_ID
 ```
 
-The transaction refuses removals, upgrades, recommendations, changed plans, and packages outside the official Termux repositories. It installs the current Native CLI dependencies, XFCE/Termux:X11 desktop packages, audio support, `glxinfo`/`vulkaninfo` inspection tools, the official `mesa-vulkan-icd-freedreno` package, and the `proot-distro` runtime. On Adreno/KGSL devices, `tx mng graphics select native termux-zink` can select stock Termux Mesa's Zink path for future desktop starts only after the installed ICD successfully enumerates a supported Vulkan device. This selection is not an acceleration claim: start a fresh Ternuxx desktop and run `tx mng graphics verify native opengl` and `tx mng graphics verify native vulkan`; only a rendered workload reporting the Adreno device counts as verified. `tx mng graphics select native system` returns future starts to the default Termux stack. Tool availability does not qualify a renderer or workload. It does not create a Debian guest. If APT fails or is interrupted, some packages may already have changed: read the error, create a fresh preview for the same profile, and apply only its newly reviewed ID; do not assume the old plan still matches.
-
-For an interactive Native profile chooser, run `tx install interactive`; it previews the selected profile without applying it and suggests optional Debian setup. After a Native profile is applied, an attached terminal offers to start that managed Debian flow. Automated profile selection uses the same dependency resolver and exact-plan apply path:
+If APT fails or is interrupted, some packages may already have changed: read the error, create a fresh preview for the same profile, and apply only its newly reviewed ID; do not assume the old plan still matches. Automated profile selection uses the same dependency resolver and exact-plan apply path:
 
 ```sh
 tx install preview --profile minimal-native --verbose
 tx install apply --profile minimal-native --yes --plan-id PLAN_ID
 ```
 
-Available Native presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, `native-debian`, and `custom`. For direct optional managed guest setup, use `tx install debian`. Debian is currently the only distro with a pinned Ternuxx setup profile; other providers remain unavailable until they have distro-specific configuration and verification. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, `developer`, `mate`, and `plasma` with `--components`. The two route-verified alternate Native desktop groups (MATE and Plasma) resolve to the distro package for that session; XFCE remains the default and GNOME is not packaged in the Native Termux repository. The PRoot-provider preset installs only the provider package. The `native-debian` compatibility profile is an advanced automation path that reviews the Native package plan and fresh pinned Debian guest plan together. Most users should install a Native profile, accept the optional Debian setup prompt, or later run `tx install debian`. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
+Available Native presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, `native-debian`, and `custom`. For direct optional managed guest setup, use `tx install debian`. Debian is currently the only distro with a pinned Ternuxx setup profile; other providers remain unavailable until they have distro-specific configuration and verification. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, `developer`, `mate`, and `plasma` with `--components`. The two route-verified alternate Native desktop groups (MATE and Plasma) resolve to the distro package for that session; XFCE remains the default and GNOME is not packaged in the Native Termux repository. The PRoot-provider preset installs only the provider package. The `native-debian` compatibility profile is an advanced automation path that reviews the Native package plan and fresh pinned Debian guest plan together. Most users can run `tx install interactive`, confirm the Native package summary, and accept the optional Debian setup prompt; later, `tx install debian` starts that guest flow directly. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
 
 Run read-only checks after installation:
 

@@ -72,6 +72,8 @@
         "glx_draw",
         "glx_draw_frames",
         "glx_draw_renderer",
+        "vulkan_draw",
+        "vulkan_draw_device",
         "dri3_extension"
       ],
       "properties": {
@@ -156,6 +158,13 @@
           ],
           "maxLength": 1024
         },
+        "vulkan_draw": {
+          "enum": ["verified", "software", "failed", "unavailable", "skipped", "other", "unknown"]
+        },
+        "vulkan_draw_device": {
+          "type": ["string", "null"],
+          "maxLength": 1024
+        },
         "dri3_extension": {
           "enum": [
             "available",
@@ -167,7 +176,7 @@
     },
     "blockers": {
       "type": "array",
-      "maxItems": 4,
+      "maxItems": 8,
       "items": {
         "type": "string",
         "maxLength": 120

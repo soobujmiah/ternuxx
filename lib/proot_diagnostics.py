@@ -303,6 +303,7 @@ def _verification_result(*, status: str, display: str, backend: str,
                          gles_context: str = "unknown", gles_renderer: str | None = None,
                          gles_version: str | None = None, glx_draw: str = "unavailable",
                          glx_draw_frames: int = 0, glx_draw_renderer: str | None = None,
+                         vulkan_draw: str = "unavailable", vulkan_draw_device: str | None = None,
                          dri3_extension: str = "unknown", blockers: list[str] | None = None,
                          native_pulseaudio_endpoint: dict[str, str | None] | None = None
                          ) -> dict[str, object]:
@@ -322,7 +323,8 @@ def _verification_result(*, status: str, display: str, backend: str,
                    "gles_context": gles_context, "gles_renderer": gles_renderer,
                    "gles_version": gles_version, "gles_draw_verified": False,
                    "glx_draw": glx_draw, "glx_draw_frames": glx_draw_frames,
-                   "glx_draw_renderer": glx_draw_renderer, "dri3_extension": dri3_extension},
+                   "glx_draw_renderer": glx_draw_renderer, "vulkan_draw": vulkan_draw,
+                   "vulkan_draw_device": vulkan_draw_device, "dri3_extension": dri3_extension},
         "blockers": blockers or [],
         "read_only": not guest_entered,
         "probe_payload_read_only": True,
@@ -424,6 +426,26 @@ if [ -n "$gles_renderer" ] && [ -n "$gles_version" ]; then
 else
   printf 'GLES context: unavailable\nGLES renderer: unavailable\nGLES version: unavailable\n'
 fi
+vulkan_draw=skipped
+vulkan_draw_device=
+if [ "${GALLIUM_DRIVER:-}" = zink ]; then
+  vulkan_draw=unavailable
+  if command -v vkcube >/dev/null 2>&1 && command -v timeout >/dev/null 2>&1; then
+    vkcube_output=$(timeout -s TERM 15s vkcube --c 120 2>&1)
+    vkcube_status=$?
+    vulkan_draw_device=$(printf '%s\n' "$vkcube_output" | sed -n 's/^Selected GPU [0-9][0-9]*: //p' | head -n 1)
+    if [ "$vkcube_status" -eq 0 ] && [ -n "$vulkan_draw_device" ]; then
+      case "$vulkan_draw_device" in
+        *Adreno*|*adreno*|*Turnip*|*turnip*) vulkan_draw=verified ;;
+        *llvmpipe*|*lavapipe*|*softpipe*|*Software*) vulkan_draw=software ;;
+        *) vulkan_draw=other ;;
+      esac
+    else
+      vulkan_draw=failed
+    fi
+  fi
+fi
+printf 'Vulkan draw: %s\nVulkan draw device: %s\n' "$vulkan_draw" "${vulkan_draw_device:-unavailable}"
 if command -v pactl >/dev/null 2>&1 && pactl --server "${PULSE_SERVER:-tcp:127.0.0.1:4713}" info >/dev/null 2>&1; then
   printf 'Audio: PulseAudio reachable\n'
 else
@@ -498,7 +520,7 @@ def verify_proot_guest(*, distro: str, user: str, display: str, backend: str,
     try:
         result = runner(_guest_command(manager, user, display, backend, _GUEST_PROBE_SCRIPT,
                                        prefix=prefix, cookie_path=cookie_path, distro=distro),
-                        capture_output=True, text=True, timeout=30, check=False)
+                        capture_output=True, text=True, timeout=45, check=False)
     except (OSError, subprocess.TimeoutExpired):
         return verification_result(status="unknown", display=display, backend=backend,
                                   guest_entered=True,
@@ -511,7 +533,8 @@ def verify_proot_guest(*, distro: str, user: str, display: str, backend: str,
         key, value = line.split(":", 1)
         key, value = key.strip().lower(), value.strip()
         if key in {"display", "x11", "audio", "renderer", "gles context", "gles renderer", "gles version",
-                   "glx draw", "glx draw frames", "glx draw renderer", "dri3 extension"}:
+                   "glx draw", "glx draw frames", "glx draw renderer", "vulkan draw",
+                   "vulkan draw device", "dri3 extension"}:
             values[key] = value
     observed_display = values.get("display")
     x11 = "reachable" if values.get("x11") == "reachable" else "unavailable" if "x11" in values else "unknown"
@@ -548,6 +571,21 @@ def verify_proot_guest(*, distro: str, user: str, display: str, backend: str,
     dri3_extension = values.get("dri3 extension")
     if dri3_extension not in {"available", "unavailable"}:
         dri3_extension = "unknown"
+    vulkan_draw = values.get("vulkan draw")
+    if vulkan_draw not in {"verified", "software", "failed", "unavailable", "skipped", "other"}:
+        vulkan_draw = "unknown"
+    vulkan_draw_device = values.get("vulkan draw device")
+    if vulkan_draw_device and (len(vulkan_draw_device) > 1024
+                               or any(ord(char) < 32 for char in vulkan_draw_device)):
+        vulkan_draw_device = None
+    if vulkan_draw == "verified" and (
+            not vulkan_draw_device or not any(token in vulkan_draw_device.lower()
+                                               for token in ("adreno", "turnip"))):
+        vulkan_draw = "failed"
+    if vulkan_draw == "software" and (
+            not vulkan_draw_device or not any(token in vulkan_draw_device.lower()
+                                               for token in ("llvmpipe", "lavapipe", "softpipe", "software"))):
+        vulkan_draw = "unknown"
     glx_draw_status = values.get("glx draw")
     if glx_draw_status not in {"verified", "failed", "unavailable"}:
         glx_draw_status = "unknown"
@@ -570,16 +608,23 @@ def verify_proot_guest(*, distro: str, user: str, display: str, backend: str,
         blockers.append("guest X11 connection is not verified")
     if audio != "reachable":
         blockers.append("guest PulseAudio connection is not verified")
+    if backend == "zink" and vulkan_draw != "verified":
+        blockers.append("bounded Vulkan draw did not verify an Adreno/Turnip device")
+    if glx_draw_status != "verified":
+        blockers.append("bounded GLX draw did not verify the requested backend")
     if renderer_class != expected_renderer:
         if renderer_class == "unavailable":
-            blockers.append("GLX renderer unavailable; GLES context does not verify a draw")
+            if vulkan_draw == "verified":
+                blockers.append("GLX renderer unavailable; bounded Vulkan draw verified, but GLX desktop rendering remains unverified")
+            else:
+                blockers.append("GLX renderer unavailable; GLES context does not verify a draw")
         else:
             blockers.append("observed renderer does not match the explicitly requested backend")
     if result.returncode != 0 and not blockers:
         blockers.append("guest probe reported one or more failed checks")
-    if not result.stdout.strip() and len(blockers) < 4:
+    if not result.stdout.strip() and len(blockers) < 8:
         blockers.append("guest probe returned no recognized output")
-    if x11 == "unavailable" and observed_display == display and len(blockers) < 4:
+    if x11 == "unavailable" and observed_display == display and len(blockers) < 8:
         process_displays = inspect_termux_x11_process_displays(which=which, runner=runner)
         if (process_displays["status"] == "available"
                 and display not in process_displays["observed_displays"]):
@@ -591,4 +636,6 @@ def verify_proot_guest(*, distro: str, user: str, display: str, backend: str,
                                renderer_class=renderer_class, gles_context=gles_context,
                                gles_renderer=gles_renderer, gles_version=gles_version,
                                glx_draw=glx_draw_status, glx_draw_frames=glx_draw_frames,
-                               glx_draw_renderer=glx_draw_renderer, dri3_extension=dri3_extension, blockers=blockers)
+                               glx_draw_renderer=glx_draw_renderer, vulkan_draw=vulkan_draw,
+                               vulkan_draw_device=vulkan_draw_device,
+                               dri3_extension=dri3_extension, blockers=blockers)

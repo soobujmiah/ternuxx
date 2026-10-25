@@ -24,17 +24,13 @@ python3 scripts/cli_entrypoint.py apply --yes --plan-id PLAN_ID
 tx help
 ```
 
-Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT` before using the installed shim. Then review the full Native package/dependency transaction, including approximate package sizes and current host resources, before applying it:
+Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT` before using the installed shim. In the attached Native terminal, run `tx install interactive` to choose a workstation profile, see its package summary, and confirm installation in the same session. Ternuxx then offers the optional managed Debian guest. Later, `tx install debian` starts that guided guest setup directly and asks before applying the pinned target. Both normal flows keep the exact plan internal, so you do not need to copy an ID.
+
+The guided Native installer refuses removals, upgrades, unapproved repositories, and a changed transaction. It installs the selected Native packages; the matching Termux:X11 Android app is installed separately. For exact package automation and detailed APT review, `tx install preview --verbose` followed by `tx install apply --yes --plan-id PLAN_ID` remains available. See the [installation guide](docs/INSTALLATION.md) for advanced profiles and custom components.
 
 ```sh
-tx install preview --verbose
-tx install apply --yes --plan-id PLAN_ID
 tx doctor
 ```
-
-Use the exact plan ID printed by the preview. The installer refuses removals, upgrades, unapproved repositories, and a changed plan. It installs Native XFCE/Termux:X11 support, diagnostics, audio, and the PRoot runtime. The matching Termux:X11 Android app is installed separately.
-
-Run `tx install interactive` for Native workstation presets. After a Native profile is installed, Ternuxx asks whether to set up its optional managed Debian guest. You can also start that flow later with `tx install debian`; it shows the target and asks for confirmation in the same terminal session. Plan IDs and separate preview/apply commands are for automation and explicit review. See the [installation guide](docs/INSTALLATION.md) for advanced profiles and custom components.
 
 ## Open the workstation
 

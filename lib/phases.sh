@@ -586,7 +586,7 @@ _nt_offer_managed_debian() {
 nt_cmd_install() {
   # `bin/tx` consumes --verbose as a global flag before dispatch, so carry its
   # value into this command as well as accepting the direct helper argument.
-  local apply=0 consent=0 update=0 interactive=0 profile="full-native" profile_set=0 components="" verbose="${TERNUXX_VERBOSE:-0}" arg plan_id="" guest_plan_id="" guest_user=""
+  local apply=0 consent=0 update=0 interactive=0 guided=0 profile="full-native" profile_set=0 components="" verbose="${TERNUXX_VERBOSE:-0}" arg plan_id="" guest_plan_id="" guest_user=""
   local combined_guest=0
   case "${1:-}" in
     debian)
@@ -631,6 +631,8 @@ nt_cmd_install() {
     _nt_choose_install_profile || return $?
     profile="$_NT_ACTIVE_PROFILE"
     guest_user="$_NT_INSTALL_GUEST_USER"
+    guided=1
+    [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail "Interactive installation cannot run in JSON mode."; return 2; }
   else
     _nt_select_install_profile "$profile" "$components" || return $?
   fi
@@ -720,6 +722,9 @@ nt_cmd_install() {
       printf '{"install":"already_installed","profile":"%s","skipped_components":"%s","packages_changed":false}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS"
     elif [ "$apply" = "1" ] && [ "$combined_guest" != "1" ] && [ "$update" != "1" ]; then
       _nt_offer_managed_debian || return $?
+    elif [ "$guided" = "1" ] && [ "$TERNUXX_JSON" != "1" ]; then
+      nt_info "Native workstation is already installed."
+      _nt_offer_managed_debian || return $?
     fi
     return 0
   fi
@@ -729,6 +734,24 @@ nt_cmd_install() {
   fi
 
   if [ "$update" != "1" ]; then TERNUXX_VERBOSE="$verbose" _nt_print_install_resource_estimates; fi
+
+  if [ "$guided" = "1" ]; then
+    [ -t 0 ] || { nt_fail "Interactive installation needs an attached terminal."; return 2; }
+    if ! _nt_write_install_record preview; then
+      nt_fail "Could not save the exact Native package preview; no packages were installed."
+      return 1
+    fi
+    plan_id="$( _nt_compute_plan_id )" || return 1
+    nt_info "Native preview: $_NT_ACTIVE_PROFILE · ${#_NT_PLAN_VERSIONS[@]} requested packages · ${#_NT_PLAN_TRANSACTION[@]} total package changes."
+    nt_info "Only the displayed transaction from official Termux repositories will be applied; upgrades and removals are refused."
+    printf 'Install this Native workstation profile now? [y/N] ' >/dev/tty
+    local guided_answer
+    IFS= read -r guided_answer </dev/tty || return 2
+    case "$guided_answer" in
+      y|Y|yes|YES|Yes) apply=1; consent=1 ;;
+      *) nt_info "Cancelled; no Native packages were changed."; return 0 ;;
+    esac
+  fi
 
   if [ "$apply" = "1" ] || [ "$verbose" = "1" ]; then
     if [ "$update" = "1" ]; then

@@ -197,7 +197,7 @@ class ProotDiagnosticsTests(unittest.TestCase):
             receipt_path.chmod(0o600)
             outputs = [
                 SimpleNamespace(returncode=0, stdout=f"Installed containers:\n * {alias}\nLog in with: proot-distro login <name>\n"),
-                SimpleNamespace(returncode=0, stdout="Display: :1\nX11: reachable\nRenderer: zink Vulkan (Turnip)\nGLX draw: verified\nGLX draw frames: 10\n"),
+                SimpleNamespace(returncode=0, stdout="Display: :1\nX11: reachable\nRenderer: zink Vulkan (Turnip)\nGLX draw: verified\nGLX draw frames: 10\nGLX draw renderer: zink Turnip\nVulkan draw: verified\nVulkan draw device: Adreno 825\n"),
             ]
             calls = []
             def runner(args, **kwargs):
@@ -225,7 +225,7 @@ class ProotDiagnosticsTests(unittest.TestCase):
         calls = []
         outputs = [
             SimpleNamespace(returncode=0, stdout="Installed containers:\n * Debian\nLog in with: proot-distro login <name>\n"),
-            SimpleNamespace(returncode=0, stdout="Display: :1\nX11: reachable\nAudio: PulseAudio reachable\nRenderer: zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))\nGLX draw: verified\nGLX draw frames: 214\nGLX draw renderer: zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))\n"),
+            SimpleNamespace(returncode=0, stdout="Display: :1\nX11: reachable\nAudio: PulseAudio reachable\nRenderer: zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))\nGLX draw: verified\nGLX draw frames: 214\nGLX draw renderer: zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))\nVulkan draw: verified\nVulkan draw device: Adreno (TM) 825\n"),
         ]
         def runner(args, **kwargs):
             calls.append((args, kwargs))
@@ -259,6 +259,8 @@ class ProotDiagnosticsTests(unittest.TestCase):
         self.assertEqual(report["checks"]["glx_draw"], "verified")
         self.assertEqual(report["checks"]["glx_draw_frames"], 214)
         self.assertIn("zink Vulkan", report["checks"]["glx_draw_renderer"])
+        self.assertEqual(report["checks"]["vulkan_draw"], "verified")
+        self.assertIn("Adreno (TM) 825", report["checks"]["vulkan_draw_device"])
         self.assertFalse(any(item == "ternux" or item.endswith("/ternux") for item in command))
         self.assertIn("/native/private/pulse-cookie:/tmp/.ternuxx-pulse-cookie", command)
         self.assertIn("PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie", command)
@@ -275,7 +277,8 @@ class ProotDiagnosticsTests(unittest.TestCase):
             "Display: :2\nX11: reachable\nAudio: PulseAudio reachable\n"
             "Renderer: unavailable\nGLES context: verified\n"
             "GLES renderer: zink Vulkan 1.4 (Adreno (TM) 825 (MESA_TURNIP))\n"
-            "GLES version: OpenGL ES 3.2 Mesa\nDRI3 extension: unavailable\n",
+            "GLES version: OpenGL ES 3.2 Mesa\nDRI3 extension: unavailable\n"
+            "Vulkan draw: verified\nVulkan draw device: Adreno (TM) 825\n",
         ]
         def runner(*_args, **_kwargs):
             return SimpleNamespace(returncode=0, stdout=outputs.pop(0))
@@ -298,13 +301,34 @@ class ProotDiagnosticsTests(unittest.TestCase):
         self.assertEqual(checks["glx_draw_frames"], 0)
         self.assertIsNone(checks["glx_draw_renderer"])
         self.assertTrue(any("GLX renderer unavailable" in blocker for blocker in report["blockers"]))
+        self.assertEqual(checks["vulkan_draw"], "verified")
+
+    def test_vulkan_context_is_not_a_draw_without_successful_adreno_workload(self):
+        outputs = [
+            SimpleNamespace(returncode=0, stdout="Installed containers:\n * Debian\n"),
+            SimpleNamespace(returncode=0, stdout=(
+                "Display: :2\nX11: reachable\nAudio: PulseAudio reachable\n"
+                "Renderer: unavailable\nGLES context: verified\n"
+                "GLES renderer: zink Vulkan 1.4 (Adreno 825)\nGLES version: OpenGL ES 3.2\n"
+                "Vulkan draw: failed\nVulkan draw device: unavailable\n")),
+        ]
+        report = proot_diagnostics.verify_proot_guest(
+            distro="debian", user="sbj", display=":2", backend="zink",
+            which=lambda name: "/prefix/bin/proot-distro" if name == "proot-distro" else None,
+            runner=lambda *_args, **_kwargs: outputs.pop(0),
+        )
+        self.assertEqual(report["checks"]["gles_context"], "verified")
+        self.assertEqual(report["checks"]["vulkan_draw"], "failed")
+        self.assertIn("bounded Vulkan draw did not verify", " ".join(report["blockers"]))
+        self.assertNotEqual(report["status"], "complete")
 
     def test_glx_draw_requires_frames_and_the_requested_renderer(self):
         outputs = [
             "Installed containers:\n * Debian\n",
             "Display: :1\nX11: reachable\nAudio: PulseAudio reachable\n"
             "Renderer: zink Vulkan (Adreno 825)\nGLX draw: verified\n"
-            "GLX draw frames: 214\nGLX draw renderer: llvmpipe (LLVM fixture)\n",
+            "GLX draw frames: 214\nGLX draw renderer: llvmpipe (LLVM fixture)\n"
+            "Vulkan draw: verified\nVulkan draw device: Adreno 825\n",
         ]
         def runner(*_args, **_kwargs):
             return SimpleNamespace(returncode=0, stdout=outputs.pop(0))
@@ -323,7 +347,9 @@ class ProotDiagnosticsTests(unittest.TestCase):
         which_calls = []
         outputs = [
             SimpleNamespace(returncode=0, stdout="Installed containers:\n * Debian\n"),
-            SimpleNamespace(returncode=0, stdout="Display: :1\nX11: reachable\nAudio: PulseAudio reachable\nRenderer: zink Turnip\n"),
+            SimpleNamespace(returncode=0, stdout=("Display: :1\nX11: reachable\nAudio: PulseAudio reachable\n"
+                "Renderer: zink Turnip\nGLX draw: verified\nGLX draw frames: 120\n"
+                "GLX draw renderer: zink Turnip\nVulkan draw: verified\nVulkan draw device: Adreno 825\n")),
         ]
         def runner(args, **kwargs):
             calls.append(args)
@@ -399,7 +425,11 @@ class ProotDiagnosticsTests(unittest.TestCase):
     def test_guest_diagnostic_outcomes_match_strict_response_schema(self):
         schema = json.loads((ROOT / "schemas/proot-guest-diagnostics.schema.json").read_text())
         inventory = "Installed containers:\n * Debian\nLog in with: proot-distro login <name>\n"
-        status = "Display: :1\nX11: reachable\nAudio: PulseAudio reachable\nRenderer: zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))\n"
+        status = ("Display: :1\nX11: reachable\nAudio: PulseAudio reachable\n"
+                  "Renderer: zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))\n"
+                  "GLX draw: verified\nGLX draw frames: 214\n"
+                  "GLX draw renderer: zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))\n"
+                  "Vulkan draw: verified\nVulkan draw device: Adreno (TM) 825\n")
         outputs = [inventory, status]
         def runner(args, **kwargs):
             output = outputs.pop(0)
@@ -559,7 +589,7 @@ class ProotDiagnosticsTests(unittest.TestCase):
         self.assertEqual(report["checks"]["observed_display"], ":0")
         self.assertIn("requested display :0 not observed in the Termux-visible X11 process list",
                       report["blockers"])
-        self.assertLessEqual(len(report["blockers"]), 4)
+        self.assertLessEqual(len(report["blockers"]), 8)
         self.assertEqual(calls[-2][0], ["/prefix/bin/ps", "-A", "-o", "pid=,comm="])
         self.assertEqual(calls[-1][0], ["/prefix/bin/ps", "-p", "16032", "-o", "args="])
         self.assertNotIn("16032", json.dumps(report))
