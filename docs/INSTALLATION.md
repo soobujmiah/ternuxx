@@ -48,7 +48,7 @@ tx install preview --profile minimal-native --verbose
 tx install apply --profile minimal-native --yes --plan-id PLAN_ID
 ```
 
-Available presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, and `custom`. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, and `developer` with `--components`. The PRoot-provider preset installs only the provider package; guest creation remains a separately previewed operation. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
+Available presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, `native-debian`, and `custom`. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, and `developer` with `--components`. The PRoot-provider preset installs only the provider package. `native-debian` reviews the full Native package plan and fresh pinned Debian guest plan together, then applies Native packages before creating the guest. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
 
 Run read-only checks after installation:
 
@@ -67,7 +67,16 @@ tx start
 
 ## Create an optional Debian guest
 
-Check `tx proot status` first. Preview the pinned Debian Trixie image, package groups, storage availability, graphics inputs, and exact guest target:
+For a combined first-time Native workstation and fresh guest install, preview both plans together. Supply the exact IDs printed by the preview when applying; if the Native profile is already installed, the preview omits its Native plan ID:
+
+```sh
+tx install preview --profile native-debian --user NAME
+tx install apply --profile native-debian --user NAME --yes --plan-id NATIVE_PLAN_ID --guest-plan-id GUEST_PLAN_ID
+```
+
+The guest phase still requests the selected account password twice in hidden terminal prompts.
+
+For guest-only setup, check `tx proot status` first. Preview the pinned Debian Trixie image, package groups, storage availability, graphics inputs, and exact guest target:
 
 ```sh
 tx proot setup fresh-preview --user NAME

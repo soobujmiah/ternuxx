@@ -61,6 +61,15 @@ tx start
 
 ## ঐচ্ছিক Debian PRoot
 
+নতুন Native workstation ও Debian guest একসঙ্গে সেটআপ করতে দুইটি পরিকল্পনা একসঙ্গে পূর্বরূপে দেখুন, তারপর পূর্বরূপের সঠিক ID ব্যবহার করুন। Native প্যাকেজ আগে থেকেই থাকলে Native plan ID লাগবে না; preview-তে যে apply command দেখায় সেটি ব্যবহার করুন:
+
+```sh
+tx install preview --profile native-debian --user USER
+tx install apply --profile native-debian --user USER --yes --plan-id NATIVE_PLAN_ID --guest-plan-id GUEST_PLAN_ID
+```
+
+Guest account-এর password দুবার গোপন terminal prompt-এ দিতে হবে।
+
 আগে `tx proot status` দিয়ে Native `proot`/`proot-distro` ও Debian পরিবেশের তালিকা দেখুন। নতুন Debian পরিবেশের জন্য নির্দিষ্ট ব্যবহারকারীর নামসহ পূর্বরূপ তৈরি করুন, লক্ষ্য ও ডিস্ক-ছবির নির্দিষ্ট SHA-256 পরিচিতি যাচাই করুন, তারপর শুধু সেই পরিকল্পনা প্রয়োগ করুন:
 
 ```sh

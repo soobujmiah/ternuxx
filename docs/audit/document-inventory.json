@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "bf75128c09b6a1fc95cff00a8a2ed5c4dcf4455d86be44bf397f5726a29d6c7c",
+      "sha256": "6b47607313738647c34a9adab6f8df0eee8d0828a3fe8cb75560d87cf2d86684",
       "lines": 34,
       "read_status": "read",
-      "read_sha256": "bf75128c09b6a1fc95cff00a8a2ed5c4dcf4455d86be44bf397f5726a29d6c7c"
+      "read_sha256": "6b47607313738647c34a9adab6f8df0eee8d0828a3fe8cb75560d87cf2d86684"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "94f7125834b343e9a72d37b8ee408e77dcd8dfcdd8ee953eb2ad280a59f5700d",
+      "sha256": "e4dccdb3aedcc807f71673ac307f4e1edbaf85ec85c8a0b9cf29e3700178b326",
       "lines": 107,
       "read_status": "read",
-      "read_sha256": "94f7125834b343e9a72d37b8ee408e77dcd8dfcdd8ee953eb2ad280a59f5700d"
+      "read_sha256": "e4dccdb3aedcc807f71673ac307f4e1edbaf85ec85c8a0b9cf29e3700178b326"
     },
     {
       "path": "SECURITY.md",
@@ -91,10 +91,10 @@
     {
       "path": "bn/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "009a19c6ad21aeedbbeb3bbaec6b11faefebf38c6afbddd2197c8c98f3940f54",
-      "lines": 83,
+      "sha256": "4b49363cb9890260e06e53e0324934af2aaa231eb1ec7a75ebdce526f6376ddc",
+      "lines": 92,
       "read_status": "read",
-      "read_sha256": "009a19c6ad21aeedbbeb3bbaec6b11faefebf38c6afbddd2197c8c98f3940f54"
+      "read_sha256": "4b49363cb9890260e06e53e0324934af2aaa231eb1ec7a75ebdce526f6376ddc"
     },
     {
       "path": "bn/README.md",
@@ -147,10 +147,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "b22a8e36b04af695f28ad27687613de20b91c42d05e4bad84a0c19e0c01efcee",
-      "lines": 111,
+      "sha256": "0bc4571cb4d84a0d0107ff1c1333cba58b4a022dff81beaab877defb5043f626",
+      "lines": 120,
       "read_status": "read",
-      "read_sha256": "b22a8e36b04af695f28ad27687613de20b91c42d05e4bad84a0c19e0c01efcee"
+      "read_sha256": "0bc4571cb4d84a0d0107ff1c1333cba58b4a022dff81beaab877defb5043f626"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "b41ee3d70ba4bede61c0ef09351750ae0a1a659c12fc3ff56f4878c9894da548",
+      "sha256": "b02512a68fbc0b1d967cf06ca4993ac45ed17011526d8d06443f5e37474fd97e",
       "lines": 62,
       "read_status": "read",
-      "read_sha256": "b41ee3d70ba4bede61c0ef09351750ae0a1a659c12fc3ff56f4878c9894da548"
+      "read_sha256": "b02512a68fbc0b1d967cf06ca4993ac45ed17011526d8d06443f5e37474fd97e"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3443,10 +3443,10 @@
     {
       "path": "docs/evidence/2026-10-25-native-installer-profiles.md",
       "kind": "narrative",
-      "sha256": "ba02014f1d9fc7999219d3ad4b0a44d406f6430fea680be9a700800e638c91cd",
-      "lines": 13,
+      "sha256": "c948d90e069796c90483450b31ec2efb1c69085c7b0055334c2db6b72489767f",
+      "lines": 15,
       "read_status": "read",
-      "read_sha256": "ba02014f1d9fc7999219d3ad4b0a44d406f6430fea680be9a700800e638c91cd"
+      "read_sha256": "c948d90e069796c90483450b31ec2efb1c69085c7b0055334c2db6b72489767f"
     },
     {
       "path": "docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md",

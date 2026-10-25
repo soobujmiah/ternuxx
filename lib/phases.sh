@@ -126,6 +126,9 @@ _nt_select_install_profile() {
     native-proot-provider)
       [ -z "$components" ] || { nt_fail "--components is valid only with --profile custom."; return 2; }
       selected=("${_NT_CORE_PACKAGES[@]}" "${_NT_PROOT_PACKAGES[@]}") ;;
+    native-debian)
+      [ -z "$components" ] || { nt_fail "--components is valid only with --profile custom."; return 2; }
+      selected=("${_NT_FULL_NATIVE_PACKAGES[@]}") ;;
     custom)
       selected=("${_NT_CORE_PACKAGES[@]}")
       [ -n "$components" ] || { nt_fail "Custom profile requires --components GROUPS."; return 2; }
@@ -140,7 +143,7 @@ _nt_select_install_profile() {
           *) nt_fail "Unknown component group '$group'. Choose desktop,audio,proot,graphics,developer."; return 2 ;;
         esac
       done ;;
-    *) nt_fail "Unknown install profile '$profile'. Choose minimal-native, full-native, graphical, developer, native-proot-provider, or custom."; return 2 ;;
+    *) nt_fail "Unknown install profile '$profile'. Choose minimal-native, full-native, graphical, developer, native-proot-provider, native-debian, or custom."; return 2 ;;
   esac
   _NT_BASE_PACKAGES=()
   for package in "${selected[@]}"; do
@@ -158,17 +161,43 @@ _nt_select_install_profile() {
       graphical) [[ "$group" == proot || "$group" == developer ]] && omitted+=("$group") ;;
       developer) [[ "$group" != developer ]] && omitted+=("$group") ;;
       native-proot-provider) [[ "$group" != proot ]] && omitted+=("$group") ;;
+      native-debian) [[ "$group" == developer ]] && omitted+=("$group") ;;
       minimal-native) omitted+=("$group") ;;
       custom)
         case ",$components," in *",$group,"*) ;; *) omitted+=("$group") ;; esac ;;
     esac
   done
-  omitted+=(guest)
+  [ "$profile" = native-debian ] || omitted+=(guest)
   _NT_ACTIVE_SKIPPED_COMPONENTS="$(IFS=,; printf '%s' "${omitted[*]}")"
 }
 
+_nt_combined_guest_preview() {
+  local repo_root output
+  repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
+  output="$(python3 "$repo_root/lib/proot_setup.py" fresh-preview --repo-root "$repo_root" --user "$_NT_INSTALL_GUEST_USER" --json)" || {
+    nt_fail "Fresh Debian guest preview failed; no package or guest changes were applied."
+    return 1
+  }
+  _NT_COMBINED_GUEST_JSON="$output"
+  _NT_COMBINED_GUEST_PLAN_ID="$(python3 -c 'import json,sys; print(json.loads(sys.argv[1])["plan_id"])' "$output")" || return 1
+  nt_info "Fresh Debian target: alias=debian, user=$_NT_INSTALL_GUEST_USER."
+  nt_info "Pinned guest preview ID: $_NT_COMBINED_GUEST_PLAN_ID"
+}
+
+_nt_apply_combined_guest() {
+  local repo_root output
+  repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
+  output="$(python3 "$repo_root/lib/proot_setup.py" fresh-install --repo-root "$repo_root" --user "$_NT_INSTALL_GUEST_USER" --plan-id "$_NT_INSTALL_GUEST_PLAN_ID" --yes --json)" || {
+    nt_fail "Native package phase completed, but fresh Debian setup failed. Inspect the guest setup journal before using fresh-resume-preview."
+    [ -z "$output" ] || printf '%s\n' "$output" >&2
+    return 1
+  }
+  _NT_COMBINED_GUEST_RESULT="$output"
+  nt_ok "The fresh Debian guest setup completed and returned its verification record."
+}
+
 _nt_choose_install_profile() {
-  local choice components
+  local choice components guest_user
   [ -t 0 ] || { nt_fail "Interactive install needs a terminal; use tx install preview --profile NAME for automatic selection."; return 2; }
   printf '%s\n' \
     'Choose a Native workstation profile:' \
@@ -176,9 +205,10 @@ _nt_choose_install_profile() {
     '  2) Full Native Workstation (XFCE, audio, diagnostics, PRoot provider)' \
     '  3) Graphical Workstation (XFCE, audio, graphics diagnostics)' \
     '  4) Developer Workstation (CLI core + compiler/debug tools)' \
-    '  5) Native + PRoot provider (guest installation is a separate reviewed operation)' \
-    '  6) Custom component groups'
-  read -r -p 'Selection [1-6]: ' choice || return 2
+    '  5) Native + PRoot provider (provider only)' \
+    '  6) Custom component groups' \
+    '  7) Full Native Workstation + fresh Debian guest'
+  read -r -p 'Selection [1-7]: ' choice || return 2
   case "$choice" in
     1) _nt_select_install_profile minimal-native ;;
     2) _nt_select_install_profile full-native ;;
@@ -188,7 +218,12 @@ _nt_choose_install_profile() {
     6)
       read -r -p 'Groups (desktop,audio,proot,graphics,developer): ' components || return 2
       _nt_select_install_profile custom "$components" ;;
-    *) nt_fail "Choose a profile number from 1 to 6."; return 2 ;;
+    7)
+      read -r -p 'New Debian guest username: ' guest_user || return 2
+      [ -n "$guest_user" ] || { nt_fail "A Debian guest username is required."; return 2; }
+      _NT_INSTALL_GUEST_USER="$guest_user"
+      _nt_select_install_profile native-debian ;;
+    *) nt_fail "Choose a profile number from 1 to 7."; return 2 ;;
   esac
 }
 
@@ -544,7 +579,12 @@ PYRECORD
 nt_cmd_install() {
   # `bin/tx` consumes --verbose as a global flag before dispatch, so carry its
   # value into this command as well as accepting the direct helper argument.
-  local apply=0 consent=0 update=0 interactive=0 profile="full-native" profile_set=0 components="" verbose="${TERNUXX_VERBOSE:-0}" arg plan_id=""
+  local apply=0 consent=0 update=0 interactive=0 profile="full-native" profile_set=0 components="" verbose="${TERNUXX_VERBOSE:-0}" arg plan_id="" guest_plan_id="" guest_user=""
+  local combined_guest=0
+  _NT_INSTALL_GUEST_USER=""
+  _NT_COMBINED_GUEST_JSON=""
+  _NT_COMBINED_GUEST_PLAN_ID=""
+  _NT_COMBINED_GUEST_RESULT=""
   while [ $# -gt 0 ]; do
     arg="$1"; shift
     case "$arg" in
@@ -554,6 +594,8 @@ nt_cmd_install() {
       --interactive|interactive) interactive=1 ;;
       --profile) [ $# -gt 0 ] || { nt_fail "--profile needs a named preset."; return 2; }; profile="$1"; profile_set=1; shift ;;
       --components) [ $# -gt 0 ] || { nt_fail "--components needs comma-separated component groups."; return 2; }; components="$1"; shift ;;
+      --user) [ $# -gt 0 ] || { nt_fail "--user needs a guest username."; return 2; }; guest_user="$1"; shift ;;
+      --guest-plan-id) [ $# -gt 0 ] || { nt_fail "--guest-plan-id needs the ID from a fresh Debian preview."; return 2; }; guest_plan_id="$1"; shift ;;
       preview) ;;
       update) update=1 ;;
       apply)
@@ -567,27 +609,50 @@ nt_cmd_install() {
   done
 
   if [ "$interactive" = "1" ]; then
-    [ "$profile_set" = "0" ] && [ -z "$components" ] && [ "$update" = "0" ] && [ "$apply" = "0" ] || {
+    [ "$profile_set" = "0" ] && [ -z "$components" ] && [ -z "$guest_user" ] && [ -z "$guest_plan_id" ] && [ "$update" = "0" ] && [ "$apply" = "0" ] || {
       nt_fail "Interactive selection is preview-only; do not combine it with a profile, components, update, or apply."; return 2;
     }
     _nt_choose_install_profile || return $?
+    profile="$_NT_ACTIVE_PROFILE"
+    guest_user="$_NT_INSTALL_GUEST_USER"
   else
     _nt_select_install_profile "$profile" "$components" || return $?
+  fi
+  if [ "$profile" = native-debian ]; then
+    combined_guest=1
+    [ -n "$guest_user" ] || { nt_fail "The native-debian profile requires --user NAME."; return 2; }
+    [[ "$guest_user" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { nt_fail "Invalid Debian guest username."; return 2; }
+    _NT_INSTALL_GUEST_USER="$guest_user"
+  elif [ -n "$guest_user$guest_plan_id" ]; then
+    nt_fail "--user and --guest-plan-id are only valid with --profile native-debian."
+    return 2
+  fi
+  if [ "$combined_guest" = "1" ] && [ "$update" = "1" ]; then
+    nt_fail "The native-debian profile is for a fresh initial setup, not package updates."
+    return 2
   fi
   if [ "$update" = "1" ] && { [ "$profile" != "full-native" ] || [ "$profile_set" = "1" ] || [ -n "$components" ]; }; then
     nt_fail "Package updates use the fixed Ternuxx core set; install profiles apply only to initial setup."; return 2
   fi
   nt_require_termux || return 1
-  if [ "$consent" = "1" ] && [ -z "$plan_id" ]; then
-    nt_fail "Apply requires the ID from a saved preview: run 'tx install --preview' or 'tx install --update --preview', review it, then pass --yes --plan-id ID."
+  if [ "$consent" = "1" ] && [ -z "$plan_id" ] && { [ "$combined_guest" != "1" ] || [ -z "$guest_plan_id" ]; }; then
+    nt_fail "Apply requires the exact Native --plan-id and/or native-debian --guest-plan-id from the reviewed previews."
+    return 2
+  fi
+  if [ "$consent" = "1" ] && [ "$combined_guest" = "1" ] && [[ ! "$guest_plan_id" =~ ^[0-9a-f]{64}$ ]]; then
+    nt_fail "The native-debian profile requires --guest-plan-id from its fresh Debian preview."
     return 2
   fi
   if [ -n "$plan_id" ] && [ "$consent" != "1" ]; then
     nt_fail "--plan-id requires explicit --yes consent after preview review."
     return 2
   fi
-  if [ "$consent" = "1" ] && [[ ! "$plan_id" =~ ^[0-9a-f]{64}$ ]]; then
-    nt_fail "--plan-id must be the 64-character ID printed by a saved preview."
+  if [ "$consent" = "1" ] && [ -n "$plan_id" ] && [[ ! "$plan_id" =~ ^[0-9a-f]{64}$ ]]; then
+    nt_fail "--plan-id must be the 64-character ID printed by a saved Native package preview."
+    return 2
+  fi
+  if [ "$combined_guest" = "1" ] && [ -n "$guest_plan_id" ] && [ "$consent" != "1" ]; then
+    nt_fail "--guest-plan-id is accepted only with --yes --plan-id after reviewing the combined preview."
     return 2
   fi
   for tool in apt-cache apt-get dpkg-query date; do
@@ -611,18 +676,37 @@ nt_cmd_install() {
   if [ ${#_NT_PLAN_PACKAGES[@]} -eq 0 ]; then
     if [ "$update" = "1" ]; then
       nt_ok "No applicable Ternuxx core package updates are available from the selected official repositories."
-    else
-      nt_ok "Ternuxx profile $_NT_ACTIVE_PROFILE packages are already installed."
-      nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
+      [ "$TERNUXX_JSON" != "1" ] || printf '{"install":"up_to_date","packages_changed":false}\n'
+      return 0
+    fi
+    nt_ok "Ternuxx profile $_NT_ACTIVE_PROFILE packages are already installed."
+    nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
+    if [ "$combined_guest" = "1" ]; then
+      if [ "$apply" = "1" ]; then
+        [ -z "$plan_id" ] || { nt_fail "Native package state changed to already installed; discard the stale Native plan and preview the combined profile again."; return 1; }
+        _NT_COMBINED_GUEST_PLAN_ID="$guest_plan_id"
+        _nt_apply_combined_guest || return $?
+        if [ "$TERNUXX_JSON" = "1" ]; then
+          printf '{"install":"combined_complete","profile":"native-debian","native_packages_changed":false,"guest":%s}\n' "$_NT_COMBINED_GUEST_RESULT"
+        fi
+        return 0
+      fi
+      _nt_combined_guest_preview || return $?
+      nt_info "Native package phase: already installed; no Native plan ID is needed."
+      nt_info "Combined apply after review: tx install apply --profile native-debian --user $guest_user --guest-plan-id $_NT_COMBINED_GUEST_PLAN_ID --yes"
+      if [ "$TERNUXX_JSON" = "1" ]; then
+        printf '{"install":"combined_preview","profile":"native-debian","native_packages_changed":false,"guest":%s}\n' "$_NT_COMBINED_GUEST_JSON"
+      fi
+      return 0
     fi
     if [ "$TERNUXX_JSON" = "1" ]; then
-      if [ "$update" = "1" ]; then
-        printf '{"install":"up_to_date","packages_changed":false}\n'
-      else
-        printf '{"install":"already_installed","profile":"%s","skipped_components":"%s","packages_changed":false}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS"
-      fi
+      printf '{"install":"already_installed","profile":"%s","skipped_components":"%s","packages_changed":false}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS"
     fi
     return 0
+  fi
+  if [ "$combined_guest" = "1" ] && [ "$apply" = "1" ] && [ -z "$plan_id" ]; then
+    nt_fail "Native packages still need changes; review and supply the exact Native --plan-id plus the guest --guest-plan-id."
+    return 2
   fi
 
   if [ "$update" != "1" ]; then TERNUXX_VERBOSE="$verbose" _nt_print_install_resource_estimates; fi
@@ -669,7 +753,10 @@ nt_cmd_install() {
       nt_info "Run 'tx install $([ "$update" = "1" ] && printf 'update ')preview --verbose' to review package versions and the full APT simulation."
     fi
     nt_info "Preview ID: $plan_id"
-    if [ "$update" = "1" ]; then
+    if [ "$combined_guest" = "1" ]; then
+      _nt_combined_guest_preview || return $?
+      nt_info "Combined apply after review: tx install apply --profile native-debian --user $guest_user --yes --plan-id $plan_id --guest-plan-id $_NT_COMBINED_GUEST_PLAN_ID"
+    elif [ "$update" = "1" ]; then
       nt_info "Apply after review: tx install update apply $plan_id"
     elif [ "$_NT_ACTIVE_PROFILE" = "full-native" ]; then
       nt_info "Apply after review: tx install apply $plan_id"
@@ -685,6 +772,8 @@ nt_cmd_install() {
       transaction_json="$(nt_json_array "${_NT_PLAN_TRANSACTION[@]}")"
       if [ "$update" = "1" ]; then
         printf '{"install":"update_preview","plan_id":"%s","packages":%s,"transaction":%s}\n' "$plan_id" "$package_json" "$transaction_json"
+      elif [ "$combined_guest" = "1" ]; then
+        printf '{"install":"combined_preview","profile":"native-debian","native_plan_id":"%s","native_packages":%s,"native_transaction":%s,"resource_estimates":%s,"guest":%s}\n' "$plan_id" "$package_json" "$transaction_json" "$_NT_PLAN_RESOURCE_ESTIMATES" "$_NT_COMBINED_GUEST_JSON"
       else
         printf '{"install":"preview","profile":"%s","skipped_components":"%s","plan_id":"%s","packages":%s,"transaction":%s,"resource_estimates":%s}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS" "$plan_id" "$package_json" "$transaction_json" "$_NT_PLAN_RESOURCE_ESTIMATES"
       fi
@@ -704,13 +793,23 @@ nt_cmd_install() {
     nt_fail "Package state changed since the preview. Review a fresh preview; nothing was installed."
     return 1
   fi
-  if ! _nt_reviewed_preview_matches "$plan_id" >/dev/null; then
-    nt_fail "The saved preview is missing, invalid, or does not match the current APT transaction. Nothing was installed; create and review a fresh preview."
+  if [ ${#_NT_PLAN_PACKAGES[@]} -gt 0 ]; then
+    if ! _nt_reviewed_preview_matches "$plan_id" >/dev/null; then
+      nt_fail "The saved preview is missing, invalid, or does not match the current APT transaction. Nothing was installed; create and review a fresh preview."
+      return 1
+    fi
+  elif [ "$combined_guest" != "1" ] || [ -n "$plan_id" ]; then
+    nt_fail "The Native package transaction changed after preview. Create and review a fresh plan."
     return 1
   fi
   if [ ${#_NT_PLAN_PACKAGES[@]} -eq 0 ]; then
     nt_ok "Ternuxx profile $_NT_ACTIVE_PROFILE packages are already installed."
     nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
+    _NT_COMBINED_GUEST_PLAN_ID="$guest_plan_id"
+    _nt_apply_combined_guest || return $?
+    if [ "$TERNUXX_JSON" = "1" ]; then
+      printf '{"install":"combined_complete","profile":"native-debian","native_packages_changed":false,"guest":%s}\n' "$_NT_COMBINED_GUEST_RESULT"
+    fi
     return 0
   fi
 
@@ -745,6 +844,10 @@ nt_cmd_install() {
   fi
   if [ "$update" = "1" ]; then
     nt_ok "The reviewed Ternuxx core package update completed."
+  elif [ "$combined_guest" = "1" ]; then
+    nt_ok "Ternuxx Native profile native-debian installed; beginning the reviewed fresh Debian guest phase."
+    _NT_COMBINED_GUEST_PLAN_ID="$guest_plan_id"
+    _nt_apply_combined_guest || return $?
   else
     nt_ok "Ternuxx Native profile $_NT_ACTIVE_PROFILE installed. The Termux:X11 Android app still must be installed separately if absent."
   fi
@@ -755,6 +858,8 @@ nt_cmd_install() {
     transaction_json="$(nt_json_array "${_NT_PLAN_TRANSACTION[@]}")"
     if [ "$update" = "1" ]; then
       printf '{"install":"updated","packages":%s,"transaction":%s}\n' "$package_json" "$transaction_json"
+    elif [ "$combined_guest" = "1" ]; then
+      printf '{"install":"combined_complete","profile":"native-debian","native_packages_changed":true,"packages":%s,"transaction":%s,"resource_estimates":%s,"guest":%s}\n' "$package_json" "$transaction_json" "$_NT_PLAN_RESOURCE_ESTIMATES" "$_NT_COMBINED_GUEST_RESULT"
     else
       printf '{"install":"complete","profile":"%s","skipped_components":"%s","packages":%s,"transaction":%s,"resource_estimates":%s}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS" "$package_json" "$transaction_json" "$_NT_PLAN_RESOURCE_ESTIMATES"
     fi

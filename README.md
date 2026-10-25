@@ -34,7 +34,7 @@ tx doctor
 
 Use the exact plan ID printed by the preview. The installer refuses removals, upgrades, unapproved repositories, and a changed plan. It installs Native XFCE/Termux:X11 support, diagnostics, audio, and the PRoot runtime. The matching Termux:X11 Android app is installed separately.
 
-Run `tx install interactive` for named presets, or select one for automation with `--profile NAME`; both use the same exact preview/apply engine. Repeat a non-default profile when applying its plan. The PRoot-provider preset installs the runtime only; guest setup remains a separate preview-confirmed operation. See the [installation guide](docs/INSTALLATION.md) for profiles and custom components.
+Run `tx install interactive` for named presets, or select one for automation with `--profile NAME`; both use the same exact preview/apply engine. Repeat a non-default profile when applying its plan. The PRoot-provider preset installs the runtime only. The `native-debian` preset reviews Native packages and a fresh guest together before applying either. See the [installation guide](docs/INSTALLATION.md) for profiles and custom components.
 
 ## Open the workstation
 
@@ -60,12 +60,12 @@ Each client exposes its supported operations through the shared management servi
 Preview and install a fresh, pinned Debian Trixie guest with a named guest account:
 
 ```sh
-tx proot setup fresh-preview --user NAME
-tx proot setup fresh-install --yes --plan-id PLAN_ID
+tx install preview --profile native-debian --user NAME
+tx install apply --profile native-debian --user NAME --yes --plan-id NATIVE_PLAN_ID --guest-plan-id GUEST_PLAN_ID
 tx proot status
 ```
 
-Read the preview first. The install asks for the guest sudo password in hidden prompts; do not put it in a command or file. An existing guest is preserved. See the [installation guide](docs/INSTALLATION.md) for setup details.
+The combined profile reviews both Native packages and the fresh pinned guest before applying either. It applies Native packages first, then runs the guest setup. If Native packages are already installed, its preview prints an apply command that needs only `--guest-plan-id`. The install asks for the guest account password in hidden prompts; do not put it in a command or file. Existing guests are preserved. Guest-only preview/apply commands are in the [installation guide](docs/INSTALLATION.md).
 
 ## SSH and services
 

@@ -114,10 +114,14 @@ tx install interactive — Choose a Native workstation profile, then preview it
 tx install preview [--profile NAME] [--components GROUPS] — Review exact package transaction
 tx install update preview — Review Native Ternuxx core updates
 tx install apply [--profile NAME] --yes --plan-id ID — Apply the exact saved plan
-Profiles: minimal-native, full-native, graphical, developer, native-proot-provider, custom.
+tx install preview --profile native-debian --user NAME — Preview Native + fresh Debian
+tx install apply --profile native-debian --user NAME --yes --plan-id NATIVE_ID --guest-plan-id GUEST_ID
+Profiles: minimal-native, full-native, graphical, developer, native-proot-provider, native-debian, custom.
 Custom groups: desktop,audio,proot,graphics,developer. All profiles use the same
-repository and dependency checks. The PRoot-provider profile installs the runtime only;
-Debian guest creation remains a separate preview and exact-confirmation workflow.
+repository and dependency checks. The PRoot-provider profile installs the runtime only.
+The native-debian profile reviews both exact plans, applies Native packages first, then
+runs the existing hidden-prompt fresh guest setup. If Native packages are already present,
+only --guest-plan-id is needed for its apply command.
 If APT fails, some packages may have changed; create a fresh preview before retrying.
 EOF
       ;;

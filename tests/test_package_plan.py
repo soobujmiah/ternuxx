@@ -89,6 +89,9 @@ _nt_select_install_profile developer
 printf 'DEV %s\n' "${_NT_BASE_PACKAGES[*]}"
 _nt_select_install_profile native-proot-provider
 printf 'PROOT %s\n' "${_NT_BASE_PACKAGES[*]}"
+_nt_select_install_profile native-debian
+printf 'COMBINED %s\n' "${_NT_BASE_PACKAGES[*]}"
+printf 'COMBINED_SKIP %s\n' "$_NT_ACTIVE_SKIPPED_COMPONENTS"
 _nt_select_install_profile custom 'desktop,proot,developer,desktop'
 printf 'CUSTOM %s\n' "${_NT_BASE_PACKAGES[*]}"
 """
@@ -105,6 +108,102 @@ printf 'CUSTOM %s\n' "${_NT_BASE_PACKAGES[*]}"
         self.assertIn("CUSTOM python termux-x11-nightly dbus xfce4-session", result.stdout)
         custom = result.stdout.split("CUSTOM ", 1)[1].splitlines()[0].split()
         self.assertEqual(len(custom), len(set(custom)))
+
+    def test_native_debian_combined_preview_contains_both_exact_plans(self):
+        script = """source "$1"
+nt_require_termux() { return 0; }
+nt_require_command() { return 0; }
+_nt_package_index_fresh() { return 0; }
+_nt_make_install_plan() {
+  _NT_PLAN_PACKAGES=(python)
+  _NT_PLAN_VERSIONS=(python=3.14.8)
+  _NT_PLAN_TRANSACTION=(python=3.14.8)
+  _NT_PLAN_SIMULATION='Inst python (3.14.8 termux-main stable/main [aarch64])'
+  _NT_PLAN_RESOURCE_ESTIMATES='{"schema_version":1,"complete":true,"download_bytes":100,"installed_kib":200,"packages":[]}'
+}
+_nt_write_install_record() { return 0; }
+_nt_compute_plan_id() { printf '%s\n' "$NATIVE_PLAN"; }
+_nt_combined_guest_preview() {
+  _NT_COMBINED_GUEST_PLAN_ID="$GUEST_PLAN"
+  printf -v _NT_COMBINED_GUEST_JSON '{"status":"preview","plan_id":"%s"}' "$GUEST_PLAN"
+}
+nt_cmd_install preview --profile native-debian --user sobuj
+"""
+        env = {**os.environ, "TERNUXX_JSON": "1", "NATIVE_PLAN": "a" * 64, "GUEST_PLAN": "b" * 64}
+        result = subprocess.run(
+            ["bash", "-c", script, "bash", str(PHASES)], env=env,
+            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["install"], "combined_preview")
+        self.assertEqual(payload["profile"], "native-debian")
+        self.assertEqual(payload["native_plan_id"], "a" * 64)
+        self.assertEqual(payload["guest"]["plan_id"], "b" * 64)
+
+    def test_native_debian_combined_apply_runs_native_before_guest(self):
+        script = """source "$1"
+nt_require_termux() { return 0; }
+nt_require_command() { return 0; }
+_nt_package_index_fresh() { return 0; }
+_nt_make_install_plan() {
+  _NT_PLAN_PACKAGES=(python)
+  _NT_PLAN_VERSIONS=(python=3.14.8)
+  _NT_PLAN_TRANSACTION=(python=3.14.8)
+  _NT_PLAN_SIMULATION='Inst python (3.14.8 termux-main stable/main [aarch64])'
+  _NT_PLAN_RESOURCE_ESTIMATES='{"schema_version":1,"complete":true,"download_bytes":100,"installed_kib":200,"packages":[]}'
+}
+_nt_reviewed_preview_matches() { [[ "$1" = "$NATIVE_PLAN" ]]; }
+_nt_install_capacity_preflight() { return 0; }
+_nt_write_install_record() { return 0; }
+_nt_apply_install_transaction() { printf 'native\n' >> "$ORDER_FILE"; }
+_nt_apply_combined_guest() { printf 'guest\n' >> "$ORDER_FILE"; _NT_COMBINED_GUEST_RESULT='{"status":"complete"}'; }
+nt_cmd_install apply --profile native-debian --user sobuj --yes --plan-id "$NATIVE_PLAN" --guest-plan-id "$GUEST_PLAN"
+"""
+        with tempfile.TemporaryDirectory(prefix="ternuxx-native-debian-apply-") as temporary:
+            order_file = Path(temporary) / "order"
+            env = {**os.environ, "TERNUXX_STATE_DIR": temporary,
+                   "NATIVE_PLAN": "a" * 64, "GUEST_PLAN": "b" * 64,
+                   "ORDER_FILE": str(order_file)}
+            result = subprocess.run(
+                ["bash", "-c", script, "bash", str(PHASES)], env=env,
+                text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(order_file.read_text().splitlines(), ["native", "guest"])
+
+    def test_native_debian_apply_skips_native_phase_when_packages_are_present(self):
+        script = """source "$1"
+nt_require_termux() { return 0; }
+nt_require_command() { return 0; }
+_nt_package_index_fresh() { return 0; }
+_nt_make_install_plan() {
+  _NT_PLAN_PACKAGES=()
+  _NT_PLAN_VERSIONS=()
+  _NT_PLAN_TRANSACTION=()
+  _NT_PLAN_SIMULATION='0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.'
+}
+_nt_apply_combined_guest() { printf 'guest:%s\n' "$_NT_COMBINED_GUEST_PLAN_ID" >> "$ORDER_FILE"; }
+nt_cmd_install apply --profile native-debian --user sobuj --yes --guest-plan-id "$GUEST_PLAN"
+"""
+        with tempfile.TemporaryDirectory(prefix="ternuxx-native-debian-present-") as temporary:
+            order_file = Path(temporary) / "order"
+            env = {**os.environ, "TERNUXX_STATE_DIR": temporary,
+                   "GUEST_PLAN": "b" * 64, "ORDER_FILE": str(order_file)}
+            result = subprocess.run(
+                ["bash", "-c", script, "bash", str(PHASES)], env=env,
+                text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(order_file.read_text().splitlines(), [f"guest:{'b' * 64}"])
+
+    def test_native_debian_profile_requires_user_before_package_probes(self):
+        result = subprocess.run(
+            ["bash", "-c", 'source "$1"; nt_cmd_install preview --profile native-debian',
+             "bash", str(PHASES)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("requires --user NAME", result.stderr)
 
     def test_empty_install_plan_skips_package_estimator(self):
         command = """source "$1"
