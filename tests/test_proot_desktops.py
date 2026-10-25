@@ -31,10 +31,13 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         import json
         manifest = json.loads((ROOT / "config/proot/debian-trixie.json").read_text())
         base = manifest["packages"]["base"]
-        self.assertFalse({"xfce4", "xfce4-terminal"}.intersection(base))
+        self.assertTrue({"xfce4", "xfce4-terminal"}.issubset(base))
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxqt"]), ["lxqt"])
-        self.assertEqual(set(proot_desktops.packages_for("debian-trixie", ["xfce"])),
-                         {"xfce4", "xfce4-terminal"})
+        setup = __import__("proot_fresh_setup")
+        groups = ["base"]
+        self.assertEqual(set(setup._workstation_packages(manifest, groups, ("lxqt",))), {"lxqt"}.union(
+            set(base) - {"xfce4", "xfce4-terminal"}))
+        self.assertEqual(set(setup._workstation_packages(manifest, groups, ("xfce",))), set(base))
 
     def test_inventory_reports_only_fully_installed_desktop_packages(self):
         with tempfile.TemporaryDirectory() as temporary:

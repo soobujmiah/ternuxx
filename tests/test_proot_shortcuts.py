@@ -432,7 +432,8 @@ class ProotShortcutTests(unittest.TestCase):
         (rootfs / "etc/os-release").write_text("ID=debian\nVERSION_CODENAME=trixie\n")
         status = rootfs / "var/lib/dpkg/status"
         status.parent.mkdir(parents=True, exist_ok=True)
-        status.write_text("Package: xfce4\nStatus: install ok installed\n")
+        status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
+                          "Package: xfce4-terminal\nStatus: install ok installed\n")
         (apps / "org.example.Editor.desktop").write_text(
             "[Desktop Entry]\nType=Application\nName=Editor\nExec=/usr/bin/editor %f\n")
         data = self.home / "xfce-data"
@@ -508,6 +509,7 @@ class ProotShortcutTests(unittest.TestCase):
         status = rootfs / "var/lib/dpkg/status"
         status.parent.mkdir(parents=True)
         status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
+                          "Package: xfce4-terminal\nStatus: install ok installed\n\n"
                           "Package: lxqt\nStatus: install ok installed\n")
         (rootfs / "etc").mkdir(parents=True, exist_ok=True)
         (rootfs / "etc/os-release").write_text("ID=debian\nVERSION_CODENAME=trixie\n")

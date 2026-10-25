@@ -215,6 +215,17 @@ def _selected_groups(groups: list[str] | None) -> list[str]:
     return [group for group in _PACKAGE_GROUPS if group in groups]
 
 
+def _workstation_packages(manifest: dict, selected_groups: list[str],
+                          desktops: tuple[str, ...], provider: str = "debian-trixie") -> list[str]:
+    base = _packages(manifest, selected_groups)
+    all_desktops = set(proot_desktops.packages_for(provider, list(proot_desktops.catalog(provider))))
+    selected = proot_desktops.packages_for(provider, list(desktops))
+    selected_set = set(selected)
+    result = [package for package in base if package not in all_desktops or package in selected_set]
+    result.extend(package for package in selected if package not in result)
+    return result
+
+
 def _packages(manifest: dict, selected: list[str] | None = None) -> list[str]:
     groups = manifest.get("packages")
     if not isinstance(groups, dict):
@@ -294,9 +305,7 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
         chosen_desktops = proot_desktops.validate_selection("debian-trixie", desktops)
     except proot_desktops.DesktopError as exc:
         raise FreshSetupError(str(exc)) from exc
-    packages = _packages(manifest, chosen_groups)
-    packages.extend(package for package in proot_desktops.packages_for("debian-trixie", chosen_desktops)
-                    if package not in packages)
+    packages = _workstation_packages(manifest, chosen_groups, chosen_desktops)
     ca_path, ca_sha256 = _native_ca_bundle(prefix)
     guest_ca_path = "/tmp/ternuxx-native-ca.pem"
     kgsl = _kgsl_accessible()

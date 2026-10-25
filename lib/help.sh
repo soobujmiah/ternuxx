@@ -48,9 +48,10 @@ Debian PRoot uses the Native Termux host. `tx install preview` includes the
 proot-distro runtime. Preview with `tx proot setup fresh-preview --user NAME
 --desktops xfce,lxqt`; desktop IDs are `xfce`, `lxqt`, `lxde`, and `mate`, and
 only selected desktops are installed (XFCE is the default). Review the exact
-image/package plan, then apply it with `tx proot setup fresh-install --yes
---plan-id ID`. Choose `--sudo-mode password` for hidden guest-password prompts,
-or `passwordless` for NOPASSWD sudo inside the guest. Never put passwords in
+image/package plan, then apply it with
+`tx proot setup fresh-install --yes --plan-id ID`.
+Choose `--sudo-mode password` for hidden prompts, or `passwordless` for
+NOPASSWD sudo inside the guest. Never put passwords in
 command arguments. Fresh setup runs in an attached Native Termux terminal and
 preserves an existing guest.
 `tx proot sessions list` inspects managed sessions;

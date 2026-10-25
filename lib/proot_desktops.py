@@ -31,6 +31,12 @@ def validate_selection(provider: str, selected: list[str] | tuple[str, ...] | No
     return tuple(item for item in DEBIAN_DESKTOPS if item in selected)
 
 
+def catalog(provider: str) -> tuple[str, ...]:
+    if provider != "debian-trixie":
+        raise DesktopError("desktop catalog is not implemented for this PRoot provider")
+    return tuple(DEBIAN_DESKTOPS)
+
+
 def packages_for(provider: str, selected: list[str] | tuple[str, ...] | None = None) -> list[str]:
     choices = validate_selection(provider, selected)
     return list(dict.fromkeys(package for item in choices for package in DEBIAN_DESKTOPS[item]["packages"]))

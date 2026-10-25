@@ -29,6 +29,8 @@
       "vulkan-tools",
       "x11-utils",
       "xauth",
+      "xfce4",
+      "xfce4-terminal",
       "xserver-xephyr"
     ],
     "desktop-compat": [

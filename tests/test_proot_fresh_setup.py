@@ -483,14 +483,13 @@ class FreshProotSetupTests(unittest.TestCase):
                 home=str(self.home), state_dir=str(self.state), user="sbj")
             self.assertEqual(default_plan["operation"]["package_groups"], ["base"])
             manifest = json.loads((self.repo / "config/proot/debian-trixie.json").read_text())
-            self.assertEqual(default_plan["operation"]["packages"],
-                             manifest["packages"]["base"] + proot_desktops.packages_for("debian-trixie"))
+            self.assertEqual(default_plan["operation"]["packages"], manifest["packages"]["base"])
             plan = proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
                 home=str(self.home), state_dir=str(self.state), user="sbj", groups=["base", "fonts"])
             operation = plan["operation"]
             self.assertEqual(operation["package_groups"], ["base", "fonts"])
             manifest = json.loads((self.repo / "config/proot/debian-trixie.json").read_text())
-            expected = manifest["packages"]["base"] + manifest["packages"]["fonts"] + proot_desktops.packages_for("debian-trixie")
+            expected = manifest["packages"]["base"] + manifest["packages"]["fonts"]
             self.assertEqual(operation["packages"], expected)
             for invalid in (["fonts"], ["base", "unknown"], ["base", "base"], [], [{"group": "base"}]):
                 with self.subTest(groups=invalid), self.assertRaises(proot_fresh_setup.FreshSetupError):
