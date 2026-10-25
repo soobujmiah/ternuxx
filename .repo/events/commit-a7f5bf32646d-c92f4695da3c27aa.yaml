@@ -1,0 +1,7 @@
+event_id: commit-a7f5bf32646d-c92f4695da3c27aa
+repository: soobujmiah/ternuxx
+commit: a7f5bf32646d0d5ce50ff10f6f567b7cdf4f5e32
+kind: commit
+occurred_at: '2026-10-25T20:23:58Z'
+status: completed
+summary: 'fix(desktop): hide unverified environment choices'
