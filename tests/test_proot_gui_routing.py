@@ -85,5 +85,10 @@ class ProotGuiRoutingTests(unittest.TestCase):
             self.assertIn("--mode must be auto, standalone, or nested", result.stderr)
             self.assertFalse((home / ".local/share/ternuxx").exists())
 
+    def test_nested_gui_creates_each_private_xdg_directory_before_chmod(self):
+        source = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
+        self.assertIn('mkdir -p "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"', source)
+        self.assertIn('chmod 700 "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"', source)
+
 if __name__ == "__main__":
     unittest.main()

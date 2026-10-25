@@ -176,7 +176,7 @@ exit "$result"
       guest_script=$(cat <<'GUEST'
 set -eu
 state="$HOME/.local/share/ternuxx/proot-nested-gui/$TERNUXX_DESKTOP_ID"
-mkdir -p "$state" "$state/cache" "$state/data" "$state/runtime"
+mkdir -p "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"
 chmod 700 "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"
 export XDG_CONFIG_HOME="$state/config" XDG_CACHE_HOME="$state/cache" XDG_DATA_HOME="$state/data" XDG_RUNTIME_DIR="$state/runtime"
 if [ "$TERNUXX_DESKTOP_ID" = xfce ]; then

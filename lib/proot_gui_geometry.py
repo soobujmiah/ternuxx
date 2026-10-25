@@ -8,7 +8,7 @@ import subprocess
 
 
 _DIMENSIONS = re.compile(r"^\s*dimensions:\s*(\d+)x(\d+)\s+pixels(?:\s|$)", re.MULTILINE)
-_MIN_DIMENSION = 320
+_MIN_DIMENSION = 240
 _MAX_DIMENSION = 16384
 _MAX_PIXELS = 100_000_000
 

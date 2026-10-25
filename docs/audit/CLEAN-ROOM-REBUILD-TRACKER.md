@@ -39,6 +39,14 @@ The official Freedreno ICD package was added to the Native graphical profile and
 
 This device result does not establish whether a different Mesa build or future package supports this GPU. Native GUI acceleration and PRoot graphics remain unqualified; no Vulkan/Zink/Adreno rendering success is claimed.
 
+## 2026-10-25 nested PRoot graphics recheck
+
+A temporary nested Debian XFCE session on Xephyr `:2` produced a Zink/Turnip Adreno 825 GLES context. `vulkaninfo` enumerated Adreno 825 and bounded `vkcube --c 120` selected Adreno 825 and exited successfully. Xephyr lacks DRI3 in this environment; `glxinfo -B` could not obtain an RGB GLX visual, so GLX/XFCE-wide acceleration and the XFCE About-screen label remain unverified. The Native Bionic XFCE stays on `llvmpipe`. The test session was closed and its new temporary guest XDG config path cleaned. Evidence: [Nested Debian graphics recheck](../evidence/2026-10-25-proot-nested-graphics-recheck.md).
+
+## 2026-10-25 standalone PRoot graphics recheck
+
+The managed Debian XFCE ran on standalone display `:0`. Its GLX renderer was Zink/Vulkan on Adreno 825 Turnip, and a bounded GLX workload completed 475 frames with the same renderer. GLES context creation and Vulkan enumeration also selected/reported Adreno 825 Turnip; Native PulseAudio was reachable. The probe did not verify a GLES draw or visually inspect XFCE About. Afterward the standalone guest was stopped and Native XFCE restored on `:1`; final status found no PRoot processes. See [Standalone Debian graphics recheck](../evidence/2026-10-25-proot-standalone-graphics-recheck.md).
+
 ## Acceptance gates
 
 | Gate | State | Evidence / next action |
@@ -51,7 +59,7 @@ This device result does not establish whether a different Mesa build or future p
 | Shared CLI/TUI/Web/GTK service layer | Shared operations present; complete visible acceptance open | Native desktop and GTK launch/category interaction are owner-verified. Debian desktop launch/shortcuts route through shared operations. Verify each action, error, and provider workflow visibly in all four clients; Web and broader journey acceptance remain open. |
 | Critical UI outcomes and error handling | Open | Exercise complete user journeys in each supported client; source rendering or HTTP 200 is insufficient. |
 | Managed Native SSH | Installed; loopback readiness verified | Dedicated key-only config and Runit service are installed; authenticated local key login passed. Kernel listener-to-process correlation is unavailable under Android permissions. External Native SSH configuration remains outside Ternuxx scope. See [isolated setup evidence](../evidence/2026-10-25-native-ssh-isolated-setup.md). |
-| Graphics selection, qualification, safe fallback | Native software path verified; Adreno GUI acceleration not verified | Current Native X11 XFCE reports `llvmpipe` and Vulkan loader reports no driver. Current guest GUI is stopped, and owner reports neither current XFCE info screen identifies Adreno/Zink/Turnip. Device node, context, enumeration, or historical session is not application acceleration. Driver qualification, representative current desktop draw, fallback recovery, and guarded thermal evidence remain open. |
+| Graphics selection, qualification, safe fallback | Native software path verified; Adreno GUI acceleration not verified | Current Native X11 XFCE reports `llvmpipe` and Vulkan loader reports no driver. Current guest GUI is stopped after a temporary nested test; the guest achieved a Turnip GLES context and Vulkan sample draw on Adreno 825, while GLX failed because Xephyr lacks DRI3. Owner visual verification of the XFCE About-screen label remains open. Device node, context, enumeration, or historical session is not application acceleration. Driver qualification, representative current desktop draw, fallback recovery, and guarded thermal evidence remain open. |
 | Optional application catalogue | Source/tests present; live route audit open | Verify candidates in Native and guest against current signed package indexes and runtime compatibility. |
 | Security, resource limits, recovery | Open | Audit current paths and exercise bounded failure/recovery cases without weakening guards. |
 | Concise fresh-install documentation | Implemented for existing English docs | README, `docs/INSTALLATION.md`, and `bn/INSTALLATION.md` now cover cloning, preview-first installation of the `tx` entrypoint, Native package setup, and optional pinned Debian flow. |

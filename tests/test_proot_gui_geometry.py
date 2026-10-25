@@ -12,12 +12,16 @@ class ProotGuiGeometryTests(unittest.TestCase):
         self.assertEqual(proot_gui_geometry.parse_xdpyinfo_dimensions(
             "screen #0:\n  dimensions: 752x1124 pixels (190x284 millimeters)\n"), (752, 1124))
 
+    def test_accepts_compact_floating_x11_window_geometry(self) -> None:
+        self.assertEqual(proot_gui_geometry.parse_xdpyinfo_dimensions(
+            "screen #0:\n  dimensions: 280x403 pixels (74x106 millimeters)\n"), (280, 403))
+
     def test_reads_landscape_native_display_geometry_after_rotation(self) -> None:
         self.assertEqual(proot_gui_geometry.parse_xdpyinfo_dimensions(
             "screen #0:\n  dimensions: 1124x752 pixels (284x190 millimeters)\n"), (1124, 752))
 
     def test_rejects_missing_or_unbounded_geometry(self) -> None:
-        for output in ("screen #0:\n", "dimensions: 0x1124 pixels", "dimensions: 20000x1000 pixels",
+        for output in ("screen #0:\n", "dimensions: 239x403 pixels", "dimensions: 0x1124 pixels", "dimensions: 20000x1000 pixels",
                        "dimensions: 12000x9000 pixels"):
             with self.subTest(output=output), self.assertRaises(ValueError):
                 proot_gui_geometry.parse_xdpyinfo_dimensions(output)

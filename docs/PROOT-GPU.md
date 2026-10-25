@@ -16,3 +16,7 @@ Older Ternuxx guest setup used a legacy ICD path. The Native CLI provides a narr
 - [Current Native GPU qualification](testing/GPU-ACCELERATION.md)
 - [Dated historical graphics research](RESEARCH.md#9-existing-ternux-proot-graphics-path)
 - [Current product scope](PRODUCT-VISION.md)
+
+## Current device recheck — 2026-10-25
+
+The nested Xephyr `:2` session lacked DRI3, so that route did not verify GLX drawing. A separate standalone Debian XFCE run on `:0` subsequently verified a bounded 475-frame GLX draw with Zink/Vulkan on Adreno 825 Turnip, alongside GLES context creation and Vulkan device enumeration. This proves the named GLX workload in that session, not XFCE-wide acceleration, every application surface, a GLES draw, sustained performance, or the About dialog label. Native Termux/Bionic XFCE still reports `llvmpipe`. See the [standalone PRoot runtime record](evidence/2026-10-25-proot-standalone-graphics-recheck.md), [nested PRoot runtime record](evidence/2026-10-25-proot-nested-graphics-recheck.md), and [Native Freedreno check](evidence/2026-10-25-native-freedreno-runtime-recheck.md).

@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 557,
+  "document_count": 559,
   "read_count": 164,
   "reading_complete": false,
   "broken_local_links": [],
@@ -195,8 +195,8 @@
     {
       "path": "docs/PROOT-GPU.md",
       "kind": "narrative",
-      "sha256": "fe979eb492b8f62683f9895f559fc806d7cf5d4cf618f0128b1a9006df7f998e",
-      "lines": 18,
+      "sha256": "a8c5cfd2724d2617d778852ebdb479b127e77e5256bfea9a309f0123dd0bf671",
+      "lines": 22,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -539,8 +539,8 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "c874f60e7523f976d1716e5cb5c773db6d6fe3014c81e1432de0f72127495868",
-      "lines": 76,
+      "sha256": "9c36db688f6424c62901e6c08a399c66efd7275648a0ace358a4c7d1abf5a45d",
+      "lines": 84,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3443,7 +3443,7 @@
     {
       "path": "docs/evidence/2026-10-25-native-freedreno-runtime-recheck.md",
       "kind": "narrative",
-      "sha256": "9e7e7f50ab76d19306c7f2acb6ea6248665fb6772e83b1b4018bd3c0cd99f0c3",
+      "sha256": "f99e2af3fbdf7dd9a5a13cc64a6e21f2eb74eec530af897c943f6290f90f0220",
       "lines": 11,
       "read_status": "pending",
       "read_sha256": null
@@ -3485,6 +3485,22 @@
       "kind": "narrative",
       "sha256": "ed8d3edcc145de2091cbebb5f5c2e8d0ae24a0abfbd1fe0d80b0b9c3d2de410e",
       "lines": 23,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-25-proot-nested-graphics-recheck.md",
+      "kind": "narrative",
+      "sha256": "13bbacc903bdab59ffeb13cf0cd02943d13b8de612e3da162bdf2fc6c52b9e04",
+      "lines": 11,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-25-proot-standalone-graphics-recheck.md",
+      "kind": "narrative",
+      "sha256": "1d21a87b65ec9ffdfabffdd08f09f25e8f87c382afb6efdb839cfc2dfa4bcd23",
+      "lines": 9,
       "read_status": "pending",
       "read_sha256": null
     },
