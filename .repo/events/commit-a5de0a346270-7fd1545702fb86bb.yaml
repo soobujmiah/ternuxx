@@ -1,0 +1,7 @@
+event_id: commit-a5de0a346270-7fd1545702fb86bb
+repository: soobujmiah/ternuxx
+commit: a5de0a346270b9a8eb38a782d8d982c0c0ad2cdd
+kind: commit
+occurred_at: '2026-10-25T16:15:14Z'
+status: completed
+summary: 'docs: record standalone GUI rerun limitation'
