@@ -1,0 +1,7 @@
+event_id: commit-8c949714e030-7d154980e253b2b4
+repository: soobujmiah/ternuxx
+commit: 8c949714e0301dca573c77def8e65c8f0378569b
+kind: commit
+occurred_at: '2026-10-25T08:35:27Z'
+status: completed
+summary: Fix clean Native workstation bootstrap
