@@ -1,0 +1,7 @@
+event_id: commit-c6acdc307f86-65065ca76d07e5d3
+repository: soobujmiah/ternuxx
+commit: c6acdc307f8626facbd32d279bcb4ced0c42b9ed
+kind: commit
+occurred_at: '2026-10-25T16:53:13Z'
+status: completed
+summary: 'docs: record standalone desktop acceptance results'
