@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 562,
-  "read_count": 170,
+  "document_count": 563,
+  "read_count": 171,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "6986401048fe0354caa137dfdd929092a485fa8352f1ab72c05c8a9282fc6d81",
+      "sha256": "7ad08c2e59a5dfbbed95f3001d3facd186dcf50185de795406dd325b64d7bc72",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "6986401048fe0354caa137dfdd929092a485fa8352f1ab72c05c8a9282fc6d81"
+      "read_sha256": "7ad08c2e59a5dfbbed95f3001d3facd186dcf50185de795406dd325b64d7bc72"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "ea56912979e488032ae54a171bbd3dad99b681493793ea87e6d2e3958caec45a",
-      "lines": 119,
+      "sha256": "b46fea2d3bf7577b5b1376c95c867da860cd6dfa168516a785b53677de7a3624",
+      "lines": 123,
       "read_status": "read",
-      "read_sha256": "ea56912979e488032ae54a171bbd3dad99b681493793ea87e6d2e3958caec45a"
+      "read_sha256": "b46fea2d3bf7577b5b1376c95c867da860cd6dfa168516a785b53677de7a3624"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3519,6 +3519,14 @@
       "lines": 11,
       "read_status": "pending",
       "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-25-proot-nested-vulkan-smoke-recheck.md",
+      "kind": "narrative",
+      "sha256": "e71ceb6a28d829edcfa18946e685a66a5ff77190e3ad8e146e29057f013290a8",
+      "lines": 26,
+      "read_status": "read",
+      "read_sha256": "e71ceb6a28d829edcfa18946e685a66a5ff77190e3ad8e146e29057f013290a8"
     },
     {
       "path": "docs/evidence/2026-10-25-proot-standalone-graphics-recheck.md",
