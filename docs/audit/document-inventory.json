@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 574,
-  "read_count": 176,
+  "document_count": 575,
+  "read_count": 175,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "b12d6bcdddebcc0f6ff1d581c6d2d3e157b34620881f3111f3dc84e7139504f8",
+      "sha256": "8409bc54d836ccf6c34ee0d2402c4fecaa093853f600bc6dee6d7837d45b4df0",
       "lines": 37,
       "read_status": "pending",
       "read_sha256": null
@@ -267,10 +267,10 @@
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
       "kind": "narrative",
-      "sha256": "bb1565d7f51628d2f622aaadad2ef40dcf2dde15f547c45fae23b0b65ccd3b0c",
+      "sha256": "12eb5bd0670c6abd3e002a1506925698b6fd5bc0713446af496712dfa008d6e5",
       "lines": 21,
-      "read_status": "read",
-      "read_sha256": "bb1565d7f51628d2f622aaadad2ef40dcf2dde15f547c45fae23b0b65ccd3b0c"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/architecture/CONTINUITY-IMPLEMENTATION.md",
@@ -539,7 +539,7 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "1197b48d4d82c1c42c7c67d3632d0999bc9e96e512ede73ead6c7f6806ac11e6",
+      "sha256": "dfc91c2f62341fabf5565a93331331ac4f3e7bc4a4a69e811365efd9294aa840",
       "lines": 135,
       "read_status": "pending",
       "read_sha256": null
@@ -3501,6 +3501,14 @@
       "kind": "narrative",
       "sha256": "5e8b6fe81f6acc7c6e97376279fec627d3f2bec9ca15a75ce003eb81db292c93",
       "lines": 38,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-25-pgui-nested-render-follow-up.md",
+      "kind": "narrative",
+      "sha256": "178b96fcad495cf57e16b34f52af5bf0fe9c4a247a4d5c82640e24543aaf8007",
+      "lines": 15,
       "read_status": "pending",
       "read_sha256": null
     },
