@@ -115,8 +115,8 @@
     {
       "path": "config/proot/debian-trixie.json",
       "kind": "structured",
-      "sha256": "94209faa6ba1773ff0410256189f1d0064736bd3c44193f88815c5d7a1351b95",
-      "lines": 151,
+      "sha256": "4bcdb1acb21896f1e3eb7918b8dc84cffc399e06e117f8ae4abfaae4b37ce218",
+      "lines": 149,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -539,7 +539,7 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "6219e4a13af52bb351aeeacfd9a2cf5307586113654f4d216294623d0e0f087e",
+      "sha256": "11abf597c2b62b0f225ac8e91303de2c302c4297bd60bba6235a96b3eac45268",
       "lines": 70,
       "read_status": "pending",
       "read_sha256": null
@@ -3475,7 +3475,7 @@
     {
       "path": "docs/evidence/2026-10-25-proot-desktop-catalog-and-ternux-audit.md",
       "kind": "narrative",
-      "sha256": "a59f092bbb2691290ecbe5b507b8c122ae388bf43ad50586b8706d4b274383ff",
+      "sha256": "adfa19869c0035eefa9376be69a1140c0f5eb13cee1fadd1cd22505321425d29",
       "lines": 23,
       "read_status": "pending",
       "read_sha256": null

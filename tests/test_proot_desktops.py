@@ -27,12 +27,22 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         with self.assertRaises(proot_desktops.DesktopError):
             proot_desktops.session_command("debian-trixie", "$(id)")
 
+    def test_base_profile_does_not_install_an_unselected_desktop(self):
+        import json
+        manifest = json.loads((ROOT / "config/proot/debian-trixie.json").read_text())
+        base = manifest["packages"]["base"]
+        self.assertFalse({"xfce4", "xfce4-terminal"}.intersection(base))
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxqt"]), ["lxqt"])
+        self.assertEqual(set(proot_desktops.packages_for("debian-trixie", ["xfce"])),
+                         {"xfce4", "xfce4-terminal"})
+
     def test_inventory_reports_only_fully_installed_desktop_packages(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             status = root / "var/lib/dpkg/status"
             status.parent.mkdir(parents=True)
             status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
+                              "Package: xfce4-terminal\nStatus: install ok installed\n\n"
                               "Package: lxqt\nStatus: install ok installed\n\n"
                               "Package: lxde-core\nStatus: deinstall ok config-files\n")
             self.assertEqual(proot_desktops.installed_desktops(root), ["xfce", "lxqt"])

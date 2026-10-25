@@ -10,7 +10,7 @@ The reference installer uses a staged host package, Debian, graphics, audio, lau
 
 ## Ternuxx implementation
 
-Ternuxx now has an allowlisted Debian Trixie desktop catalog for XFCE (`xfce4`), LXQt (`lxqt`), LXDE (`lxde-core`), and MATE (`mate-desktop-environment-core`). Fresh-install and resume previews accept `--desktops ID[,ID...]`; the selected desktop IDs and package set are bound into the exact plan and persisted in the guest receipt. Unknown, duplicate, or empty selections fail closed. The default remains XFCE. Existing guest replacement remains refused.
+Ternuxx now has an allowlisted Debian Trixie desktop catalog for XFCE (`xfce4`), LXQt (`lxqt`), LXDE (`lxde-core`), and MATE (`mate-desktop-environment-core`). The base package group no longer includes XFCE; fresh preview adds packages only for the selected desktop IDs, with XFCE remaining the default only when no selection is supplied. Fresh-install and resume previews accept `--desktops ID[,ID...]`; the selected desktop IDs and package set are bound into the exact plan and persisted in the guest receipt. Unknown, duplicate, or empty selections fail closed. The default remains XFCE. Existing guest replacement remains refused.
 
 The PRoot GUI router accepts `tx pgui start --desktop ID`, checks the guest package inventory before launch, and uses fixed session commands from the catalog. When multiple supported desktops are installed, an explicit ID is required. Shared shortcut synchronization creates Ternuxx-owned Native menu entries for installed desktop sessions. CLI, TUI, Web, and GTK use the shared shortcut service; human reports include each available `tx pgui` launch command.
 

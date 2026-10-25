@@ -8,7 +8,7 @@ from pathlib import Path
 # Debian Trixie package and session mappings are allowlisted here. Display
 # commands are never accepted from caller input or passed through a shell.
 DEBIAN_DESKTOPS = {
-    "xfce": {"name": "XFCE", "packages": ("xfce4",), "session": "startxfce4"},
+    "xfce": {"name": "XFCE", "packages": ("xfce4", "xfce4-terminal"), "session": "startxfce4"},
     "lxqt": {"name": "LXQt", "packages": ("lxqt",), "session": "startlxqt"},
     "lxde": {"name": "LXDE", "packages": ("lxde-core",), "session": "startlxde"},
     "mate": {"name": "MATE", "packages": ("mate-desktop-environment-core",), "session": "mate-session"},

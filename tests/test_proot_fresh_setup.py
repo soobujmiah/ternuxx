@@ -15,6 +15,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "lib"))
 import proot_fresh_setup
+import proot_desktops
 
 
 class FreshProotSetupTests(unittest.TestCase):
@@ -91,7 +92,9 @@ class FreshProotSetupTests(unittest.TestCase):
 
     def _version_output(self):
         manifest = json.loads((self.repo / "config/proot/debian-trixie.json").read_text())
-        return "".join("ii \t" + p + "=1.0\n" for p in proot_fresh_setup._packages(manifest))
+        packages = proot_fresh_setup._packages(manifest)
+        packages.extend(proot_desktops.packages_for("debian-trixie"))
+        return "".join("ii \t" + p + "=1.0\n" for p in packages)
 
     def test_fresh_apply_requires_password_for_the_selected_guest_account(self):
         with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False):
@@ -480,13 +483,14 @@ class FreshProotSetupTests(unittest.TestCase):
                 home=str(self.home), state_dir=str(self.state), user="sbj")
             self.assertEqual(default_plan["operation"]["package_groups"], ["base"])
             manifest = json.loads((self.repo / "config/proot/debian-trixie.json").read_text())
-            self.assertEqual(default_plan["operation"]["packages"], manifest["packages"]["base"])
+            self.assertEqual(default_plan["operation"]["packages"],
+                             manifest["packages"]["base"] + proot_desktops.packages_for("debian-trixie"))
             plan = proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
                 home=str(self.home), state_dir=str(self.state), user="sbj", groups=["base", "fonts"])
             operation = plan["operation"]
             self.assertEqual(operation["package_groups"], ["base", "fonts"])
             manifest = json.loads((self.repo / "config/proot/debian-trixie.json").read_text())
-            expected = manifest["packages"]["base"] + manifest["packages"]["fonts"]
+            expected = manifest["packages"]["base"] + manifest["packages"]["fonts"] + proot_desktops.packages_for("debian-trixie")
             self.assertEqual(operation["packages"], expected)
             for invalid in (["fonts"], ["base", "unknown"], ["base", "base"], [], [{"group": "base"}]):
                 with self.subTest(groups=invalid), self.assertRaises(proot_fresh_setup.FreshSetupError):
