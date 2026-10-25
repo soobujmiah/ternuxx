@@ -152,6 +152,23 @@ class DesktopSupervisorProcessGroupTest(unittest.TestCase):
         self._stop_supervisor()
         self.assertEqual(json.loads((self.state / "session.json").read_text())["status"], "stopped")
 
+    def test_proot_desktop_environment_uses_guest_ids_not_native_allowlist(self):
+        session = self.root / "proot-display0"
+        self._write_executable(session, XFCE_SCRIPT)
+        self.supervisor = subprocess.Popen(
+            ["bash", str(SUPERVISOR), ":91", str(self.state), str(self.tmp),
+             str(self.x11), str(self.dbus), str(session), str(OWNED_EXEC),
+             "proot-display0", "proot", "gnome"],
+            cwd=ROOT, env=self.environment, stdin=subprocess.DEVNULL,
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        state = self._wait_for_state("running")
+        self.assertEqual(state["provider"], "proot")
+        self.assertEqual(state["desktop_id"], "gnome")
+        environ = Path(f"/proc/{state['desktop']['pid']}/environ").read_bytes().split(b"\0")
+        self.assertIn(b"XDG_SESSION_TYPE=x11", environ)
+        self.assertIn(b"XDG_CURRENT_DESKTOP=GNOME", environ)
+        self._stop_supervisor()
+
     def test_stop_terminates_only_owned_groups_and_descendants(self):
         self.unrelated = subprocess.Popen(["/bin/sleep", "90"])
         self._start()

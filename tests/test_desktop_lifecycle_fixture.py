@@ -77,7 +77,9 @@ os.execv(sys.argv[2], sys.argv[2:])
         self._write_executable(
             "xfce4-session",
             """#!/usr/bin/env python3
-import time
+import os, time
+with open(os.environ["FAKE_ENV_FILE"], "w", encoding="utf-8") as stream:
+    stream.write(os.environ.get("LD_LIBRARY_PATH", "missing"))
 while True:
     time.sleep(1)
 """,
@@ -93,6 +95,7 @@ while True:
                 "PREFIX": "/data/data/com.termux/files/usr",
                 "TERNUXX_STATE_DIR": str(self.state),
                 "TERNUXX_LIB_DIR": str(self.lib_dir),
+                "FAKE_ENV_FILE": str(self.base / "desktop-loader-path"),
                 "PATH": f"{self.bin_dir}{os.pathsep}{os.environ['PATH']}",
             }
         )
@@ -279,6 +282,8 @@ bash -c "$runner" _ status
         result = self._run("start")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self._state()["display"], ":1")
+        loader_path = (self.base / "desktop-loader-path").read_text(encoding="utf-8")
+        self.assertEqual(loader_path, f"{self.env['PREFIX']}/lib")
         self.assertFalse((self.tmp / ".X0-lock").exists())
         self.assertFalse((self.tmp / ".X11-unix/X0").exists())
 

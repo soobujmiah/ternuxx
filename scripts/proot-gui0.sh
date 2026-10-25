@@ -138,7 +138,7 @@ else echo "unavailable: vulkaninfo is not installed"; result=1; fi
 printf "\\nThese checks verify context creation and device enumeration; they do not prove frame presentation or inference offload."
 exit "$result"
 ')
-    env -u DBUS_SESSION_BUS_ADDRESS -u DBUS_SESSION_BUS_PID -u DBUS_STARTER_ADDRESS -u DBUS_STARTER_BUS_TYPE -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE -u LD_LIBRARY_PATH -u LD_PRELOAD "$PREFIX/bin/proot-distro" "${args[@]}"
+    env -u DBUS_SYSTEM_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS -u DBUS_SESSION_BUS_PID -u DBUS_STARTER_ADDRESS -u DBUS_STARTER_BUS_TYPE -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE -u LD_LIBRARY_PATH -u LD_PRELOAD "$PREFIX/bin/proot-distro" "${args[@]}"
     ;;
 
   start)
@@ -184,27 +184,48 @@ if [ "$TERNUXX_DESKTOP_ID" = xfce ]; then
   printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<channel name="xfwm4" version="1.0"><property name="general" type="empty"><property name="use_compositing" type="bool" value="false"/></property></channel>' > "$XDG_CONFIG_HOME/xfce4/xfconf/xfce-perchannel-xml/xfwm4.xml"
 fi
 case "$TERNUXX_DESKTOP_ID" in
-  xfce) desktop_argv=(startxfce4) ;;
-  lxqt) desktop_argv=(startlxqt) ;;
-  lxde) desktop_argv=(startlxde) ;;
-  mate) desktop_argv=(mate-session) ;;
-  gnome) desktop_argv=(gnome-session --session=gnome-xorg) ;;
-  plasma) desktop_argv=(startplasma-x11) ;;
-  cinnamon) desktop_argv=(cinnamon-session) ;;
+  xfce) desktop_argv=(startxfce4); export XDG_CURRENT_DESKTOP=XFCE XDG_SESSION_DESKTOP=xfce DESKTOP_SESSION=xfce ;;
+  lxqt) desktop_argv=(startlxqt); export XDG_CURRENT_DESKTOP=LXQt XDG_SESSION_DESKTOP=LXQt DESKTOP_SESSION=lxqt ;;
+  lxde) desktop_argv=(startlxde); export XDG_CURRENT_DESKTOP=LXDE XDG_SESSION_DESKTOP=LXDE DESKTOP_SESSION=lxde ;;
+  mate) desktop_argv=(mate-session); export XDG_CURRENT_DESKTOP=MATE XDG_SESSION_DESKTOP=MATE DESKTOP_SESSION=mate ;;
+  gnome) desktop_argv=(gnome-session --session=gnome-xorg); export XDG_CURRENT_DESKTOP=GNOME XDG_SESSION_DESKTOP=gnome DESKTOP_SESSION=gnome ;;
+  plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma ;;
+  cinnamon) desktop_argv=(cinnamon-session); export XDG_CURRENT_DESKTOP=X-Cinnamon XDG_SESSION_DESKTOP=X-Cinnamon DESKTOP_SESSION=cinnamon ;;
   *) echo "Unsupported desktop selection" >&2; exit 2 ;;
 esac
+export XDG_SESSION_TYPE=x11
 native_geometry="$(PYTHONPATH="$TERNUXX_REPO_ROOT/lib" python3 -c 'import os,proot_gui_geometry; print(proot_gui_geometry.query_display_geometry(os.environ["DISPLAY"]))')" || { echo "Could not read Native display geometry; nested GUI was not started." >&2; exit 1; }
 printf 'Starting Xephyr :2 at Native display size %s with a resizable host window; fullscreen/orientation resizing depends on Termux:X11 and window-manager bounds.\n' "$native_geometry"
 /usr/bin/Xephyr :2 -glamor_gles2 -screen "$native_geometry" -resizeable -no-host-grab -nolisten tcp >"$state/xephyr.log" 2>&1 &
 xephyr_pid=$!
 xfce_pid=
+system_bus_dir=
+system_bus_address=
+system_bus_pid=
 cleanup() {
-  [ -z "$xfce_pid" ] || kill -TERM "$xfce_pid" 2>/dev/null || true
-  [ -z "$xfce_pid" ] || wait "$xfce_pid" 2>/dev/null || true
-  kill -TERM "$xephyr_pid" 2>/dev/null || true
-  wait "$xephyr_pid" 2>/dev/null || true
+  [ -z "${xfce_pid:-}" ] || kill -TERM "$xfce_pid" 2>/dev/null || true
+  [ -z "${xfce_pid:-}" ] || wait "$xfce_pid" 2>/dev/null || true
+  [ -z "${system_bus_pid:-}" ] || kill -TERM "$system_bus_pid" 2>/dev/null || true
+  [ -z "${system_bus_pid:-}" ] || wait "$system_bus_pid" 2>/dev/null || true
+  [ -z "${system_bus_dir:-}" ] || rmdir "$system_bus_dir" 2>/dev/null || true
+  [ -z "${xephyr_pid:-}" ] || kill -TERM "$xephyr_pid" 2>/dev/null || true
+  [ -z "${xephyr_pid:-}" ] || wait "$xephyr_pid" 2>/dev/null || true
 }
 trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+trap 'exit 129' HUP
+system_bus_dir="$(mktemp -d "$XDG_RUNTIME_DIR/system-bus.XXXXXX")"
+system_bus_address="unix:path=$system_bus_dir/bus"
+/usr/bin/dbus-daemon --session --address="$system_bus_address" --nofork >"$state/system-bus.log" 2>&1 &
+system_bus_pid=$!
+for _ in $(seq 1 80); do
+  [ -S "$system_bus_dir/bus" ] && break
+  kill -0 "$system_bus_pid" 2>/dev/null || { wait "$system_bus_pid" || true; echo "Private Debian system bus failed; nested desktop was not started." >&2; exit 1; }
+  sleep 0.05
+done
+[ -S "$system_bus_dir/bus" ] || { echo "Private Debian system bus did not become ready; nested desktop was not started." >&2; exit 1; }
+export DBUS_SYSTEM_BUS_ADDRESS="$system_bus_address"
 trap 'exit 130' INT
 trap 'exit 143' TERM
 trap 'exit 129' HUP
@@ -236,7 +257,7 @@ GUEST
         MESA_DISK_CACHE_SINGLE_FILE=1 MESA_SHADER_CACHE_MAX_SIZE=2048M QT_X11_NO_MITSHM=1 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
         /bin/bash -c "$guest_script")
       printf "Starting Debian %s nested in Native :1 through Xephyr :2 at Native display geometry. Use Termux:X11 fullscreen/orientation controls; the Xephyr host window is resizable. Press Ctrl-C in this terminal to close only the nested desktop.\n" "$DESKTOP_ID"
-      env -u DBUS_SESSION_BUS_ADDRESS -u DBUS_SESSION_BUS_PID -u DBUS_STARTER_ADDRESS -u DBUS_STARTER_BUS_TYPE -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE -u LD_LIBRARY_PATH -u LD_PRELOAD "$PREFIX/bin/proot-distro" "${args[@]}"
+      env -u DBUS_SYSTEM_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS -u DBUS_SESSION_BUS_PID -u DBUS_STARTER_ADDRESS -u DBUS_STARTER_BUS_TYPE -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE -u LD_LIBRARY_PATH -u LD_PRELOAD "$PREFIX/bin/proot-distro" "${args[@]}"
       exit $?
     fi
     [ "$native_state" = stopped ] || { echo "Standalone display :0 requires Native GUI stopped; current Native state is $native_state. Choose nested mode while Native GUI is running." >&2; exit 1; }

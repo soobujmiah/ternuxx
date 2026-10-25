@@ -118,6 +118,16 @@ Inst helper (1 tur-packages tur [aarch64])
         with self.assertRaisesRegex(optional_software.SoftwareError, "indexes are not usable"):
             self.preview()
 
+    def test_native_package_commands_drop_foreign_library_path(self):
+        observed = {}
+        def runner(argv, **kwargs):
+            observed.update(kwargs["env"])
+            return subprocess.CompletedProcess(argv, 0, "", "")
+        optional_software._run(["apt-get", "--version"],
+                               env={"PREFIX": str(self.prefix), "LD_LIBRARY_PATH": "/codex/lib"},
+                               runner=runner)
+        self.assertNotIn("LD_LIBRARY_PATH", observed)
+
     def test_apply_recomputes_exact_plan_and_passes_bounded_arguments(self):
         plan = self.preview()
         result = optional_software.apply("process-monitor", "install", plan["plan_id"], True,

@@ -30,6 +30,13 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertIn('plasma) desktop_argv=(startplasma-x11)', script)
         self.assertIn('cinnamon) desktop_argv=(cinnamon-session)', script)
         self.assertIn('DISPLAY=:2 dbus-launch --exit-with-session "${desktop_argv[@]}" &', script)
+        self.assertIn('dbus-daemon --session --address="$system_bus_address" --nofork', script)
+        self.assertIn('export DBUS_SYSTEM_BUS_ADDRESS="$system_bus_address"', script)
+        self.assertIn('trap cleanup EXIT', script)
+        self.assertIn('rmdir "$system_bus_dir" 2>/dev/null || true', script)
+        self.assertIn('export XDG_SESSION_TYPE=x11', script)
+        self.assertIn('cinnamon) desktop_argv=(cinnamon-session); export XDG_CURRENT_DESKTOP=X-Cinnamon', script)
+        self.assertIn('env -u DBUS_SYSTEM_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS', script)
         self.assertIn('--desktop) [ "$#" -ge 2 ]', script)
         self.assertIn('DISPLAY=:2 es2_info 2>&1 | sed', script)
         self.assertIn('Use Termux:X11 fullscreen/orientation controls', script)
@@ -55,6 +62,14 @@ class ProotGuiRoutingTests(unittest.TestCase):
     def test_standalone_supervisor_is_detached_from_terminal_lifecycle(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
         self.assertIn('nohup setsid env TERNUXX_PULSE_COOKIE="$cookie" TERNUXX_DESKTOP_ID="$DESKTOP_ID"', script)
+
+    def test_standalone_desktop_gets_private_system_bus_and_session_identity(self) -> None:
+        wrapper = (ROOT / "lib/proot-xfce-wrapper.sh").read_text(encoding="utf-8")
+        self.assertIn('dbus-daemon --session --address="$system_bus_address" --nofork', wrapper)
+        self.assertIn('export DBUS_SYSTEM_BUS_ADDRESS="$system_bus_address"', wrapper)
+        self.assertIn('export XDG_SESSION_TYPE=x11', wrapper)
+        self.assertIn('cinnamon) desktop_argv=(cinnamon-session); export XDG_CURRENT_DESKTOP=X-Cinnamon', wrapper)
+        self.assertIn('-u DBUS_SYSTEM_BUS_ADDRESS', wrapper)
 
     def test_debian_xfce_gets_cpu_model_names_from_native_lscpu(self) -> None:
         wrapper = (ROOT / "lib/proot-xfce-wrapper.sh").read_text(encoding="utf-8")

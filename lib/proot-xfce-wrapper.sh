@@ -72,20 +72,49 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
       fi
     fi
     case "$TERNUXX_DESKTOP_ID" in
-      xfce) desktop_argv=(startxfce4) ;;
-      lxqt) desktop_argv=(startlxqt) ;;
-      lxde) desktop_argv=(startlxde) ;;
-      mate) desktop_argv=(mate-session) ;;
-      gnome) desktop_argv=(gnome-session --session=gnome-xorg) ;;
-      plasma) desktop_argv=(startplasma-x11) ;;
-      cinnamon) desktop_argv=(cinnamon-session) ;;
+      xfce) desktop_argv=(startxfce4); export XDG_CURRENT_DESKTOP=XFCE XDG_SESSION_DESKTOP=xfce DESKTOP_SESSION=xfce ;;
+      lxqt) desktop_argv=(startlxqt); export XDG_CURRENT_DESKTOP=LXQt XDG_SESSION_DESKTOP=LXQt DESKTOP_SESSION=lxqt ;;
+      lxde) desktop_argv=(startlxde); export XDG_CURRENT_DESKTOP=LXDE XDG_SESSION_DESKTOP=LXDE DESKTOP_SESSION=lxde ;;
+      mate) desktop_argv=(mate-session); export XDG_CURRENT_DESKTOP=MATE XDG_SESSION_DESKTOP=MATE DESKTOP_SESSION=mate ;;
+      gnome) desktop_argv=(gnome-session --session=gnome-xorg); export XDG_CURRENT_DESKTOP=GNOME XDG_SESSION_DESKTOP=gnome DESKTOP_SESSION=gnome ;;
+      plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma ;;
+      cinnamon) desktop_argv=(cinnamon-session); export XDG_CURRENT_DESKTOP=X-Cinnamon XDG_SESSION_DESKTOP=X-Cinnamon DESKTOP_SESSION=cinnamon ;;
       *) echo "Unsupported Debian desktop selection" >&2; exit 2 ;;
     esac
-    exec dbus-launch --exit-with-session "${desktop_argv[@]}"
+    export XDG_SESSION_TYPE=x11
+    # PRoot has no systemd or Android system bus. Give desktop sessions a
+    # private guest-local bus so system-bus clients can degrade gracefully;
+    # never export or bind the Native host system bus into Debian.
+    system_bus_dir="$(mktemp -d "$XDG_RUNTIME_DIR/system-bus.XXXXXX")"
+    system_bus_address="unix:path=$system_bus_dir/bus"
+    system_bus_pid=
+    cleanup_system_bus() {
+      [ -z "${system_bus_pid:-}" ] || kill -TERM "$system_bus_pid" 2>/dev/null || true
+      [ -z "${system_bus_pid:-}" ] || wait "$system_bus_pid" 2>/dev/null || true
+      rmdir "$system_bus_dir" 2>/dev/null || true
+    }
+    trap cleanup_system_bus EXIT
+    trap 'exit 130' INT
+    trap 'exit 143' TERM
+    trap 'exit 129' HUP
+    /usr/bin/dbus-daemon --session --address="$system_bus_address" --nofork >"$state/system-bus.log" 2>&1 &
+    system_bus_pid=$!
+    for _ in $(seq 1 80); do
+      [ -S "$system_bus_dir/bus" ] && break
+      kill -0 "$system_bus_pid" 2>/dev/null || { wait "$system_bus_pid" || true; exit 1; }
+      sleep 0.05
+    done
+    [ -S "$system_bus_dir/bus" ] || { kill -TERM "$system_bus_pid" 2>/dev/null || true; wait "$system_bus_pid" 2>/dev/null || true; rmdir "$system_bus_dir"; echo "Private Debian system bus did not become ready." >&2; exit 1; }
+    export DBUS_SYSTEM_BUS_ADDRESS="$system_bus_address"
+    dbus-launch --exit-with-session "${desktop_argv[@]}" &
+    desktop_pid=$!
+    if wait "$desktop_pid"; then result=0; else result=$?; fi
+    exit "$result"
   ')
 exec env -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT \
   -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT \
   -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE \
-  -u LD_LIBRARY_PATH -u LD_PRELOAD -u DBUS_SESSION_BUS_ADDRESS \
-  -u DBUS_SESSION_BUS_PID -u DBUS_STARTER_ADDRESS -u DBUS_STARTER_BUS_TYPE \
+  -u LD_LIBRARY_PATH -u LD_PRELOAD -u DBUS_SYSTEM_BUS_ADDRESS \
+  -u DBUS_SESSION_BUS_ADDRESS -u DBUS_SESSION_BUS_PID \
+  -u DBUS_STARTER_ADDRESS -u DBUS_STARTER_BUS_TYPE \
   proot-distro "${args[@]}"

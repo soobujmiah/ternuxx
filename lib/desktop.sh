@@ -227,6 +227,8 @@ PY_DESKTOP_LIST
 
 nt_cmd_start() {
   local display_number="" desktop_id="xfce" desktop_command="" desktop_marker="" desktop_name="" desktop_json="" arg state_root supervisor owned_exec log_file tmp_root operation_id mesa_prefix=""
+  # Do not pass a caller-specific loader directory (for example Codex's
+  # bundled runtime) into Native Termux desktop processes.
   local -a launch_env=()
   local stale_display="" stale_display_number="" stale_x11_pid="" stale_artifact_state=""
   while [ $# -gt 0 ]; do
@@ -246,6 +248,7 @@ nt_cmd_start() {
   done
 
   nt_require_termux || return 1
+  launch_env=("LD_LIBRARY_PATH=$PREFIX/lib")
   desktop_json="$(PYTHONPATH="$_TN_LIB_DIR" python3 -c 'import json,native_desktops,sys; print(json.dumps(native_desktops.resolve(sys.argv[1])))' "$desktop_id" 2>&1)" || { nt_fail "$desktop_json"; return 1; }
   desktop_command="$(printf '%s' "$desktop_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["command"])')"
   desktop_marker="$(printf '%s' "$desktop_json" | python3 -c 'import json,sys; print(json.load(sys.stdin)["marker"])')"

@@ -93,6 +93,17 @@ class DesktopSessionStateTests(unittest.TestCase):
         self._session("stop_incomplete", process_ticks="999")
         self.assertEqual(self._inspect()["state"], "failed")
 
+    def test_incomplete_shutdown_with_dead_recorded_display_is_reconcilable(self) -> None:
+        self._session("stop_incomplete", process_ticks="999")
+        sock_path = self.tmp / ".X11-unix/X1"
+        listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        listener.bind(str(sock_path))
+        listener.close()
+        (self.tmp / ".X1-lock").write_text("102\n", encoding="ascii")
+        result = self._inspect()
+        self.assertEqual(result["state"], "stale")
+        self.assertEqual(result["display_state"], "stale")
+
     def test_failed_lifecycle_state_is_reported_as_failed(self) -> None:
         self._session("failed", process_ticks="999")
         self.assertEqual(self._inspect()["state"], "failed")

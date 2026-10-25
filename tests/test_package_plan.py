@@ -111,7 +111,7 @@ printf 'ALT_SKIP %s\n' "$_NT_ACTIVE_SKIPPED_COMPONENTS"
         self.assertIn("CUSTOM python termux-x11-nightly dbus xfce4-session", result.stdout)
         custom = result.stdout.split("CUSTOM ", 1)[1].splitlines()[0].split()
         self.assertEqual(len(custom), len(set(custom)))
-        self.assertIn("ALT python lxqt mate-session-manager cinnamon-session plasma-workspace\n", result.stdout)
+        self.assertIn("ALT python lxqt mate cinnamon plasma-desktop\n", result.stdout)
         self.assertIn("ALT_SKIP desktop,audio,proot,graphics,developer,guest\n", result.stdout)
 
     def test_native_debian_combined_preview_contains_both_exact_plans(self):
@@ -598,7 +598,7 @@ echo 'install ok installed'
         with tempfile.TemporaryDirectory(prefix="ternuxx-apt-apply-") as temporary:
             fixture_bin = Path(temporary)
             apt_get = fixture_bin / "apt-get"
-            apt_get.write_text("#!/bin/sh\nprintf '%s\\n' \"$@\"\n", encoding="utf-8")
+            apt_get.write_text("#!/bin/sh\ntest -z \"${LD_LIBRARY_PATH+x}\" || exit 77\nprintf '%s\\n' \"$@\"\n", encoding="utf-8")
             apt_get.chmod(0o700)
             command = 'source "$1"; _NT_PLAN_TRANSACTION=(xfce4-session=4.20.4-1 dep-a=2); _nt_apply_install_transaction'
             result = subprocess.run(["bash", "-c", command, "bash", str(PHASES)], env={**os.environ, "PATH": f"{fixture_bin}:{os.environ['PATH']}"}, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
@@ -611,7 +611,7 @@ echo 'install ok installed'
         with tempfile.TemporaryDirectory(prefix="ternuxx-apt-update-apply-") as temporary:
             fixture_bin = Path(temporary)
             apt_get = fixture_bin / "apt-get"
-            apt_get.write_text("#!/bin/sh\nprintf '%s\\n' \"$@\"\n", encoding="utf-8")
+            apt_get.write_text("#!/bin/sh\ntest -z \"${LD_LIBRARY_PATH+x}\" || exit 77\nprintf '%s\\n' \"$@\"\n", encoding="utf-8")
             apt_get.chmod(0o700)
             command = 'source "$1"; _NT_PLAN_MODE=update; _NT_PLAN_TRANSACTION=(python=3.14.8 dependency=2); _nt_apply_install_transaction'
             result = subprocess.run(["bash", "-c", command, "bash", str(PHASES)], env={**os.environ, "PATH": f"{fixture_bin}:{os.environ['PATH']}"}, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)

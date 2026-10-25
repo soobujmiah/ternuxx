@@ -223,6 +223,12 @@ def inspect(home: Path, state_dir: Path, proc: Path, tmp_root: Path) -> dict:
             state = "starting"
         elif data["status"] == "stopping" and any_live:
             state = "stopping"
+        elif (data["status"] == "stop_incomplete" and not any_live
+              and display == "stale"):
+            # A scoped stop can miss its final state write after every owned
+            # PID exits. Permit only the existing dead-listener reconciliation
+            # path to reclaim a socket/lock pair tied to that exact record.
+            state = "stale"
         elif data["status"] in ("failed", "stop_incomplete"):
             state = "failed"
         elif not any_live and display in ("absent", "stale"):

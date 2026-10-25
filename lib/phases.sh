@@ -15,9 +15,9 @@ _NT_DESKTOP_PACKAGES=(
   xfdesktop xfconf thunar xfce4-terminal
 )
 _NT_LXQT_PACKAGES=(lxqt)
-_NT_MATE_PACKAGES=(mate-session-manager)
-_NT_CINNAMON_PACKAGES=(cinnamon-session)
-_NT_PLASMA_PACKAGES=(plasma-workspace)
+_NT_MATE_PACKAGES=(mate)
+_NT_CINNAMON_PACKAGES=(cinnamon)
+_NT_PLASMA_PACKAGES=(plasma-desktop)
 _NT_AUDIO_PACKAGES=(pulseaudio)
 _NT_PROOT_PACKAGES=(proot-distro)
 _NT_GRAPHICS_PACKAGES=(glmark2 mesa-demos mesa-vulkan-icd-freedreno vulkan-tools xorg-server-xvfb xdotool)
@@ -506,9 +506,9 @@ PYCHECKPREVIEW
 
 _nt_apply_install_transaction() {
   if [ "${_NT_PLAN_MODE:-install}" = "update" ]; then
-    apt-get --assume-yes --no-install-recommends --no-remove install "${_NT_PLAN_TRANSACTION[@]}"
+    env -u LD_LIBRARY_PATH apt-get --assume-yes --no-install-recommends --no-remove install "${_NT_PLAN_TRANSACTION[@]}"
   else
-    apt-get --assume-yes --no-install-recommends --no-remove --no-upgrade install "${_NT_PLAN_TRANSACTION[@]}"
+    env -u LD_LIBRARY_PATH apt-get --assume-yes --no-install-recommends --no-remove --no-upgrade install "${_NT_PLAN_TRANSACTION[@]}"
   fi
 }
 

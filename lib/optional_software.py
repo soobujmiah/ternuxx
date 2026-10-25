@@ -46,8 +46,13 @@ def _env(env: dict[str, str] | None = None, prefix: str | None = None) -> dict[s
 
 def _run(argv: list[str], *, env: dict[str, str], runner: Callable = subprocess.run,
          timeout: int = 30) -> subprocess.CompletedProcess:
+    process_env = dict(env)
+    if Path(argv[0]).name in {"apt-get", "apt-cache", "dpkg", "dpkg-query"}:
+        # Codex can inject its own library directory. Native Termux package
+        # tools and their maintainer scripts must resolve Termux libraries.
+        process_env.pop("LD_LIBRARY_PATH", None)
     try:
-        return runner(argv, capture_output=True, text=True, timeout=timeout, check=False, env=env)
+        return runner(argv, capture_output=True, text=True, timeout=timeout, check=False, env=process_env)
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise SoftwareError(f"package operation could not run {Path(argv[0]).name}") from exc
 
