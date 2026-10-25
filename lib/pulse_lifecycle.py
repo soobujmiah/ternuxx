@@ -372,6 +372,17 @@ def _runtime_artifact_unchanged(path: Path, expected: os.stat_result) -> None:
         raise PulseError("PulseAudio runtime artifact changed during recovery; artifact was preserved")
 
 
+def _runtime_directory_unchanged(path: Path, expected: os.stat_result) -> None:
+    try:
+        current = path.lstat()
+    except FileNotFoundError as exc:
+        raise PulseError("PulseAudio runtime directory changed during recovery; artifacts were preserved") from exc
+    identity = (current.st_dev, current.st_ino, current.st_mode, current.st_uid)
+    original = (expected.st_dev, expected.st_ino, expected.st_mode, expected.st_uid)
+    if identity != original:
+        raise PulseError("PulseAudio runtime directory changed during recovery; artifacts were preserved")
+
+
 def _clear_stale_runtime_artifacts(paths: dict[str, Path]) -> None:
     """Remove only a dead PulseAudio PID/socket pair in the private runtime dir."""
     pulse_dir = paths["runtime"] / "pulse"
@@ -440,12 +451,12 @@ def _clear_stale_runtime_artifacts(paths: dict[str, Path]) -> None:
             probe.close()
         if _proc(pid) is not None:
             raise PulseError("PulseAudio PID became live during runtime recovery; artifacts were preserved")
-        _runtime_artifact_unchanged(pulse_dir, directory_info)
+        _runtime_directory_unchanged(pulse_dir, directory_info)
         _runtime_artifact_unchanged(socket_path, socket_info)
         socket_path.unlink()
     if _proc(pid) is not None:
         raise PulseError("PulseAudio PID became live during runtime recovery; artifacts were preserved")
-    _runtime_artifact_unchanged(pulse_dir, directory_info)
+    _runtime_directory_unchanged(pulse_dir, directory_info)
     _runtime_artifact_unchanged(pid_path, pid_info)
     pid_path.unlink()
 
