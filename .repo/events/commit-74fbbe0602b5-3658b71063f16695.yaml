@@ -1,0 +1,7 @@
+event_id: commit-74fbbe0602b5-3658b71063f16695
+repository: soobujmiah/ternuxx
+commit: 74fbbe0602b55ca1ef6acaa4ed7a87358008ed3c
+kind: commit
+occurred_at: '2026-10-25T18:35:52Z'
+status: completed
+summary: 'docs: record fresh Debian desktop route matrix'
