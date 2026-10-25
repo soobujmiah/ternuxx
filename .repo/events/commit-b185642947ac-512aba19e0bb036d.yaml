@@ -1,0 +1,7 @@
+event_id: commit-b185642947ac-512aba19e0bb036d
+repository: soobujmiah/ternuxx
+commit: b185642947ac25a7fbaca4792f46acb643351695
+kind: commit
+occurred_at: '2026-10-25T09:19:51Z'
+status: completed
+summary: 'test(installer): cover low-storage apply refusal'
