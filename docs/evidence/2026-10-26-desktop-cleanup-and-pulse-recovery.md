@@ -22,7 +22,8 @@ A read-only Debian PRoot user command bound only the Native PulseAudio cookie in
 
 ## Verification boundary
 
-- `python3 -m unittest tests.test_pulse_lifecycle -v`: 16 tests passed.
+- `python3 -m unittest tests.test_pulse_lifecycle -v`: 16 tests passed after the final recovery guard change.
+- `bash scripts/repo_test.sh`: 1,179 tests passed in 172.052 seconds; CLI help contract passed. GitHub Actions run [40229311678](https://github.com/soobujmiah/ternuxx/actions/runs/40229311678) passed both validation and repository state synchronization after the CI-specific directory-metadata fix.
 - Native and Debian package health: `dpkg --audit` clean; Debian `apt-get check` exit 0.
-- Native XFCE `:1` is process-live; standalone `:0` and nested `:2` are stopped; managed guest-session inventory is empty.
+- Native XFCE `:1` is process-live; `xdotool getdisplaygeometry` returned `752x1155`; standalone `:0` and nested `:2` are stopped; managed guest-session inventory is empty.
 - No graphics workload was run. Adreno/Zink application rendering, Android presentation, sustained thermal qualification, audible playback, and GUI visibility remain unverified.

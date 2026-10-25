@@ -3555,10 +3555,10 @@
     {
       "path": "docs/evidence/2026-10-26-desktop-cleanup-and-pulse-recovery.md",
       "kind": "narrative",
-      "sha256": "55e6373c24ff168012a7942d516ab22666650fe29db478122b1597b0af70aea1",
-      "lines": 28,
+      "sha256": "24ee0af0e4f5158e9164c18be94ce42eaa7704734fb58972fd2f9805685a8e26",
+      "lines": 29,
       "read_status": "read",
-      "read_sha256": "55e6373c24ff168012a7942d516ab22666650fe29db478122b1597b0af70aea1"
+      "read_sha256": "24ee0af0e4f5158e9164c18be94ce42eaa7704734fb58972fd2f9805685a8e26"
     },
     {
       "path": "docs/evidence/P0-foundation.md",
