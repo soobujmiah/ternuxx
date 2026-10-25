@@ -20,7 +20,7 @@ Review the full Native package and dependency transaction before applying it:
 
 ```sh
 ./tx install preview --verbose
-./tx install apply PLAN_ID
+./tx install apply --yes --plan-id PLAN_ID
 ./tx doctor
 ```
 

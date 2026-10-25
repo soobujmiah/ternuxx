@@ -28,7 +28,7 @@ Preview every requested package and the complete dependency closure:
 The preview shows package versions, APT's full simulation, download size, installed size, and the exact `PLAN_ID` to apply. Review the repository origins and confirm the plan ID before installing:
 
 ```sh
-./tx install apply PLAN_ID
+./tx install apply --yes --plan-id PLAN_ID
 ```
 
 The transaction refuses removals, upgrades, recommendations, changed plans, and packages outside the official Termux repositories. It installs the current Native CLI dependencies, XFCE/Termux:X11 desktop packages, audio support, `glxinfo`/`vulkaninfo` inspection tools, and the `proot-distro` runtime. Tool availability does not qualify a renderer or workload. It does not create a Debian guest.
