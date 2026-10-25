@@ -34,7 +34,7 @@ tx doctor
 
 Use the exact plan ID printed by the preview. The installer refuses removals, upgrades, unapproved repositories, and a changed plan. It installs Native XFCE/Termux:X11 support, diagnostics, audio, and the PRoot runtime. The matching Termux:X11 Android app is installed separately.
 
-Run `tx install interactive` for Native workstation presets, or select one for automation with `--profile NAME`; both use the same exact preview/apply engine. Native install previews suggest the optional Debian guest command below. Repeat a non-default Native profile when applying its plan. The PRoot-provider preset installs the runtime only. See the [installation guide](docs/INSTALLATION.md) for profiles and custom components.
+Run `tx install interactive` for Native workstation presets. After a Native profile is installed, Ternuxx asks whether to set up its optional managed Debian guest. You can also start that flow later with `tx install debian`; it shows the target and asks for confirmation in the same terminal session. Plan IDs and separate preview/apply commands are for automation and explicit review. See the [installation guide](docs/INSTALLATION.md) for advanced profiles and custom components.
 
 ## Open the workstation
 
@@ -57,14 +57,14 @@ Each client exposes its supported operations through the shared management servi
 
 ## Optional Debian guest
 
-Preview and install a fresh, pinned Debian Trixie guest with a named guest account:
+Install a fresh, pinned Debian Trixie guest:
 
 ```sh
-tx install debian --user NAME
+tx install debian
 tx proot status
 ```
 
-In an attached Native terminal, `tx install debian --user NAME` previews the exact target and asks before applying that same plan; no ID copy/paste is needed. It defaults to XFCE; choose other catalogued desktops with `--desktops`. The managed profile applies Ternuxx guest configuration, including its available graphics setup and Native PulseAudio handoff. Password mode uses hidden prompts; guest-only passwordless sudo is also available. Existing rootfs data is preserved. A Native profile apply also offers optional managed Debian setup. Debian is currently the only distro with a pinned managed profile; the advanced `native-debian` compatibility profile remains for combined automation. See the [installation guide](docs/INSTALLATION.md) for explicit preview/apply and automation forms.
+In an attached Native terminal, run `tx install debian` and follow the prompts. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Other distro names will use the same `tx install <distro>` pattern as their managed profiles become supported. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. Other management clients currently guide setup through the attached Native terminal.
 
 ## SSH and services
 

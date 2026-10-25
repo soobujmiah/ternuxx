@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "2fa26c697a01a92877a4e5815dfc66b270dd0cc0a3beb3576a726235bebba134",
+      "sha256": "41a0a85eda8816d87ea6e8bc488fbdfba1e40d42bc8e197f8cdbdf92fab17167",
       "lines": 106,
       "read_status": "read",
-      "read_sha256": "2fa26c697a01a92877a4e5815dfc66b270dd0cc0a3beb3576a726235bebba134"
+      "read_sha256": "41a0a85eda8816d87ea6e8bc488fbdfba1e40d42bc8e197f8cdbdf92fab17167"
     },
     {
       "path": "SECURITY.md",
@@ -147,10 +147,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "56421a9e531e29b0304db1f3d3c789dabf10d218918ec34403fa3e88af0f0bb7",
+      "sha256": "a0300daf7c23bf83b1b55b99a983a61dfc0564c761df82f6bce33a1314ddae11",
       "lines": 119,
       "read_status": "read",
-      "read_sha256": "56421a9e531e29b0304db1f3d3c789dabf10d218918ec34403fa3e88af0f0bb7"
+      "read_sha256": "a0300daf7c23bf83b1b55b99a983a61dfc0564c761df82f6bce33a1314ddae11"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",

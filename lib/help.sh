@@ -118,21 +118,19 @@ or stop processes. GUI visibility is reported as unknown unless observed.
 EOF
       ;;
     install) cat <<'EOF'
-tx install debian --user NAME — Preview, confirm, and install the managed Debian guest
-tx install debian preview --user NAME — Review only; no guest changes
-tx install interactive — Choose a Native workstation profile, then preview it
+tx install debian [--user NAME] — Guided setup of the managed Debian guest
+tx install debian preview --user NAME — Advanced review-only form; no guest changes
+tx install interactive — Choose and install a Native workstation profile
 tx install preview [--profile NAME] [--components GROUPS] — Review exact package transaction
 tx install update preview — Review Native Ternuxx core updates
 tx install apply [--profile NAME] --yes --plan-id ID — Apply the exact saved plan
 Profiles: minimal-native, full-native, graphical, developer, native-proot-provider, native-debian (advanced combined), custom.
-Native profile apply offers optional managed Debian setup. The distro-named
-entrypoint previews and applies one exact guest plan after confirmation; noninteractive
-calls remain preview-only. The advanced combined profile remains for automation.
+Native profile installation offers optional managed Debian setup. The distro-named
+entrypoint shows the exact guest target and asks before applying it in the same
+terminal flow. Plan-ID commands are for explicit review and automation.
 Custom groups: desktop,audio,proot,graphics,developer,mate,plasma. All profiles use the same
 repository and dependency checks. The PRoot-provider profile installs the runtime only.
-The native-debian profile reviews both exact plans, applies Native packages first, then
-runs the existing hidden-prompt fresh guest setup. If Native packages are already present,
-only --guest-plan-id is needed for its apply command.
+The native-debian profile is an advanced combined automation path.
 If APT fails, some packages may have changed; create a fresh preview before retrying.
 EOF
       ;;

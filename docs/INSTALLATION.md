@@ -48,7 +48,7 @@ tx install preview --profile minimal-native --verbose
 tx install apply --profile minimal-native --yes --plan-id PLAN_ID
 ```
 
-Available Native presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, `native-debian`, and `custom`. For direct optional managed guest setup, use `tx install debian`. Debian is currently the only distro with a pinned Ternuxx setup profile; other providers remain unavailable until they have distro-specific configuration and verification. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, `developer`, `mate`, and `plasma` with `--components`. The two route-verified alternate Native desktop groups (MATE and Plasma) resolve to the distro package for that session; XFCE remains the default and GNOME is not packaged in the Native Termux repository. The PRoot-provider preset installs only the provider package. The advanced `native-debian` compatibility profile reviews the full Native package plan and fresh pinned Debian guest plan together, then applies Native packages before creating the guest. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
+Available Native presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, `native-debian`, and `custom`. For direct optional managed guest setup, use `tx install debian`. Debian is currently the only distro with a pinned Ternuxx setup profile; other providers remain unavailable until they have distro-specific configuration and verification. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, `developer`, `mate`, and `plasma` with `--components`. The two route-verified alternate Native desktop groups (MATE and Plasma) resolve to the distro package for that session; XFCE remains the default and GNOME is not packaged in the Native Termux repository. The PRoot-provider preset installs only the provider package. The `native-debian` compatibility profile is an advanced automation path that reviews the Native package plan and fresh pinned Debian guest plan together. Most users should install a Native profile, accept the optional Debian setup prompt, or later run `tx install debian`. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
 
 Run read-only checks after installation:
 
@@ -67,21 +67,21 @@ tx start
 
 ## Create an optional Debian guest
 
-For a fresh managed Debian guest, run one command in an attached Native terminal:
+For a fresh managed Debian guest, run this in an attached Native terminal:
 
 ```sh
-tx install debian --user NAME
+tx install debian
 ```
 
-It previews the exact pinned target, then asks whether to apply that same plan. Confirming avoids copying a plan ID into another command; declining leaves the guest unchanged. The flow defaults to XFCE and applies Ternuxx guest configuration with available graphics/audio integration. Password mode prompts in the attached terminal; guest-only `passwordless` sudo is also available. Existing rootfs data is preserved. For automation, explicit review, or noninteractive use, keep the separate `preview` and `apply --yes --plan-id ID` forms. The older combined `native-debian` profile remains available for advanced Native+guest automation.
+Ternuxx asks for the guest username, shows the exact pinned target, and asks whether to install it. Confirming applies that same plan; declining leaves the guest unchanged. The flow defaults to XFCE and applies Ternuxx guest configuration with available graphics/audio integration. Password mode prompts in the attached terminal; guest-only `passwordless` sudo is also available. Existing rootfs data is preserved. Separate `preview` and `apply --yes --plan-id ID` forms are available for explicit review and automation. Other management clients currently hand setup off to the attached Native terminal.
 
-For guest-only setup, check `tx proot status` first. Preview the pinned Debian Trixie image, package groups, storage availability, graphics inputs, and exact guest target:
+For a non-default guest setup, check `tx proot status` first. You can select guest-only passwordless sudo and multiple desktop environments in the same guided command; Ternuxx still shows the plan and asks before applying it:
 
 ```sh
 tx install debian --user NAME --sudo-mode passwordless --desktops xfce,lxqt
 ```
 
-For an explicit review-only flow, add `preview`; if the preview names the intended fresh target and reports no existing guest, apply its exact plan ID. For example:
+For automation or a separate review-only step, add `preview`; if the preview names the intended fresh target and reports no existing guest, apply its exact plan ID. For example:
 
 ```sh
 tx install debian apply --user NAME --sudo-mode passwordless --yes --plan-id PLAN_ID
