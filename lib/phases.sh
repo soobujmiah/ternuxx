@@ -1,8 +1,8 @@
 # =============================================================================
 #  Ternuxx package setup
 #
-#  Installation always begins with a repository and dependency preview.
-#  Nothing is installed unless the caller explicitly passes --yes.
+#  Installation begins with a repository and dependency preview.
+#  Apply requires --yes or an explicit attached-terminal confirmation.
 # =============================================================================
 # shellcheck source=lib/core.sh
 . "$(dirname "${BASH_SOURCE[0]}")/core.sh"
@@ -575,6 +575,14 @@ finally:
 PYRECORD
 }
 
+_nt_offer_managed_debian() {
+  [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || return 0
+  printf 'Set up the optional Ternuxx-managed Debian guest now? [y/N] ' >/dev/tty
+  local answer
+  IFS= read -r answer </dev/tty || return 0
+  case "$answer" in y|Y|yes|YES|Yes) _nt_install_debian_guest; return $? ;; *) return 0 ;; esac
+}
+
 nt_cmd_install() {
   # `bin/tx` consumes --verbose as a global flag before dispatch, so carry its
   # value into this command as well as accepting the direct helper argument.
@@ -710,6 +718,8 @@ nt_cmd_install() {
     fi
     if [ "$TERNUXX_JSON" = "1" ]; then
       printf '{"install":"already_installed","profile":"%s","skipped_components":"%s","packages_changed":false}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS"
+    elif [ "$apply" = "1" ] && [ "$combined_guest" != "1" ] && [ "$update" != "1" ]; then
+      _nt_offer_managed_debian || return $?
     fi
     return 0
   fi
@@ -863,6 +873,9 @@ nt_cmd_install() {
     nt_ok "Ternuxx Native profile $_NT_ACTIVE_PROFILE installed. The Termux:X11 Android app still must be installed separately if absent."
     nt_info "Optional managed Debian guest: tx install debian --user NAME (preview-first, one guest plan)."
   fi
+  if [ "$combined_guest" != "1" ] && [ "$update" != "1" ] && [ "$TERNUXX_JSON" != "1" ]; then
+    _nt_offer_managed_debian || return $?
+  fi
   if [ "$TERNUXX_JSON" = "1" ]; then
     local package_json
     package_json="$(nt_json_array "${_NT_PLAN_VERSIONS[@]}")"
@@ -883,7 +896,7 @@ nt_cmd_install() {
 # Short distro-named entrypoint for the managed guest installer. It retains
 # the same exact preview/apply plan and hidden password prompt as proot setup.
 _nt_install_debian_guest() {
-  local action=preview consent=0 user="" plan_id="" sudo_mode=password desktops="xfce" arg repo_root output
+  local action=guided consent=0 user="" plan_id="" sudo_mode=password desktops="xfce" arg repo_root output answer
   while [ $# -gt 0 ]; do
     arg="$1"; shift
     case "$arg" in
@@ -906,6 +919,9 @@ _nt_install_debian_guest() {
   repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   nt_require_termux || return 1
   nt_require_command python3 || return 1
+  if [ "$action" = guided ] && { [ ! -t 0 ] || [ "${TERNUXX_JSON:-0}" = 1 ]; }; then
+    action=preview
+  fi
   if [ "$action" = preview ]; then
     [ -z "$plan_id" ] || { nt_fail "A preview does not accept --plan-id."; return 2; }
     local -a args=(fresh-preview --repo-root "$repo_root" --user "$user" --sudo-mode "$sudo_mode" --desktops "$desktops")
@@ -919,6 +935,25 @@ _nt_install_debian_guest() {
       nt_info "This installs the pinned Debian guest with Ternuxx's selected desktop, graphics, and audio integration. Existing guests are preserved."
     fi
     return 0
+  fi
+  if [ "$action" = guided ]; then
+    local -a preview_args=(fresh-preview --repo-root "$repo_root" --user "$user" --sudo-mode "$sudo_mode" --desktops "$desktops" --json)
+    output="$(python3 "$repo_root/lib/proot_setup.py" "${preview_args[@]}")" || return $?
+    printf '%s\n' "$output" | python3 "$repo_root/lib/proot_setup_present.py" || return $?
+    local preview_id preview_status blocked
+    preview_id="$(command python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("plan_id", ""))' <<<"$output")" || return 1
+    preview_status="$(command python3 -c 'import json,sys; print(json.load(sys.stdin).get("status", ""))' <<<"$output")" || return 1
+    blocked="$(command python3 -c 'import json,sys; print(json.load(sys.stdin).get("operation", {}).get("apply_blocked_reason") or "")' <<<"$output")" || return 1
+    [[ "$preview_status" = preview && "$preview_id" =~ ^[0-9a-f]{64}$ && -z "$blocked" ]] || {
+      nt_info "This Debian setup preview cannot be applied as shown. No guest changes were made."
+      return 0
+    }
+    printf 'Install this exact Debian plan for %s with %s? [y/N] ' "$user" "${desktops//,/ + }" >/dev/tty
+    IFS= read -r answer </dev/tty || return 2
+    case "$answer" in y|Y|yes|YES|Yes) ;; *) nt_info "Cancelled; no Debian guest changes were made."; return 0 ;; esac
+    plan_id="$preview_id"
+    consent=1
+    action=apply
   fi
   [ "$consent" = 1 ] || { nt_fail "Apply requires --yes after reviewing the exact preview."; return 2; }
   if [ "$sudo_mode" = password ] && [ ! -t 0 ]; then

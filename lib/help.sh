@@ -46,7 +46,7 @@ EOF
       cat <<'EOF'
 Debian PRoot uses the Native Termux host. `tx install preview` includes the
 proot-distro runtime. The short install flow is `tx install debian --user NAME`;
-it previews the pinned guest, defaults to XFCE, and prints a one-plan apply command.
+it previews the pinned guest, defaults to XFCE, then asks before applying that exact plan. Use the explicit `preview` command for review-only automation.
 The lower-level equivalent is `tx proot setup fresh-preview --user NAME
 --desktops xfce,lxqt`; Debian desktop IDs are `xfce`, `lxqt`, `lxde`, `mate`,
 `plasma`, `gnome`, `cinnamon`; only selected desktops are installed (XFCE is the default).
@@ -118,16 +118,16 @@ or stop processes. GUI visibility is reported as unknown unless observed.
 EOF
       ;;
     install) cat <<'EOF'
-tx install debian [preview] --user NAME — Preview the managed Debian guest (default: XFCE)
-tx install debian apply --user NAME --yes --plan-id ID — Install that exact guest plan
+tx install debian --user NAME — Preview, confirm, and install the managed Debian guest
+tx install debian preview --user NAME — Review only; no guest changes
 tx install interactive — Choose a Native workstation profile, then preview it
 tx install preview [--profile NAME] [--components GROUPS] — Review exact package transaction
 tx install update preview — Review Native Ternuxx core updates
 tx install apply [--profile NAME] --yes --plan-id ID — Apply the exact saved plan
 Profiles: minimal-native, full-native, graphical, developer, native-proot-provider, native-debian (advanced combined), custom.
-Native install previews suggest optional `tx install debian`; that distro-named
-entrypoint uses the pinned guest setup and one guest plan ID. The advanced combined
-profile requires separate Native and guest plan IDs.
+Native profile apply offers optional managed Debian setup. The distro-named
+entrypoint previews and applies one exact guest plan after confirmation; noninteractive
+calls remain preview-only. The advanced combined profile remains for automation.
 Custom groups: desktop,audio,proot,graphics,developer,mate,plasma. All profiles use the same
 repository and dependency checks. The PRoot-provider profile installs the runtime only.
 The native-debian profile reviews both exact plans, applies Native packages first, then

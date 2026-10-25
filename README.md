@@ -61,11 +61,10 @@ Preview and install a fresh, pinned Debian Trixie guest with a named guest accou
 
 ```sh
 tx install debian --user NAME
-tx install debian apply --user NAME --yes --plan-id GUEST_PLAN_ID
 tx proot status
 ```
 
-The first command previews the optional guest and prints a matching one-plan apply command. It defaults to XFCE; choose other catalogued desktops with `--desktops`. The managed profile applies Ternuxx guest configuration, including its available graphics setup and Native PulseAudio handoff. Password mode uses hidden prompts; guest-only passwordless sudo is also available. Existing rootfs data is preserved. Debian is currently the only distro with a pinned managed profile; the advanced `native-debian` compatibility profile still combines Native and guest plans. See the [installation guide](docs/INSTALLATION.md) for details.
+In an attached Native terminal, `tx install debian --user NAME` previews the exact target and asks before applying that same plan; no ID copy/paste is needed. It defaults to XFCE; choose other catalogued desktops with `--desktops`. The managed profile applies Ternuxx guest configuration, including its available graphics setup and Native PulseAudio handoff. Password mode uses hidden prompts; guest-only passwordless sudo is also available. Existing rootfs data is preserved. A Native profile apply also offers optional managed Debian setup. Debian is currently the only distro with a pinned managed profile; the advanced `native-debian` compatibility profile remains for combined automation. See the [installation guide](docs/INSTALLATION.md) for explicit preview/apply and automation forms.
 
 ## SSH and services
 

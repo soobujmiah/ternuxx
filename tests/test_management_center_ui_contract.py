@@ -177,7 +177,7 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
     def test_gtk_proot_tools_explain_cli_setup_and_hidden_password_handoff(self):
         self.assertIn("tx install debian --user NAME", SOURCE)
         self.assertIn("defaults to XFCE", SOURCE)
-        self.assertIn("one-plan apply command", SOURCE)
+        self.assertIn("asks before applying that exact plan", SOURCE)
         self.assertIn("password prompts are used by default", SOURCE)
 
     def test_gtk_replay_guest_retirement_and_restore_use_inline_exact_plan_review(self):

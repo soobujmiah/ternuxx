@@ -308,7 +308,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
             result = terminal_ui._proot_workload_action(object(), resource)
         self.assertEqual(result["data"]["guest_status"], "missing")
         self.assertIn("tx install debian --user NAME", result["data"]["next_step"])
-        self.assertIn("single plan ID", result["data"]["next_step"])
+        self.assertIn("confirm the exact plan", result["data"]["next_step"])
         self.assertIn("Other distro profiles are not yet available", result["data"]["next_step"])
 
     def test_proot_management_offers_distro_named_optional_setup(self) -> None:

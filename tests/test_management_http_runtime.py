@@ -776,7 +776,7 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         page = (ROOT / "lib" / "management_web_ui.html").read_text()
         self.assertIn('tx install debian --user NAME', page)
         self.assertIn('defaults to XFCE', page)
-        self.assertIn('one-plan apply command', page)
+        self.assertIn("asks before applying that exact plan", page)
         self.assertIn('Other distro setup profiles are not yet available', page)
 
     def test_web_proot_shortcut_sync_and_rollback_are_preview_confirmed(self) -> None:

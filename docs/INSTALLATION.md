@@ -41,7 +41,7 @@ tx install apply --yes --plan-id PLAN_ID
 
 The transaction refuses removals, upgrades, recommendations, changed plans, and packages outside the official Termux repositories. It installs the current Native CLI dependencies, XFCE/Termux:X11 desktop packages, audio support, `glxinfo`/`vulkaninfo` inspection tools, the official `mesa-vulkan-icd-freedreno` package, and the `proot-distro` runtime. On Adreno/KGSL devices, `tx mng graphics select native termux-zink` can select stock Termux Mesa's Zink path for future desktop starts only after the installed ICD successfully enumerates a supported Vulkan device. This selection is not an acceleration claim: start a fresh Ternuxx desktop and run `tx mng graphics verify native opengl` and `tx mng graphics verify native vulkan`; only a rendered workload reporting the Adreno device counts as verified. `tx mng graphics select native system` returns future starts to the default Termux stack. Tool availability does not qualify a renderer or workload. It does not create a Debian guest. If APT fails or is interrupted, some packages may already have changed: read the error, create a fresh preview for the same profile, and apply only its newly reviewed ID; do not assume the old plan still matches.
 
-For an interactive Native profile chooser, run `tx install interactive`; it previews the selected profile without applying it and suggests the optional Debian one-plan command. Automated profile selection uses the same dependency resolver and exact-plan apply path:
+For an interactive Native profile chooser, run `tx install interactive`; it previews the selected profile without applying it and suggests optional Debian setup. After a Native profile is applied, an attached terminal offers to start that managed Debian flow. Automated profile selection uses the same dependency resolver and exact-plan apply path:
 
 ```sh
 tx install preview --profile minimal-native --verbose
@@ -67,15 +67,13 @@ tx start
 
 ## Create an optional Debian guest
 
-For a fresh managed Debian guest, the short distro-named command previews one guest plan and prints the exact apply command:
+For a fresh managed Debian guest, run one command in an attached Native terminal:
 
 ```sh
 tx install debian --user NAME
-# Review the plan, then use its printed command:
-tx install debian apply --user NAME --yes --plan-id GUEST_PLAN_ID
 ```
 
-The shortcut defaults to XFCE and uses the pinned Debian setup profile, including Ternuxx guest configuration and available graphics/audio integration. Password mode prompts in the attached terminal; guest-only `passwordless` sudo is also available. Existing rootfs data is preserved. The older combined `native-debian` profile remains available for a combined Native+guest setup with both plan IDs.
+It previews the exact pinned target, then asks whether to apply that same plan. Confirming avoids copying a plan ID into another command; declining leaves the guest unchanged. The flow defaults to XFCE and applies Ternuxx guest configuration with available graphics/audio integration. Password mode prompts in the attached terminal; guest-only `passwordless` sudo is also available. Existing rootfs data is preserved. For automation, explicit review, or noninteractive use, keep the separate `preview` and `apply --yes --plan-id ID` forms. The older combined `native-debian` profile remains available for advanced Native+guest automation.
 
 For guest-only setup, check `tx proot status` first. Preview the pinned Debian Trixie image, package groups, storage availability, graphics inputs, and exact guest target:
 
@@ -83,7 +81,7 @@ For guest-only setup, check `tx proot status` first. Preview the pinned Debian T
 tx install debian --user NAME --sudo-mode passwordless --desktops xfce,lxqt
 ```
 
-If the preview names the intended fresh target and reports no existing guest, apply the exact command printed by `tx install debian`. For example:
+For an explicit review-only flow, add `preview`; if the preview names the intended fresh target and reports no existing guest, apply its exact plan ID. For example:
 
 ```sh
 tx install debian apply --user NAME --sudo-mode passwordless --yes --plan-id PLAN_ID

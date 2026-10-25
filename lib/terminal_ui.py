@@ -1399,7 +1399,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
         return _call("proot.sessions.list")
     if action == "install":
         return {"ok": True, "data": {"guest_status": "setup_handoff",
-            "next_step": "Open an attached Native Termux terminal and run `tx install debian --user NAME`. It previews the pinned Debian guest with XFCE and prints a one-plan apply command. Ternuxx applies managed graphics/audio configuration where available. Other distro setup profiles are not yet available; existing guests are preserved."}}
+            "next_step": "Open an attached Native Termux terminal and run `tx install debian --user NAME`. It previews the pinned Debian guest with XFCE and asks before applying that exact plan. Ternuxx applies managed graphics/audio configuration where available. Other distro setup profiles are not yet available; existing guests are preserved."}}
     if action == "login":
         status = _call("proot.status")
         if not status.get("ok"):
@@ -1409,7 +1409,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
             return {"ok": True, "data": {"guest_status": "installed",
                 "next_step": "Debian is installed. Exit TUI and run `tx db` in an attached Native Termux terminal."}}
         return {"ok": True, "data": {"guest_status": "missing",
-            "next_step": "Optional managed Debian setup runs in an attached Native Termux terminal. Run `tx install debian --user NAME` to preview the pinned guest with XFCE, Ternuxx graphics/audio configuration, and a single plan ID; then run the exact apply command it prints. Choose `--desktops xfce,lxqt,lxde,mate,plasma` to select other catalogued desktops. Password prompts are hidden; `--sudo-mode passwordless` is an optional guest-only mode. Other distro profiles are not yet available. Existing guests are preserved."}}
+            "next_step": "Optional managed Debian setup runs in an attached Native Termux terminal. Run `tx install debian --user NAME` to preview the pinned guest with XFCE and Ternuxx graphics/audio configuration, then confirm the exact plan in the terminal. Choose `--desktops xfce,lxqt,lxde,mate,plasma` to select other catalogued desktops. Password prompts are hidden; `--sudo-mode passwordless` is an optional guest-only mode. Other distro profiles are not yet available. Existing guests are preserved."}}
     if action == "stop" and {"proot.stop.preview", "proot.stop"} <= operations:
         inventory = _call("proot.sessions.list")
         if not inventory.get("ok"):

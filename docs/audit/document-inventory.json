@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 573,
-  "read_count": 174,
+  "read_count": 175,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "36b29c3bea928c4c28c942046a1b5a38b3f2c61632746da5e68815a8dfed6a70",
+      "sha256": "0e787d0df81216baafd89002a5f8dd58d0bac536ef95c802b93a12bef62340cb",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "36b29c3bea928c4c28c942046a1b5a38b3f2c61632746da5e68815a8dfed6a70"
+      "read_sha256": "0e787d0df81216baafd89002a5f8dd58d0bac536ef95c802b93a12bef62340cb"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "0c2fdcfc3afea7012f5be698b0a9992b002ef0806455458292bd5ad8d6c04f92",
-      "lines": 107,
+      "sha256": "2fa26c697a01a92877a4e5815dfc66b270dd0cc0a3beb3576a726235bebba134",
+      "lines": 106,
       "read_status": "read",
-      "read_sha256": "0c2fdcfc3afea7012f5be698b0a9992b002ef0806455458292bd5ad8d6c04f92"
+      "read_sha256": "2fa26c697a01a92877a4e5815dfc66b270dd0cc0a3beb3576a726235bebba134"
     },
     {
       "path": "SECURITY.md",
@@ -91,10 +91,10 @@
     {
       "path": "bn/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "e65c88ac935349a316a2e461596fe5e6fbbd04e6c3c246ae36dd13b3e66a6a77",
-      "lines": 92,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "3c92ebba7dc75c1a537ad30a8d402705a7b8d4bef211dda996f253cbc667b1df",
+      "lines": 91,
+      "read_status": "read",
+      "read_sha256": "3c92ebba7dc75c1a537ad30a8d402705a7b8d4bef211dda996f253cbc667b1df"
     },
     {
       "path": "bn/README.md",
@@ -147,10 +147,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "4b0c99fbbc393395a83cbbbbb015ca15f3884fb9872c7cd28c9bc0a94a72eaae",
-      "lines": 121,
+      "sha256": "56421a9e531e29b0304db1f3d3c789dabf10d218918ec34403fa3e88af0f0bb7",
+      "lines": 119,
       "read_status": "read",
-      "read_sha256": "4b0c99fbbc393395a83cbbbbb015ca15f3884fb9872c7cd28c9bc0a94a72eaae"
+      "read_sha256": "56421a9e531e29b0304db1f3d3c789dabf10d218918ec34403fa3e88af0f0bb7"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -3563,10 +3563,10 @@
     {
       "path": "docs/evidence/2026-10-26-distro-named-managed-install.md",
       "kind": "narrative",
-      "sha256": "4b2a5b6a5e05639b6edb40cbd49aa3e4948e943046a3013f0a109d8d2755f981",
-      "lines": 17,
+      "sha256": "c8a4ef6d8554089270b1a840eb3c6978a5337d5d9b506e89de9a05588812d55d",
+      "lines": 21,
       "read_status": "read",
-      "read_sha256": "4b2a5b6a5e05639b6edb40cbd49aa3e4948e943046a3013f0a109d8d2755f981"
+      "read_sha256": "c8a4ef6d8554089270b1a840eb3c6978a5337d5d9b506e89de9a05588812d55d"
     },
     {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",

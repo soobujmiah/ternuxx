@@ -61,14 +61,13 @@ tx start
 
 ## ঐচ্ছিক Debian PRoot
 
-নতুন Native workstation ও Debian guest একসঙ্গে সেটআপ করতে দুইটি পরিকল্পনা একসঙ্গে পূর্বরূপে দেখুন, তারপর পূর্বরূপের সঠিক ID ব্যবহার করুন। Native প্যাকেজ আগে থেকেই থাকলে Native plan ID লাগবে না; preview-তে যে apply command দেখায় সেটি ব্যবহার করুন:
+ঐচ্ছিক পরিচালিত Debian guest এক কমান্ডে সেটআপ করতে Native Termux-এর সংযুক্ত terminal-এ চালান:
 
 ```sh
-tx install preview --profile native-debian --user USER
-tx install apply --profile native-debian --user USER --yes --plan-id NATIVE_PLAN_ID --guest-plan-id GUEST_PLAN_ID
+tx install debian --user USER
 ```
 
-Guest-only setup-e `--sudo-mode password` dile password gopon prompt-e dite hoy; `--sudo-mode passwordless` dile kono secret lage na, ebong NOPASSWD sudhu PRoot guest-er moddhe kaj kore. Combined `native-debian` profile ekhono password prompt use kore.
+কমান্ডটি নির্দিষ্ট Debian লক্ষ্য ও পরিকল্পনা দেখিয়ে, ওই পরিকল্পনা প্রয়োগের আগে নিশ্চিতকরণ চাইবে; plan ID কপি করে দ্বিতীয় কমান্ড চালাতে হবে না। কেবল পর্যালোচনার জন্য `tx install debian preview --user USER` চালান; automation-এ preview ও exact plan-ID apply ধাপ আলাদা রাখুন। `--sudo-mode password` দিলে password গোপন prompt-এ দিতে হয়। `--sudo-mode passwordless` কোনো secret ছাড়াই চলে এবং NOPASSWD কেবল PRoot guest-এর মধ্যে প্রযোজ্য।
 
 আগে `tx proot status` দিয়ে Native `proot`/`proot-distro` ও Debian পরিবেশের তালিকা দেখুন। নতুন Debian পরিবেশের জন্য নির্দিষ্ট ব্যবহারকারীর নামসহ পূর্বরূপ তৈরি করুন, লক্ষ্য ও ডিস্ক-ছবির নির্দিষ্ট SHA-256 পরিচিতি যাচাই করুন, তারপর শুধু সেই পরিকল্পনা প্রয়োগ করুন:
 
