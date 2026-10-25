@@ -37,10 +37,10 @@ class DesktopInstallPlanTests(unittest.TestCase):
         if applying:
             status = self.root / "var/lib/dpkg/status"
             with status.open("a") as stream:
-                stream.write("\n\nPackage: gnome-core\nStatus: install ok installed\nVersion: 1:48+2\n")
+                stream.write("\n\nPackage: lxde-core\nStatus: install ok installed\nVersion: 1:48+2\n")
             output = "0 upgraded, 1 newly installed, 0 to remove and 1 not upgraded.\n"
             return subprocess.CompletedProcess(args, 0, output, "")
-        output = ("Inst gnome-core (1:48+2 Debian:13/stable [arm64])\n"
+        output = ("Inst lxde-core (1:48+2 Debian:13/stable [arm64])\n"
                   "0 upgraded, 1 newly installed, 0 to remove and 1 not upgraded.\n")
         if not simulating:
             output += ("Need to get 11 MB/12 MB of archives.\n"
@@ -51,19 +51,19 @@ class DesktopInstallPlanTests(unittest.TestCase):
     def test_preview_pins_transaction_without_changing_guest_and_apply_checks_exact_delta(self):
         with mock.patch.object(proot_desktop_setup.proot_guest_retirement, "_assert_idle"):
             plan = proot_desktop_setup.preview(prefix=str(self.prefix), home=str(self.home),
-                state_dir=str(self.state), selected=["gnome"], runner=self.fake_runner)
+                state_dir=str(self.state), selected=["lxde"], runner=self.fake_runner)
             self.assertEqual(plan["status"], "preview")
             self.assertEqual(plan["transaction"]["new_package_count"], 1)
             self.assertEqual(plan["transaction"]["disk"], {"value": 30.0, "unit": "MB"})
             self.assertEqual(plan["transaction"]["download"], {"value": 11.0, "unit": "MB"})
             self.assertIn("Acquire::https::User-Agent=curl/8", self.calls[0])
             self.assertIn("Acquire::https::Pipeline-Depth=0", self.calls[0])
-            self.assertNotIn("gnome-core", (self.root / "var/lib/dpkg/status").read_text())
+            self.assertNotIn("lxde-core", (self.root / "var/lib/dpkg/status").read_text())
             result = proot_desktop_setup.apply(prefix=str(self.prefix), home=str(self.home),
                 state_dir=str(self.state), plan_id=plan["plan_id"], confirmed=True, runner=self.fake_runner)
         self.assertEqual(result["status"], "complete")
-        self.assertEqual(result["desktop_environments"], ["gnome"])
-        self.assertTrue(any("gnome-core=1:48+2" in call for call in self.calls))
+        self.assertEqual(result["desktop_environments"], ["lxde"])
+        self.assertTrue(any("lxde-core=1:48+2" in call for call in self.calls))
 
     def test_preview_repairs_a_missing_required_plasma_x11_package(self):
         status = self.root / "var/lib/dpkg/status"
@@ -106,14 +106,14 @@ class DesktopInstallPlanTests(unittest.TestCase):
         output = "Inst libx [1] (2 Debian:stable [arm64])\n0 upgraded, 1 newly installed, 1 to remove and 0 not upgraded.\n"
         fake = lambda *a, **k: subprocess.CompletedProcess(a[0], 1, output, "")
         with self.assertRaisesRegex(proot_desktop_setup.DesktopSetupError, "upgrade or remove"):
-            proot_desktop_setup._run_guest(str(self.prefix), ["gnome-core"], apply=False, runner=fake)
+            proot_desktop_setup._run_guest(str(self.prefix), ["lxde-core"], apply=False, runner=fake)
 
     def test_resume_preview_pins_pending_dpkg_records_and_repair_archive(self):
         import json
         import proot_fresh_setup
         identity = proot_desktop_setup._rootfs(str(self.prefix))[1]
         status = self.root / "var/lib/dpkg/status"
-        status.write_text(status.read_text() + "\n\nPackage: gnome-core\nStatus: install ok unpacked\nVersion: 1:48+2\nArchitecture: all\n")
+        status.write_text(status.read_text() + "\n\nPackage: lxde-core\nStatus: install ok unpacked\nVersion: 1:48+2\nArchitecture: all\n")
         updates = self.root / "var/lib/dpkg/updates"
         updates.mkdir(parents=True)
         (updates / "0000").write_text("Package: broken-theme\nStatus: install reinstreq half-installed\nVersion: 1.2-3\nArchitecture: all\n")
@@ -124,8 +124,8 @@ class DesktopInstallPlanTests(unittest.TestCase):
         failed_id = "a" * 64
         saved = {"plan_id": failed_id, "rootfs_identity": identity,
                  "apt_sources_sha256": proot_desktop_setup._source_digest(self.root),
-                 "transaction_packages": [["gnome-core", "1:48+2"], ["broken-theme", "1.2-3"]],
-                 "desktop_environments": ["gnome"]}
+                 "transaction_packages": [["lxde-core", "1:48+2"], ["broken-theme", "1.2-3"]],
+                 "desktop_environments": ["lxde"]}
         proot_fresh_setup._private_write(state_root / "previews" / f"desktop-{failed_id}.json", saved)
         proot_fresh_setup._private_write(state_root / f"desktop-{failed_id}.journal.json",
                                          {"plan_id": failed_id, "state": "failed"})
@@ -148,7 +148,7 @@ class DesktopInstallPlanTests(unittest.TestCase):
         failed_id = "b" * 64
         saved = {"plan_id": failed_id, "rootfs_identity": identity,
                  "apt_sources_sha256": proot_desktop_setup._source_digest(self.root),
-                 "transaction_packages": [["gnome-core", "1:48+2"]], "desktop_environments": ["gnome"]}
+                 "transaction_packages": [["lxde-core", "1:48+2"]], "desktop_environments": ["lxde"]}
         proot_fresh_setup._private_write(state_root / "previews" / f"desktop-{failed_id}.json", saved)
         proot_fresh_setup._private_write(state_root / f"desktop-{failed_id}.journal.json",
                                          {"plan_id": failed_id, "state": "failed"})

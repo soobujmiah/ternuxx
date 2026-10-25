@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 564,
-  "read_count": 172,
+  "read_count": 170,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "ab8ecda1bcf55ef01fdb430f48018ac42c73ebfc8bfb2d5ead49d1bb52644e25",
+      "sha256": "1308c2f6c7bd2ffc3327c93637ad5345c299cd609da0494fb1ec876c7e82a57a",
       "lines": 37,
-      "read_status": "read",
-      "read_sha256": "ab8ecda1bcf55ef01fdb430f48018ac42c73ebfc8bfb2d5ead49d1bb52644e25"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -3555,10 +3555,10 @@
     {
       "path": "docs/evidence/2026-10-26-desktop-cleanup-and-pulse-recovery.md",
       "kind": "narrative",
-      "sha256": "24ee0af0e4f5158e9164c18be94ce42eaa7704734fb58972fd2f9805685a8e26",
+      "sha256": "d786e7d6b1742ab3063f22f3f22cb6f01915e51ab98cebd10025783da494a7dc",
       "lines": 29,
-      "read_status": "read",
-      "read_sha256": "24ee0af0e4f5158e9164c18be94ce42eaa7704734fb58972fd2f9805685a8e26"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/P0-foundation.md",

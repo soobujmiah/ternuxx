@@ -6,9 +6,7 @@ import shutil
 
 NATIVE_DESKTOPS = {
     "xfce": {"name": "XFCE", "command": "xfce4-session", "package": "xfce4-session", "default": True},
-    "lxqt": {"name": "LXQt", "command": "startlxqt", "package": "lxqt-session"},
     "mate": {"name": "MATE", "command": "mate-session", "package": "mate-session-manager"},
-    "cinnamon": {"name": "Cinnamon", "command": "cinnamon-session", "package": "cinnamon-session"},
     "plasma": {"name": "KDE Plasma", "command": "startplasma-x11", "package": "plasma-workspace"},
 }
 

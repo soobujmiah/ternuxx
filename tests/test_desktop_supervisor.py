@@ -136,19 +136,19 @@ class DesktopSupervisorProcessGroupTest(unittest.TestCase):
         finally:
             self.temporary.cleanup()
 
-    def test_native_alternate_desktop_uses_allowlisted_marker_and_private_environment(self):
-        session = self.root / "cinnamon-session"
+    def test_native_plasma_uses_allowlisted_marker_and_private_environment(self):
+        session = self.root / "startplasma-x11"
         self._write_executable(session, XFCE_SCRIPT)
         self.supervisor = subprocess.Popen(
             ["bash", str(SUPERVISOR), ":91", str(self.state), str(self.tmp),
              str(self.x11), str(self.dbus), str(session), str(OWNED_EXEC),
-             "cinnamon-session", "native", "cinnamon"],
+             "startplasma-x11", "native", "plasma"],
             cwd=ROOT, env=self.environment, stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
         state = self._wait_for_state("running")
-        self.assertEqual(state["desktop_id"], "cinnamon")
-        self.assertEqual(state["desktop"]["command_marker"], "cinnamon-session")
-        self.assertTrue((self.state / "cinnamon/runtime").is_dir())
+        self.assertEqual(state["desktop_id"], "plasma")
+        self.assertEqual(state["desktop"]["command_marker"], "startplasma-x11")
+        self.assertTrue((self.state / "plasma/runtime").is_dir())
         self._stop_supervisor()
         self.assertEqual(json.loads((self.state / "session.json").read_text())["status"], "stopped")
 

@@ -12,9 +12,7 @@ DEBIAN_DESKTOPS = {
     "lxqt": {"name": "LXQt", "packages": ("lxqt", "openbox"), "session": "startlxqt"},
     "lxde": {"name": "LXDE", "packages": ("lxde-core",), "session": "startlxde"},
     "mate": {"name": "MATE", "packages": ("mate-desktop-environment-core",), "session": "mate-session"},
-    "gnome": {"name": "GNOME", "packages": ("gnome-core",), "session": "gnome-session"},
     "plasma": {"name": "KDE Plasma", "packages": ("kde-plasma-desktop", "kwin-x11"), "session": "startplasma-x11"},
-    "cinnamon": {"name": "Cinnamon", "packages": ("cinnamon-desktop-environment",), "session": "cinnamon-session"},
 }
 DEFAULT_DESKTOPS = ("xfce",)
 
@@ -30,7 +28,7 @@ def validate_selection(provider: str, selected: list[str] | tuple[str, ...] | No
     if (not isinstance(selected, (list, tuple)) or not selected
             or any(not isinstance(item, str) or item not in DEBIAN_DESKTOPS for item in selected)
             or len(set(selected)) != len(selected)):
-        raise DesktopError("choose one or more supported Debian desktop IDs: " + ", ".join(DEBIAN_DESKTOPS))
+        raise DesktopError("choose one or more route-verified Debian desktop IDs: " + ", ".join(DEBIAN_DESKTOPS))
     return tuple(item for item in DEBIAN_DESKTOPS if item in selected)
 
 
@@ -62,7 +60,7 @@ def desktop_id(value: str) -> str:
     if not isinstance(value, str) or not re.fullmatch(r"[a-z][a-z0-9-]{0,31}", value):
         raise DesktopError("invalid desktop ID")
     if value not in DEBIAN_DESKTOPS:
-        raise DesktopError("unsupported Debian desktop ID")
+        raise DesktopError("unsupported route-verified Debian desktop ID")
     return value
 
 
