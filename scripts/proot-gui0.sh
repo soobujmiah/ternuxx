@@ -164,7 +164,16 @@ exit "$result"
       [ "$native_state" = running ] || { echo "Nested PRoot GUI requires the verified Native desktop to be running." >&2; exit 1; }
       native_display="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("display",""))' <<<"$native_report")"
       [ "$native_display" = :1 ] || { echo "Nested PRoot GUI currently requires Native display :1; found $native_display." >&2; exit 1; }
-      nested_display_state="$(python3 "$DISPLAY_TOOL" "$TMP_ROOT" 2 2>/dev/null)" || nested_display_state=unknown
+      nested_display_state="$(python3 "$DISPLAY_TOOL" "$TMP_ROOT" 2 2>/dev/null || true)"
+      [ -n "$nested_display_state" ] || nested_display_state=unknown
+      if [ "$nested_display_state" = busy ]; then
+        nested_recovery="$(python3 "$DISPLAY_TOOL" recover-proot "$TMP_ROOT" 2 "$PREFIX/var/lib/proot-distro/containers/debian/rootfs" 2>/dev/null || true)"
+        if [ "$nested_recovery" = recovered ]; then
+          echo "Recovered the exact dead Debian PRoot Xephyr :2 lock/socket chain; no process was signaled."
+          nested_display_state="$(python3 "$DISPLAY_TOOL" "$TMP_ROOT" 2 2>/dev/null || true)"
+          [ -n "$nested_display_state" ] || nested_display_state=unknown
+        fi
+      fi
       [ "$nested_display_state" = available ] || {
         echo "Nested Xephyr display :2 is $nested_display_state; refusing startup because existing display ownership cannot be verified." >&2
         exit 1

@@ -2,6 +2,7 @@
 """Inspect displays and reclaim only artifacts tied to an exact stale session."""
 import errno
 import os
+import re
 import socket
 import stat
 import sys
@@ -170,6 +171,142 @@ def recover(root, number, expected_pid):
     return "recovered"
 
 
+def recover_proot_link2symlink(root, number, guest_rootfs, proc_root="/proc"):
+    """Reclaim a dead Xephyr lock only through PRoot's exact Debian l2s chain."""
+    if not number.isdigit() or not 0 <= int(number) <= 10:
+        return "busy"
+    root = os.path.abspath(root)
+    rootfs = os.path.abspath(guest_rootfs)
+    try:
+        root_stat = os.lstat(root)
+        sockdir = os.path.join(root, ".X11-unix")
+        dir_stat = os.lstat(sockdir)
+        rootfs_stat = os.lstat(rootfs)
+        l2s = os.path.join(rootfs, ".l2s")
+        l2s_stat = os.lstat(l2s)
+        if (stat.S_ISLNK(root_stat.st_mode) or not stat.S_ISDIR(root_stat.st_mode)
+                or root_stat.st_uid != os.getuid() or os.path.realpath(root) != root
+                or stat.S_ISLNK(dir_stat.st_mode) or not stat.S_ISDIR(dir_stat.st_mode)
+                or dir_stat.st_uid != os.getuid()
+                or stat.S_ISLNK(rootfs_stat.st_mode) or not stat.S_ISDIR(rootfs_stat.st_mode)
+                or rootfs_stat.st_uid != os.getuid() or os.path.realpath(rootfs) != rootfs
+                or stat.S_ISLNK(l2s_stat.st_mode) or not stat.S_ISDIR(l2s_stat.st_mode)
+                or l2s_stat.st_uid != os.getuid()):
+            return "busy"
+    except OSError:
+        return "busy"
+
+    sockpath = os.path.join(sockdir, "X" + number)
+    lock = os.path.join(root, ".X" + number + "-lock")
+    alias = backing = None
+    try:
+        lock_meta = os.lstat(lock)
+        if not stat.S_ISLNK(lock_meta.st_mode) or lock_meta.st_uid != os.getuid():
+            return "busy"
+        link_target = os.readlink(lock)
+        if (not os.path.isabs(link_target)
+                or os.path.normpath(link_target) != os.path.join(l2s, os.path.basename(link_target))):
+            return "busy"
+        alias = os.path.normpath(link_target)
+        if not re.fullmatch(r"\.l2s\.\.tX" + re.escape(number) + r"-lock[0-9]{4}", os.path.basename(alias)):
+            return "busy"
+        alias_meta = os.lstat(alias)
+        if not stat.S_ISLNK(alias_meta.st_mode) or alias_meta.st_uid != os.getuid():
+            return "busy"
+        alias_target = os.readlink(alias)
+        backing = (os.path.normpath(alias_target) if os.path.isabs(alias_target)
+                   else os.path.normpath(os.path.join(l2s, alias_target)))
+        if (os.path.dirname(backing) != l2s or not re.fullmatch(
+                re.escape(os.path.basename(alias)) + r"\.[0-9]{4}", os.path.basename(backing))):
+            return "busy"
+        backing_meta = os.lstat(backing)
+        if (stat.S_ISLNK(backing_meta.st_mode) or not stat.S_ISREG(backing_meta.st_mode)
+                or backing_meta.st_uid != os.getuid() or backing_meta.st_size > 64):
+            return "busy"
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
+        fd = os.open(backing, flags)
+        try:
+            opened = os.fstat(fd)
+            if (opened.st_dev, opened.st_ino) != (backing_meta.st_dev, backing_meta.st_ino):
+                return "busy"
+            raw_pid = os.read(fd, 64).decode("ascii").strip()
+        finally:
+            os.close(fd)
+        if not raw_pid.isdigit() or int(raw_pid) <= 1:
+            return "busy"
+        try:
+            os.stat(os.path.join(proc_root, raw_pid))
+            return "busy"
+        except FileNotFoundError:
+            pass
+        except OSError:
+            return "busy"
+
+        sock_meta = snapshot(sockpath, "socket")
+        if sock_meta is not None:
+            probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            probe.settimeout(0.5)
+            try:
+                probe.connect(sockpath)
+                return "busy"
+            except ConnectionRefusedError:
+                pass
+            except OSError:
+                return "busy"
+            finally:
+                probe.close()
+
+        # Recheck identities and the dead PID immediately before unlinking.
+        current_lock = os.lstat(lock)
+        current_alias = os.lstat(alias)
+        if (not stat.S_ISLNK(current_lock.st_mode) or current_lock.st_uid != os.getuid()
+                or (current_lock.st_dev, current_lock.st_ino) != (lock_meta.st_dev, lock_meta.st_ino)):
+            return "busy"
+        if (not stat.S_ISLNK(current_alias.st_mode) or current_alias.st_uid != os.getuid()
+                or (current_alias.st_dev, current_alias.st_ino) != (alias_meta.st_dev, alias_meta.st_ino)):
+            return "busy"
+        if snapshot(backing, "file") != (backing_meta.st_dev, backing_meta.st_ino):
+            return "busy"
+        if snapshot(sockpath, "socket") != sock_meta:
+            return "busy"
+        resolved_alias = os.path.normpath(os.readlink(lock))
+        target = os.readlink(alias)
+        resolved_backing = os.path.realpath(target if os.path.isabs(target) else os.path.join(l2s, target))
+        if resolved_alias != alias or resolved_backing != backing:
+            return "busy"
+        try:
+            os.stat(os.path.join(proc_root, raw_pid))
+            return "busy"
+        except FileNotFoundError:
+            pass
+        except OSError:
+            return "busy"
+
+        # Keep the socket path in place while removing the stale lock chain;
+        # it prevents another X server from binding :N during recovery.
+        os.unlink(lock)
+        os.unlink(alias)
+        os.unlink(backing)
+        if sock_meta is not None:
+            if snapshot(sockpath, "socket") != sock_meta:
+                return "busy"
+            probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            probe.settimeout(0.5)
+            try:
+                probe.connect(sockpath)
+                return "busy"
+            except ConnectionRefusedError:
+                pass
+            except OSError:
+                return "busy"
+            finally:
+                probe.close()
+            os.unlink(sockpath)
+    except (OSError, UnicodeError, ValueError, RuntimeError):
+        return "busy"
+    return "recovered"
+
+
 if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "ensure-directory":
         result = ensure_socket_directory(sys.argv[2])
@@ -177,6 +314,8 @@ if __name__ == "__main__":
         result = prepare(sys.argv[1], sys.argv[2])
     elif len(sys.argv) == 5 and sys.argv[1] == "recover":
         result = recover(sys.argv[2], sys.argv[3], sys.argv[4])
+    elif len(sys.argv) == 5 and sys.argv[1] == "recover-proot":
+        result = recover_proot_link2symlink(sys.argv[2], sys.argv[3], sys.argv[4])
     else:
         raise SystemExit(2)
     print(result)

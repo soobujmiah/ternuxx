@@ -8,7 +8,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from lib.x11_display import ensure_socket_directory, prepare, recover
+from lib.x11_display import ensure_socket_directory, prepare, recover, recover_proot_link2symlink
 
 
 class DisplayZeroRecoveryTest(unittest.TestCase):
@@ -162,6 +162,74 @@ class DisplayZeroRecoveryTest(unittest.TestCase):
         server.bind(str(sock))
         server.close()
         self.assertEqual(recover(str(self.root), "1", "999999999"), "busy")
+        self.assertTrue(sock.exists())
+
+
+    def _make_proot_lock2(self, pid="999999999", *, active_socket=False):
+        guest = self.root / "debian-rootfs"
+        l2s = guest / ".l2s"
+        l2s.mkdir(parents=True)
+        alias = l2s / ".l2s..tX2-lock0001"
+        backing = l2s / ".l2s..tX2-lock0001.0001"
+        backing.write_text(pid + "\n", encoding="ascii")
+        alias.symlink_to(backing.name)
+        (self.root / ".X2-lock").symlink_to(alias)
+        sock = self.root / ".X11-unix" / "X2"
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server.bind(str(sock))
+        if active_socket:
+            server.listen(1)
+        else:
+            server.close()
+        return guest, alias, backing, sock, server
+
+    def test_exact_dead_proot_l2s_lock_and_refused_socket_are_recovered(self):
+        guest, alias, backing, sock, _server = self._make_proot_lock2()
+        self.assertEqual(recover_proot_link2symlink(str(self.root), "2", str(guest)), "recovered")
+        self.assertFalse((self.root / ".X2-lock").exists())
+        self.assertFalse(alias.exists())
+        self.assertFalse(backing.exists())
+        self.assertFalse(sock.exists())
+        self.assertEqual(prepare(str(self.root), "2"), "available")
+
+    def test_proot_l2s_recovery_preserves_live_pid(self):
+        proc = self.root / "proc"
+        (proc / "999999999").mkdir(parents=True)
+        guest, alias, backing, sock, _server = self._make_proot_lock2()
+        self.assertEqual(recover_proot_link2symlink(str(self.root), "2", str(guest), str(proc)), "busy")
+        self.assertTrue((self.root / ".X2-lock").is_symlink())
+        self.assertTrue(alias.is_symlink())
+        self.assertTrue(backing.is_file())
+        self.assertTrue(sock.exists())
+
+    def test_proot_l2s_recovery_preserves_listening_socket(self):
+        guest, alias, backing, sock, server = self._make_proot_lock2(active_socket=True)
+        try:
+            self.assertEqual(recover_proot_link2symlink(str(self.root), "2", str(guest)), "busy")
+        finally:
+            server.close()
+        self.assertTrue((self.root / ".X2-lock").is_symlink())
+        self.assertTrue(alias.is_symlink())
+        self.assertTrue(backing.is_file())
+        self.assertTrue(sock.exists())
+
+    def test_proot_l2s_recovery_rejects_lock_chain_outside_guest_root(self):
+        guest = self.root / "debian-rootfs"
+        l2s = guest / ".l2s"
+        l2s.mkdir(parents=True)
+        outside = self.root / ".l2s..tX2-lock0001.0001"
+        outside.write_text("999999999\n", encoding="ascii")
+        alias = l2s / ".l2s..tX2-lock0001"
+        alias.symlink_to(outside)
+        (self.root / ".X2-lock").symlink_to(alias)
+        sock = self.root / ".X11-unix" / "X2"
+        server = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        server.bind(str(sock))
+        server.close()
+        self.assertEqual(recover_proot_link2symlink(str(self.root), "2", str(guest)), "busy")
+        self.assertTrue((self.root / ".X2-lock").is_symlink())
+        self.assertTrue(alias.is_symlink())
+        self.assertTrue(outside.exists())
         self.assertTrue(sock.exists())
 
 

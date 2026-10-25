@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 560,
-  "read_count": 167,
+  "read_count": 168,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "56b7b28e305c0c347994661c4f17c447a578c6fcf0d8dc8a0fb18c373100c7cc",
+      "sha256": "d08aec8db6d0819cd7bcb4ff4a19cacf34c292f2cf23eddbe8a5911b24e5fd0b",
       "lines": 36,
       "read_status": "read",
-      "read_sha256": "56b7b28e305c0c347994661c4f17c447a578c6fcf0d8dc8a0fb18c373100c7cc"
+      "read_sha256": "d08aec8db6d0819cd7bcb4ff4a19cacf34c292f2cf23eddbe8a5911b24e5fd0b"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -163,7 +163,7 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "62f56ef9749f41c9e3a14c7ed726acdaa17f725d8f60a965e79beb94d8faa15f",
+      "sha256": "3cc5bb23570af17c9693ade7dd4001eaac4e555a398830b143147239dfc6c4e6",
       "lines": 63,
       "read_status": "pending",
       "read_sha256": null
@@ -195,10 +195,10 @@
     {
       "path": "docs/PROOT-GPU.md",
       "kind": "narrative",
-      "sha256": "a8c5cfd2724d2617d778852ebdb479b127e77e5256bfea9a309f0123dd0bf671",
+      "sha256": "cbf042ea738f5c23bcd81d66725ed37f2e31ffce95be569c91091be5bb58e2ce",
       "lines": 22,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "cbf042ea738f5c23bcd81d66725ed37f2e31ffce95be569c91091be5bb58e2ce"
     },
     {
       "path": "docs/PROOT-GUI-DISPLAY0.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "b639c0ffe2e88a75ab63053826b11330ecee5714918670e5891bc34beb8a1a05",
-      "lines": 96,
+      "sha256": "5a5c159c425678dc0c950b89c06970e82aa7055cc6ada9d2737b01aeabe23280",
+      "lines": 100,
       "read_status": "read",
-      "read_sha256": "b639c0ffe2e88a75ab63053826b11330ecee5714918670e5891bc34beb8a1a05"
+      "read_sha256": "5a5c159c425678dc0c950b89c06970e82aa7055cc6ada9d2737b01aeabe23280"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3427,10 +3427,10 @@
     {
       "path": "docs/evidence/2026-10-25-debian-desktop-catalog-extension.md",
       "kind": "narrative",
-      "sha256": "5dbfb5aa4a9d1a5f3f34c0289928d5a04dad4ed3c3c69d8adbbe321b2e931e65",
-      "lines": 64,
+      "sha256": "5b5b8680510d66fce1792e2ab907376228337e1655469d35c472c4a5181c8814",
+      "lines": 74,
       "read_status": "read",
-      "read_sha256": "5dbfb5aa4a9d1a5f3f34c0289928d5a04dad4ed3c3c69d8adbbe321b2e931e65"
+      "read_sha256": "5b5b8680510d66fce1792e2ab907376228337e1655469d35c472c4a5181c8814"
     },
     {
       "path": "docs/evidence/2026-10-25-gtk-management-center-owner-check.md",

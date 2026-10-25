@@ -65,6 +65,8 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertLess(preflight, guest_check)
         self.assertLess(preflight, audio_start)
         self.assertIn('refusing startup because existing display ownership cannot be verified', script)
+        self.assertIn('recover-proot "$TMP_ROOT" 2 "$PREFIX/var/lib/proot-distro/containers/debian/rootfs"', script)
+        self.assertIn('nested_recovery" = recovered', script)
 
     def test_standalone_supervisor_is_detached_from_terminal_lifecycle(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
