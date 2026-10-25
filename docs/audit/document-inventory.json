@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "1c3f5d757c5940527b52a0a56643bc618f0da6acd58c79f32a260c4789d85744",
+      "sha256": "3de4e02d359954201f85256e87c60c3e37c45d9e92869d7a5a0d894978c08eac",
       "lines": 36,
       "read_status": "pending",
       "read_sha256": null
@@ -539,8 +539,8 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "85639db11c93d3df05c0153f3b11e622ff2966c426949d1aa5319551cdf555b9",
-      "lines": 109,
+      "sha256": "37b262202a9846ecca2daf1cdfc3968e3d6d13d7c47a9f49611d64e7805463f5",
+      "lines": 113,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3427,8 +3427,8 @@
     {
       "path": "docs/evidence/2026-10-25-debian-desktop-catalog-extension.md",
       "kind": "narrative",
-      "sha256": "32ae6789c14fae09c8f8b327bca481b9161276aac87de42400c21256d8d39226",
-      "lines": 105,
+      "sha256": "b20f4bb74c0fdd48631a8e7dddc44ea74aa7f8f5b4bd81759f249648ea2f7185",
+      "lines": 115,
       "read_status": "pending",
       "read_sha256": null
     },

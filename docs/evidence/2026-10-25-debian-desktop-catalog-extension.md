@@ -103,3 +103,13 @@ Standalone `:0` (Native `:1` was stopped only for these checks and restored afte
 - Cinnamon was partial: Cinnamon/Muffin and Nemo's desktop surface were live, but no panel window appeared. The log showed Cinnamon applet errors; no usable full-desktop pass is claimed.
 
 Each standalone `tx pgui graphics verify` run created GLES and GLX contexts reporting Zink/Vulkan Adreno 825 Turnip and enumerated Adreno 825/llvmpipe devices. These are context/device probes only; no per-desktop application draw or Android frame presentation was verified. The focused GUI/catalog/setup suite passed 25/25 tests; `git diff --check` passed. Native XFCE was restored and verified live on `:1`; standalone `:0` and nested `:2` are stopped, `tx proot sessions list` is empty, and `gui_visible` remains unknown.
+
+## 2026-10-25 18:24 UTC: Plasma nested-startup isolation
+
+A focused nested Plasma investigation ran only on `:2` inside the live Native XFCE `:1`. A temporary trial changed only the Plasma bus launcher from `dbus-launch` to `dbus-run-session`; it produced the same result and was reverted. Another temporary pre-start of `kded6` plus `KDEWM=/usr/bin/xfwm4` failed because `kded6` aborted before registering, so that workaround was also removed. No temporary launcher or package changes remain.
+
+The `dbus-run-session` run logged repeated failures to activate `org.freedesktop.systemd1`; `startplasma-x11` then launched the legacy `plasma_session` path. `kcminit_startup` exited 0, but after 35 seconds the only Plasma session processes were `startplasma-x11` and `plasma_session`; there was no KWin, KSMServer, Plasma shell, or panel/desktop surface. In a separate guest process, `kded6` did acquire `org.kde.kded6` on that same session bus, but Plasma still did not advance. Therefore the missing systemd service is confirmed as an unavailable capability and the session hang is confirmed, while the exact internal blocking step remains unresolved.
+
+The installed Debian Plasma source documents `plasma_session` as the non-systemd fallback and sequences KCM init, `kded6`, the X11 window manager, and KSMServer in order: [Plasma startup notes](https://sources.debian.org/src/plasma-workspace/4%3A6.3.6-2/startkde/README.md/) and [startup.cpp](https://sources.debian.org/src/plasma-workspace/4%3A6.3.6-2/startkde/plasma-session/startup.cpp/). This source matches the observed transition from completed KCM init to the absent window-manager process, but does not alone identify why that job stalls in this PRoot session. No Plasma pass is claimed.
+
+The experiment was stopped cleanly. Final state: Native XFCE `:1` running; nested `:2` absent; standalone `:0` stopped; managed PRoot sessions empty.
