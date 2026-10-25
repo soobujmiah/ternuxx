@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "d0dddb3e4622333d897c61e8e39818bbf279e995bff866bd6f0c3fbc8cabb41d",
+      "sha256": "56b7b28e305c0c347994661c4f17c447a578c6fcf0d8dc8a0fb18c373100c7cc",
       "lines": 36,
       "read_status": "read",
-      "read_sha256": "d0dddb3e4622333d897c61e8e39818bbf279e995bff866bd6f0c3fbc8cabb41d"
+      "read_sha256": "56b7b28e305c0c347994661c4f17c447a578c6fcf0d8dc8a0fb18c373100c7cc"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "b16536991ed40e4e2bbb00a672add2968f84afffd5c89690ffa020a401523a4e",
-      "lines": 92,
+      "sha256": "b639c0ffe2e88a75ab63053826b11330ecee5714918670e5891bc34beb8a1a05",
+      "lines": 96,
       "read_status": "read",
-      "read_sha256": "b16536991ed40e4e2bbb00a672add2968f84afffd5c89690ffa020a401523a4e"
+      "read_sha256": "b639c0ffe2e88a75ab63053826b11330ecee5714918670e5891bc34beb8a1a05"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3427,10 +3427,10 @@
     {
       "path": "docs/evidence/2026-10-25-debian-desktop-catalog-extension.md",
       "kind": "narrative",
-      "sha256": "6eb68fbaa0f72044638cca1a18a86de5760f791962b49c9fd8840d3605b0780a",
-      "lines": 47,
+      "sha256": "5dbfb5aa4a9d1a5f3f34c0289928d5a04dad4ed3c3c69d8adbbe321b2e931e65",
+      "lines": 64,
       "read_status": "read",
-      "read_sha256": "6eb68fbaa0f72044638cca1a18a86de5760f791962b49c9fd8840d3605b0780a"
+      "read_sha256": "5dbfb5aa4a9d1a5f3f34c0289928d5a04dad4ed3c3c69d8adbbe321b2e931e65"
     },
     {
       "path": "docs/evidence/2026-10-25-gtk-management-center-owner-check.md",

@@ -88,7 +88,7 @@ case "$ACTION" in
       echo "Standalone Debian GUI: stopped; target display :0"
     else
       report="$(inspect)" || { echo "PRoot GUI ownership is unknown or unsafe; state preserved." >&2; exit 1; }
-      python3 -c 'import json,sys; d=json.load(sys.stdin); print("Standalone Debian GUI: state={state} display={display} detail={detail}".format(state=d.get("state"),display=d.get("display",":0"),detail=d.get("reason","unknown")))' <<<"$report"
+      python3 -c 'import json,sys; d=json.load(sys.stdin); state=d.get("state"); display=d.get("display",":0"); detail=d.get("reason","unknown"); print(("Standalone Debian GUI session: process group live on %s; desktop shell/panel readiness not checked" % display) if state=="running" else "Standalone Debian GUI: state={state} display={display} detail={detail}".format(state=state,display=display,detail=detail))' <<<"$report"
     fi
     if [ -S "$TMP_ROOT/.X11-unix/X2" ]; then
       echo "Nested display :2 socket exists; socket presence alone does not establish session ownership."
@@ -315,7 +315,7 @@ PY
       sleep 0.25
     done
     [ "$ready" -eq 1 ] || { echo "PRoot GUI did not become ready on :0. Inspect $STATE_DIR/desktop.log; no unrelated process was stopped." >&2; exit 1; }
-    printf "Ternuxx-owned Debian %s is running on standalone display :0. Open Termux:X11 to view it.\n" "$DESKTOP_ID"
+    printf "Ternuxx-owned Debian %s session processes are live on standalone display :0. Desktop shell/panel readiness and Android visibility are not verified; allow the selected environment time to finish loading.\n" "$DESKTOP_ID"
     echo "Graphics: Debian Zink/Turnip is configured per guest process; inspect the running GUI with 'tx pgui graphics verify'."
     echo "Audio: uses the authenticated Ternuxx Native PulseAudio client endpoint; the server remains Native-owned."
     ;;

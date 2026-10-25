@@ -75,6 +75,10 @@ Latest live matrix: Native `:1` XFCE is restored and running. MATE passed `marco
 
 ## Current implementation change
 
+### 2026-10-25 17:10 UTC route recheck
+
+Native XFCE is live on `:1`; its bounded OpenGL draw still uses llvmpipe (`accelerated:false`, score 126), and Vulkan is unavailable. On standalone `:0`, the four installed Debian launchers were rechecked: XFCE passed its panel/desktop tree, Plasma passed after a 75-second wait, GNOME showed `gnome-session-failed`, and Cinnamon showed a desktop surface but no panel. All four guest `pgui graphics verify` runs reported Zink/Turnip Adreno 825 contexts and Vulkan enumeration; no per-desktop rendered application workload or Android frame presentation was verified. A fresh nested `:2` run was refused because the stale socket is present and ownership cannot be verified; the socket was preserved. Native `:1` was restored after the standalone checks, and standalone `:0` is stopped. See the [route-specific live evidence](../evidence/2026-10-25-debian-desktop-catalog-extension.md#2026-10-25-1710-utc-route-recheck-native-1-nested-2-standalone-0).
+
 The installer verbosity regression is fixed. Native XFCE on `:1` is live; Native Ternuxx PulseAudio is authenticated and ready; Debian Trixie is installed with XFCE, GNOME, Plasma, and Cinnamon packages; and the managed SSH service is running on loopback. Native MATE and Plasma passed window-tree checks; Cinnamon panel and LXQt startup remain unaccepted. Native off-screen OpenGL still uses `llvmpipe` (`accelerated:false`), and Vulkan finds no GPU. The Termux Freedreno ICD rejects this GPU, and no current Native Adreno-accelerated workload is verified. Cross-distro providers, full GUI journeys across clients, performance/resource gates, and final release acceptance remain open.
 
 ## Session commands
