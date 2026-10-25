@@ -396,6 +396,39 @@ echo 'install ok installed'
         self.assertEqual(result.returncode, 1)
         self.assertIn("refusing to start APT", result.stderr)
 
+    def test_low_storage_apply_refuses_before_apt_or_applying_record(self):
+        with tempfile.TemporaryDirectory(prefix="ternuxx-install-low-space-") as temporary:
+            env, capture = self._install_command_fixture(temporary)
+            env["FIXTURE_MINIMAL"] = "1"
+            preview = subprocess.run(
+                ["bash", "-c", 'source "$1"; nt_require_termux() { return 0; }; nt_cmd_install preview --profile minimal-native',
+                 "bash", str(PHASES)], env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertEqual(preview.returncode, 0, preview.stderr)
+            import re
+            match = re.search(r"Preview ID: ([0-9a-f]{64})", preview.stderr)
+            self.assertIsNotNone(match, preview.stderr)
+            env["FIXTURE_RESOURCE_JSON"] = json.dumps({
+                "schema_version": 1, "complete": True, "installed_kib": 5,
+                "download_bytes": 1000, "filesystem_free_bytes": 4096, "packages": [],
+            })
+            apply_script = "\n".join([
+                'source "$1"',
+                '_nt_capture_install_resource_estimates() { _NT_PLAN_RESOURCE_ESTIMATES="$FIXTURE_RESOURCE_JSON"; }',
+                "nt_require_termux() { return 0; }",
+                'nt_cmd_install apply --profile minimal-native --yes --plan-id "$2"',
+            ])
+            applied = subprocess.run(
+                ["bash", "-c", apply_script, "bash", str(PHASES), match.group(1)], env=env,
+                text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertEqual(applied.returncode, 1)
+            self.assertIn("Insufficient estimated storage", applied.stderr)
+            self.assertFalse(capture.exists(), "APT must not run when the estimated payload cannot fit")
+            records = [json.loads(item.read_text()) for item in
+                       (Path(temporary) / "home/.local/share/ternuxx/install-transactions").glob("*.json")]
+            self.assertEqual([record["outcome"] for record in records], ["preview"])
+
     def test_global_cli_verbose_flag_reaches_install_transaction_preview(self):
         with tempfile.TemporaryDirectory(prefix="ternuxx-install-global-verbose-") as temporary:
             env, _capture = self._install_command_fixture(temporary)
