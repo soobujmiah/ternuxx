@@ -1376,7 +1376,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
                ("sessions", "Inspect owned guest sessions"),
                ("probe", "Start bounded headless Debian probe"),
                ("login", "Read interactive Debian login instructions")]
-    choices.append(("install", "Set up the optional managed Debian guest"))
+    choices.append(("install", "Install the optional managed Debian guest"))
     if "proot.shortcuts.list" in operations:
         choices.append(("apps", "Browse and launch an allowlisted Debian app"))
     if {"proot.shortcuts.list", "proot.shortcuts.preview", "proot.shortcuts.apply"} <= operations:
@@ -1398,8 +1398,23 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
     if action == "sessions":
         return _call("proot.sessions.list")
     if action == "install":
-        return {"ok": True, "data": {"guest_status": "setup_handoff",
-            "next_step": "Open an attached Native Termux terminal and run `tx install debian --user NAME`. It previews the pinned Debian guest with XFCE and asks before applying that exact plan. Ternuxx applies managed graphics/audio configuration where available. Other distro setup profiles are not yet available; existing guests are preserved."}}
+        prefix = os.environ.get("PREFIX", "/data/data/com.termux/files/usr")
+        executable = Path(prefix) / "bin" / "tx"
+        if prefix != "/data/data/com.termux/files/usr" or not executable.is_file():
+            return {"ok": False, "error": {"code": "native_tx_unavailable",
+                    "message": "The fixed Native Termux tx command is unavailable."}}
+        screen.erase(); screen.refresh()
+        curses.def_prog_mode(); curses.endwin()
+        try:
+            result = subprocess.run([str(executable), "install", "debian"], check=False)
+        except OSError as exc:
+            return {"ok": False, "error": {"code": "guest_install_launch_failed", "message": str(exc)}}
+        finally:
+            curses.reset_prog_mode(); screen.clear(); screen.refresh()
+        return {"ok": result.returncode == 0,
+                "data": {"guest_status": "setup_finished" if result.returncode == 0 else "setup_failed",
+                         "exit_code": result.returncode,
+                         "message": "The guided Debian installer finished; existing guests remain preserved."}}
     if action == "login":
         status = _call("proot.status")
         if not status.get("ok"):
@@ -1409,7 +1424,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
             return {"ok": True, "data": {"guest_status": "installed",
                 "next_step": "Debian is installed. Exit TUI and run `tx db` in an attached Native Termux terminal."}}
         return {"ok": True, "data": {"guest_status": "missing",
-            "next_step": "Optional managed Debian setup runs in an attached Native Termux terminal. Run `tx install debian --user NAME` to preview the pinned guest with XFCE and Ternuxx graphics/audio configuration, then confirm the exact plan in the terminal. Choose `--desktops xfce,lxqt,lxde,mate,plasma` to select other catalogued desktops. Password prompts are hidden; `--sudo-mode passwordless` is an optional guest-only mode. Other distro profiles are not yet available. Existing guests are preserved."}}
+            "next_step": "Choose Install the optional managed Debian guest to start the guided installer here. It asks for the guest username, shows the pinned target, and asks before installing Ternuxx's XFCE, graphics, and audio configuration. Other distro profiles are not yet available. Existing guests are preserved."}}
     if action == "stop" and {"proot.stop.preview", "proot.stop"} <= operations:
         inventory = _call("proot.sessions.list")
         if not inventory.get("ok"):

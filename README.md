@@ -64,7 +64,7 @@ tx install debian
 tx proot status
 ```
 
-In an attached Native terminal, run `tx install debian` and follow the prompts. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Other distro names will use the same `tx install <distro>` pattern as their managed profiles become supported. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. Other management clients currently guide setup through the attached Native terminal.
+In an attached Native terminal, run `tx install debian` and follow the prompts. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Other distro names will use the same `tx install <distro>` pattern as their managed profiles become supported. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. The TUI can launch this guided installer directly from its attached terminal. Web and GTK currently guide setup through the attached Native terminal.
 
 ## SSH and services
 

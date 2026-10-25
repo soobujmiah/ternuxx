@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 573,
-  "read_count": 177,
+  "read_count": 178,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "0cedee6a276c4b857fe329f550f4bb4be366a3afa2e1a1657661730709d7b7fb",
+      "sha256": "39d61bf0b47eb8c195944908e463a862dcb7076df29ed38b71ab61a29d68022f",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "0cedee6a276c4b857fe329f550f4bb4be366a3afa2e1a1657661730709d7b7fb"
+      "read_sha256": "39d61bf0b47eb8c195944908e463a862dcb7076df29ed38b71ab61a29d68022f"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "41a0a85eda8816d87ea6e8bc488fbdfba1e40d42bc8e197f8cdbdf92fab17167",
+      "sha256": "6c3f76f157a1e8a092823da4f99a0919c52fb2bba44a903c8ce455fb62701f9a",
       "lines": 106,
       "read_status": "read",
-      "read_sha256": "41a0a85eda8816d87ea6e8bc488fbdfba1e40d42bc8e197f8cdbdf92fab17167"
+      "read_sha256": "6c3f76f157a1e8a092823da4f99a0919c52fb2bba44a903c8ce455fb62701f9a"
     },
     {
       "path": "SECURITY.md",
@@ -267,10 +267,10 @@
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
       "kind": "narrative",
-      "sha256": "ca3705ad1ddde7c0f4a6b940f5cad6db8d3b8a39ba348e1497bab8f63f1b057b",
+      "sha256": "b26ffb85a1723a57ec7552038b383962b82aad87d748ebbc5238ae5224072103",
       "lines": 21,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "b26ffb85a1723a57ec7552038b383962b82aad87d748ebbc5238ae5224072103"
     },
     {
       "path": "docs/architecture/CONTINUITY-IMPLEMENTATION.md",
