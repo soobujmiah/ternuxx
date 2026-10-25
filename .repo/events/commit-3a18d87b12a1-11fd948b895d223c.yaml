@@ -1,0 +1,7 @@
+event_id: commit-3a18d87b12a1-11fd948b895d223c
+repository: soobujmiah/ternuxx
+commit: 3a18d87b12a1a5d3966d716588cd962ed101972d
+kind: commit
+occurred_at: '2026-10-25T21:29:02Z'
+status: completed
+summary: 'feat(proot): route only accepted desktop sessions'
