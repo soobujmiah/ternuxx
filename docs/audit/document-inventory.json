@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "33a96cd5ad9fc2bd976a9d907b094044d554fa3f9a481874a98951719a14a87b",
+      "sha256": "96c534c7c0b74b1e217631a82080d687c3c42cf13595f9249be431dc6b1bf279",
       "lines": 92,
       "read_status": "read",
-      "read_sha256": "33a96cd5ad9fc2bd976a9d907b094044d554fa3f9a481874a98951719a14a87b"
+      "read_sha256": "96c534c7c0b74b1e217631a82080d687c3c42cf13595f9249be431dc6b1bf279"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3427,10 +3427,10 @@
     {
       "path": "docs/evidence/2026-10-25-debian-desktop-catalog-extension.md",
       "kind": "narrative",
-      "sha256": "a45540f3a8c0f5614b73b7505dcede6ffe08e52ea06984a2899d9bfd90ee412f",
-      "lines": 39,
+      "sha256": "0aba88ff5360cd678e1cbef4336ac4b5fa2849692a1e4501b123cc9aeff108b0",
+      "lines": 43,
       "read_status": "read",
-      "read_sha256": "a45540f3a8c0f5614b73b7505dcede6ffe08e52ea06984a2899d9bfd90ee412f"
+      "read_sha256": "0aba88ff5360cd678e1cbef4336ac4b5fa2849692a1e4501b123cc9aeff108b0"
     },
     {
       "path": "docs/evidence/2026-10-25-gtk-management-center-owner-check.md",
