@@ -27,3 +27,5 @@ Native graphics remains unaccelerated: `tx mng graphics verify native opengl --j
 
 
 Latest standalone `:0` rerun after the session-cleanup trap changes did not reproduce the earlier XFCE pass: the launcher returned, but state reconciliation recorded `status: stopped` with `xfce session exited with status 0`; `xwininfo` could not connect to `:0`, and no new window-tree acceptance was available. The older passing standalone run remains historical evidence, while repeatability of the current standalone launcher is unresolved. Native XFCE was confirmed running on `:1`, and nested `:2` was absent after its cleanup.
+
+A second controlled standalone `:0` retry after restoring Native XFCE showed the same immediate exit (`xfce session exited with status 0`); the immediate status query found `stopped`. The host lacks `xwininfo`, so this retry could not inspect a root window tree. Native XFCE was restarted and verified running on `:1` afterward. This confirms the standalone acceptance is currently non-repeatable and unresolved.
