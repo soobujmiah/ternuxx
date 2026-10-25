@@ -38,6 +38,12 @@ class WorkflowActionPinTests(unittest.TestCase):
         self.assertEqual(references.count("actions/upload-artifact"), 1)
         self.assertEqual(len(references), 9)
 
+    def test_repo_test_workflows_clear_python_library_path_inheritance(self):
+        contract = (ROOT / ".github/workflows/repo-contract.yml").read_text(encoding="utf-8")
+        sync = (ROOT / ".github/workflows/repo-knowledge-sync.yml").read_text(encoding="utf-8")
+        self.assertIn("env -u LD_LIBRARY_PATH bash scripts/repo_test.sh", contract)
+        self.assertIn("if env -u LD_LIBRARY_PATH bash scripts/repo_test.sh; then", sync)
+
     def test_p12_mesa_capture_uses_builder_home_outside_recipe_write_deny(self):
         workflow = (ROOT / ".github/workflows/p12-mesa-build-evidence.yml").read_text(encoding="utf-8")
         self.assertIn("CONTAINER_NAME: termux-p12-mesa-provenance", workflow)

@@ -30,7 +30,7 @@ jobs:
           bash -n bin/tx lib/help.sh lib/ssh.sh tests/test_cli_help.sh
           bash tests/test_cli_help.sh
       - name: Run repository unit and mock integration tests
-        run: bash scripts/repo_test.sh
+        run: env -u LD_LIBRARY_PATH bash scripts/repo_test.sh
       - name: Validate deterministic state
         run: python3 -m tools.repo_knowledge verify
       - name: Validate README knowledge bridge

@@ -33,7 +33,7 @@ jobs:
       - name: Run repository tests
         id: tests
         run: |
-          if bash scripts/repo_test.sh; then
+          if env -u LD_LIBRARY_PATH bash scripts/repo_test.sh; then
             echo 'status=passed' >> "$GITHUB_OUTPUT"
           else
             echo 'status=failed' >> "$GITHUB_OUTPUT"
