@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 546,
-  "read_count": 177,
+  "document_count": 547,
+  "read_count": 178,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "c6c19b8b7b608e81ea550af76d15158197218076dbf12897fdbc67eb24a529f8",
-      "lines": 31,
+      "sha256": "50d18fde6b7bc52f6f7d9ee7af30fee48ace3f2adf95c9740f7c28a7cba8847a",
+      "lines": 32,
       "read_status": "read",
-      "read_sha256": "c6c19b8b7b608e81ea550af76d15158197218076dbf12897fdbc67eb24a529f8"
+      "read_sha256": "50d18fde6b7bc52f6f7d9ee7af30fee48ace3f2adf95c9740f7c28a7cba8847a"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "328615df02c1e0e4c7fdbf3a9af6b66be1622b50f37ecf258c8bd0594fa6d399",
-      "lines": 97,
+      "sha256": "6b58000c624c45c9a22cddd5a400d2bcec75603836bce4f2067ce78ac9eae813",
+      "lines": 99,
       "read_status": "read",
-      "read_sha256": "328615df02c1e0e4c7fdbf3a9af6b66be1622b50f37ecf258c8bd0594fa6d399"
+      "read_sha256": "6b58000c624c45c9a22cddd5a400d2bcec75603836bce4f2067ce78ac9eae813"
     },
     {
       "path": "SECURITY.md",
@@ -147,10 +147,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "ab3375c2ce0f37a123c65406e0966eb7408698bca9e25a532209818d9b279010",
-      "lines": 94,
+      "sha256": "0d2e948985300abbea0ed44bce6bb14aaee7e83c60659bb9d360ea62d3b8465e",
+      "lines": 103,
       "read_status": "read",
-      "read_sha256": "ab3375c2ce0f37a123c65406e0966eb7408698bca9e25a532209818d9b279010"
+      "read_sha256": "0d2e948985300abbea0ed44bce6bb14aaee7e83c60659bb9d360ea62d3b8465e"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -163,10 +163,10 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "a5b30f88ba3105c23f83d9b7e6d6b218a9cbd8ded63e2e056343696898ee670f",
-      "lines": 61,
+      "sha256": "01be4d62ef10dc615112aa1f8389026e2e6093849034b64e0bbc72d3e61556dc",
+      "lines": 63,
       "read_status": "read",
-      "read_sha256": "a5b30f88ba3105c23f83d9b7e6d6b218a9cbd8ded63e2e056343696898ee670f"
+      "read_sha256": "01be4d62ef10dc615112aa1f8389026e2e6093849034b64e0bbc72d3e61556dc"
     },
     {
       "path": "docs/OPTIMIZATION.md",
@@ -539,10 +539,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "a35dae43c511852a9981c2739ebd077031f608b30a50c984a678380e1a74cfe8",
+      "sha256": "bb43cfe46477c08b2987ab1e949adae13071903ac05e953939358c5dd011bc11",
       "lines": 61,
       "read_status": "read",
-      "read_sha256": "a35dae43c511852a9981c2739ebd077031f608b30a50c984a678380e1a74cfe8"
+      "read_sha256": "bb43cfe46477c08b2987ab1e949adae13071903ac05e953939358c5dd011bc11"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3431,6 +3431,14 @@
       "lines": 9,
       "read_status": "read",
       "read_sha256": "f59918415b43b51c0ca9a4df985baddc80dd95f2f5ce9e84166642e08a29ee64"
+    },
+    {
+      "path": "docs/evidence/2026-10-25-native-installer-profiles.md",
+      "kind": "narrative",
+      "sha256": "4953cdc8170a913b90e0979abd3165373250f15492ca83e706b810ae018396ff",
+      "lines": 13,
+      "read_status": "read",
+      "read_sha256": "4953cdc8170a913b90e0979abd3165373250f15492ca83e706b810ae018396ff"
     },
     {
       "path": "docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md",

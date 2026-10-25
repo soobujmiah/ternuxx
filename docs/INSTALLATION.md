@@ -33,6 +33,15 @@ The preview shows package versions, APT's full simulation, download size, instal
 
 The transaction refuses removals, upgrades, recommendations, changed plans, and packages outside the official Termux repositories. It installs the current Native CLI dependencies, XFCE/Termux:X11 desktop packages, audio support, `glxinfo`/`vulkaninfo` inspection tools, and the `proot-distro` runtime. Tool availability does not qualify a renderer or workload. It does not create a Debian guest.
 
+For an interactive profile chooser, run `./tx install interactive`; it previews the selected profile without applying it. Automated profile selection uses the same dependency resolver and exact-plan apply path:
+
+```sh
+./tx install preview --profile minimal-native --verbose
+./tx install apply --profile minimal-native --yes --plan-id PLAN_ID
+```
+
+Available presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, and `custom`. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, and `developer` with `--components`. The PRoot-provider preset installs only the provider package; guest creation remains a separately previewed operation. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
+
 Run read-only checks after installation:
 
 ```sh

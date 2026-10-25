@@ -77,6 +77,43 @@ class PackagePlanTest(unittest.TestCase):
         )
         return temporary, result
 
+    def test_install_profiles_resolve_to_explicit_shared_package_sets(self):
+        command = """source "$1"
+_nt_select_install_profile minimal-native
+printf 'MIN %s\n' "${_NT_BASE_PACKAGES[*]}"
+_nt_select_install_profile full-native
+printf 'FULL %s\n' "${_NT_BASE_PACKAGES[*]}"
+_nt_select_install_profile graphical
+printf 'GUI %s\n' "${_NT_BASE_PACKAGES[*]}"
+_nt_select_install_profile developer
+printf 'DEV %s\n' "${_NT_BASE_PACKAGES[*]}"
+_nt_select_install_profile native-proot-provider
+printf 'PROOT %s\n' "${_NT_BASE_PACKAGES[*]}"
+_nt_select_install_profile custom 'desktop,proot,developer,desktop'
+printf 'CUSTOM %s\n' "${_NT_BASE_PACKAGES[*]}"
+"""
+        result = subprocess.run(
+            ["bash", "-c", command, "bash", str(PHASES)],
+            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("MIN python\n", result.stdout)
+        self.assertIn("FULL termux-x11-nightly dbus pulseaudio proot-distro python", result.stdout)
+        self.assertIn("GUI python termux-x11-nightly dbus", result.stdout)
+        self.assertIn("DEV python clang cmake gdb make pkg-config", result.stdout)
+        self.assertIn("PROOT python proot-distro", result.stdout)
+        self.assertIn("CUSTOM python termux-x11-nightly dbus xfce4-session", result.stdout)
+        custom = result.stdout.split("CUSTOM ", 1)[1].splitlines()[0].split()
+        self.assertEqual(len(custom), len(set(custom)))
+
+    def test_custom_install_profile_rejects_unknown_component_groups(self):
+        result = subprocess.run(
+            ["bash", "-c", 'source "$1"; _nt_select_install_profile custom "desktop,arbitrary"',
+             "bash", str(PHASES)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("Unknown component group", result.stderr)
+
     def test_update_plan_pins_direct_candidates_and_parses_upgrade_closure(self):
         simulation = "\n".join([
             "Inst python [3.14.6-1] (3.14.8 termux-main stable/main [aarch64])",
@@ -230,7 +267,17 @@ class PackagePlanTest(unittest.TestCase):
         for marker in ("termux-main", "termux-x11"):
             (index_dir / f"mirror_{marker}_InRelease").write_text(f"Date: {now}\n", encoding="utf-8")
         (fixture_bin / "apt-cache").write_text("""#!/bin/sh
-cat <<'POLICY'
+case "$2" in
+  python) cat <<'POLICY'
+python:
+  Installed: (none)
+  Candidate: 3.14.8
+  Version table:
+     3.14.8 500
+        500 https://packages-cf.termux.dev/apt/termux-main stable/main aarch64 Packages
+POLICY
+    ;;
+  *) cat <<'POLICY'
 xfce4-session:
   Installed: (none)
   Candidate: 4.20.4-1
@@ -238,10 +285,15 @@ xfce4-session:
      4.20.4-1 500
         500 https://grimler.se/termux/termux-x11 x11/main aarch64 Packages
 POLICY
+    ;;
+esac
 """, encoding="utf-8")
         (fixture_bin / "apt-get").write_text("""#!/bin/sh
 if [ "$1" = "-s" ]; then
-  printf 'Reading package lists... Done\nInst xfce4-session (%s termux-x11 x11/main [aarch64])\n0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.\n' "${FIXTURE_VERSION:-4.20.4-1}"
+  case " $* " in
+    *" python "*) printf 'Reading package lists... Done\nInst python (3.14.8 termux-main stable/main [aarch64])\n0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.\n' ;;
+    *) printf 'Reading package lists... Done\nInst xfce4-session (%s termux-x11 x11/main [aarch64])\n0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.\n' "${FIXTURE_VERSION:-4.20.4-1}" ;;
+  esac
   [ -z "${SIM_SUFFIX:-}" ] || printf '%s\n' "$SIM_SUFFIX"
   exit 0
 fi
@@ -249,7 +301,7 @@ printf '%s\n' "$@" >> "$APT_APPLY_CAPTURE"
 """, encoding="utf-8")
         (fixture_bin / "dpkg-query").write_text("""#!/bin/sh
 for package in "$@"; do :; done
-if [ "$package" = "xfce4-session" ]; then echo 'deinstall ok config-files'; exit 1; fi
+if [ "$package" = "xfce4-session" ] || { [ "$package" = "python" ] && [ "${FIXTURE_MINIMAL:-0}" = "1" ]; }; then echo 'deinstall ok config-files'; exit 1; fi
 echo 'install ok installed'
 """, encoding="utf-8")
         for tool in ("apt-cache", "apt-get", "dpkg-query"):
@@ -280,6 +332,28 @@ echo 'install ok installed'
             self.assertIn("xfce4-session=4.20.4-1", capture.read_text(encoding="utf-8"))
             records = list((Path(temporary) / "home/.local/share/ternuxx/install-transactions").glob("*.json"))
             self.assertEqual({json.loads(item.read_text())["outcome"] for item in records}, {"preview", "applied"})
+
+    def test_minimal_profile_uses_the_same_preview_and_exact_apply_engine(self):
+        with tempfile.TemporaryDirectory(prefix="ternuxx-install-profile-flow-") as temporary:
+            env, capture = self._install_command_fixture(temporary)
+            env["FIXTURE_MINIMAL"] = "1"
+            env["TERNUXX_JSON"] = "1"
+            base = ["bash", "-c", 'source "$1"; nt_require_termux() { return 0; }; shift; nt_cmd_install "$@"', "bash", str(PHASES)]
+            preview = subprocess.run([*base, "preview", "--profile", "minimal-native"], env=env,
+                                     text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+            self.assertEqual(preview.returncode, 0, preview.stderr)
+            self.assertIn("Profile: minimal-native", preview.stderr)
+            self.assertIn("Apply after review: tx install apply --profile minimal-native", preview.stderr)
+            self.assertIn('"profile":"minimal-native"', preview.stdout)
+            import re
+            match = re.search(r"Preview ID: ([0-9a-f]{64})", preview.stderr)
+            self.assertIsNotNone(match, preview.stderr)
+            applied = subprocess.run([*base, "apply", "--profile", "minimal-native", "--yes", "--plan-id", match.group(1)], env=env,
+                                     text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+            self.assertEqual(applied.returncode, 0, applied.stderr)
+            applied_args = capture.read_text(encoding="utf-8")
+            self.assertIn("python=3.14.8", applied_args)
+            self.assertNotIn("xfce4-session", applied_args)
 
     def test_global_cli_verbose_flag_reaches_install_transaction_preview(self):
         with tempfile.TemporaryDirectory(prefix="ternuxx-install-global-verbose-") as temporary:

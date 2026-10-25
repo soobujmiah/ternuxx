@@ -26,6 +26,8 @@ Review the full Native package and dependency transaction before applying it:
 
 Use the exact plan ID printed by the preview. The installer refuses removals, upgrades, unapproved repositories, and a changed plan. It installs Native XFCE/Termux:X11 support, diagnostics, audio, and the PRoot runtime. The matching Termux:X11 Android app is installed separately.
 
+Run `./tx install interactive` for named presets, or select one for automation with `--profile NAME`; both use the same exact preview/apply engine. Repeat a non-default profile when applying its plan. The PRoot-provider preset installs the runtime only; guest setup remains a separate preview-confirmed operation. See the [installation guide](docs/INSTALLATION.md) for profiles and custom components.
+
 ## Open the workstation
 
 Open the Floating Termux:X11 app, then start the Native desktop:

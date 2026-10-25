@@ -9,6 +9,15 @@
 
 # Native host packages include Debian PRoot support, graphical diagnostics, and
 # X11 test utilities. Heavy applications and Mesa providers remain optional.
+_NT_CORE_PACKAGES=(python)
+_NT_DESKTOP_PACKAGES=(
+  termux-x11-nightly dbus xfce4-session xfce4-panel xfce4-settings xfwm4
+  xfdesktop xfconf thunar xfce4-terminal
+)
+_NT_AUDIO_PACKAGES=(pulseaudio)
+_NT_PROOT_PACKAGES=(proot-distro)
+_NT_GRAPHICS_PACKAGES=(glmark2 mesa-demos vulkan-tools xorg-server-xvfb xdotool)
+_NT_DEVELOPER_PACKAGES=(clang cmake gdb make pkg-config)
 _NT_BASE_PACKAGES=(
   termux-x11-nightly
   dbus
@@ -29,7 +38,95 @@ _NT_BASE_PACKAGES=(
   xorg-server-xvfb
   xdotool
 )
+_NT_FULL_NATIVE_PACKAGES=("${_NT_BASE_PACKAGES[@]}")
+_NT_ACTIVE_PROFILE=full-native
+_NT_ACTIVE_COMPONENTS=""
+_NT_ACTIVE_SKIPPED_COMPONENTS=""
 _NT_PLAN_MODE=install
+
+_nt_select_install_profile() {
+  local profile="${1:-}" components="${2:-}" group package
+  local -a selected=() groups=()
+  local -A seen=()
+  case "$profile" in
+    minimal-native) selected=("${_NT_CORE_PACKAGES[@]}") ;;
+    full-native)
+      [ -z "$components" ] || { nt_fail "--components is valid only with --profile custom."; return 2; }
+      selected=("${_NT_FULL_NATIVE_PACKAGES[@]}") ;;
+    graphical)
+      [ -z "$components" ] || { nt_fail "--components is valid only with --profile custom."; return 2; }
+      selected=("${_NT_CORE_PACKAGES[@]}" "${_NT_DESKTOP_PACKAGES[@]}" "${_NT_AUDIO_PACKAGES[@]}" "${_NT_GRAPHICS_PACKAGES[@]}") ;;
+    developer)
+      [ -z "$components" ] || { nt_fail "--components is valid only with --profile custom."; return 2; }
+      selected=("${_NT_CORE_PACKAGES[@]}" "${_NT_DEVELOPER_PACKAGES[@]}") ;;
+    native-proot-provider)
+      [ -z "$components" ] || { nt_fail "--components is valid only with --profile custom."; return 2; }
+      selected=("${_NT_CORE_PACKAGES[@]}" "${_NT_PROOT_PACKAGES[@]}") ;;
+    custom)
+      selected=("${_NT_CORE_PACKAGES[@]}")
+      [ -n "$components" ] || { nt_fail "Custom profile requires --components GROUPS."; return 2; }
+      IFS=',' read -r -a groups <<< "$components"
+      for group in "${groups[@]}"; do
+        case "$group" in
+          desktop) selected+=("${_NT_DESKTOP_PACKAGES[@]}") ;;
+          audio) selected+=("${_NT_AUDIO_PACKAGES[@]}") ;;
+          proot) selected+=("${_NT_PROOT_PACKAGES[@]}") ;;
+          graphics) selected+=("${_NT_GRAPHICS_PACKAGES[@]}") ;;
+          developer) selected+=("${_NT_DEVELOPER_PACKAGES[@]}") ;;
+          *) nt_fail "Unknown component group '$group'. Choose desktop,audio,proot,graphics,developer."; return 2 ;;
+        esac
+      done ;;
+    *) nt_fail "Unknown install profile '$profile'. Choose minimal-native, full-native, graphical, developer, native-proot-provider, or custom."; return 2 ;;
+  esac
+  _NT_BASE_PACKAGES=()
+  for package in "${selected[@]}"; do
+    if [ -z "${seen[$package]+x}" ]; then
+      _NT_BASE_PACKAGES+=("$package")
+      seen[$package]=1
+    fi
+  done
+  _NT_ACTIVE_PROFILE="$profile"
+  _NT_ACTIVE_COMPONENTS="$components"
+  local -a omitted=()
+  for group in desktop audio proot graphics developer; do
+    case "$profile" in
+      full-native) [[ "$group" == developer ]] && omitted+=("$group") ;;
+      graphical) [[ "$group" == proot || "$group" == developer ]] && omitted+=("$group") ;;
+      developer) [[ "$group" != developer ]] && omitted+=("$group") ;;
+      native-proot-provider) [[ "$group" != proot ]] && omitted+=("$group") ;;
+      minimal-native) omitted+=("$group") ;;
+      custom)
+        case ",$components," in *",$group,"*) ;; *) omitted+=("$group") ;; esac ;;
+    esac
+  done
+  omitted+=(guest)
+  _NT_ACTIVE_SKIPPED_COMPONENTS="$(IFS=,; printf '%s' "${omitted[*]}")"
+}
+
+_nt_choose_install_profile() {
+  local choice components
+  [ -t 0 ] || { nt_fail "Interactive install needs a terminal; use tx install preview --profile NAME for automatic selection."; return 2; }
+  printf '%s\n' \
+    'Choose a Native workstation profile:' \
+    '  1) Minimal Native Workstation (CLI management core)' \
+    '  2) Full Native Workstation (XFCE, audio, diagnostics, PRoot provider)' \
+    '  3) Graphical Workstation (XFCE, audio, graphics diagnostics)' \
+    '  4) Developer Workstation (CLI core + compiler/debug tools)' \
+    '  5) Native + PRoot provider (guest installation is a separate reviewed operation)' \
+    '  6) Custom component groups'
+  read -r -p 'Selection [1-6]: ' choice || return 2
+  case "$choice" in
+    1) _nt_select_install_profile minimal-native ;;
+    2) _nt_select_install_profile full-native ;;
+    3) _nt_select_install_profile graphical ;;
+    4) _nt_select_install_profile developer ;;
+    5) _nt_select_install_profile native-proot-provider ;;
+    6)
+      read -r -p 'Groups (desktop,audio,proot,graphics,developer): ' components || return 2
+      _nt_select_install_profile custom "$components" ;;
+    *) nt_fail "Choose a profile number from 1 to 6."; return 2 ;;
+  esac
+}
 
 _nt_package_installed() {
   local status
@@ -97,7 +194,7 @@ _nt_make_install_plan() {
       continue
     fi
     case "$package" in
-      dbus|pulseaudio|python|proot-distro|vulkan-tools) expected_repo="termux-main" ;;
+      dbus|pulseaudio|python|proot-distro|vulkan-tools|clang|cmake|gdb|make|pkg-config) expected_repo="termux-main" ;;
       *) expected_repo="termux-x11" ;;
     esac
     candidate="$(_nt_package_candidate_from_official_repo "$package" "$expected_repo")" || {
@@ -381,13 +478,16 @@ PYRECORD
 nt_cmd_install() {
   # `bin/tx` consumes --verbose as a global flag before dispatch, so carry its
   # value into this command as well as accepting the direct helper argument.
-  local apply=0 consent=0 update=0 verbose="${TERNUXX_VERBOSE:-0}" arg plan_id=""
+  local apply=0 consent=0 update=0 interactive=0 profile="full-native" profile_set=0 components="" verbose="${TERNUXX_VERBOSE:-0}" arg plan_id=""
   while [ $# -gt 0 ]; do
     arg="$1"; shift
     case "$arg" in
       --yes) apply=1; consent=1 ;;
       --update) update=1 ;;
       --verbose) verbose=1 ;;
+      --interactive|interactive) interactive=1 ;;
+      --profile) [ $# -gt 0 ] || { nt_fail "--profile needs a named preset."; return 2; }; profile="$1"; profile_set=1; shift ;;
+      --components) [ $# -gt 0 ] || { nt_fail "--components needs comma-separated component groups."; return 2; }; components="$1"; shift ;;
       preview) ;;
       update) update=1 ;;
       apply)
@@ -400,6 +500,17 @@ nt_cmd_install() {
     esac
   done
 
+  if [ "$interactive" = "1" ]; then
+    [ "$profile_set" = "0" ] && [ -z "$components" ] && [ "$update" = "0" ] && [ "$apply" = "0" ] || {
+      nt_fail "Interactive selection is preview-only; do not combine it with a profile, components, update, or apply."; return 2;
+    }
+    _nt_choose_install_profile || return $?
+  else
+    _nt_select_install_profile "$profile" "$components" || return $?
+  fi
+  if [ "$update" = "1" ] && { [ "$profile" != "full-native" ] || [ "$profile_set" = "1" ] || [ -n "$components" ]; }; then
+    nt_fail "Package updates use the fixed Ternuxx core set; install profiles apply only to initial setup."; return 2
+  fi
   nt_require_termux || return 1
   if [ "$consent" = "1" ] && [ -z "$plan_id" ]; then
     nt_fail "Apply requires the ID from a saved preview: run 'tx install --preview' or 'tx install --update --preview', review it, then pass --yes --plan-id ID."
@@ -435,13 +546,14 @@ nt_cmd_install() {
     if [ "$update" = "1" ]; then
       nt_ok "No applicable Ternuxx core package updates are available from the selected official repositories."
     else
-      nt_ok "Ternuxx base workstation packages are already installed."
+      nt_ok "Ternuxx profile $_NT_ACTIVE_PROFILE packages are already installed."
+      nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
     fi
     if [ "$TERNUXX_JSON" = "1" ]; then
       if [ "$update" = "1" ]; then
         printf '{"install":"up_to_date","packages_changed":false}\n'
       else
-        printf '{"install":"already_installed","packages_changed":false}\n'
+        printf '{"install":"already_installed","profile":"%s","skipped_components":"%s","packages_changed":false}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS"
       fi
     fi
     return 0
@@ -451,7 +563,9 @@ nt_cmd_install() {
     if [ "$update" = "1" ]; then
       nt_info "Ternuxx Native core package update preview (official Termux repositories only):"
     else
-      nt_info "Ternuxx base workstation package preview (official Termux repositories only):"
+      nt_info "Ternuxx Native package profile: $_NT_ACTIVE_PROFILE"
+      nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
+      nt_info "Ternuxx package preview (official Termux repositories only):"
     fi
     printf '  %s\n' "${_NT_PLAN_VERSIONS[@]}"
     nt_info "Resolved APT transaction (all changed packages, including dependencies):"
@@ -480,6 +594,8 @@ nt_cmd_install() {
       [ "$update" = "1" ] && operation_label="update"
       nt_info "Native package $operation_label preview"
       nt_info "Requested packages: ${#_NT_PLAN_VERSIONS[@]} · Resolved changes: ${#_NT_PLAN_TRANSACTION[@]}"
+      nt_info "Profile: $_NT_ACTIVE_PROFILE"
+      nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
       nt_info "Scope: official Termux repositories; no removals, recommendations, or unrelated upgrades."
       nt_info "Preview only; no package changes have been made."
       nt_info "Run 'tx install $([ "$update" = "1" ] && printf 'update ')preview --verbose' to review package versions and the full APT simulation."
@@ -487,8 +603,12 @@ nt_cmd_install() {
     nt_info "Preview ID: $plan_id"
     if [ "$update" = "1" ]; then
       nt_info "Apply after review: tx install update apply $plan_id"
-    else
+    elif [ "$_NT_ACTIVE_PROFILE" = "full-native" ]; then
       nt_info "Apply after review: tx install apply $plan_id"
+    elif [ "$_NT_ACTIVE_PROFILE" = "custom" ]; then
+      nt_info "Apply after review: tx install apply --profile custom --components $_NT_ACTIVE_COMPONENTS --yes --plan-id $plan_id"
+    else
+      nt_info "Apply after review: tx install apply --profile $_NT_ACTIVE_PROFILE --yes --plan-id $plan_id"
     fi
     if [ "$TERNUXX_JSON" = "1" ]; then
       local package_json
@@ -498,7 +618,7 @@ nt_cmd_install() {
       if [ "$update" = "1" ]; then
         printf '{"install":"update_preview","plan_id":"%s","packages":%s,"transaction":%s}\n' "$plan_id" "$package_json" "$transaction_json"
       else
-        printf '{"install":"preview","plan_id":"%s","packages":%s,"transaction":%s}\n' "$plan_id" "$package_json" "$transaction_json"
+        printf '{"install":"preview","profile":"%s","skipped_components":"%s","plan_id":"%s","packages":%s,"transaction":%s}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS" "$plan_id" "$package_json" "$transaction_json"
       fi
     fi
     return 0
@@ -521,7 +641,8 @@ nt_cmd_install() {
     return 1
   fi
   if [ ${#_NT_PLAN_PACKAGES[@]} -eq 0 ]; then
-    nt_ok "Ternuxx base workstation packages are already installed."
+    nt_ok "Ternuxx profile $_NT_ACTIVE_PROFILE packages are already installed."
+    nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
     return 0
   fi
 
@@ -540,7 +661,7 @@ nt_cmd_install() {
   if [ "$update" = "1" ]; then
     nt_ok "The reviewed Ternuxx core package update completed."
   else
-    nt_ok "Ternuxx base workstation packages installed. The Termux:X11 Android app still must be installed separately if absent."
+    nt_ok "Ternuxx Native profile $_NT_ACTIVE_PROFILE installed. The Termux:X11 Android app still must be installed separately if absent."
   fi
   if [ "$TERNUXX_JSON" = "1" ]; then
     local package_json
@@ -550,7 +671,7 @@ nt_cmd_install() {
     if [ "$update" = "1" ]; then
       printf '{"install":"updated","packages":%s,"transaction":%s}\n' "$package_json" "$transaction_json"
     else
-      printf '{"install":"complete","packages":%s,"transaction":%s}\n' "$package_json" "$transaction_json"
+      printf '{"install":"complete","profile":"%s","skipped_components":"%s","packages":%s,"transaction":%s}\n' "$_NT_ACTIVE_PROFILE" "$_NT_ACTIVE_SKIPPED_COMPONENTS" "$package_json" "$transaction_json"
     fi
   fi
   return 0
