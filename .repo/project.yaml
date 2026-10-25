@@ -44,4 +44,4 @@ last_failed_build:
 sync:
   status: ok
   last_synced_at: '2026-10-25T18:26:50Z'
-  source: ci
+  source: local

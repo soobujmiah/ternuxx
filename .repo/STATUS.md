@@ -18,5 +18,5 @@
 ## Sync
 
 - Status: ok
-- Source: ci
+- Source: local
 - Last synced at: 2026-10-25T18:26:50Z

@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "3de4e02d359954201f85256e87c60c3e37c45d9e92869d7a5a0d894978c08eac",
+      "sha256": "c961834aaf591f35033081cba32d224b312a83dd2bf78e6373430a3d0352123a",
       "lines": 36,
       "read_status": "pending",
       "read_sha256": null
@@ -3427,8 +3427,8 @@
     {
       "path": "docs/evidence/2026-10-25-debian-desktop-catalog-extension.md",
       "kind": "narrative",
-      "sha256": "b20f4bb74c0fdd48631a8e7dddc44ea74aa7f8f5b4bd81759f249648ea2f7185",
-      "lines": 115,
+      "sha256": "4e04ce391399c3aa4ad884beb47d9342df00603376f7d2814ff936fadec4b734",
+      "lines": 135,
       "read_status": "pending",
       "read_sha256": null
     },

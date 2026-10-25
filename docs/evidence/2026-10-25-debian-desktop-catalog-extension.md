@@ -113,3 +113,23 @@ The `dbus-run-session` run logged repeated failures to activate `org.freedesktop
 The installed Debian Plasma source documents `plasma_session` as the non-systemd fallback and sequences KCM init, `kded6`, the X11 window manager, and KSMServer in order: [Plasma startup notes](https://sources.debian.org/src/plasma-workspace/4%3A6.3.6-2/startkde/README.md/) and [startup.cpp](https://sources.debian.org/src/plasma-workspace/4%3A6.3.6-2/startkde/plasma-session/startup.cpp/). This source matches the observed transition from completed KCM init to the absent window-manager process, but does not alone identify why that job stalls in this PRoot session. No Plasma pass is claimed.
 
 The experiment was stopped cleanly. Final state: Native XFCE `:1` running; nested `:2` absent; standalone `:0` stopped; managed PRoot sessions empty.
+
+## 2026-10-25 18:32 UTC fresh live matrix: nested `:2` and standalone `:0`
+
+I retested all four desktop launchers installed in the Debian guest. Nested sessions ran through Xephyr `:2` while Native XFCE stayed live on `:1`. For the standalone matrix, I stopped only the Ternuxx-owned Native desktop, ran each managed PRoot desktop on `:0`, then stopped the guest session and restored Native XFCE. I waited for slow desktop startup before classifying it and queried the Debian user's X root tree.
+
+Nested `:2` results:
+
+- XFCE passed on the final delayed recheck: `xfce4-session`, `xfwm4`, `xfce4-panel`, and `xfdesktop` were live; the X tree showed the 752x27 top panel, 306x49 bottom panel, and 752x1579 desktop surface. Xephyr startup reported a Zink/Vulkan GLES context on Adreno 825 Turnip. DRI3 remained unavailable; nested GLX is not established.
+- GNOME failed: the full-screen `gnome-session-failed` window remained after startup; no usable GNOME shell was verified.
+- Plasma failed: after about 35 seconds, only `startplasma-x11` and `plasma_session` remained. KWin, KSMServer, `plasmashell`, panel, and desktop surfaces did not appear; logs again showed GLX setup failures.
+- Cinnamon failed: the X tree showed the `Cinnamon just crashed` dialog; no Cinnamon shell or panel was present.
+
+Standalone `:0` results:
+
+- XFCE passed: `xfce4-session`, `xfwm4`, `xfce4-panel`, and `xfdesktop` were live; the X tree showed the 752x27 top panel, 306x49 bottom panel, and 752x1630 desktop surface.
+- GNOME failed: the full-screen `gnome-session-failed` window remained after 18 seconds; no usable GNOME shell was verified.
+- Plasma passed after a slow startup (about 45 seconds): KWin, KSMServer, and `plasmashell` were live; the X tree showed a 752x56 panel and 752x1630 desktop surface.
+- Cinnamon remained partial: Cinnamon and Nemo were live and the X tree showed Nemo's 752x1590 desktop surface, but no panel appeared.
+
+The nested launcher printed a Zink/Vulkan Adreno 825 Turnip GLES context string. This confirms context/device selection only; this run did not measure application rendering or Android frame presentation. `gui_visible` remains unknown. Native XFCE was restored and verified running on `:1`; `:0` and `:2` were stopped/absent afterward, and `tx proot sessions list` was empty. No package install, guest reset, or password entry occurred.
