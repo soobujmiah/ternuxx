@@ -271,6 +271,7 @@ bash -c "$runner" _ status
         result = subprocess.run(["bash", "-c", command], env=env,
                                 text=True, capture_output=True, timeout=12, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Ternuxx-managed; inspect with tx audio status", result.stdout)
         self.assertFalse(marker.exists())
         session = self._state()
         self.assertEqual(session["status"], "running")

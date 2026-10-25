@@ -361,6 +361,95 @@ def _existing_pulseaudio(paths: dict[str, Path]) -> list[int]:
     return found
 
 
+def _runtime_artifact_unchanged(path: Path, expected: os.stat_result) -> None:
+    try:
+        current = path.lstat()
+    except FileNotFoundError as exc:
+        raise PulseError("PulseAudio runtime artifact changed during recovery; artifact was preserved") from exc
+    identity = lambda info: (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_size,
+                             info.st_mtime_ns)
+    if identity(current) != identity(expected):
+        raise PulseError("PulseAudio runtime artifact changed during recovery; artifact was preserved")
+
+
+def _clear_stale_runtime_artifacts(paths: dict[str, Path]) -> None:
+    """Remove only a dead PulseAudio PID/socket pair in the private runtime dir."""
+    pulse_dir = paths["runtime"] / "pulse"
+    try:
+        directory_info = pulse_dir.lstat()
+    except FileNotFoundError:
+        return
+    if (not stat.S_ISDIR(directory_info.st_mode) or directory_info.st_uid != os.getuid()
+            or directory_info.st_mode & 0o077 or pulse_dir.is_symlink()):
+        raise PulseError("PulseAudio runtime directory is unsafe; artifacts were preserved")
+
+    pid_path = pulse_dir / "pid"
+    socket_path = pulse_dir / "native"
+    try:
+        pid_info = pid_path.lstat()
+    except FileNotFoundError:
+        pid_info = None
+    try:
+        socket_info = socket_path.lstat()
+    except FileNotFoundError:
+        socket_info = None
+    if pid_info is None:
+        if socket_info is not None:
+            raise PulseError("PulseAudio socket has no PID owner record; artifact was preserved")
+        return
+    if (not stat.S_ISREG(pid_info.st_mode) or pid_info.st_uid != os.getuid()
+            or pid_info.st_mode & 0o077 or pid_info.st_size > 32):
+        raise PulseError("PulseAudio PID file is unsafe; artifact was preserved")
+    flags = os.O_RDONLY
+    if hasattr(os, "O_NOFOLLOW"):
+        flags |= os.O_NOFOLLOW
+    try:
+        pid_fd = os.open(pid_path, flags)
+        with os.fdopen(pid_fd, "rb") as stream:
+            opened_info = os.fstat(stream.fileno())
+            _runtime_artifact_unchanged(pid_path, pid_info)
+            if (not stat.S_ISREG(opened_info.st_mode) or opened_info.st_uid != os.getuid()
+                    or opened_info.st_ino != pid_info.st_ino or opened_info.st_dev != pid_info.st_dev):
+                raise PulseError("PulseAudio PID file changed during recovery; artifact was preserved")
+            pid_text = stream.read(33)
+            if len(pid_text) > 32:
+                raise PulseError("PulseAudio PID file is oversized; artifact was preserved")
+        pid = int(pid_text.decode("ascii").strip())
+    except (OSError, UnicodeError, ValueError) as exc:
+        raise PulseError("PulseAudio PID file is malformed; artifact was preserved") from exc
+    if pid <= 1:
+        raise PulseError("PulseAudio PID file is invalid; artifact was preserved")
+    process = _proc(pid)
+    if process is not None and process["state"] not in {"Z", "X"}:
+        raise PulseError("PulseAudio PID file refers to a live process; artifacts were preserved")
+
+    if socket_info is not None:
+        if not stat.S_ISSOCK(socket_info.st_mode) or socket_info.st_uid != os.getuid():
+            raise PulseError("PulseAudio native socket is unsafe; artifact was preserved")
+        probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            probe.settimeout(0.25)
+            probe.connect(str(socket_path))
+        except ConnectionRefusedError:
+            pass
+        except OSError as exc:
+            raise PulseError("PulseAudio native socket could not be classified; artifact was preserved") from exc
+        else:
+            raise PulseError("PulseAudio native socket is accepting connections; artifacts were preserved")
+        finally:
+            probe.close()
+        if _proc(pid) is not None:
+            raise PulseError("PulseAudio PID became live during runtime recovery; artifacts were preserved")
+        _runtime_artifact_unchanged(pulse_dir, directory_info)
+        _runtime_artifact_unchanged(socket_path, socket_info)
+        socket_path.unlink()
+    if _proc(pid) is not None:
+        raise PulseError("PulseAudio PID became live during runtime recovery; artifacts were preserved")
+    _runtime_artifact_unchanged(pulse_dir, directory_info)
+    _runtime_artifact_unchanged(pid_path, pid_info)
+    pid_path.unlink()
+
+
 def status() -> dict[str, object]:
     _require_native()
     paths = _native_paths()
@@ -405,6 +494,7 @@ def start() -> dict[str, object]:
             raise PulseError("a Native PulseAudio process exists without a matching Ternuxx record; refusing to start or stop it")
         if _pulse_info(paths):
             raise PulseError("the Native PulseAudio endpoint is already serving without a Ternuxx owner record; refusing to adopt it")
+        _clear_stale_runtime_artifacts(paths)
         if not paths["pulseaudio"].is_file() or not os.access(paths["pulseaudio"], os.X_OK):
             raise PulseError("Native pulseaudio executable is unavailable")
         if not paths["pactl"].is_file() or not os.access(paths["pactl"], os.X_OK):

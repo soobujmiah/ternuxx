@@ -588,6 +588,6 @@ nt_cmd_status() {
     printf '  %-18s %s\n' "XFCE session:" "$desktop_live"
     printf '  %-18s %s\n' "Reconciliation:" "$reason"
     printf '  %-18s %s\n' "GUI visible:" "unknown (open/check Termux:X11)"
-    printf '  %-18s %s\n' "Audio owner:" "external (not managed)"
+    printf '  %-18s %s\n' "Audio owner:" "Ternuxx-managed; inspect with tx audio status"
   fi
 }

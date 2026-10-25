@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 563,
-  "read_count": 171,
+  "document_count": 564,
+  "read_count": 172,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "7ad08c2e59a5dfbbed95f3001d3facd186dcf50185de795406dd325b64d7bc72",
+      "sha256": "ab8ecda1bcf55ef01fdb430f48018ac42c73ebfc8bfb2d5ead49d1bb52644e25",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "7ad08c2e59a5dfbbed95f3001d3facd186dcf50185de795406dd325b64d7bc72"
+      "read_sha256": "ab8ecda1bcf55ef01fdb430f48018ac42c73ebfc8bfb2d5ead49d1bb52644e25"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -3551,6 +3551,14 @@
       "lines": 21,
       "read_status": "read",
       "read_sha256": "2fddf4d583c9cf5b9f244f79ac2feefb134572b0a48c416aac1a19feaf2fcfc9"
+    },
+    {
+      "path": "docs/evidence/2026-10-26-desktop-cleanup-and-pulse-recovery.md",
+      "kind": "narrative",
+      "sha256": "55e6373c24ff168012a7942d516ab22666650fe29db478122b1597b0af70aea1",
+      "lines": 28,
+      "read_status": "read",
+      "read_sha256": "55e6373c24ff168012a7942d516ab22666650fe29db478122b1597b0af70aea1"
     },
     {
       "path": "docs/evidence/P0-foundation.md",

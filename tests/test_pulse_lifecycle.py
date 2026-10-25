@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 import stat
+import socket
 import subprocess
 import sys
 import tempfile
@@ -149,6 +150,65 @@ class PulseLifecycleTests(unittest.TestCase):
             link.chmod(0o644)
             with self.assertRaises(pulse_lifecycle.PulseError):
                 pulse_lifecycle._record_read(link)
+
+    def test_runtime_recovery_removes_only_dead_private_pid_and_socket_pair(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = Path(directory) / "runtime"
+            pulse = runtime / "pulse"
+            pulse.mkdir(parents=True, mode=0o700)
+            runtime.chmod(0o700)
+            pulse.chmod(0o700)
+            pid_file = pulse / "pid"
+            pid_file.write_text("2147483647\n")
+            pid_file.chmod(0o600)
+            socket_path = pulse / "native"
+            listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            listener.bind(str(socket_path))
+            listener.close()
+
+            pulse_lifecycle._clear_stale_runtime_artifacts({"runtime": runtime})
+
+            self.assertFalse(pid_file.exists())
+            self.assertFalse(socket_path.exists())
+
+    def test_runtime_recovery_preserves_socket_without_pid_owner_record(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = Path(directory) / "runtime"
+            pulse = runtime / "pulse"
+            pulse.mkdir(parents=True, mode=0o700)
+            runtime.chmod(0o700)
+            pulse.chmod(0o700)
+            socket_path = pulse / "native"
+            listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            listener.bind(str(socket_path))
+            listener.close()
+
+            with self.assertRaisesRegex(pulse_lifecycle.PulseError, "no PID owner"):
+                pulse_lifecycle._clear_stale_runtime_artifacts({"runtime": runtime})
+
+            self.assertTrue(socket_path.exists())
+
+    def test_runtime_recovery_preserves_artifacts_when_pid_is_live(self):
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = Path(directory) / "runtime"
+            pulse = runtime / "pulse"
+            pulse.mkdir(parents=True, mode=0o700)
+            runtime.chmod(0o700)
+            pulse.chmod(0o700)
+            pid_file = pulse / "pid"
+            pid_file.write_text("4242\n")
+            pid_file.chmod(0o600)
+            socket_path = pulse / "native"
+            listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+            listener.bind(str(socket_path))
+            listener.close()
+
+            with patch.object(pulse_lifecycle, "_proc", return_value={"state": "S"}):
+                with self.assertRaisesRegex(pulse_lifecycle.PulseError, "live process"):
+                    pulse_lifecycle._clear_stale_runtime_artifacts({"runtime": runtime})
+
+            self.assertTrue(pid_file.exists())
+            self.assertTrue(socket_path.exists())
 
     def test_start_refuses_a_second_lifecycle_operation_while_lock_is_held(self):
         with tempfile.TemporaryDirectory() as directory:
