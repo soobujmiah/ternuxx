@@ -1,0 +1,7 @@
+event_id: commit-19e9fb03f930-a0fd35564dc7875d
+repository: soobujmiah/ternuxx
+commit: 19e9fb03f930c87d4010968500b27366b804b8f3
+kind: commit
+occurred_at: '2026-10-26T10:13:40Z'
+status: completed
+summary: 'feat(proot): expose managed install profile catalog'
