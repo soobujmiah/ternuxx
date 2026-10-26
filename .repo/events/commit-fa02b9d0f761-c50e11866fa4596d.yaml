@@ -1,0 +1,7 @@
+event_id: commit-fa02b9d0f761-c50e11866fa4596d
+repository: soobujmiah/ternuxx
+commit: fa02b9d0f76173adb54beb6624a6e8194cce6db0
+kind: commit
+occurred_at: '2026-10-26T11:21:28Z'
+status: completed
+summary: 'fix(p12): capture exact Ubuntu host dependency owners'
