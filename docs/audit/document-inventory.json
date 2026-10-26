@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 593,
-  "read_count": 187,
+  "document_count": 594,
+  "read_count": 189,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "17fcf50c14cba69ec86bfc7c9d36478a36ffac9863f99be121f700b164018158",
-      "lines": 85,
+      "sha256": "fe1bcea74298b8eb545fec62eb2bc0ab8ffa5e4937a9e41d9a51355773f0d2ec",
+      "lines": 100,
       "read_status": "read",
-      "read_sha256": "17fcf50c14cba69ec86bfc7c9d36478a36ffac9863f99be121f700b164018158"
+      "read_sha256": "fe1bcea74298b8eb545fec62eb2bc0ab8ffa5e4937a9e41d9a51355773f0d2ec"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "8d9fc17380c613fd16eba7982b85c4505efe31c6f793fe5742d370d91c6b3f82",
-      "lines": 127,
+      "sha256": "8777fec6686e5c317258f4cf3fa80759e9c16ef48a0e2fd3ba0fd728696be2b5",
+      "lines": 136,
       "read_status": "read",
-      "read_sha256": "8d9fc17380c613fd16eba7982b85c4505efe31c6f793fe5742d370d91c6b3f82"
+      "read_sha256": "8777fec6686e5c317258f4cf3fa80759e9c16ef48a0e2fd3ba0fd728696be2b5"
     },
     {
       "path": "SECURITY.md",
@@ -155,10 +155,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "ba29f01a910ccd9ebc93028bae7d12fe25c7db4fe16fdcb66f4cf42a7825506c",
-      "lines": 256,
+      "sha256": "fe1690cde93f7b053cd4f5f229741855e8c56e3f1608a32d1bcd7ff2032c4437",
+      "lines": 316,
       "read_status": "read",
-      "read_sha256": "ba29f01a910ccd9ebc93028bae7d12fe25c7db4fe16fdcb66f4cf42a7825506c"
+      "read_sha256": "fe1690cde93f7b053cd4f5f229741855e8c56e3f1608a32d1bcd7ff2032c4437"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -243,10 +243,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "9e05e88a090f9f23810e812cd27a7897321e903d29e493d9039b3b6fdaedbcf4",
-      "lines": 45,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "f585b6f52577c5b8ab714c3418fe3056b2b2622c78331889d3bd9378ba4bac06",
+      "lines": 62,
+      "read_status": "read",
+      "read_sha256": "f585b6f52577c5b8ab714c3418fe3056b2b2622c78331889d3bd9378ba4bac06"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -3655,6 +3655,14 @@
       "lines": 15,
       "read_status": "pending",
       "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-26-installer-reliability.md",
+      "kind": "narrative",
+      "sha256": "d2dd328e09505d249d1e37e8a712cdf8bc9a28bb7032e60b9c76f3ebf18ae7cd",
+      "lines": 26,
+      "read_status": "read",
+      "read_sha256": "d2dd328e09505d249d1e37e8a712cdf8bc9a28bb7032e60b9c76f3ebf18ae7cd"
     },
     {
       "path": "docs/evidence/2026-10-26-managed-guest-desktop-shortcut-routing.md",

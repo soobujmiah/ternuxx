@@ -38,6 +38,10 @@ def main(argv: list[str]) -> int:
         print("Typed management action required.", file=sys.stderr)
         return 2
     action = argv[0]
+    if action == "installer-open" and len(argv) == 2 and argv[1] in {"workstation", "gpu"}:
+        result = call("installer.open", {"target": argv[1]})
+        print(management_presentation.format_report(result))
+        return 0 if result.get("ok") else 1
     if action == "terminal-service-status" and len(argv) == 1:
         service = call("terminal.broker.service.status")
         broker = call("terminal.broker.status")

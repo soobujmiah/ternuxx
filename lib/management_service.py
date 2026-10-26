@@ -61,11 +61,13 @@ import proot_sessions
 import proot_diagnostics
 import proot_guest_retirement as retire_fresh_guest
 import proot_shortcuts
+import installer_launch
 
 
 
 API_VERSION = 1
 OPERATIONS = {
+    "installer.open": {"args": {"target"}},
     "management.catalog": {"args": {"category", "query", "status"}},
     "management.logs.list": {"args": set()},
     "management.logs.read": {"args": {"source_id", "limit"}},
@@ -272,6 +274,8 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
         return _error(request_id, "invalid_arguments", "operation arguments are invalid")
     if caller != "local_cli":
         return _error(request_id, "unauthorized", "this local backend accepts only its trusted CLI adapter")
+    if operation == "installer.open" and (set(args) != {"target"} or args.get("target") not in installer_launch.TARGETS):
+        return _error(request_id, "invalid_arguments", "choose workstation or gpu setup")
     if operation == "software.app.run" and (
             set(args) != {"app_id", "path"} or args.get("app_id") != "directory-tree"
             or not isinstance(args.get("path"), str)):
@@ -437,7 +441,12 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
         return _error(request_id, "configuration_missing", "HOME and the native state directory must be configured")
 
     try:
-        if operation == "agent.hermes.status":
+        if operation == "installer.open":
+            try:
+                data = installer_launch.open_terminal(args["target"], home=home, prefix=process_env["PREFIX"])
+            except (OSError, ValueError) as exc:
+                return _error(request_id, "installer_handoff_failed", str(exc))
+        elif operation == "agent.hermes.status":
             data = hermes_adapter.inspect(prefix=process_env["PREFIX"], home=home)
         elif operation == "timezone.status":
             data = timezone_support.status(state_dir or os.path.join(home, ".local/share/ternuxx"),

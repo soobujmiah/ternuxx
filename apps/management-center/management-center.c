@@ -2174,6 +2174,12 @@ static void save_monitor(GtkButton *button, gpointer data) {
         interval,effective_unit,gtk_check_button_get_active(GTK_CHECK_BUTTON(c->monitor_focus))?"true":"false",
         gtk_check_button_get_active(GTK_CHECK_BUTTON(c->monitor_launch))?"true":"false");
 }
+static void open_shared_installer(GtkButton *button, gpointer data) {
+    Center *c = data;
+    const gchar *target = g_object_get_data(G_OBJECT(button), "installer-target");
+    run_bridge(c, "installer-open", target, NULL, NULL, NULL, NULL);
+}
+
 static gboolean active(GtkApplication *app, gpointer user_data) {
     (void)user_data; Center *c=g_new0(Center,1); app_center=c;
     c->categories=g_ptr_array_new_with_free_func(g_free); c->resources=g_ptr_array_new_with_free_func(resource_free);
@@ -2186,6 +2192,15 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     g_object_unref(theme);
     GtkWidget *root=gtk_box_new(GTK_ORIENTATION_VERTICAL,10); gtk_widget_set_margin_top(root,8); gtk_widget_set_margin_bottom(root,8); gtk_widget_set_margin_start(root,8); gtk_widget_set_margin_end(root,8); gtk_window_set_child(GTK_WINDOW(c->window),root);
     GtkWidget *heading=gtk_label_new("TERNUXX  ·  MANAGEMENT CENTER"); gtk_widget_add_css_class(heading,"title-1"); gtk_widget_set_halign(heading,GTK_ALIGN_START); gtk_box_append(GTK_BOX(root),heading);
+    GtkWidget *setup_actions=gtk_box_new(GTK_ORIENTATION_HORIZONTAL,8);
+    GtkWidget *setup_button=gtk_button_new_with_label("Install / extend workstation");
+    GtkWidget *gpu_setup_button=gtk_button_new_with_label("Graphics / sound setup");
+    g_object_set_data(G_OBJECT(setup_button),"installer-target","workstation");
+    g_object_set_data(G_OBJECT(gpu_setup_button),"installer-target","gpu");
+    g_signal_connect(setup_button,"clicked",G_CALLBACK(open_shared_installer),c);
+    g_signal_connect(gpu_setup_button,"clicked",G_CALLBACK(open_shared_installer),c);
+    gtk_box_append(GTK_BOX(setup_actions),setup_button); gtk_box_append(GTK_BOX(setup_actions),gpu_setup_button);
+    gtk_box_append(GTK_BOX(root),setup_actions);
     GtkWidget *paned=gtk_paned_new(GTK_ORIENTATION_HORIZONTAL); gtk_widget_set_vexpand(paned,TRUE); gtk_box_append(GTK_BOX(root),paned);
     c->category_list=gtk_list_box_new(); gtk_widget_set_size_request(c->category_list,155,-1); gtk_list_box_set_selection_mode(GTK_LIST_BOX(c->category_list),GTK_SELECTION_SINGLE); gtk_paned_set_start_child(GTK_PANED(paned),c->category_list);
     GtkWidget *middle=gtk_paned_new(GTK_ORIENTATION_VERTICAL); GtkWidget *center=gtk_box_new(GTK_ORIENTATION_VERTICAL,8); gtk_widget_set_size_request(center,-1,180); c->search=gtk_search_entry_new(); gtk_search_entry_set_placeholder_text(GTK_SEARCH_ENTRY(c->search),"Search resources"); gtk_box_append(GTK_BOX(center),c->search); c->resource_list=gtk_list_box_new(); gtk_list_box_set_selection_mode(GTK_LIST_BOX(c->resource_list),GTK_SELECTION_SINGLE); GtkWidget *scroll=gtk_scrolled_window_new(); gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scroll),c->resource_list); gtk_widget_set_vexpand(scroll,TRUE); gtk_box_append(GTK_BOX(center),scroll); gtk_paned_set_start_child(GTK_PANED(middle),center);

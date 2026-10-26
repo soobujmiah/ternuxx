@@ -4,6 +4,21 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Installer crash and reliability follow-up — 2026-10-26
+
+The reported post-package `KeyError: 'changed'` came from reading the CLI shim's
+`{ok, data}` response as a flat object. The wizard now validates that real envelope;
+regression coverage uses the actual shim preview/apply in an isolated prefix.
+Guided setup adds a persistent terminal frame, early guest credential collection,
+bounded verified-download retries, a single-session lock, package/storage preflight
+and a private redacted result summary. Existing client management is reused for
+fixed terminal installer handoff, with explicit Android opt-in/manual fallback.
+See the [installation guide](docs/INSTALLATION.md) and
+[implementation evidence](docs/evidence/2026-10-26-installer-reliability.md).
+These are source/fixture changes; the owner's new clean reinstall, sound/rendering
+and rendered Android/Web/GTK acceptance remain pending. No device install or
+service activation was performed during this follow-up.
+
 ## Managed installer revision — 2026-10-26
 
 The owner-requested three-profile keyboard wizard is implemented at `./tx install`
@@ -11,7 +26,7 @@ The owner-requested three-profile keyboard wizard is implemented at `./tx instal
 workstation with PRoot CLI provider, Native Full with DE/app selection, and Native Full + multiple managed
 Debian/Ubuntu guests. Arrow/Space/Enter replace typed profile, DE and distro choices.
 Preparation, full system upgrade, Native packages, CLI shim, graphics selection and
-guest plans have separate confirmation boundaries. Native Full builds the GTK center;
+guest plans have separate confirmation boundaries. All guided profiles build the GTK center and include SSH/service management tools;
 Python/X11 bootstrap stays inside the managed wizard. `tx pgui DE` accepts a desktop
 short name, and the existing auto routing keeps standalone :0 / Native :1 + Xephyr :2.
 XFCE is preferred by default even with multiple installed guest desktops.

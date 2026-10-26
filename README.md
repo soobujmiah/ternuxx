@@ -8,13 +8,17 @@ Ternuxx turns Native Termux into a phone workstation managed with `tx`. Native T
 
 ## Install
 
-Install the official Termux:X11 repository and Git, then clone Ternuxx:
+From an attached Native Termux terminal, bootstrap the canonical checkout and open the managed installer:
 
 ```sh
-pkg update && pkg install git x11-repo && pkg update
-git clone https://github.com/soobujmiah/ternuxx.git "$HOME/ternuxx"
-cd "$HOME/ternuxx"
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternuxx/main/install.sh | sh
+# Alternatively:
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternuxx/main/install.sh | sh
 ```
+
+The bootstrap prepares Git/locking prerequisites if missing and fast-forwards a clean
+canonical checkout. It refuses unrelated or locally modified directories. Read
+[install.sh](install.sh) before running it if you want to inspect the bootstrap.
 
 Start the managed installer directly from this checkout:
 
@@ -31,13 +35,13 @@ audio, graphics tools, selectable desktops/apps), and **Native Full + PRoot**
 The wizard confirms repository preparation (`pkg update`, official X11 and Python
 bootstrap), previews a separately confirmed system upgrade, and applies the exact
 reviewed Native package selection. It also installs the checkout-backed `tx` shim.
-Native Full builds the GTK management center. GPU backend selection is probed and
+Every guided profile includes the GTK management center and SSH/service management tools. Services start only through a separate explicit action. GPU backend selection is probed and
 confirmed separately; installed drivers are not proof of acceleration. The matching
 Termux:X11 Android app is installed/opened separately.
 
 Native DEs are XFCE, MATE and Plasma; managed guests are Debian Trixie and Ubuntu
 Noble. Select multiple DEs, apps or distros with Space. Guest usernames and hidden
-passwords remain text inputs. A Writer-only Native package is unavailable; the
+passwords remain text inputs and are collected before bulk installation. A Writer-only Native package is unavailable; the
 wizard does not substitute the monolithic LibreOffice suite. Guest setup offers
 Writer-only and other optional apps after DE selection; the clean/base profile keeps
 its managed CPU rendering, graphics and audio setup.
@@ -48,6 +52,11 @@ Later additions use `tx install xfce` (or `mate`/`plasma`) and
 a desktop. Guest selectors include a CLI-only option; current backend choices stay
 the default, and a clean Native host gets a Zink recommendation only after a Vulkan probe. Existing guests get
 preview-bound DE/app additions, preserving their rootfs and accounts.
+
+The installer keeps device information, progress and elapsed time visible while its
+content pane scrolls. It checks package state/free space and refuses a second guided
+installer without stopping the first. Transient downloads have bounded retries;
+integrity failures stop. See the guide for recovery and diagnostic details.
 
 Automation retains `./tx install preview --profile NAME` and exact-plan apply;
 see the [installation guide](docs/INSTALLATION.md).

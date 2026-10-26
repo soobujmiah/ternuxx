@@ -43,3 +43,20 @@ Follow the active P12 next action above while continuing the owner-authorized cl
 - The full test harness, document/link audit, and Native live checks pass, with limitations recorded.
 
 Public release additionally requires a selected license, provenance review, and owner acceptance of the release artifact.
+
+
+## Owner-approved distribution and ecosystem follow-up
+
+The current scope ships checkout bootstrap and consolidated operating guidance.
+Release artifact packaging remains planned: reproducible versioned archives,
+checksums, provenance/SBOM, license resolution, compatibility matrix and CI/owner
+acceptance before public publication. No release artifact is published by bootstrap.
+The separate Ternux repository remains independent and unchanged.
+
+Extend server templates and lifecycle through the existing shared management
+service, with management tools available by default and each service activation an
+explicit action. Broader server provisioning is planned, not implied by installation
+of SSH/runit tools. Continue AI runtime/provider qualification against exact CPU,
+Vulkan and experimental HTP workload evidence; installed drivers alone do not qualify
+acceleration. Track clean-device installer acceptance and cross-client handoff before
+claiming reproducible device installation.

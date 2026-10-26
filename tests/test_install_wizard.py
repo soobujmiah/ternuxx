@@ -110,6 +110,56 @@ _nt_gpu_setup "{ROOT}"
         self.assertNotIn('termux-zink|', options)
         self.assertIn('No accelerated backend is advertised', out)
 
+    def test_entrypoint_uses_real_preview_envelope_and_handles_reinstall(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            prefix = Path(tmp) / 'prefix'
+            (prefix / 'bin').mkdir(parents=True)
+            home = Path(tmp) / 'home'
+            home.mkdir()
+            script = f'''source "{ROOT}/lib/phases.sh"
+source "{ROOT}/lib/install_wizard.sh"
+_nt_confirm() {{ return 0; }}
+_nt_wizard_entrypoint "{ROOT}" || exit $?
+_nt_wizard_entrypoint "{ROOT}"
+'''
+            result = subprocess.run(['bash', '-c', script], capture_output=True, text=True,
+                env={**os.environ, 'PREFIX': str(prefix), 'HOME': str(home),
+                      'TERNUXX_JSON': '0', 'TERNUXX_QUIET': '0'})
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual((prefix / 'bin/tx').read_bytes(), (ROOT / 'scripts/tx-installed').read_bytes())
+            self.assertIn('already current', result.stderr)
+            self.assertNotIn('KeyError', result.stderr)
+
+    def test_fixed_window_keeps_brand_system_header_and_restores_terminal(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            script = f'''source "{ROOT}/lib/phases.sh"
+source "{ROOT}/lib/install_wizard.sh"
+export HOME="{tmp}" TERNUXX_STATE_DIR="{tmp}/state"
+stty rows 28 cols 90
+_nt_install_preflight() {{ :; }}
+_nt_window_snapshot() {{
+  _NT_WINDOW_DEVICE=FixturePhone; _NT_WINDOW_ANDROID=16; _NT_WINDOW_SOC=FixtureCPU
+  _NT_WINDOW_ABI=aarch64; _NT_WINDOW_RAM='8 GiB'; _NT_WINDOW_STORAGE='90 GiB'
+  _NT_WINDOW_GPU='/dev/kgsl-fixture (readable)'; _NT_WINDOW_AUDIO='PulseAudio installed'
+  _NT_WINDOW_KERNEL=fixture
+}}
+scenario() {{
+  _nt_window_stage '1/7 | Fixture stage' 'Next: fixture choices'
+  _nt_pick 'Choose your workstation' single '' 'minimal|Shared management'
+}}
+_nt_window_session scenario
+'''
+            rc, out = self.terminal(script, b'\n\n')
+        self.assertEqual(rc, 0, out)
+        for text in ('Ternuxx | Mobile workstation', 'Your phone. Your workstation.',
+                     'FixturePhone', '/dev/kgsl-fixture', 'PulseAudio installed',
+                     'Choose your workstation', 'Copyright (c) 2026 Sobuj Miah',
+                     '1/7 | Fixture stage'):
+            self.assertIn(text, out)
+        self.assertEqual(out.count('\x1b[?1049h'), 1)
+        self.assertEqual(out.count('\x1b[?1049l'), 1)
+        self.assertIn('\x1b[r', out)
+
     def test_no_terminal_refuses_before_package_actions(self):
         result = subprocess.run(['bash', str(ROOT / 'tx'), 'install'],
                                 capture_output=True, text=True)
@@ -132,6 +182,8 @@ _nt_pick() {{
   esac
 }}
 _nt_wizard_prepare() {{ echo PREPARE; }}
+_nt_wizard_upgrade() {{ echo UPGRADE; }}
+_nt_collect_guest() {{ echo COLLECT="$1"; }}
 _nt_wizard_native() {{ echo PACKAGES="$1"; }}
 _nt_wizard_entrypoint() {{ echo SHIM; }}
 _nt_gpu_setup() {{ echo GPU_MENU; }}
@@ -146,14 +198,14 @@ _nt_install_wizard
         rc, out = self.flow('minimal')
         self.assertEqual(rc, 0, out)
         self.assertIn('PACKAGES=terminal,developer', out)
-        self.assertNotIn('GUI_BUILD', out)
+        self.assertIn('GUI_BUILD', out)
         self.assertNotIn('GUEST=', out)
         self.assertLess(out.index('DEVICE'), out.index('PREPARE'))
 
     def test_native_selects_multiple_desktops_apps_and_management(self):
         rc, out = self.flow('native')
         self.assertEqual(rc, 0, out)
-        self.assertIn('PACKAGES=terminal,developer,proot,audio,graphics,gui,audio,sound-controls,graphics,mate,plasma,browser,pdf', out)
+        self.assertIn('PACKAGES=terminal,developer,proot,audio,graphics,gui,services,gui,audio,sound-controls,graphics,mate,plasma,browser,pdf', out)
         self.assertIn('GUI_BUILD', out)
         self.assertNotIn('GUEST=', out)
 
@@ -198,7 +250,7 @@ env() {{
     *) return 91 ;;
   esac
 }}
-_nt_wizard_prepare
+_nt_wizard_prepare && _nt_wizard_upgrade
 '''
             result = subprocess.run(['bash', '-c', script], capture_output=True, text=True)
             return result, log.read_text() if log.exists() else ''
@@ -224,7 +276,8 @@ _nt_wizard_prepare
     def test_install_shortcuts_dispatch_native_and_guest_without_installing(self):
         with tempfile.TemporaryDirectory() as tmp:
             lib = Path(tmp)
-            (lib / 'install_wizard.sh').write_text('''_nt_install_native_desktop() { echo NATIVE:"$*"; }
+            (lib / 'install_wizard.sh').write_text('''_nt_window_session() { "$@"; }
+_nt_install_native_desktop() { echo NATIVE:"$*"; }
 _nt_install_proot_short() { echo GUEST:"$*"; }
 ''')
             result = subprocess.run(['bash', '-c', f'''source "{ROOT}/lib/phases.sh"

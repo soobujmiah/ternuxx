@@ -9,6 +9,7 @@
 
 # Native host packages include Debian PRoot support, graphical diagnostics, and
 # X11 test utilities. Heavy applications and Mesa providers remain optional.
+declare -gA _NT_GUEST_READY _NT_GUEST_USER _NT_GUEST_SUDO _NT_GUEST_DESKTOPS _NT_GUEST_APPS _NT_GUEST_PASSWORD
 _NT_CORE_PACKAGES=(python)
 _NT_DESKTOP_PACKAGES=(
   termux-x11-nightly dbus xfce4-session xfce4-panel xfce4-settings xfwm4
@@ -20,7 +21,7 @@ _NT_AUDIO_PACKAGES=(pulseaudio)
 _NT_PROOT_PACKAGES=(proot-distro)
 _NT_GRAPHICS_PACKAGES=(glmark2 mesa-demos mesa-vulkan-icd-freedreno vulkan-tools xorg-server-xvfb xdotool)
 _NT_DEVELOPER_PACKAGES=(clang cmake gdb make pkg-config)
-_NT_TERMINAL_PACKAGES=(git openssh curl wget rsync nano vim tmux htop tree unzip zip ripgrep less)
+_NT_TERMINAL_PACKAGES=(util-linux git openssh curl wget rsync nano vim tmux htop tree unzip zip ripgrep less)
 _NT_GUI_PACKAGES=(termux-x11-nightly dbus gtk4 libvte)
 _NT_NESTED_PACKAGES=(xorg-server-xephyr)
 _NT_BASE_PACKAGES=(
@@ -141,6 +142,7 @@ _nt_select_install_profile() {
       IFS=',' read -r -a groups <<< "$components"
       for group in "${groups[@]}"; do
         case "$group" in
+          services) selected+=(termux-services openssh) ;;
           terminal) selected+=("${_NT_TERMINAL_PACKAGES[@]}") ;;
           sound-controls) selected+=(pavucontrol) ;;
           gui) selected+=("${_NT_GUI_PACKAGES[@]}") ;;
@@ -175,7 +177,7 @@ _nt_select_install_profile() {
   _NT_ACTIVE_PROFILE="$profile"
   _NT_ACTIVE_COMPONENTS="$components"
   local -a omitted=()
-  for group in desktop audio proot graphics developer mate plasma terminal gui sound-controls nested guest-display browser music images pdf editor archive video; do
+  for group in desktop audio proot graphics developer mate plasma terminal gui services sound-controls nested guest-display browser music images pdf editor archive video; do
     case "$profile" in
       full-native) [[ "$group" == developer ]] && omitted+=("$group") ;;
       graphical) [[ "$group" == proot || "$group" == developer ]] && omitted+=("$group") ;;
@@ -282,7 +284,7 @@ _nt_make_install_plan() {
       continue
     fi
     case "$package" in
-      dbus|pulseaudio|python|proot-distro|vulkan-tools|mesa-vulkan-icd-freedreno|clang|cmake|gdb|make|pkg-config|git|openssh|curl|wget|rsync|nano|vim|tmux|htop|tree|unzip|zip|ripgrep|less|vlc) expected_repo="termux-main" ;;
+      dbus|pulseaudio|python|proot-distro|vulkan-tools|mesa-vulkan-icd-freedreno|clang|cmake|gdb|make|pkg-config|git|openssh|curl|wget|rsync|nano|vim|tmux|htop|tree|unzip|zip|ripgrep|less|vlc|termux-services|util-linux) expected_repo="termux-main" ;;
       *) expected_repo="termux-x11" ;;
     esac
     candidate="$(_nt_package_candidate_from_official_repo "$package" "$expected_repo")" || {
@@ -485,11 +487,14 @@ PYCHECKPREVIEW
 }
 
 _nt_apply_install_transaction() {
-  if [ "${_NT_PLAN_MODE:-install}" = "update" ]; then
-    env -u LD_LIBRARY_PATH apt-get --assume-yes --no-install-recommends --no-remove install "${_NT_PLAN_TRANSACTION[@]}"
-  else
-    env -u LD_LIBRARY_PATH apt-get --assume-yes --no-install-recommends --no-remove --no-upgrade install "${_NT_PLAN_TRANSACTION[@]}"
+  local -a options=(--assume-yes --no-install-recommends --no-remove)
+  [ "${_NT_PLAN_MODE:-install}" = update ] || options+=(--no-upgrade)
+  if [ "${TERNUXX_WIZARD_ACTIVE:-0}" = 1 ]; then
+    _nt_network_retry 'Exact package download' env -u LD_LIBRARY_PATH apt-get "${options[@]}" --download-only install "${_NT_PLAN_TRANSACTION[@]}" || return $?
+    # APT validates signed index/package hashes; mutation never fetches a different payload.
+    options+=(--no-download)
   fi
+  env -u LD_LIBRARY_PATH apt-get "${options[@]}" install "${_NT_PLAN_TRANSACTION[@]}"
 }
 
 _nt_install_state_dir_safe() {
@@ -582,18 +587,18 @@ nt_cmd_install() {
       shift
       [ $# -eq 0 ] || { nt_fail 'Use tx install gpu with no arguments.'; return 2; }
       . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
-      _nt_install_gpu; return $? ;;
+      _nt_window_session _nt_install_gpu; return $? ;;
     xfce|xfce4|mate|plasma)
       . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
-      _nt_install_native_desktop "$@"; return $? ;;
+      _nt_window_session _nt_install_native_desktop "$@"; return $? ;;
     proot)
       shift
       . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
-      _nt_install_proot_short "$@"; return $? ;;
+      _nt_window_session _nt_install_proot_short "$@"; return $? ;;
   esac
   if [ $# -eq 0 ] || { [ $# -eq 1 ] && [[ "$1" = interactive || "$1" = --interactive ]]; }; then
     . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
-    _nt_install_wizard
+    _nt_window_session _nt_install_wizard
     return $?
   fi
   # `bin/tx` consumes --verbose as a global flag before dispatch, so carry its
@@ -765,7 +770,7 @@ nt_cmd_install() {
     esac
   fi
 
-  if [ "$apply" = "1" ] || [ "$verbose" = "1" ]; then
+  if { [ "$apply" = "1" ] && [ "${TERNUXX_WIZARD_ACTIVE:-0}" != 1 ]; } || [ "$verbose" = "1" ]; then
     if [ "$update" = "1" ]; then
       nt_info "Ternuxx Native core package update preview (official Termux repositories only):"
     else
@@ -905,7 +910,11 @@ nt_cmd_install() {
     _NT_COMBINED_GUEST_PLAN_ID="$guest_plan_id"
     _nt_apply_combined_guest || return $?
   else
-    nt_ok "Ternuxx Native profile $_NT_ACTIVE_PROFILE installed. The Termux:X11 Android app still must be installed separately if absent."
+    if [ "${TERNUXX_WIZARD_ACTIVE:-0}" = 1 ]; then
+      nt_ok 'Native management/workstation components installed.'
+    else
+      nt_ok "Ternuxx Native profile $_NT_ACTIVE_PROFILE installed. The Termux:X11 Android app still must be installed separately if absent."
+    fi
     nt_info "Optional managed Debian/Ubuntu guest: tx install debian or tx install ubuntu (then choose a guest username)."
   fi
   if [ "$combined_guest" != "1" ] && [ "$update" != "1" ] && [ "$TERNUXX_JSON" != "1" ]; then
@@ -972,6 +981,12 @@ PYPROFILE
       *) nt_fail "Unknown ${label} install option: $arg"; return 2 ;;
     esac
   done
+  local password_fd=""
+  if [ "${_NT_USE_COLLECTED:-0}" = 1 ] && [ "${_NT_GUEST_READY[$distro]:-0}" = 1 ]; then
+    user="${_NT_GUEST_USER[$distro]}"; sudo_mode="${_NT_GUEST_SUDO[$distro]}"
+    desktops="${_NT_GUEST_DESKTOPS[$distro]}"; desktops_set=1
+    apps="${_NT_GUEST_APPS[$distro]}"; apps_set=1
+  fi
   if [ "$action" = guided ] && [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] && { [ -e "$PREFIX/var/lib/proot-distro/containers/$distro" ] || [ -L "$PREFIX/var/lib/proot-distro/containers/$distro" ]; }; then
     . "$repo_root/lib/install_wizard.sh"
     _nt_install_guest_addons "$distro" "$desktops" "$apps" "$desktops_set" "$apps_set" "$repo_root"
@@ -1038,7 +1053,15 @@ PYPROFILE
   [[ "$plan_id" =~ ^[0-9a-f]{64}$ ]] || { nt_fail "--plan-id must be the 64-character ID from a $label preview."; return 2; }
   local -a args=(fresh-install --repo-root "$repo_root" --alias "$distro" --user "$user" --sudo-mode "$sudo_mode" --plan-id "$plan_id" --yes)
   [ "${TERNUXX_JSON:-0}" = 1 ] && args+=(--json)
+  if [ "${_NT_USE_COLLECTED:-0}" = 1 ] && [ "${_NT_GUEST_READY[$distro]:-0}" = 1 ] && [ "$sudo_mode" = password ]; then
+    exec {password_fd}< <(printf '%s\n' "${_NT_GUEST_PASSWORD[$distro]}")
+    args+=(--password-fd "$password_fd")
+  fi
   python3 "$repo_root/lib/proot_setup.py" "${args[@]}"
+  local result=$?
+  [ -z "$password_fd" ] || exec {password_fd}<&-
+  unset '_NT_GUEST_PASSWORD[$distro]'
+  return "$result"
 }
 
 _nt_install_debian_guest() { _nt_install_managed_guest debian "$@"; }

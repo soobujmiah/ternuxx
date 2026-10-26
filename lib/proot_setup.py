@@ -945,6 +945,7 @@ def main() -> int:
     parser.add_argument("--apps", help="comma-separated optional guest app IDs for add-on preview")
     parser.add_argument("--groups", help="comma-separated fresh Debian package groups; base is required")
     parser.add_argument("--desktops", help="comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate,plasma,gnome,cinnamon")
+    parser.add_argument("--password-fd", type=int, help="private inherited FD for a pre-collected guest credential; never a password argument")
     parser.add_argument("--sudo-mode", choices=("password", "passwordless"), default="password",
                         help="guest account sudo authentication; passwordless is scoped to the PRoot guest")
     parser.add_argument("--yes", action="store_true")
@@ -953,6 +954,8 @@ def main() -> int:
     if not args.prefix or not args.home or not args.state_dir:
         parser.error("Native Termux PREFIX, HOME, and Ternuxx state directory are required")
     try:
+        if args.password_fd is not None and (args.action != "fresh-install" or args.sudo_mode != "password"):
+            parser.error("--password-fd is only valid for password-mode fresh-install")
         if args.alias is not None and args.action not in {"fresh-preview", "fresh-resume-preview", "fresh-install", "desktop-preview"}:
             parser.error("--alias is supported only by fresh setup or managed add-on preview")
         if args.apps is not None and args.action != "desktop-preview":
@@ -1035,10 +1038,19 @@ def main() -> int:
             if args.sudo_mode == "password":
                 selected_alias = args.alias or "debian"
                 distro_name = "Ubuntu" if selected_alias == "ubuntu" or selected_alias.startswith("ternuxx-replay-ubuntu-") else "Debian"
-                password = getpass.getpass(f"Create sudo password for the selected {distro_name} guest user: ")
-                confirm_password = getpass.getpass("Confirm guest sudo password: ")
-                if password != confirm_password:
-                    raise proot_fresh_setup.FreshSetupError("password entries did not match")
+                if args.password_fd is not None:
+                    if args.password_fd < 3:
+                        raise proot_fresh_setup.FreshSetupError("credential FD must be a private inherited descriptor")
+                    with os.fdopen(os.dup(args.password_fd), "r") as secret:
+                        password = secret.read(4097)
+                    if len(password) > 4096:
+                        raise proot_fresh_setup.FreshSetupError("guest credential is too long")
+                    password = password.removesuffix("\n")
+                else:
+                    password = getpass.getpass(f"Create sudo password for the selected {distro_name} guest user: ")
+                    confirm_password = getpass.getpass("Confirm guest sudo password: ")
+                    if password != confirm_password:
+                        raise proot_fresh_setup.FreshSetupError("password entries did not match")
             result = proot_fresh_setup.apply(repo_root=args.repo_root, prefix=args.prefix,
                                              home=args.home, state_dir=args.state_dir, user=args.user or None,
                                              plan_id=args.plan_id, confirmed=True, password=password,

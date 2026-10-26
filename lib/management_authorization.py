@@ -12,6 +12,7 @@ from collections.abc import Iterable
 # One narrow capability per operation. New application operations must be
 # reviewed here before any non-CLI adapter can expose them.
 OPERATION_CAPABILITIES: dict[str, str] = {
+    "installer.open": "software.manage",
     "management.catalog": "diagnostics.read",
     "proot.status": "diagnostics.read",
     "proot.setup.catalog": "diagnostics.read",

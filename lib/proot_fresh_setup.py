@@ -19,6 +19,9 @@ import subprocess
 import tempfile
 import tarfile
 import urllib.request
+import urllib.error
+import ssl
+import time
 
 
 ALIAS = "debian"
@@ -471,6 +474,31 @@ def _store_artifact(path: Path, content: bytes) -> None:
         raise
 
 
+def _download_archive(request, *, attempts: int = 3) -> bytes:
+    """Retry transport only; callers still verify archive/member hashes before caching."""
+    for attempt in range(attempts):
+        try:
+            chunks, total = [], 0
+            with urllib.request.urlopen(request, timeout=90) as response:
+                while chunk := response.read(1024 * 1024):
+                    total += len(chunk)
+                    if total > 256 * 1024 * 1024:
+                        raise FreshSetupError("graphics archive exceeds the size limit")
+                    chunks.append(chunk)
+            return b"".join(chunks)
+        except urllib.error.HTTPError as exc:
+            if exc.code not in {429, 502, 503, 504} or attempt + 1 == attempts:
+                raise
+        except urllib.error.URLError as exc:
+            if isinstance(exc.reason, ssl.SSLCertVerificationError) or attempt + 1 == attempts:
+                raise
+        except (TimeoutError, ConnectionError):
+            if attempt + 1 == attempts:
+                raise
+        time.sleep(attempt + 1)
+    raise FreshSetupError("verified graphics download did not complete")
+
+
 def _stage_turnip(manifest: dict, artifact_dir: Path) -> tuple[Path, Path]:
     spec = manifest["graphics"]["turnip_archive"]
     artifact_dir.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -490,15 +518,7 @@ def _stage_turnip(manifest: dict, artifact_dir: Path) -> tuple[Path, Path]:
             archive_bytes = _artifact_bytes(archive_path)
         else:
             request = urllib.request.Request(spec["url"], headers={"User-Agent": "Ternuxx/1"})
-            chunks = []
-            total = 0
-            with urllib.request.urlopen(request, timeout=90) as response:
-                while chunk := response.read(1024*1024):
-                    total += len(chunk)
-                    if total > 256*1024*1024:
-                        raise FreshSetupError("graphics archive exceeds the size limit")
-                    chunks.append(chunk)
-            archive_bytes = b"".join(chunks)
+            archive_bytes = _download_archive(request)
             if hashlib.sha256(archive_bytes).hexdigest() != spec["sha256"]:
                 raise FreshSetupError("Turnip archive hash does not match the profile")
             _store_artifact(archive_path, archive_bytes)

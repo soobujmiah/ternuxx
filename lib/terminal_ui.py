@@ -834,7 +834,7 @@ def _footer_layout(width: int) -> list[list[tuple[str, int]]]:
     groups = [
         ("←/→", "category", 2), ("↑/↓", "resource", 2), ("Enter", "status", 1),
         ("1–9/0", "jump", 2), ("PgUp/PgDn", "page", 2),
-        ("H", "history", 3), ("v", "details", 4), ("a", "actions", 1),
+        ("H", "history", 3), ("v", "details", 4), ("a", "actions", 1), ("I", "installer", 1),
         ("r", "refresh", 3), ("q", "quit", 6),
     ]
     rows: list[list[tuple[str, int]]] = [[]]
@@ -1761,6 +1761,10 @@ def _run(screen: "curses._CursesWindow") -> int:
                 categories = list(catalog["categories"])
                 all_resources = sorted(catalog["resources"], key=lambda item: (item["category_id"], item["name"].casefold()))
                 category_index = min(category_index, len(categories) - 1)
+        elif key in (ord("i"), ord("I")):
+            target = _choose(screen, "Install or extend workstation", [("workstation", "Full setup and software"), ("gpu", "Graphics and sound setup")])
+            if target:
+                report = _call("installer.open", {"target": target})
         elif key in (ord("a"), ord("A")) and resources:
             resource = resources[selected]
             if resource["id"] == "graphics.native":

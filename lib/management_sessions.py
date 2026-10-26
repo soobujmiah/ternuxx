@@ -25,6 +25,7 @@ MAX_TOKEN_LENGTH = 256
 # Every known operation must be explicitly classified. Mutations also require
 # the session-specific CSRF proof in a custom header.
 MUTATING_OPERATIONS = frozenset({
+    "installer.open",
     "backup.create",
     "boot.cron.disable",
     "boot.cron.enable",

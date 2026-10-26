@@ -12,8 +12,10 @@ _nt_pick() (
     id="${item%%|*}"
     case ",$defaults," in *",$id,"*) selected+=(1) ;; *) selected+=(0) ;; esac
   done
-  printf '\033[?1049h' >&3
-  trap 'printf "\033[?1049l" >&3' EXIT
+  if [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ]; then
+    printf '\033[?1049h' >&3
+    trap 'printf "\033[?1049l" >&3' EXIT
+  fi
   trap 'exit 130' INT
   trap 'exit 143' TERM HUP
   while :; do
@@ -22,9 +24,19 @@ _nt_pick() (
     [ "$rows" -ge 7 ] || rows=24
     [ "$columns" -ge 10 ] || columns=80
     height=$((rows - 5))
+    if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
+      _nt_window_size
+      height=$((_NT_WINDOW_LOG_LAST - _NT_WINDOW_LOG_FIRST - 2))
+      [ "$height" -gt 0 ] || height=1
+    fi
     [ "$index" -ge "$offset" ] || offset="$index"
     [ "$index" -lt "$((offset + height))" ] || offset=$((index - height + 1))
-    printf '\033[H\033[2J%s\r\nArrow keys: move | Space: select | Enter: continue | Esc: cancel\r\n' "$title" >&3
+    if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
+      _nt_window_content_clear
+    else
+      printf '\033[H\033[2J' >&3
+    fi
+    printf '%s\r\nArrow keys: move | Space: select | Enter: continue | Esc: cancel\r\n' "$title" >&3
     for ((i=offset; i<${#items[@]} && i<offset+height; i++)); do
       mark=' '; [ "${selected[$i]}" = 0 ] || mark=x
       [ "$i" != "$index" ] || printf '\033[7m' >&3

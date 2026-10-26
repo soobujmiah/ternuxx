@@ -11,13 +11,20 @@ Ternuxx runs in Native Termux. Debian PRoot is optional and has a separate pinne
 
 ## Install the Native workstation
 
-Enable the official X11 package source and clone the repository:
+For a new checkout or a clean canonical checkout on `main`, run one of:
 
 ```sh
-pkg update && pkg install git x11-repo && pkg update
-git clone https://github.com/soobujmiah/ternuxx.git "$HOME/ternuxx"
-cd "$HOME/ternuxx"
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternuxx/main/install.sh | sh
+# or
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternuxx/main/install.sh | sh
 ```
+
+The [bootstrap](../install.sh) requires an attached Native Termux terminal. It
+prepares Git and util-linux only when missing, clones the canonical repository or
+fast-forwards a clean `main`, then hands keyboard input to the managed installer.
+It preserves dirty checkouts and unrelated existing targets by refusing them. It
+does not install the Android Termux:X11 APK. To inspect it first, download the script,
+read it, then run it with `sh`.
 
 Run the checkout's managed installer (Python is bootstrapped if missing):
 
@@ -32,7 +39,7 @@ RAM and prefix storage. Three keyboard-driven profiles follow:
 
 - **Minimal:** Python CLI/TUI/Web management plus Git, SSH, transfer/archive tools,
   editors, tmux, process monitoring, search and clang/CMake/GDB/Make build tools.
-- **Native Full:** Minimal plus the GTK management center, audio controls, graphics
+- **Native Full:** Minimal plus selectable desktops, audio controls, graphics
   tools and one or more Native XFCE/MATE/Plasma desktops. Optional apps are Firefox,
   Audacious, Ristretto, Evince, Mousepad, Xarchiver and VLC.
 - **Native Full + PRoot:** the same Native choices plus the PRoot provider/Xephyr
@@ -42,7 +49,12 @@ RAM and prefix storage. Three keyboard-driven profiles follow:
 Use Up/Down to move, Space to toggle selections and Enter to continue. Single-choice
 screens accept the highlighted row with Enter. Esc cancels and restores the terminal.
 Lists scroll on small terminals. No profile number, distro ID or DE ID must be typed.
-Usernames and hidden guest passwords still require text entry. On confirmation
+All profiles include CLI/TUI/Web/GTK management and SSH/service management tools;
+installing tools does not activate SSH or another server. Usernames and hidden guest
+passwords still require text entry. In the complete wizard these, sudo mode, DEs and
+apps are collected before the bulk system upgrade/Native package transaction. Only
+the Python/repository prerequisites precede collection. Passwords are held in memory
+and passed through a private inherited descriptor, never command arguments or logs. On confirmation
 screens, Cancel is highlighted by default; move to Continue and press Enter.
 
 Preparation is explicitly confirmed: refresh signed indexes with `pkg update`, enable
@@ -254,3 +266,51 @@ These steps provision dependencies and configuration. Vulkan enumeration, file
 presence, or a successful installer is not proof of rendered acceleration, audible
 sound, AI inference acceleration or clean-device reproducibility. Bounded workload
 and owner-visible/audio acceptance remain separate checks.
+
+
+## Installer window, checks and recovery
+
+The guided workstation, desktop, guest-shortcut and GPU setup paths share a terminal
+window with a fixed device/CPU/RAM/storage/kernel/runtime header, GPU-node and sound
+availability, current stage, elapsed time and next action. Only choices/logs scroll.
+Use at least 22 terminal rows. GPU-node access and installed audio packages are
+availability hints; verify actual rendering and playback after installation.
+
+Before the guided session changes packages, it acquires a nonblocking installer
+lock, requires at least 32 MiB free on the prefix filesystem and checks `dpkg --audit`.
+The storage floor only protects basic operation; actual DE/rootfs downloads require
+more room and package-manager checks still apply. A competing guided session exits
+without stopping the holder. Package-state failures print inspection instructions;
+the installer does not automatically repair them or remove guests.
+
+Index/download transport failures can retry at most three times. Guided Native
+package application first downloads the exact reviewed versions, then applies with
+`--no-download`; APT verifies cached packages. The pinned graphics archive retries
+the same URL only and retains checksum/member verification. Signature, certificate,
+version or hash failures never select another repository or driver automatically.
+A failed Native transaction offers one explicit resume that previews the remaining
+current package state and requires confirmation again. No package mutation is blindly
+retried. Failed guest transactions retain their journals; use their existing
+`fresh-resume-preview` / exact-plan `fresh-install` recovery API rather than deleting
+or overwriting a partial rootfs. See `python3 lib/proot_setup.py --help` from the checkout.
+
+After an ordinary success/failure, the guided window writes
+`$TERNUXX_STATE_DIR/install-last-result.txt` (default
+`~/.local/share/ternuxx/install-last-result.txt`), mode 0600. It contains exit code,
+stage, elapsed seconds and architecture, excluding passwords, environment and raw
+logs. An interrupted/killed process may not write a final summary. Existing sessions
+and guests remain untouched by preflight and lock handling.
+
+## Open setup from management clients
+
+After base `tx` is installed, TUI (`I`), authenticated Web and GTK offer shared
+workstation/GPU installer actions. They call the same fixed `installer.open`
+operation and open an attached Native terminal; the installer still owns package
+preview and confirmation. Web requires `software.manage` and mutation protection.
+The Android terminal handoff requires the owner's existing
+`allow-external-apps=true` Termux opt-in; see the official
+[RUN_COMMAND intent contract](https://github.com/termux/termux-app/wiki/RUN_COMMAND-Intent).
+Ternuxx does not change this setting. Without it, the client reports the fixed
+`tx install` or `tx install gpu` command to run manually. A handoff request is not
+proof that installation completed. Actual Android handoff/rendered-client acceptance
+remains a device check.

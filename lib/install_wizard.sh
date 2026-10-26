@@ -1,7 +1,11 @@
 # Three-profile guided setup; package changes retain exact-plan apply semantics.
 . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_picker.sh"
+. "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_window.sh"
+. "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_network.sh"
+. "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_preflight.sh"
 
 _nt_install_system_info() {
+  [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ] || return 0
   printf '\n=== Ternuxx installation: detected system ===\n'
   printf 'Device: %s (%s)\n' "$(getprop ro.product.model 2>/dev/null || echo unknown)" "$(getprop ro.product.manufacturer 2>/dev/null || echo unknown)"
   printf 'Android: %s | ABI: %s | Kernel: %s\n' "$(getprop ro.build.version.release 2>/dev/null || echo unknown)" "$(uname -m)" "$(uname -r)"
@@ -18,14 +22,18 @@ _nt_wizard_prepare() {
   # Bootstrap must work before Python exists. No external curl installer.
   nt_info 'Preparation refreshes signed indexes (pkg update), enables official X11 if needed, and installs Python if missing.'
   _nt_confirm 'Prepare official Termux repositories and installer prerequisites?' || return $?
-  env -u LD_LIBRARY_PATH pkg update -y || return $?
+  _nt_network_retry 'Package indexes' env -u LD_LIBRARY_PATH pkg update -y || return $?
   if ! _nt_package_installed x11-repo; then
     env -u LD_LIBRARY_PATH pkg install -y x11-repo || return $?
-    env -u LD_LIBRARY_PATH pkg update -y || return $?
+    _nt_network_retry 'Package indexes' env -u LD_LIBRARY_PATH pkg update -y || return $?
   fi
   if ! command -v python3 >/dev/null 2>&1; then
     env -u LD_LIBRARY_PATH pkg install -y python || return $?
   fi
+  return 0
+}
+
+_nt_wizard_upgrade() {
   # Full system upgrade, unlike the legacy core-only update, is separately
   # previewed, pinned, journaled, and explicitly confirmed in this wizard.
   local simulation fresh package version plan_id
@@ -51,37 +59,68 @@ _nt_wizard_prepare() {
   [ "$fresh" = "$simulation" ] || { nt_fail 'Upgrade changed; restart installation to review it.'; return 1; }
   _nt_reviewed_preview_matches "$plan_id" >/dev/null || return 1
   _nt_write_install_record applying || return 1
-  if ! _nt_apply_install_transaction; then _nt_write_install_record failed; return 1; fi
+  if ! TERNUXX_WIZARD_ACTIVE=1 _nt_apply_install_transaction; then _nt_write_install_record failed; return 1; fi
   _nt_write_install_record applied
 }
 
 _nt_wizard_native() {
   local components="$1" output plan_id status
   # Exact selection is shared with advanced preview/apply, not a second resolver.
-  output="$(TERNUXX_JSON=1 nt_cmd_install preview --profile custom --components "$components")" || return $?
-  printf '%s\n' "$output" | python3 -m json.tool || return 1
+  output="$(TERNUXX_WIZARD_ACTIVE=1 TERNUXX_JSON=1 nt_cmd_install preview --profile custom --components "$components")" || return $?
+  command python3 -c '
+import json, sys
+d=json.load(sys.stdin)
+roots=d.get("packages", [])
+print("Native management/workstation plan")
+print("Requested packages:", len(roots), "| Total package changes:", len(d.get("transaction", [])))
+if roots: print("Includes: " + ", ".join(p.split("=",1)[0] for p in roots))
+if d.get("install") == "already_installed": print("All selected components are already installed.")
+' <<<"$output" || return 1
   status="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["install"])' <<<"$output")" || return 1
   [ "$status" != already_installed ] || return 0
   plan_id="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["plan_id"])' <<<"$output")" || return 1
   _nt_confirm 'Install the displayed Native package selection?' || return $?
   TERNUXX_WIZARD_ACTIVE=1 nt_cmd_install apply --profile custom --components "$components" --yes --plan-id "$plan_id"
+  local result=$?
+  if [ "$result" -ne 0 ] && [ "${_NT_NATIVE_RESUME_DEPTH:-0}" = 0 ]; then
+    nt_warn 'Some stages may have completed. Resume rebuilds and reviews the exact remaining package plan; cached packages are reverified.'
+    if _nt_confirm 'Resume Native setup from current verified package state?'; then
+      _NT_NATIVE_RESUME_DEPTH=1 _nt_wizard_native "$components"
+      return $?
+    fi
+  fi
+  return "$result"
 }
 
 _nt_wizard_entrypoint() {
-  local root="$1" output plan_id changed
-  output="$(python3 "$root/scripts/cli_entrypoint.py" preview)" || return $?
-  changed="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["changed"])' <<<"$output")" || return 1
-  [ "$changed" = True ] || return 0
-  printf '%s\n' "$output"
-  plan_id="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["plan_id"])' <<<"$output")" || return 1
-  _nt_confirm 'Install / update the tx command shim for this checkout?' || return $?
-  python3 "$root/scripts/cli_entrypoint.py" apply --yes --plan-id "$plan_id"
+  local root="$1" output fields plan_id changed target
+  output="$(python3 "$root/scripts/cli_entrypoint.py" preview)" || { nt_fail 'CLI command preview failed; installed packages were preserved.'; return 1; }
+  fields="$(command python3 -c '
+import json, re, sys
+try:
+    envelope = json.load(sys.stdin)
+    data = envelope["data"]
+    if envelope.get("ok") is not True or type(data["changed"]) is not bool:
+        raise ValueError("invalid preview status")
+    if not re.fullmatch(r"[0-9a-f]{64}", data["plan_id"]):
+        raise ValueError("invalid plan identity")
+    print(int(data["changed"]), data["plan_id"], data["target"])
+except (KeyError, TypeError, ValueError) as exc:
+    print("Cannot read CLI entrypoint preview: " + str(exc), file=sys.stderr)
+    sys.exit(2)
+' <<<"$output")" || return $?
+  read -r changed plan_id target <<<"$fields"
+  [ "$changed" = 1 ] || { nt_ok 'tx command is already current.'; return 0; }
+  nt_info "tx command target: $target (checkout-backed; rollback retained)."
+  _nt_confirm 'Install / update the tx command for this checkout?' || return $?
+  output="$(python3 "$root/scripts/cli_entrypoint.py" apply --yes --plan-id "$plan_id")" || { nt_fail 'CLI command installation failed; inspect the retained recovery record.'; return 1; }
+  nt_ok 'tx command installed and verified.'
 }
 
 _nt_install_wizard() {
   [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail 'Run tx install in an attached terminal; automation uses tx install preview.'; return 2; }
   nt_require_termux || return 1
-  local profile components=terminal,developer,proot,audio,graphics desktops apps distros distro root answer
+  local profile components=terminal,developer,proot,audio,graphics,gui,services desktops apps distros distro root answer
   root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   _nt_install_system_info || return $?
   profile="$(_nt_pick 'Choose your workstation' single '' \
@@ -107,18 +146,32 @@ _nt_install_wizard() {
     distros="$(_nt_pick 'Managed PRoot distributions (one or more)' multi debian \
       'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
   fi
+  _nt_window_stage '1/7 | Preparing repositories and prerequisites' 'Next: dependency plan'
   _nt_wizard_prepare || return $?
+  for distro in ${distros//,/ }; do
+    _nt_collect_guest "$distro" "$root" || return $?
+  done
+  _nt_window_stage '2/7 | Reviewing system upgrade' 'Next: Native management'
+  _nt_wizard_upgrade || return $?
+  _nt_window_stage '2/7 | Native management and workstation' 'Next: tx command'
   _nt_wizard_native "$components" || return $?
+  if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then _nt_window_snapshot; _nt_window_draw; fi
+  _nt_window_stage '3/7 | Installing tx command' 'Next: shared management clients'
   _nt_wizard_entrypoint "$root" || return $?
-  if [ "$profile" != minimal ]; then
+  {
+    _nt_window_stage '4/7 | Shared GTK management client' 'Next: managed guests'
     nt_info 'Building the Native GTK management center from the selected checkout.'
     bash "$root/scripts/install-management-center.sh" || return $?
-
-  fi
+  }
+  _nt_window_stage '5/7 | Managed guest installation' 'Next: graphics and sound'
   for distro in ${distros//,/ }; do
-    _nt_install_managed_guest "$distro" || return $?
+    _NT_USE_COLLECTED=1 _nt_install_managed_guest "$distro" || return $?
+    unset '_NT_GUEST_PASSWORD[$distro]'
+    _NT_GUEST_READY[$distro]=0
   done
+  _nt_window_stage '6/7 | Default graphics and sound' 'Next: final checks'
   _nt_gpu_setup "$root" || return $?
+  _nt_window_stage '7/7 | Installation summary' 'Ready to use tx'
   nt_ok 'Selected setup stages completed. No desktop was started.'
   nt_info 'Commands: tx tui | tx web | tx gui | tx start --desktop ID'
   nt_info 'Guest: tx pgui [DE] (Debian XFCE default); tx pgui start --alias ubuntu --desktop xfce'
@@ -162,7 +215,14 @@ _nt_install_guest_addons() {
   local -a args=(desktop-preview --repo-root "$root" --alias "$distro" --desktops "$desktops" --json)
   [ -z "$apps" ] || args+=(--apps "$apps")
   output="$(python3 "$root/lib/proot_setup.py" "${args[@]}")" || return $?
-  printf '%s\n' "$output" | command python3 -m json.tool || return 1
+  command python3 -c '
+import json,sys
+d=json.load(sys.stdin)
+print("Existing guest additions")
+print("Guest:", sys.argv[1], "| Desktops:", sys.argv[2], "| Apps:", sys.argv[3] or "base only")
+print("Status:", d.get("status", "unknown"))
+print("Existing rootfs and accounts are preserved; no removals or upgrades.")
+' "$distro" "$desktops" "$apps" <<<"$output" || return 1
   status="$(command python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])' <<<"$output")" || return 1
   [ "$status" != already_installed ] || { nt_ok 'Selected guest desktops/apps are already installed.'; return 0; }
   plan_id="$(command python3 -c 'import json,sys; print(json.load(sys.stdin)["plan_id"])' <<<"$output")" || return 1
@@ -273,4 +333,37 @@ _nt_install_gpu() {
   nt_require_termux || return 1
   local root="${_TN_LIB_DIR%/lib}"
   _nt_gpu_setup "$root" 1
+}
+
+# Session-memory-only choices. Passwords never enter env, argv, logs or saved plans.
+declare -gA _NT_GUEST_READY _NT_GUEST_USER _NT_GUEST_SUDO _NT_GUEST_DESKTOPS _NT_GUEST_APPS _NT_GUEST_PASSWORD
+_nt_collect_guest() {
+  local distro="$1" root="$2" user='' sudo_mode=password password='' confirmation=''
+  _nt_window_stage "Choose $distro account, desktop and software" 'Choices collected before workstation installation'
+  if [ ! -e "$PREFIX/var/lib/proot-distro/containers/$distro" ]; then
+    while :; do
+      printf 'New %s guest username: ' "$distro" >/dev/tty
+      IFS= read -r user </dev/tty || return 130
+      [[ "$user" =~ ^[a-z_][a-z0-9_-]{0,31}$ && "$user" != root ]] && break
+      nt_warn 'Use an ordinary Linux username (letters/digits/_/-).'
+    done
+    sudo_mode="$(_nt_pick "$distro guest sudo authentication" single '' \
+      'password|Password-protected sudo (recommended)' 'passwordless|Guest-only passwordless sudo')" || return $?
+    if [ "$sudo_mode" = password ]; then
+      while :; do
+        printf 'Create guest sudo password (hidden): ' >/dev/tty
+        IFS= read -rs password </dev/tty || return 130
+        printf '\nConfirm guest sudo password (hidden): ' >/dev/tty
+        IFS= read -rs confirmation </dev/tty || return 130
+        printf '\n' >/dev/tty
+        if [ "$password" = "$confirmation" ] && [ ${#password} -ge 4 ] && [ ${#password} -le 4096 ]; then break; fi
+        nt_warn 'Passwords must match and contain 4–4096 characters.'
+      done
+    fi
+  fi
+  _NT_GUEST_DESKTOPS[$distro]="$(_nt_choose_guest_desktops "$distro" "$root")" || return $?
+  _NT_GUEST_APPS[$distro]="$(_nt_choose_guest_apps "$distro" "$root")" || return $?
+  _NT_GUEST_USER[$distro]="$user"; _NT_GUEST_SUDO[$distro]="$sudo_mode"
+  _NT_GUEST_PASSWORD[$distro]="$password"; _NT_GUEST_READY[$distro]=1
+  password=''; confirmation=''
 }
