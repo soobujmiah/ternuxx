@@ -1,0 +1,7 @@
+event_id: commit-1c4374fba1ec-538043c8f60f9daa
+repository: soobujmiah/ternuxx
+commit: 1c4374fba1ec3808b91d479e662ec764386e5bc8
+kind: commit
+occurred_at: '2026-10-26T15:17:12Z'
+status: completed
+summary: 'fix: include managed host display and audio for guest additions'
