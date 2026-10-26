@@ -1,0 +1,7 @@
+event_id: commit-9d41ba811937-76a639e777cb0f32
+repository: soobujmiah/ternuxx
+commit: 9d41ba811937a322f9928e40dd944cf54819942d
+kind: commit
+occurred_at: '2026-10-26T14:04:14Z'
+status: completed
+summary: 'docs: record native reinstall package removal boundary'
