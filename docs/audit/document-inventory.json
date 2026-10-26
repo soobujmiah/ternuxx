@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 582,
-  "read_count": 175,
+  "document_count": 583,
+  "read_count": 174,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "067eccab964bb31b10f66e287b55d0d11931401f1a5579789647fa1785548b2d",
+      "sha256": "56bdaf5cd04d866984c947dde354bb4184650dc10b1e4f3e86389c15847e40e2",
       "lines": 37,
-      "read_status": "read",
-      "read_sha256": "067eccab964bb31b10f66e287b55d0d11931401f1a5579789647fa1785548b2d"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -3603,8 +3603,8 @@
     {
       "path": "docs/evidence/2026-10-26-gtk-profile-driven-proot-picker.md",
       "kind": "narrative",
-      "sha256": "8e80a14b4a97075682df463d9d344278f5ffbeeee99da70e9c2045d4a79f1ffa",
-      "lines": 14,
+      "sha256": "ecc524b211f1d93efa254eafc4bcbc7be203e64addf2f7aa2974781da7c35766",
+      "lines": 15,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3613,6 +3613,14 @@
       "kind": "narrative",
       "sha256": "2f20062d68ebf733663ab5ac84e97a394f617a616aadeffd983d4dc718481f14",
       "lines": 16,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-26-nested-debian-start-fix-and-live-check.md",
+      "kind": "narrative",
+      "sha256": "2b1671791df624d06b5de5d16ea8d854166d6fff2901393372a5330d45e5f135",
+      "lines": 29,
       "read_status": "pending",
       "read_sha256": null
     },

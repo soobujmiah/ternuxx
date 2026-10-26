@@ -59,6 +59,14 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertIn('DISPLAY=:2 es2_info 2>&1 | sed', script)
         self.assertIn('Use Termux:X11 fullscreen/orientation controls', script)
 
+    def test_nested_guest_payload_receives_the_selected_alias_for_readiness_output(self) -> None:
+        script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
+        payload = script.split("guest_script=$(cat <<'GUEST'\n", 1)[1].split("\nGUEST\n", 1)[0]
+        self.assertIn('"$TERNUXX_PROOT_ALIAS" "$TERNUXX_DESKTOP_ID"', payload)
+        self.assertNotIn('"$DISTRO_ID"', payload)
+        self.assertIn('--env TERNUXX_PROOT_ALIAS="$DISTRO_ID"', script)
+        self.assertIn('TERNUXX_PROOT_ALIAS="$DISTRO_ID" PULSE_SERVER=', script)
+
     def test_nested_route_starts_xfce_session_on_existing_xephyr_server(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
         self.assertIn("/usr/bin/Xephyr :2 -glamor_gles2 -screen", script)

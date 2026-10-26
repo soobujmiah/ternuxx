@@ -285,7 +285,7 @@ for _ in $(seq 1 80); do
 done
 [ "$ready" -eq 1 ] || { echo "Xephyr :2 did not become ready; see $state/xephyr.log" >&2; exit 1; }
 renderer="$(DISPLAY=:2 es2_info 2>&1 | sed -n 's/^GL_RENDERER: //p' | head -n 1 || true)"
-printf 'Nested %s %s display :2 is ready; GLES context renderer (draw/presentation not verified): %s\n' "$DISTRO_ID" "$TERNUXX_DESKTOP_ID" "${renderer:-unreported}"
+printf 'Nested %s %s display :2 is ready; GLES context renderer (draw/presentation not verified): %s\n' "$TERNUXX_PROOT_ALIAS" "$TERNUXX_DESKTOP_ID" "${renderer:-unreported}"
 DISPLAY=:2 dbus-launch --exit-with-session "${desktop_argv[@]}" &
 xfce_pid=$!
 wait "$xfce_pid"
@@ -293,14 +293,14 @@ GUEST
 )
       args=(login "$DISTRO_ID" --shared-tmp --user "$guest_user"
         --bind "$cookie:/tmp/.ternuxx-pulse-cookie"
-        --env DISPLAY=:1 --env TERNUXX_DESKTOP_ID="$DESKTOP_ID" --env TERNUXX_DESKTOP_SESSION="$DESKTOP_SESSION" --env TERNUXX_REPO_ROOT="$ROOT" --env PULSE_SERVER=tcp:127.0.0.1:4713 --env PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie
+        --env DISPLAY=:1 --env TERNUXX_PROOT_ALIAS="$DISTRO_ID" --env TERNUXX_DESKTOP_ID="$DESKTOP_ID" --env TERNUXX_DESKTOP_SESSION="$DESKTOP_SESSION" --env TERNUXX_REPO_ROOT="$ROOT" --env PULSE_SERVER=tcp:127.0.0.1:4713 --env PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie
         --env GALLIUM_DRIVER=zink --env MESA_LOADER_DRIVER_OVERRIDE=zink
         --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw
         --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M
         --env QT_X11_NO_MITSHM=1 --env LANG=en_US.UTF-8 --env LC_ALL=en_US.UTF-8)
       [ ! -c /dev/kgsl-3d0 ] || args+=(--bind /dev/kgsl-3d0:/dev/kgsl)
       [ ! -d /dev/dri ] || args+=(--bind /dev/dri)
-      args+=(-- /usr/bin/env DISPLAY=:1 PULSE_SERVER=tcp:127.0.0.1:4713 PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie
+      args+=(-- /usr/bin/env DISPLAY=:1 TERNUXX_PROOT_ALIAS="$DISTRO_ID" PULSE_SERVER=tcp:127.0.0.1:4713 PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie
         GALLIUM_DRIVER=zink MESA_LOADER_DRIVER_OVERRIDE=zink TU_DEBUG=sysmem,noconform MESA_VK_WSI_DEBUG=sw
         MESA_DISK_CACHE_SINGLE_FILE=1 MESA_SHADER_CACHE_MAX_SIZE=2048M QT_X11_NO_MITSHM=1 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
         /bin/bash -c "$guest_script")
