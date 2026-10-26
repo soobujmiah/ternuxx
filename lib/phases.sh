@@ -144,6 +144,7 @@ _nt_select_install_profile() {
           terminal) selected+=("${_NT_TERMINAL_PACKAGES[@]}") ;;
           sound-controls) selected+=(pavucontrol) ;;
           gui) selected+=("${_NT_GUI_PACKAGES[@]}") ;;
+          guest-display) selected+=(termux-x11-nightly dbus pulseaudio xorg-server-xephyr) ;;
           nested) selected+=("${_NT_NESTED_PACKAGES[@]}") ;;
           browser) selected+=(firefox) ;;
           music) selected+=(audacious) ;;
@@ -159,7 +160,7 @@ _nt_select_install_profile() {
           developer) selected+=("${_NT_DEVELOPER_PACKAGES[@]}") ;;
           mate) selected+=("${_NT_MATE_PACKAGES[@]}") ;;
           plasma) selected+=("${_NT_PLASMA_PACKAGES[@]}") ;;
-          *) nt_fail "Unknown component group '$group'. Choose desktop,audio,proot,graphics,developer,mate,plasma,terminal,gui,sound-controls,nested,browser,music,images,pdf,editor,archive,video."; return 2 ;;
+          *) nt_fail "Unknown component group '$group'. Choose desktop,audio,proot,graphics,developer,mate,plasma,terminal,gui,sound-controls,nested,guest-display,browser,music,images,pdf,editor,archive,video."; return 2 ;;
         esac
       done ;;
     *) nt_fail "Unknown install profile '$profile'. Choose minimal-native, full-native, graphical, developer, native-proot-provider, native-debian, or custom."; return 2 ;;
@@ -174,7 +175,7 @@ _nt_select_install_profile() {
   _NT_ACTIVE_PROFILE="$profile"
   _NT_ACTIVE_COMPONENTS="$components"
   local -a omitted=()
-  for group in desktop audio proot graphics developer mate plasma terminal gui sound-controls nested browser music images pdf editor archive video; do
+  for group in desktop audio proot graphics developer mate plasma terminal gui sound-controls nested guest-display browser music images pdf editor archive video; do
     case "$profile" in
       full-native) [[ "$group" == developer ]] && omitted+=("$group") ;;
       graphical) [[ "$group" == proot || "$group" == developer ]] && omitted+=("$group") ;;

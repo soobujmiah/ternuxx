@@ -71,3 +71,8 @@ Follow-up fixture checks passed: 13 wizard/shortcut tests, 5 installer CLI tests
 tests. Ubuntu Writer add-on apply, an existing XFCE no-op, default clean packages,
 Snap avoidance and unknown app refusal are explicitly covered. The follow-up still
 requires its own CI result and the owner's live reinstall acceptance.
+
+The PRoot shortcut also provisions the Native X11/PulseAudio/Xephyr bridge through
+its exact Native package preview when adding a guest GUI to a Minimal host. Explicit
+short desktop names are checked against accepted provider routes before that package
+phase, so unsupported names cannot trigger partial provider installation.

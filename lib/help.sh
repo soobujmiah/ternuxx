@@ -146,7 +146,7 @@ it, you can also set up the optional managed Debian or Ubuntu guest. `tx install
 shows its pinned target and confirms the same plan in one terminal flow. Plan-ID
 commands are for explicit review and automation.
 Custom groups: desktop,audio,proot,graphics,developer,mate,plasma,terminal,gui,
-sound-controls,nested,browser,music,images,pdf,editor,archive,video. All profiles use the same
+sound-controls,nested,guest-display,browser,music,images,pdf,editor,archive,video. All profiles use the same
 repository and dependency checks. The PRoot-provider profile installs the runtime only.
 If APT fails, some packages may have changed; create a fresh preview before retrying.
 EOF

@@ -205,6 +205,8 @@ tx install proot debian xfce # explicit DE, then optional apps
 tx install proot ubuntu xfce
 ```
 
+The PRoot shortcut first previews any missing Native X11/PulseAudio/Xephyr bridge
+packages, so a Minimal host can add a guest GUI through the same managed flow.
 For a missing guest, these commands use the fresh pinned installer. For an existing
 managed Debian Trixie/Ubuntu Noble rootfs, they preview only the requested DE/app
 additions; they never replace the rootfs or recreate the account. Existing guest

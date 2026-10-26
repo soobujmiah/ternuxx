@@ -197,7 +197,17 @@ _nt_install_proot_short() {
   fi
   case "$distro" in debian|ubuntu) ;; *) nt_fail 'Supported managed distros: debian, ubuntu.'; return 2 ;; esac
   nt_require_termux || return 1
-  _nt_wizard_native proot,nested || return $?
+  if [ -n "$desktop" ]; then
+    PYTHONPATH="$root/lib" command python3 - "$distro" "${desktop/xfce4/xfce}" <<'PYSHORTDESKTOP' || return $?
+import sys, proot_profiles, proot_desktops
+profile = proot_profiles.profile_for_alias(sys.argv[1])
+available = [key for key in proot_desktops.catalog(profile) if proot_desktops.DESKTOP_ROUTES.get(key)]
+if sys.argv[2] not in available:
+    print("Supported guest desktops: " + ", ".join(available), file=sys.stderr)
+    raise SystemExit(2)
+PYSHORTDESKTOP
+  fi
+  _nt_wizard_native proot,guest-display || return $?
   local -a args=()
   [ -z "$desktop" ] || args+=(--desktops "${desktop/xfce4/xfce}")
   _nt_install_managed_guest "$distro" "${args[@]}"

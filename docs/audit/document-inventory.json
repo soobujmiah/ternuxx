@@ -155,10 +155,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "3b07c2a34e25680c94d299624c901ca173f719f733c3ee9847947f232bb29ccc",
-      "lines": 215,
+      "sha256": "d469c032aa3d3d22bf3b2589e15f598b3bdf1ac33307acfa59c152b334b70cba",
+      "lines": 217,
       "read_status": "read",
-      "read_sha256": "3b07c2a34e25680c94d299624c901ca173f719f733c3ee9847947f232bb29ccc"
+      "read_sha256": "d469c032aa3d3d22bf3b2589e15f598b3bdf1ac33307acfa59c152b334b70cba"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -3739,10 +3739,10 @@
     {
       "path": "docs/evidence/2026-10-26-three-profile-managed-installer.md",
       "kind": "narrative",
-      "sha256": "f74964ea3122c44c0b5478f67c5a87296bfffca5edad1849189d5582655ecc26",
-      "lines": 73,
+      "sha256": "1b5c72f749c598e4d6cce298cd212ffee608313ec412d0458bcb0f222e8fb0fb",
+      "lines": 78,
       "read_status": "read",
-      "read_sha256": "f74964ea3122c44c0b5478f67c5a87296bfffca5edad1849189d5582655ecc26"
+      "read_sha256": "1b5c72f749c598e4d6cce298cd212ffee608313ec412d0458bcb0f222e8fb0fb"
     },
     {
       "path": "docs/evidence/2026-10-26-ubuntu-noble-live-install-route.md",
