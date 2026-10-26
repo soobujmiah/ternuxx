@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "424fc3bdde52ed4af4c0e51849b31039fe302e574c4221506cb2b5f83955fee7",
-      "lines": 192,
+      "sha256": "fd0b3c2cc29d51e2a3a7c65364706e08780b5da55b2111cc06a8fc9b660f2347",
+      "lines": 213,
       "read_status": "read",
-      "read_sha256": "424fc3bdde52ed4af4c0e51849b31039fe302e574c4221506cb2b5f83955fee7"
+      "read_sha256": "fd0b3c2cc29d51e2a3a7c65364706e08780b5da55b2111cc06a8fc9b660f2347"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "2ace2e8913e87b632e8c8d02e5546c433a2cf0d739bdd594d45f040db88d85f5",
-      "lines": 149,
+      "sha256": "8f15e9bde4ffc16bb0608d651cc3f99df89466e94c6abe4e4a36d0bda18dfdc2",
+      "lines": 155,
       "read_status": "read",
-      "read_sha256": "2ace2e8913e87b632e8c8d02e5546c433a2cf0d739bdd594d45f040db88d85f5"
+      "read_sha256": "8f15e9bde4ffc16bb0608d651cc3f99df89466e94c6abe4e4a36d0bda18dfdc2"
     },
     {
       "path": "SECURITY.md",
@@ -163,10 +163,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "24f5524ea823c034223baf5eb55b41f8620b5e42674cfdd9b02cf303a2facee8",
-      "lines": 398,
+      "sha256": "c17ffc71b99c6b06d161f5e4064f74b3e9437b71598f3424c1d750693cfb3328",
+      "lines": 432,
       "read_status": "read",
-      "read_sha256": "24f5524ea823c034223baf5eb55b41f8620b5e42674cfdd9b02cf303a2facee8"
+      "read_sha256": "c17ffc71b99c6b06d161f5e4064f74b3e9437b71598f3424c1d750693cfb3328"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -3779,10 +3779,10 @@
     {
       "path": "docs/evidence/2026-10-27-reinstall-repository-audit.md",
       "kind": "narrative",
-      "sha256": "ff32d6ee49f6eedd8eb37961acaa1a404bc423d69b9c106dca1f1135b8fef5a4",
-      "lines": 150,
+      "sha256": "19613ea38c82e0ce9b051e976a8c72de53d195e8792604441745b703906d5f49",
+      "lines": 188,
       "read_status": "read",
-      "read_sha256": "ff32d6ee49f6eedd8eb37961acaa1a404bc423d69b9c106dca1f1135b8fef5a4"
+      "read_sha256": "19613ea38c82e0ce9b051e976a8c72de53d195e8792604441745b703906d5f49"
     },
     {
       "path": "docs/evidence/P0-foundation.md",

@@ -41,6 +41,8 @@ _nt_install_diagnostic() {
     printf 'Ternuxx installation result\nexit_code=%s\n' "$result"
     printf 'stage=%s\n' "${_NT_WINDOW_STAGE:-not-started}"
     printf 'elapsed_seconds=%s\n' "$((SECONDS - _NT_WINDOW_STARTED))"
+    printf 'combined_plan_id=%s\n' "${_NT_INSTALL_MASTER_ID:-not-approved}"
+    printf 'combined_plan_directory=%s\n' "${_NT_INSTALL_MASTER_FOLDER:-not-created}"
     printf 'architecture=%s\n' "$(uname -m)"
     printf 'Secrets, account passwords, environment and raw command output are excluded.\n'
     printf 'Retry through tx install; remaining packages get a fresh exact plan. Existing guests are preserved.\n'

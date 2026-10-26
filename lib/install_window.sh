@@ -215,7 +215,8 @@ _nt_window_stage() {
 # While a package/build command runs, relay its output through one terminal writer.
 # The command keeps its stdin for legitimate prompts; partial lines are shown too.
 _nt_window_run() {
-  if [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ]; then "$@"; return $?; fi
+  if [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ] || [ "${_NT_WINDOW_STREAM_ACTIVE:-0}" = 1 ]; then "$@"; return $?; fi
+  local _NT_WINDOW_STREAM_ACTIVE=1
   local _NT_WINDOW_PANE='Installation output'
   [ "${_NT_WINDOW_QUERY:-0}" != 1 ] || _NT_WINDOW_PANE='Plan review output'
   _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" "$_NT_WINDOW_PANE"
@@ -225,7 +226,7 @@ _nt_window_run() {
     trap - EXIT
     trap 'exit 130' INT
     trap 'exit 143' TERM HUP
-    local line status old_size
+    local line status old_size last_refresh=-1
     while :; do
       line=''
       IFS= read -r -t 1 line
@@ -237,16 +238,29 @@ _nt_window_run() {
         [ "$status" = 0 ] || [ "$status" -gt 128 ] || break
         continue
       fi
-      [ -z "$line" ] || printf '%s' "$line" >/dev/tty
+      if [ -n "$line" ]; then
+        local color=114
+        case "$line" in
+          '[DOWNLOAD]'*|Get:*|Fetched*) color=81 ;;
+          '[UNPACK]'*|Unpacking*|'Preparing to unpack'*) color=141 ;;
+          '[CONFIGURE]'*|'Setting up'*|'Processing triggers'*) color=82 ;;
+          '[WARNING]'*|W:*) color=220 ;;
+          '[ERROR]'*|E:*|Err:*) color=203 ;;
+        esac
+        printf '\033[38;5;%sm%s\033[0m' "$color" "$line" >/dev/tty
+      fi
       if [ "$status" = 0 ]; then
         printf '\n' >/dev/tty
       elif [ "$status" -le 128 ]; then
         break
       fi
-      _nt_window_footer
-      printf '\033[s' >/dev/tty
-      _nt_window_brand
-      printf '\033[u' >/dev/tty
+      if [ "$last_refresh" != "$SECONDS" ]; then
+        _nt_window_footer
+        printf '\033[s' >/dev/tty
+        _nt_window_brand
+        printf '\033[u' >/dev/tty
+        last_refresh=$SECONDS
+      fi
     done
   )
   local -a outcomes=("${PIPESTATUS[@]}")

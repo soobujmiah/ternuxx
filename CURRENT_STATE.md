@@ -4,6 +4,27 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Combined approval and live APT event follow-up — 2026-10-27
+
+The owner stopped their installer and required every selection/estimate before
+workstation mutation. Guided setup and Native/PRoot DE shortcuts now build a private
+combined plan across Native upgrades/packages, guest/account changes, CLI launcher,
+shared management and GPU choice. Full scrollable report, known storage estimates,
+free space and explicit unknown-size acknowledgement precede final approval.
+Missing planner prerequisites have a distinct minimal bootstrap consent. Signed
+metadata refresh is separate from workload installation. Exact subplans and report
+hashes are bound to the combined ID; changed state stops rather than silently
+replanning. The reviewed account subplan permits only package-added non-login
+UID 1–999 accounts before account setup; all existing passwd record hashes, rootfs
+identity and the selected account/home/sudo action remain bound. Native upgrades/new packages share one dependency transaction. Guest
+APT apply streams categorized stderr events while preserving machine JSON stdout;
+header redraw is throttled to one second to keep bulk logs responsive. Failure
+journals mark streamed APT failures and retain partial state for reviewed recovery.
+Tests use fixtures only; no device install, package repair or existing-session stop
+was performed by the assistant. Fresh guest APT/unpacked-rootfs and build/graphics
+scratch sizes remain explicitly unresolved until their respective runtime stages;
+the report never treats them as zero or a guaranteed total.
+
 ## Installer review/output state and header follow-up — 2026-10-27
 
 Phase entry no longer labels a pending review as installation output. Review,

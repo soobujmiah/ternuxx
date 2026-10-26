@@ -143,6 +143,7 @@ _nt_select_install_profile() {
       IFS=',' read -r -a groups <<< "$components"
       for group in "${groups[@]}"; do
         case "$group" in
+          system-upgrade) : ;; # resolved together with selected packages below
           services) selected+=(termux-services openssh) ;;
           terminal) selected+=("${_NT_TERMINAL_PACKAGES[@]}") ;;
           sound-controls) selected+=(pavucontrol) ;;
@@ -274,19 +275,36 @@ _nt_package_candidate_from_official_repo() {
 
 _nt_make_install_plan() {
   _NT_PLAN_MODE=install
-  local package expected_repo candidate simulation
+  local package expected_repo candidate simulation upgrade_simulation
+  local -A upgrade_names=()
+  local -a simulation_options=(--no-upgrade) plan_roots=("${_NT_BASE_PACKAGES[@]}")
+  if [[ ",${_NT_ACTIVE_COMPONENTS:-}," = *,system-upgrade,* ]]; then
+    _NT_PLAN_MODE=update; simulation_options=()
+    upgrade_simulation="$(apt-get -s --no-remove upgrade 2>&1)" || return 1
+    printf '%s\n' "$upgrade_simulation" | awk '/^Remv / {bad=1} /^Inst / && $0 !~ /termux-main|termux-x11/ {bad=1} END {exit bad}' || { nt_fail 'Upgrade includes an unapproved repository or removal.'; return 1; }
+    while read -r package; do
+      [ -n "$package" ] || continue
+      upgrade_names[$package]=1; plan_roots+=("$package")
+    done < <(printf '%s\n' "$upgrade_simulation" | awk '$1=="Inst" {print $2}')
+  fi
+  local -A planned=()
   _NT_PLAN_PACKAGES=()
   _NT_PLAN_VERSIONS=()
   _NT_PLAN_TRANSACTION=()
 
-  for package in "${_NT_BASE_PACKAGES[@]}"; do
-    if _nt_package_installed "$package"; then
+  for package in "${plan_roots[@]}"; do
+    [ -z "${planned[$package]:-}" ] || continue
+    planned[$package]=1
+    if [ -z "${upgrade_names[$package]:-}" ] && _nt_package_installed "$package"; then
       continue
     fi
     case "$package" in
       dbus|pulseaudio|python|proot-distro|vulkan-tools|mesa-vulkan-icd-freedreno|clang|cmake|gdb|make|pkg-config|git|openssh|curl|wget|rsync|nano|vim|tmux|htop|tree|unzip|zip|ripgrep|less|vlc|termux-services|util-linux) expected_repo="termux-main" ;;
       *) expected_repo="$(_nt_native_app_repository "$package")" || expected_repo="termux-x11" ;;
     esac
+    if [ -n "${upgrade_names[$package]:-}" ]; then
+      if _nt_package_candidate_from_official_repo "$package" termux-main >/dev/null; then expected_repo=termux-main; else expected_repo=termux-x11; fi
+    fi
     candidate="$(_nt_package_candidate_from_official_repo "$package" "$expected_repo")" || {
       nt_fail "No $expected_repo candidate found for $package. Enable/check the official repository and refresh package indexes yourself."
       return 1
@@ -301,7 +319,7 @@ _nt_make_install_plan() {
     return 0
   fi
 
-  simulation="$(apt-get -s --no-install-recommends --no-remove --no-upgrade install "${_NT_PLAN_PACKAGES[@]}" 2>&1)" || {
+  simulation="$(apt-get -s --no-install-recommends --no-remove "${simulation_options[@]}" install "${_NT_PLAN_PACKAGES[@]}" 2>&1)" || {
     nt_fail "APT could not resolve the preview. No packages were changed."
     printf '%s\n' "$simulation" >&2
     return 1
@@ -322,7 +340,7 @@ _nt_make_install_plan() {
   for index in "${!_NT_PLAN_PACKAGES[@]}"; do
     package="${_NT_PLAN_PACKAGES[$index]}"
     expected_version="${_NT_PLAN_VERSIONS[$index]#*=}"
-    if ! printf '%s\n' "$simulation" | awk -v package="$package" -v version="$expected_version" '$1 == "Inst" && $2 == package && (($3 == "(" && $4 == version) || (substr($3, 1, 1) == "(" && substr($3, 2) == version)) { found=1 } END { exit !found }'; then
+    if ! printf '%s\n' "$simulation" | awk -v package="$package" -v version="$expected_version" '$1 == "Inst" && $2 == package {for(i=3;i<=NF;i++) if(substr($i,1,1)=="(") {v=substr($i,2);if(v=="")v=$(i+1);sub(/[)]$/,"",v);if(v==version)found=1;break}} END { exit !found }'; then
       nt_fail "APT transaction did not include the reviewed candidate for $package; refusing it. No packages were changed."
       return 1
     fi
@@ -330,7 +348,7 @@ _nt_make_install_plan() {
   _NT_PLAN_TRANSACTION=()
   while IFS=' ' read -r package expected_version; do
     [ -n "$package" ] && _NT_PLAN_TRANSACTION+=("$package=$expected_version")
-  done < <(printf '%s\n' "$simulation" | awk '$1 == "Inst" { version=$3; if (version == "(") version=$4; if (substr(version, 1, 1) == "(") version=substr(version, 2); print $2, version }')
+  done < <(printf '%s\n' "$simulation" | awk '$1 == "Inst" {for(i=3;i<=NF;i++) if(substr($i,1,1)=="(") {v=substr($i,2);if(v=="")v=$(i+1);sub(/[)]$/,"",v);print $2,v;break}}')
   _NT_PLAN_SIMULATION="$simulation"
   _nt_capture_install_resource_estimates
 }

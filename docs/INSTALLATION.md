@@ -46,7 +46,41 @@ RAM and prefix storage. Three keyboard-driven profiles follow:
   in managed guests; Native does not add an unofficial Blender package source.
 - **Native Full + PRoot:** the same Native choices plus the PRoot provider/Xephyr
   and one or more managed Debian Trixie/Ubuntu Noble guests. Each guest presents
-  its supported desktop selector and its own pinned preview and confirmation.
+  its supported desktop selector; all guest previews are included in the combined
+  workstation plan before the final approval.
+
+The guided workstation and `tx install NATIVE_DE` / `tx install proot DISTRO DE`
+shortcuts now use a combined planning barrier. Select all accounts/desktops/apps,
+CPU/GPU/audio runtimes and Native GPU preference first. Signed metadata refresh is
+planning work; any missing Python/X11 planner prerequisites need a separately
+labeled bootstrap consent. No selected workstation/guest package transaction,
+launcher deployment or management build starts before the combined report and
+explicit final approval.
+
+The scrollable report lists exact subplan IDs, requested and resolved package
+versions, guest/account actions, download estimates, installed/additional disk
+estimates, known peak storage and available space. Native upgrade roots and new
+packages are resolved in one transaction. Cached downloads can reduce actual
+traffic; upgraded installed payload is a conservative estimate. Fresh rootfs
+compressed layer bytes are known from its pinned manifest; fresh guest APT/unpacked
+rootfs, optional graphics and build-scratch sizes may remain unresolved. They are
+shown as **unknown**, never zero, and need a separate acknowledgement before final
+approval. Known storage insufficiency blocks approval/apply. These are estimates,
+not an exact free-space guarantee.
+
+After approval the saved exact subplans are applied; any changed plan/report,
+package transaction or target identity stops for a fresh review. The combined
+account plan explicitly permits package-added non-login UID 1–999 system users
+between dependency installation and account creation; existing account records and
+the selected user/home/sudo action must remain unchanged. There is no
+silent re-plan/resume authorization. Live APT events distinguish download (cyan),
+unpack (purple), configure (green), warning (yellow) and error (red). The single
+terminal writer keeps machine JSON separate from live guest stderr output.
+Private reports and the combined plan live under `$TERNUXX_STATE_DIR/wizard-plans`;
+`install-last-result.txt` includes their location. Cancellation before approval
+preserves selected workstation/guest package state; acknowledged metadata refresh
+or minimal planner bootstrap is not rolled back. Apply failure can leave completed
+substeps installed; retry must review the remaining state with a fresh exact plan.
 
 Use Up/Down to move, Space to toggle selections and Enter to continue. Home/End
 and PageUp/PageDown navigate long lists; the list shows position and selection count. Single-choice

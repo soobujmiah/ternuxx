@@ -17,7 +17,7 @@ def _digest(value):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
 
 
-def plan(*, prefix, home, state_dir, alias, user, sudo_mode):
+def plan(*, prefix, home, state_dir, alias, user, sudo_mode, allow_system_accounts=False):
     if not isinstance(user, str) or not re.fullmatch(r'[a-z_][a-z0-9_-]{0,31}', user) or user == 'root':
         raise ValueError('choose an ordinary guest username')
     if sudo_mode not in ('password', 'passwordless'):
@@ -40,6 +40,11 @@ def plan(*, prefix, home, state_dir, alias, user, sudo_mode):
             raise ValueError('unowned existing home directory preserved')
     body = dict(schema_version=1, alias=alias, user=user, sudo_mode=sudo_mode,
                 action=action, rootfs_identity=identity, passwd_sha256=digest)
+    if allow_system_accounts:
+        if any(len(v)!=7 for v in entries) or len({v[0] for v in entries})!=len(entries):
+            raise ValueError('account database has malformed or duplicate records')
+        body.update(schema_version=2, allow_added_system_accounts=True,
+                    passwd_records={v[0]:hashlib.sha256(':'.join(v).encode()).hexdigest() for v in entries})
     return {**body, 'plan_id': _digest(body)}
 
 
@@ -63,9 +68,19 @@ def apply(*, prefix, home, state_dir, plan_id, confirmed, password=None, runner=
         saved = fresh._read_private(state / 'previews' / ('account-' + plan_id + '.json'))
         if saved.get('plan_id') != plan_id or _digest({k:v for k,v in saved.items() if k != 'plan_id'}) != plan_id:
             raise ValueError('account plan identity changed')
-        current = plan(prefix=prefix, home=home, state_dir=state_dir, alias=saved['alias'], user=saved['user'], sudo_mode=saved['sudo_mode'])
+        current = plan(prefix=prefix, home=home, state_dir=state_dir, alias=saved['alias'], user=saved['user'], sudo_mode=saved['sudo_mode'],allow_system_accounts=saved.get('allow_added_system_accounts',False))
         if saved != current:
-            raise ValueError('guest account/rootfs changed; preview again')
+            permitted=False
+            if saved.get('allow_added_system_accounts') is True:
+                ignored={'plan_id','passwd_sha256','passwd_records'}
+                same={k:v for k,v in saved.items() if k not in ignored}=={k:v for k,v in current.items() if k not in ignored}
+                before=saved['passwd_records'];after=current['passwd_records']
+                preserved=all(after.get(k)==v for k,v in before.items())
+                root,_identity=desktop._rootfs(prefix,saved['alias'])
+                additions=[v.split(':') for v in (root/'etc/passwd').read_text().splitlines() if v.split(':')[0] not in before]
+                safe=all(len(v)==7 and v[2].isdigit() and 1<=int(v[2])<1000 and not v[5].startswith('/home/') and v[6].rsplit('/',1)[-1] in ('nologin','false') for v in additions)
+                permitted=same and preserved and safe
+            if not permitted:raise ValueError('guest account/rootfs changed; preview again')
         root, identity = desktop._rootfs(prefix, saved['alias'])
         proot_guest_retirement._assert_idle(state, root)
         user = saved['user']
@@ -103,6 +118,7 @@ def main():
     p=argparse.ArgumentParser(description=__doc__)
     p.add_argument('action',choices=['preview','apply','users','resolve'])
     p.add_argument('--alias',default='debian');p.add_argument('--user');p.add_argument('--sudo-mode',default='password')
+    p.add_argument('--allow-system-accounts',action='store_true',help='Preview permits only newly added non-login UID 1-999 package accounts; preserves all existing records')
     p.add_argument('--plan-id');p.add_argument('--yes',action='store_true');p.add_argument('--password-fd',type=int)
     a=p.parse_args(); kw=dict(prefix=os.environ['PREFIX'],home=os.environ['HOME'],state_dir=os.environ.get('TERNUXX_STATE_DIR',str(Path.home()/'.local/share/ternuxx')))
     try:
@@ -112,7 +128,7 @@ def main():
         if a.action=='users':
             import proot_diagnostics
             result=proot_diagnostics.ordinary_guest_users(distro=a.alias,prefix=kw['prefix'])
-        elif a.action=='preview': result=preview(**kw,alias=a.alias,user=a.user,sudo_mode=a.sudo_mode)
+        elif a.action=='preview': result=preview(**kw,alias=a.alias,user=a.user,sudo_mode=a.sudo_mode,allow_system_accounts=a.allow_system_accounts)
         else:
             password=None
             if a.password_fd is not None:

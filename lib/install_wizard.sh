@@ -3,6 +3,7 @@
 . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_window.sh"
 . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_network.sh"
 . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_preflight.sh"
+. "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_master.sh"
 
 _nt_install_system_info() {
   [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ] || return 0
@@ -144,39 +145,10 @@ _nt_install_wizard() {
       'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
   fi
   _nt_ai_guidance native "$apps"
-  _nt_window_stage '1/7 | Preparing repositories and prerequisites' 'Next: dependency plan'
-  _nt_wizard_prepare || return $?
-  for distro in ${distros//,/ }; do
-    _nt_collect_guest "$distro" "$root" || return $?
-    _nt_ai_guidance "$distro" "${_NT_GUEST_APPS[$distro]:-}"
-  done
-  _nt_window_stage '2/7 | Reviewing system upgrade' 'Next: Native management'
-  _nt_wizard_upgrade || return $?
-  _nt_window_stage '2/7 | Native management and workstation' 'Next: tx command'
-  _nt_wizard_native "$components" || return $?
-  if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then _nt_window_snapshot; _nt_window_draw; fi
-  _nt_window_stage '3/7 | Installing tx command' 'Next: shared management clients'
-  _nt_wizard_entrypoint "$root" || return $?
-  {
-    _nt_window_stage '4/7 | Shared GTK management client' 'Next: managed guests'
-    nt_info 'Building the Native GTK management center from the selected checkout.'
-    _nt_window_run bash "$root/scripts/install-management-center.sh" || return $?
-  }
-  _nt_window_stage '5/7 | Managed guest installation' 'Next: graphics and sound'
-  for distro in ${distros//,/ }; do
-    _NT_USE_COLLECTED=1 _nt_install_managed_guest "$distro" || return $?
-    unset '_NT_GUEST_PASSWORD[$distro]'
-    _NT_GUEST_READY[$distro]=0
-  done
-  _nt_window_stage '6/7 | Default graphics and sound' 'Next: final checks'
-  _nt_gpu_setup "$root" || return $?
-  _nt_window_stage '7/7 | Installation summary' 'Ready to use tx'
-  _nt_ai_guidance native "$apps"
-  for distro in ${distros//,/ }; do _nt_ai_guidance "$distro" "${_NT_GUEST_APPS[$distro]:-}"; done
+  _nt_master_workstation "$root" "$components" "$distros" || return $?
   nt_ok 'Selected setup stages completed. No desktop was started.'
-  nt_info 'Commands: tx tui | tx web | tx gui | tx start --desktop ID'
-  nt_info 'Guest: tx pgui [DE] (Debian XFCE default); tx pgui start --alias ubuntu --desktop xfce'
-  nt_info 'Install/open the matching Termux:X11 Android app separately. GPU rendering and desktop visibility need live verification.'
+  nt_info 'Commands: tx tui | tx web | tx gui | tx start | tx pgui'
+
 }
 
 _nt_choose_guest_desktops() {
@@ -248,8 +220,7 @@ _nt_install_native_desktop() {
     *) nt_fail 'Supported Native desktops: xfce, mate, plasma.'; return 2 ;;
   esac
   nt_require_termux || return 1
-  _nt_wizard_native "$components" || return $?
-  bash "$root/scripts/install-management-center.sh"
+  _nt_master_workstation "$root" "$components" ""
 }
 
 _nt_install_proot_short() {
@@ -271,10 +242,7 @@ if sys.argv[2] != "none" and sys.argv[2] not in available:
     raise SystemExit(2)
 PYSHORTDESKTOP
   fi
-  _nt_wizard_native proot,guest-display || return $?
-  local -a args=()
-  [ -z "$desktop" ] || args+=(--desktops "${desktop/xfce4/xfce}")
-  _nt_install_managed_guest "$distro" "${args[@]}"
+  _nt_master_workstation "$root" proot,guest-display,gui,developer "$distro" "${desktop/xfce4/xfce}"
 }
 
 _nt_gpu_probe() {
@@ -406,7 +374,9 @@ _nt_collect_guest_account() {
 _nt_collect_guest() {
   local distro="$1" root="$2"
   _nt_collect_guest_account "$distro" "$root" || return $?
-  _NT_GUEST_DESKTOPS[$distro]="$(_nt_choose_guest_desktops "$distro" "$root")" || return $?
+  if [ -n "${_NT_MASTER_PRESET_DESKTOP:-}" ]; then _NT_GUEST_DESKTOPS[$distro]="$_NT_MASTER_PRESET_DESKTOP"; else
+    _NT_GUEST_DESKTOPS[$distro]="$(_nt_choose_guest_desktops "$distro" "$root")" || return $?
+  fi
   _NT_GUEST_APPS[$distro]="$(_nt_choose_guest_apps "$distro" "$root")" || return $?
 }
 

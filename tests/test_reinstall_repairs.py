@@ -76,6 +76,24 @@ class RepairsTests(unittest.TestCase):
                     accounts.apply(**self.kw,plan_id=plan['plan_id'],confirmed=True,runner=run)
                 run.assert_not_called()
 
+    def test_combined_account_plan_allows_only_package_added_system_accounts(self):
+        with mock.patch.object(accounts.proot_guest_retirement,'_assert_idle'):
+            plan=accounts.preview(**self.kw,alias='debian',user='sbj',sudo_mode='passwordless',allow_system_accounts=True)
+            original=self.passwd.read_text()
+            self.passwd.write_text(original+'daemon2:x:200:200::/var/empty:/usr/sbin/nologin\n')
+            def run(argv,**kw):
+                with self.passwd.open('a') as f:f.write('sbj:x:1000:1000::/home/sbj:/bin/bash\n')
+                return subprocess.CompletedProcess(argv,0)
+            result=accounts.apply(**self.kw,plan_id=plan['plan_id'],confirmed=True,runner=run)
+            self.assertEqual(result['user'],'sbj')
+            self.passwd.write_text(original)
+            plan=accounts.preview(**self.kw,alias='debian',user='sbj',sudo_mode='passwordless',allow_system_accounts=True)
+            self.passwd.write_text(original+'intruder:x:1001:1001::/home/intruder:/bin/bash\n')
+            with mock.patch.object(accounts.subprocess,'run') as runner:
+                with self.assertRaisesRegex(ValueError,'changed'):
+                    accounts.apply(**self.kw,plan_id=plan['plan_id'],confirmed=True,runner=runner)
+                runner.assert_not_called()
+
     def gpu_fixture(self):
         self.repo=self.home/'repo';(self.repo/'config/graphics').mkdir(parents=True)
         files={'lib/dri/libdril_dri.so':b'dri','lib/libgallium-26.3.0-devel.so':b'gallium','lib/libvulkan_freedreno.so':b'turnip','share/glvnd/egl_vendor.d/50_mesa.json':b'{}'}

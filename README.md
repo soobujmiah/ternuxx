@@ -32,12 +32,18 @@ audio, graphics tools, selectable desktops/apps), and **Native Full + PRoot**
 (the same Native selection plus one or more managed distributions). Use **Up/Down**,
 **Space** and **Enter**; **Esc** cancels. `./tx install interactive` is an alias.
 
-The wizard confirms repository preparation (`pkg update`, official X11 and Python
-bootstrap), previews a separately confirmed system upgrade, and applies the exact
-reviewed Native package selection. It also installs the checkout-backed `tx` shim.
-Every guided profile includes the GTK management center and SSH/service management tools. Services start only through a separate explicit action. GPU backend selection is probed and
-confirmed separately; installed drivers are not proof of acceleration. The matching
-Termux:X11 Android app is installed/opened separately.
+The wizard gathers Native/guest desktops, apps, accounts and GPU preferences before
+workstation installation. It refreshes signed metadata, resolves a combined exact
+plan (Native upgrades plus selected packages, every guest, launcher, management and
+GPU changes), then presents package lists, download/disk estimates, free space and
+unresolved sizes. Only explicit combined approval starts apply. Missing planner
+prerequisites (Python/official X11 metadata) have a separate, narrowly labeled
+bootstrap consent. Plan drift stops apply for a fresh review; it is never silently
+approved. Guest APT download/unpack/configuration events stream live with colored
+types. Private plans/reports are retained under `wizard-plans` in product state.
+Every guided profile includes GTK and SSH/service management tools. Service starts,
+desktop launches and rendered GPU verification remain separate explicit actions.
+The matching Termux:X11 Android app is installed/opened separately.
 
 Native DEs are XFCE, MATE and Plasma; managed guests are Debian Trixie and Ubuntu
 Noble. Select multiple DEs, apps or distros with Space. Guest usernames and hidden

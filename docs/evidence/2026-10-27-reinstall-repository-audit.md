@@ -148,3 +148,41 @@ device positively detected Boot, API, Styling and X11. No package/service/settin
 mutation was performed. Limited Android visibility remains unknown rather than
 being treated as absence. Header layout and animation still need owner visual
 acceptance in the actual installer.
+
+## Combined approval / live guest APT implementation
+
+Owner stopped their installation and changed the desired sequencing: every
+selection, exact package plan and consumption estimate must precede workload
+installation. The combined coordinator now collects account/DE/app/runtime/GPU
+choices, resolves Native upgrades with selected packages in one exact transaction,
+previews every guest/account/launcher/GPU operation, and binds the private component
+records plus report hash into one combined ID. A scrollable full report and
+explicit unknown-size acknowledgement precede final approval. Missing planner
+Python/X11 prerequisites retain their own minimal bootstrap consent; signed-index
+refresh is planning metadata, not a guest/workstation transaction.
+
+The known download/installed/additional-disk subtotal and peak/free-space check use
+Native package metadata and existing-guest APT estimates. Fresh pinned rootfs layer
+bytes are explicit; unresolved guest APT/unpacked rootfs, graphics and GTK build
+scratch are labeled unknown. No fabricated complete-size guarantee is made.
+
+Live guest APT was previously captured until process completion. The apply path
+now drains bounded subprocess output continuously to categorized stderr events,
+keeping stdout machine-readable. Download/unpack/configure/warning/error receive
+separate terminal colors; resize/branding updates remain in the single writer and
+are throttled during bulk logs. Timeout/interrupt cleanup affects only the owned
+streaming child process group. Failure journals mark errors; no automatic repair,
+rollback or replacement plan is applied. Fixture evidence covers rejecting a
+combined plan without any apply calls, every preview preceding approval, report
+mutation rejection, merged upgrade/new-package pinning, events arriving before
+child completion and bounded timeout cleanup. No live installer was run by the
+assistant during this work; current-device end-to-end acceptance remains pending.
+
+The combined account preview has an explicit conditional contract: dependency
+packages may add non-login system accounts with UID 1–999 before the account
+step. All baseline passwd records remain hash-bound; ordinary-user additions,
+existing-record edits/removals, rootfs drift or selected account/home/sudo-action
+changes still fail. This prevents expected systemd/service user creation from
+invalidating a reviewed new-user action, without silently adopting a new account
+plan. Legacy standalone account previews retain their strict whole-passwd digest.
+A fixture accepts a package-style system user and rejects an added ordinary login.

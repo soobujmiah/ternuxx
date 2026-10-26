@@ -253,6 +253,34 @@ echo FRAME_DONE
         self.assertIn('FIXTURE_INSTALL_OUTPUT', out)
         self.assertEqual(term.process.returncode, 0, out)
 
+    def test_install_event_types_have_distinct_colors(self):
+        term = self.fixture(f'''source "{ROOT}/lib/install_window.sh"
+_NT_WINDOW_ACTIVE=1; _NT_WINDOW_STARTED=$SECONDS
+_nt_window_snapshot; _nt_window_draw
+_nt_window_run printf '%s\\n' '[DOWNLOAD] payload' '[UNPACK] payload' '[CONFIGURE] payload' '[WARNING] fixture' '[ERROR] fixture'
+echo COLORS_DONE
+''')
+        term.wait_for(b'COLORS_DONE')
+        out = term.finish()
+        for code,label in ((81,'DOWNLOAD'),(141,'UNPACK'),(82,'CONFIGURE'),(220,'WARNING'),(203,'ERROR')):
+            self.assertIn(f'\x1b[38;5;{code}m[{label}]', out)
+        self.assertEqual(term.process.returncode,0,out)
+
+    def test_nested_commands_share_one_terminal_writer(self):
+        term = self.fixture(f'''source "{ROOT}/lib/install_window.sh"
+_NT_WINDOW_ACTIVE=1; _NT_WINDOW_STARTED=$SECONDS
+_nt_window_snapshot; _nt_window_draw
+worker() {{ _nt_window_run echo NESTED_ONE; _nt_window_run echo NESTED_TWO; }}
+_nt_window_run worker
+echo NESTED_DONE
+''')
+        term.wait_for(b'NESTED_DONE')
+        out=term.finish()
+        self.assertEqual(out.count('Running: '),1,out)
+        self.assertIn('NESTED_ONE',out)
+        self.assertIn('NESTED_TWO',out)
+        self.assertEqual(term.process.returncode,0,out)
+
     def test_text_form_escape_restores_terminal(self):
         term = self.fixture('_nt_input "Guest username"; exit $?')
         term.wait_for(b'Guest username')

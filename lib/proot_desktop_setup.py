@@ -103,7 +103,11 @@ def _run_guest(prefix: str, packages: list[str], *, apply: bool,
            and not key.startswith("ANDROID_")}
     command = [manager, "run", alias, "--isolated", "--env",
                "DEBIAN_FRONTEND=noninteractive", "--"]
-    result = runner([*command, *apt], capture_output=True, text=True, check=False, timeout=7200 if apply else 1800, env=env)
+    if apply and runner is subprocess.run and os.environ.get('TERNUXX_INSTALL_LOG') == '1':
+        import install_events
+        result = install_events.run([*command, *apt], timeout=7200, env=env)
+    else:
+        result = runner([*command, *apt], capture_output=True, text=True, check=False, timeout=7200 if apply else 1800, env=env)
     output = (getattr(result, "stdout", "") or "") + "\n" + (getattr(result, "stderr", "") or "")
     estimate_output = output
     if not isinstance(output, str) or len(output) > 16 * 1024 * 1024:
@@ -388,7 +392,7 @@ def apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
         exact_requests = [f"{package}={version}" for package, version in exact_versions.items()]
         try:
             result = _run_guest(prefix, exact_requests, apply=True, runner=runner, alias=alias)
-        except (OSError, subprocess.TimeoutExpired, KeyboardInterrupt) as exc:
+        except (OSError, ValueError, subprocess.TimeoutExpired, KeyboardInterrupt) as exc:
             proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "failed",
                                                        "failure_type": type(exc).__name__})
             raise

@@ -181,6 +181,12 @@ _nt_pick() {{
     'Managed PRoot'*) echo debian,ubuntu ;;
   esac
 }}
+_nt_master_workstation() {{
+ echo PREPARE
+ echo PACKAGES="$2"
+ echo GUI_BUILD
+ for d in ${{3//,/ }}; do echo GUEST="$d"; done
+}}
 _nt_wizard_prepare() {{ echo PREPARE; }}
 _nt_wizard_upgrade() {{ echo UPGRADE; }}
 _nt_collect_guest() {{ echo COLLECT="$1"; }}
@@ -226,6 +232,7 @@ source "{ROOT}/lib/install_wizard.sh"
 nt_require_termux() {{ :; }}
 _nt_install_system_info() {{ :; }}
 _nt_pick() {{ echo minimal; }}
+_nt_master_workstation() {{ echo "COMPONENTS=$2"; echo BUILD_MANAGEMENT; }}
 _nt_wizard_prepare() {{ :; }}
 _nt_wizard_upgrade() {{ :; }}
 _nt_wizard_native() {{ printf 'COMPONENTS=%s\\n' "$1"; }}

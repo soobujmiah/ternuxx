@@ -387,7 +387,7 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
         "config_digest": manifest["fresh_install"]["config_digest"],
         "layer_digest": manifest["fresh_install"]["layer_digest"],
         "manifest_sha256": hashlib.sha256(raw).hexdigest(),
-        "rootfs_target": str(rootfs), "guest_user": user,
+        "rootfs_target": str(rootfs), "rootfs_archive_bytes": manifest["fresh_install"]["layer_size"], "guest_user": user,
         "sudo_mode": sudo_mode,
         "package_groups": chosen_groups,
         "desktop_environments": list(chosen_desktops),
