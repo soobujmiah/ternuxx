@@ -155,3 +155,7 @@ Guest adoption and desktop inventory now use a common rootfs-confined package da
 ## Debian standalone render follow-up (2026-10-26 11:24 UTC)
 
 With owner approval, Native `:1` was temporarily stopped and existing Debian XFCE launched on standalone `:0`. GLES and GLX contexts reported Zink/Turnip Adreno 825; Vulkan XCB drawing selected Adreno 825. The shared verifier remained `partial`: GLES drawing was not verified and its GLX draw returned zero frames. XFCE panel/window-tree readiness and Android visibility were not checked. Native XFCE was restarted on `:1`; `:0` and `:2` are stopped and no managed PRoot sessions remain. See [Debian standalone render follow-up](../evidence/2026-10-26-debian-standalone-render-follow-up.md).
+
+## Debian XFCE standalone delayed rerun (2026-10-26 about 11:31 UTC)
+
+After waiting 20 seconds from launch, the shared Debian standalone verifier returned `complete` with a 623-frame Zink/Turnip Adreno 825 GLX draw, Adreno 825 Vulkan XCB draw, and reachable Native PulseAudio endpoint. GLES draw remains unverified. The immediate earlier run had returned zero GLX frames, so startup readiness may influence results; this is an inference and the root cause is unresolved. Host `xwininfo` is unavailable, leaving panel/window-tree and Android visibility unchecked. Native XFCE was restored on `:1`; `:0`/`:2` and managed sessions are stopped. See [standalone render follow-up](../evidence/2026-10-26-debian-standalone-render-follow-up.md).

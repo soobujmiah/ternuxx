@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "b98a91f4cd9cb66de1497ec7bb323e057dc6f633a4fbd896fab726c064b359d6",
+      "sha256": "09da63ae33cb77d9a199c09d2ea049a45bb756ba3ab9f05f87b6e4a724979f87",
       "lines": 40,
       "read_status": "pending",
       "read_sha256": null
@@ -547,8 +547,8 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "4fb77958bf0af8e196fd97b4076fe25a2d7f65ecb9c05acbcb97bbb7b9bfc312",
-      "lines": 157,
+      "sha256": "e8989a55d2a8eefb2a3088f380e869732c9c8b9d75b82f007c074f7b5c46a853",
+      "lines": 161,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3579,8 +3579,8 @@
     {
       "path": "docs/evidence/2026-10-26-debian-standalone-render-follow-up.md",
       "kind": "narrative",
-      "sha256": "bc15848ff05bbcf32d34df75cf90f2f193ace26e9a04c0f9043b74e877e74060",
-      "lines": 7,
+      "sha256": "b82786952e30c9fde3246f2d39b037b617b63e36ed825a641d8bed0e516ad6a1",
+      "lines": 13,
       "read_status": "pending",
       "read_sha256": null
     },
