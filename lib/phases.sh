@@ -578,6 +578,11 @@ _nt_offer_managed_guest() {
 
 nt_cmd_install() {
   case "${1:-}" in
+    gpu)
+      shift
+      [ $# -eq 0 ] || { nt_fail 'Use tx install gpu with no arguments.'; return 2; }
+      . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
+      _nt_install_gpu; return $? ;;
     xfce|xfce4|mate|plasma)
       . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
       _nt_install_native_desktop "$@"; return $? ;;

@@ -69,6 +69,47 @@ class WizardTests(unittest.TestCase):
         self.assertEqual(rc, 130, out)
         self.assertIn('\x1b[?1049l', out)
 
+    def test_none_choice_excludes_other_multiselect_entries(self):
+        rc, out = self.terminal(
+            f'source "{ROOT}/lib/install_picker.sh"; '
+            'result=$(_nt_pick "Fixture" multi xfce "none|CLI only" "xfce|XFCE"); '
+            'printf "RESULT=%s\\n" "$result"', b' \n')
+        self.assertEqual(rc, 0, out)
+        self.assertIn('RESULT=none', out)
+        self.assertNotIn('RESULT=none,xfce', out)
+
+    def test_gpu_menu_skip_does_not_touch_packages_or_backends(self):
+        script = f'''source "{ROOT}/lib/phases.sh"
+source "{ROOT}/lib/install_wizard.sh"
+_nt_pick() {{ echo none; }}
+_nt_wizard_native() {{ echo UNEXPECTED_INSTALL; }}
+_nt_gpu_setup "{ROOT}" 1
+'''
+        rc, out = self.terminal(script, b'')
+        self.assertEqual(rc, 0, out)
+        self.assertNotIn('UNEXPECTED_INSTALL', out)
+
+    def test_gpu_menu_does_not_offer_failed_native_backend(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            log = Path(tmp) / 'options'
+            script = f'''source "{ROOT}/lib/phases.sh"
+source "{ROOT}/lib/install_wizard.sh"
+_nt_gpu_probe() {{ echo 'unavailable|fixture unsupported GPU'; }}
+_nt_pick() {{
+  case "$1" in
+    'Graphics/sound'*) echo native ;;
+    'Native backend'*) printf '%s\\n' "$@" > "{log}"; echo keep ;;
+  esac
+}}
+_nt_gpu_setup "{ROOT}"
+'''
+            rc, out = self.terminal(script, b'')
+            options = log.read_text()
+        self.assertEqual(rc, 0, out)
+        self.assertIn('system|', options)
+        self.assertNotIn('termux-zink|', options)
+        self.assertIn('No accelerated backend is advertised', out)
+
     def test_no_terminal_refuses_before_package_actions(self):
         result = subprocess.run(['bash', str(ROOT / 'tx'), 'install'],
                                 capture_output=True, text=True)
@@ -93,6 +134,7 @@ _nt_pick() {{
 _nt_wizard_prepare() {{ echo PREPARE; }}
 _nt_wizard_native() {{ echo PACKAGES="$1"; }}
 _nt_wizard_entrypoint() {{ echo SHIM; }}
+_nt_gpu_setup() {{ echo GPU_MENU; }}
 _nt_confirm() {{ return 1; }}
 _nt_install_managed_guest() {{ echo GUEST="$1"; }}
 bash() {{ echo GUI_BUILD; }}
@@ -111,7 +153,7 @@ _nt_install_wizard
     def test_native_selects_multiple_desktops_apps_and_management(self):
         rc, out = self.flow('native')
         self.assertEqual(rc, 0, out)
-        self.assertIn('PACKAGES=terminal,developer,proot,gui,audio,sound-controls,graphics,mate,plasma,browser,pdf', out)
+        self.assertIn('PACKAGES=terminal,developer,proot,audio,graphics,gui,audio,sound-controls,graphics,mate,plasma,browser,pdf', out)
         self.assertIn('GUI_BUILD', out)
         self.assertNotIn('GUEST=', out)
 

@@ -68,7 +68,7 @@ nt_cmd_install debian --user sobuj
                     ready, _, _ = select.select([master], [], [], 8)
                     self.assertTrue(ready, "guided install did not ask for desktop choices")
                     output.extend(os.read(master, 8192))
-                os.write(master, b" \x1b[B \x1b[B\x1b[B \n")
+                os.write(master, b"\x1b[B \x1b[B \x1b[B\x1b[B \n")
                 while b"debian optional software" not in output:
                     ready, _, _ = select.select([master], [], [], 8)
                     self.assertTrue(ready, "guest app selector did not render")

@@ -25,6 +25,16 @@ installed selections return a no-op. Ubuntu browser selection uses APT Epiphany 
 avoid the Snap-only Firefox path. These are implemented/fixture-tested paths; the
 owner's fresh reinstall and live workload acceptance remain pending.
 
+The help landing page is install-first and summarizes later desktop/guest/GPU
+commands. All guided profiles now include Native audio/graphics runtimes; `tx install
+gpu` opens the same device-aware Native/PRoot/both selector without requiring a DE.
+Native Zink recommendations require successful Vulkan device enumeration. Current
+backend preferences remain default; no desktop/service is restarted. Managed guest
+Turnip repair/addition reuses the checksum-bound staging helper and refuses unknown
+existing files. Explicit CLI-only guests use `--desktops none`; CPU-runtime-only
+setup does not stage Turnip. These remain dependency/configuration claims pending
+live workload and audible-playback acceptance.
+
 Writer-only Native installation remains unavailable because the official repository
 provides a monolithic LibreOffice package. This revision does not install it silently.
 Repository/fixture checks are separate from the owner's pending reinstall and rendered

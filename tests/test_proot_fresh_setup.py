@@ -72,6 +72,18 @@ class FreshProotSetupTests(unittest.TestCase):
         self.assertIn("mate-desktop-environment-core", operation["packages"])
         self.assertNotIn("startlxqt", operation["packages"])
 
+    def test_explicit_headless_cpu_profile_keeps_audio_without_staging_turnip(self):
+        with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=True):
+            plan = proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="sobuj",
+                desktops=["none"], groups=["base", "app-cpu-runtime"])
+        operation = plan["operation"]
+        self.assertEqual(operation["desktop_environments"], [])
+        self.assertNotIn("xfce4", operation["packages"])
+        self.assertIn("pulseaudio-utils", operation["packages"])
+        self.assertIn("mesa-vulkan-drivers", operation["packages"])
+        self.assertFalse(operation["graphics"]["turnip_install_planned"])
+
     def test_fresh_plan_rejects_unknown_or_duplicate_desktops(self):
         for choices in (["invalid"], ["xfce", "xfce"], []):
             with self.subTest(choices=choices), patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False), \

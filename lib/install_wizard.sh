@@ -81,7 +81,7 @@ _nt_wizard_entrypoint() {
 _nt_install_wizard() {
   [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail 'Run tx install in an attached terminal; automation uses tx install preview.'; return 2; }
   nt_require_termux || return 1
-  local profile components=terminal,developer,proot desktops apps distros distro root answer
+  local profile components=terminal,developer,proot,audio,graphics desktops apps distros distro root answer
   root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   _nt_install_system_info || return $?
   profile="$(_nt_pick 'Choose your workstation' single '' \
@@ -113,17 +113,12 @@ _nt_install_wizard() {
   if [ "$profile" != minimal ]; then
     nt_info 'Building the Native GTK management center from the selected checkout.'
     bash "$root/scripts/install-management-center.sh" || return $?
-    # Selection alone never claims acceleration. Probe through the same manager.
-    if [ -c /dev/kgsl-3d0 ]; then
-      nt_info 'Adreno/KGSL detected. Future-start Zink selection still requires a successful Vulkan probe.'
-      if _nt_confirm 'Probe and select the Native termux-zink graphics backend?'; then
-        "$root/tx" mng graphics select native termux-zink || return $?
-      fi
-    fi
+
   fi
   for distro in ${distros//,/ }; do
     _nt_install_managed_guest "$distro" || return $?
   done
+  _nt_gpu_setup "$root" || return $?
   nt_ok 'Selected setup stages completed. No desktop was started.'
   nt_info 'Commands: tx tui | tx web | tx gui | tx start --desktop ID'
   nt_info 'Guest: tx pgui [DE] (Debian XFCE default); tx pgui start --alias ubuntu --desktop xfce'
@@ -132,7 +127,7 @@ _nt_install_wizard() {
 
 _nt_choose_guest_desktops() {
   local distro="$1" root="$2" choices choice
-  local -a items=()
+  local -a items=('none|CLI only / no desktop environment')
   choices="$(PYTHONPATH="$root/lib" command python3 - "$distro" "$root" <<'PYDESKTOPCHOICES'
 import sys, proot_profiles, proot_desktops
 profile = proot_profiles.install_profile(sys.argv[2], sys.argv[1])["profile_id"]
@@ -204,7 +199,7 @@ _nt_install_proot_short() {
 import sys, proot_profiles, proot_desktops
 profile = proot_profiles.profile_for_alias(sys.argv[1])
 available = [key for key in proot_desktops.catalog(profile) if proot_desktops.DESKTOP_ROUTES.get(key)]
-if sys.argv[2] not in available:
+if sys.argv[2] != "none" and sys.argv[2] not in available:
     print("Supported guest desktops: " + ", ".join(available), file=sys.stderr)
     raise SystemExit(2)
 PYSHORTDESKTOP
@@ -213,4 +208,69 @@ PYSHORTDESKTOP
   local -a args=()
   [ -z "$desktop" ] || args+=(--desktops "${desktop/xfce4/xfce}")
   _nt_install_managed_guest "$distro" "${args[@]}"
+}
+
+_nt_gpu_probe() {
+  PYTHONPATH="$1/lib" command python3 - <<'PYGPUPROBE'
+import os, graphics_manager
+ok, device, reason = graphics_manager._termux_freedreno_device(os.environ.get("PREFIX", ""))
+print(("supported|" + str(device)) if ok else ("unavailable|" + str(reason)))
+PYGPUPROBE
+}
+
+_nt_gpu_setup() {
+  local root="$1" target backend choices choice distros distro probe
+  local -a native_options=('keep|Keep current Native graphics configuration (default)')
+  target="$(_nt_pick 'Graphics/sound setup (no desktop required)' single '' \
+    'native|Native Termux' 'proot|Managed PRoot guests' 'both|Native + PRoot' 'none|Keep all existing backend choices')" || return $?
+  [ "$target" != none ] || return 0
+  nt_info "Device: $(getprop ro.product.model 2>/dev/null || echo unknown); SoC: $(getprop ro.soc.model 2>/dev/null || echo unknown)."
+  if [ "${2:-0}" = 1 ]; then
+    _nt_wizard_native audio,graphics,proot || return $?
+  fi
+  nt_info 'Drivers, CPU rendering libraries and PulseAudio are installed by default; no service or GUI is started here.'
+  if [[ "$target" = native || "$target" = both ]]; then
+    probe="$(_nt_gpu_probe "$root")" || return $?
+    if [[ "$probe" = supported\|* ]]; then
+      choice="termux-zink|Termux Zink/Turnip: ${probe#*|} (Vulkan enumeration passed)"
+      if [ -e "$TERNUXX_STATE_DIR/native-graphics-backend" ] || [ -e "$TERNUXX_STATE_DIR/native-graphics-prefix" ]; then
+        native_options+=("$choice")
+      else
+        native_options=("$choice" "${native_options[@]}")
+      fi
+    else
+      nt_info "Native Zink unavailable: ${probe#*|}. No accelerated backend is advertised."
+    fi
+    native_options+=('system|System Mesa defaults / CPU fallback; remove forced Native GPU preference')
+    backend="$(_nt_pick 'Native backend (future CLI workloads / desktop starts)' single '' "${native_options[@]}")" || return $?
+    if [ "$backend" != keep ]; then
+      _nt_confirm "Select Native $backend for future workloads (no restart)?" || return $?
+      "$root/tx" mng graphics select native "$backend" || return $?
+    fi
+  fi
+  if [[ "$target" = proot || "$target" = both ]]; then
+    local -a guest_options=('runtime|CPU rendering/audio libraries only; preserve current GPU files')
+    if [ -r /dev/kgsl-3d0 ]; then
+      guest_options=( 'managed|Pinned managed Turnip/Zink + CPU rendering + audio (KGSL detected; workload verification required)' "${guest_options[@]}" )
+    else
+      nt_info 'No readable KGSL device: managed Adreno Turnip is not offered.'
+    fi
+    backend="$(_nt_pick 'PRoot graphics runtime' single '' "${guest_options[@]}")" || return $?
+    distros="$(_nt_pick 'Configure guest runtimes (one or more)' multi debian 'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
+    local app=cpu-runtime
+    [ "$backend" != managed ] || app=graphics-runtime
+    for distro in ${distros//,/ }; do
+      # No desktop is implicitly installed by the graphics-only flow. Fresh
+      # setup still shows its pinned image and asks for a guest account.
+      _nt_install_managed_guest "$distro" --desktops none --apps "$app" || return $?
+    done
+  fi
+  nt_info 'Configuration only. Verify a bounded workload separately; no rendered-acceleration claim was made.'
+}
+
+_nt_install_gpu() {
+  [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail 'Run tx install gpu in an attached terminal.'; return 2; }
+  nt_require_termux || return 1
+  local root="${_TN_LIB_DIR%/lib}"
+  _nt_gpu_setup "$root" 1
 }

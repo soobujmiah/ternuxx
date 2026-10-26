@@ -155,11 +155,13 @@ def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
           apps: list[str] | None = None) -> dict[str, object]:
     provider = proot_profiles.profile_for_alias(alias)
     try:
-        desktops = proot_desktops.validate_selection(provider, selected)
+        desktops = () if selected == ["none"] or selected == [] else proot_desktops.validate_selection(provider, selected)
     except proot_desktops.DesktopError as exc:
         raise DesktopSetupError(str(exc)) from exc
-    packages = list(dict.fromkeys([*proot_desktops.packages_for(provider, desktops),
+    packages = list(dict.fromkeys([*(proot_desktops.packages_for(provider, desktops) if desktops else []),
                                    *proot_software.packages(alias, apps or [])]))
+    if not packages:
+        raise DesktopSetupError("select a desktop, app or graphics runtime to add")
     before = _package_inventory(root)
     status_path = root / "var/lib/dpkg/status"
     status_hash = _private_digest(status_path)
@@ -186,6 +188,11 @@ def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
         "dpkg_status_sha256": status_hash, "apt_sources_sha256": source_hash,
         "installed_package_count": len(before), "guest_packages_changed": False,
     }
+    if "graphics-runtime" in (apps or []):
+        manifest, digest, _ = proot_profiles.load(Path(__file__).resolve().parents[1], provider)
+        body["graphics_runtime"] = {"manifest_sha256": digest,
+                                    "kgsl_accessible": proot_fresh_setup._kgsl_accessible(),
+                                    "turnip_archive_sha256": manifest["graphics"]["turnip_archive"]["sha256"]}
     plan_id = hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     return {**body, "plan_id": plan_id}
 
@@ -337,7 +344,7 @@ def preview(*, prefix: str, home: str, state_dir: str, selected: list[str], runn
     plan = _plan(root, identity, selected=selected, prefix=prefix, runner=runner, alias=alias, apps=apps)
     proot_fresh_setup._private_write(state / "previews" / f"desktop-{plan['plan_id']}.json", plan)
     transaction = dict(plan["transaction_summary"])
-    return {"status": "already_installed" if not plan["transaction_packages"] else "preview", "plan_id": plan["plan_id"], "operation": plan,
+    return {"status": "already_installed" if not plan["transaction_packages"] and not plan.get("graphics_runtime") else "preview", "plan_id": plan["plan_id"], "operation": plan,
             "transaction": transaction}
 
 
@@ -399,6 +406,16 @@ def apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
                                                        "changed_existing": sorted(changed_existing),
                                                        "removed_existing": sorted(removed_existing)})
             raise DesktopSetupError("guest package changes differ from the exact preview; inspect the retained journal")
+        if saved.get("graphics_runtime", {}).get("kgsl_accessible"):
+            try:
+                manifest, _digest, _raw = proot_profiles.load(Path(__file__).resolve().parents[1], proot_profiles.profile_for_alias(alias))
+                driver, icd = proot_fresh_setup._stage_turnip(manifest, state / "artifacts")
+                proot_fresh_setup._guest_turnip_install(saved["requested_packages"], driver, icd,
+                    str(Path(prefix) / "bin/proot-distro"), alias, runner, manifest)
+            except (OSError, ValueError, subprocess.SubprocessError, KeyboardInterrupt):
+                proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "failed",
+                                                           "stage": "graphics-configuration"})
+                raise
         if not set(saved["desktop_environments"]).issubset(proot_desktops.installed_desktops(root, provider=proot_profiles.profile_for_alias(alias))):
             proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "failed"})
             raise DesktopSetupError("APT completed but requested desktops are not fully installed")

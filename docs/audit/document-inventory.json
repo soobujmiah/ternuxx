@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "b171cd1f8ad20edfa3e8e70d35fcaa681dc31210bc8c30f933e95d7e7585b84f",
-      "lines": 75,
+      "sha256": "17fcf50c14cba69ec86bfc7c9d36478a36ffac9863f99be121f700b164018158",
+      "lines": 85,
       "read_status": "read",
-      "read_sha256": "b171cd1f8ad20edfa3e8e70d35fcaa681dc31210bc8c30f933e95d7e7585b84f"
+      "read_sha256": "17fcf50c14cba69ec86bfc7c9d36478a36ffac9863f99be121f700b164018158"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "eaecdb8da3922b69c4c20a8fdc430a431d911bfedafb46d8785634f40482f761",
-      "lines": 124,
+      "sha256": "8d9fc17380c613fd16eba7982b85c4505efe31c6f793fe5742d370d91c6b3f82",
+      "lines": 127,
       "read_status": "read",
-      "read_sha256": "eaecdb8da3922b69c4c20a8fdc430a431d911bfedafb46d8785634f40482f761"
+      "read_sha256": "8d9fc17380c613fd16eba7982b85c4505efe31c6f793fe5742d370d91c6b3f82"
     },
     {
       "path": "SECURITY.md",
@@ -155,10 +155,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "d469c032aa3d3d22bf3b2589e15f598b3bdf1ac33307acfa59c152b334b70cba",
-      "lines": 217,
+      "sha256": "ba29f01a910ccd9ebc93028bae7d12fe25c7db4fe16fdcb66f4cf42a7825506c",
+      "lines": 256,
       "read_status": "read",
-      "read_sha256": "d469c032aa3d3d22bf3b2589e15f598b3bdf1ac33307acfa59c152b334b70cba"
+      "read_sha256": "ba29f01a910ccd9ebc93028bae7d12fe25c7db4fe16fdcb66f4cf42a7825506c"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -3739,10 +3739,10 @@
     {
       "path": "docs/evidence/2026-10-26-three-profile-managed-installer.md",
       "kind": "narrative",
-      "sha256": "1b5c72f749c598e4d6cce298cd212ffee608313ec412d0458bcb0f222e8fb0fb",
-      "lines": 78,
+      "sha256": "97958efe54b559c799bcdf6e23aa14be2ebf5a66601ef3ac93c25d41535d4b7a",
+      "lines": 100,
       "read_status": "read",
-      "read_sha256": "1b5c72f749c598e4d6cce298cd212ffee608313ec412d0458bcb0f222e8fb0fb"
+      "read_sha256": "97958efe54b559c799bcdf6e23aa14be2ebf5a66601ef3ac93c25d41535d4b7a"
     },
     {
       "path": "docs/evidence/2026-10-26-ubuntu-noble-live-install-route.md",

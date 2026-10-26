@@ -30,6 +30,15 @@ class GuestSoftwareTests(unittest.TestCase):
         self.assertNotIn('audacious', result)
         self.assertEqual(proot_fresh_setup._selected_groups(None), ['base'])
 
+    def test_headless_cpu_runtime_keeps_sound_without_desktops_or_duplicate_packages(self):
+        manifest = json.loads((ROOT / 'config/proot/debian-trixie.json').read_text())
+        result = proot_fresh_setup._workstation_packages(manifest, ['base', 'app-cpu-runtime'], ())
+        self.assertNotIn('xfce4', result)
+        self.assertNotIn('xfce4-terminal', result)
+        self.assertIn('mesa-vulkan-drivers', result)
+        self.assertIn('pulseaudio-utils', result)
+        self.assertEqual(len(result), len(set(result)))
+
     def test_ubuntu_browser_avoids_snap_and_unknown_apps_fail(self):
         self.assertEqual(proot_software.packages('ubuntu', ['browser']), ['epiphany-browser'])
         self.assertEqual(proot_software.packages('debian', ['browser']), ['firefox-esr'])

@@ -9,38 +9,33 @@ _nt_help_raw() {
     "") cat <<'EOF'
 Ternuxx — Native Termux host and managed PRoot workstation management
 
-Usage: tx <command> [options]
+First install:
+  ./tx install                    Device info and guided setup
+  tx install                      Same wizard after tx is installed
 
-Quick launch:
-  tx gui             Open the Native GTK management center
-  tx start           Start the Native Termux:X11/XFCE desktop
-  tx tui             Open interactive terminal management
-  tx web             Open the authenticated local Web UI
-  tx doctor          Run Native environment health checks
-  tx guides          Open the interactive setup guide
+Add or configure later:
+  tx install xfce|mate|plasma      Native desktop
+  tx install proot [DISTRO] [DE]   Guest, desktop and optional software
+  tx install gpu                  Device-aware Native / PRoot / both setup
+  tx install debian|ubuntu        Guided managed guest setup
 
-  Commands by task:
-  Desktop: start, stop, restart, status, gui, tui, web
-  Graphics: graphics, info, check, doctor
-  Local AI: ai (pinned CPU; explicit Vulkan GPU and experimental HTP inference routes)
-  Software: app (curated Native package catalog)
+Open and inspect:
+  tx tui / tx web / tx gui         Terminal / browser / GTK management
+  tx start [--desktop DE]          Native desktop
+  tx pgui [DE]                     Debian XFCE; auto :0 or nested :2
+  tx status / tx doctor            Current state / health checks
+  tx audio status                  Sound status
+
+More commands:
   Debian: db (interactive guest login), proot setup, pgui, terminal
-  Management: mng, audio, ssh, remote
-  Recovery: checkpoint, reboot, boot, wakelock, backup, recovery, restore
-  Setup: install
-  Reference: guides, help
+  tx app / tx mng                  Software and services
+  tx ai                           CPU, Vulkan GPU and experimental HTP inference routes
+  tx checkpoint / tx recovery      Recovery tools
+  tx guides                       Interactive setup guide
 
-Use `tx help NAME` for command options. Common aliases: up=start, dn=stop,
-rs=restart, st=status, ck=check, inf=info, doc=doctor, mg=mng.
+Use tx help NAME for options, graphics checks, SSH, boot and recovery details.
 Options: --json, --verbose, --quiet, --help
-Install and recovery changes require an exact preview plan. The optional managed PRoot
-Debian or Ubuntu guests are available with `tx install debian` or `tx install ubuntu`.
-Remote access is disabled by default.
-`tx reboot prepare --test-id ID` collects conservative repository metadata and
-unknown service/boot evidence, previews a private NOT_READY record, then needs
-the exact typed confirmation or `--yes --plan-id ID`. `tx reboot verify` uses
-the same preview/confirmation flow. Neither operation reboots Android or
-resumes work.
+Changes show a preview and require confirmation. Remote access is disabled by default.
 EOF
       ;;
     proot|db|pgui|virgl)
@@ -48,7 +43,7 @@ EOF
 Managed PRoot guests use the Native Termux host. Run `tx proot setup catalog` to
 list profiles and their accepted desktop routes. The short flows are `tx install debian`
 and `tx install ubuntu`; each asks for the guest username and, in an attached
-terminal, offers desktop choices (comma-separated IDs; blank keeps XFCE), then
+terminal, offers desktop and software choices (arrow keys/Space; XFCE default), then
 shows the pinned plan and asks before applying it. You do not need to copy a
 plan ID in the guided flow. Use explicit `preview`/`apply` only for review-only
 or automated setup.
@@ -131,6 +126,8 @@ tx install ubuntu [--user NAME] — Guided Ubuntu Noble guest setup
 tx install debian preview --user NAME — Review-only; no guest changes
 tx proot setup catalog — List installable guest profiles and desktop routes
 tx install ubuntu preview --user NAME — Review-only; no guest changes
+tx install gpu — Device-aware Native/PRoot/both runtime and backend selector
+All guided profiles include sound and graphics tools; desktops remain optional.
 tx install xfce|mate|plasma — Add a supported Native desktop
  tx install proot [debian|ubuntu] [DE] — Create guest or add DE/apps to existing guest
  tx install — Device info, then Minimal / Native Full / Native Full + PRoot

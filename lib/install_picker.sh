@@ -45,7 +45,13 @@ _nt_pick() (
         if [ "$mode" = single ]; then
           for i in "${!selected[@]}"; do selected[$i]=0; done
         fi
-        selected[$index]=$((1 - selected[index])) ;;
+        selected[$index]=$((1 - selected[index]))
+        if [ "${selected[$index]}" = 1 ]; then
+          for i in "${!items[@]}"; do
+            [ "$i" != "$index" ] || continue
+            if [[ "${items[$index]%%|*}" = none || "${items[$i]%%|*}" = none ]]; then selected[$i]=0; fi
+          done
+        fi ;;
       '')
         if [ "$mode" = single ]; then
           printf '%s\n' "${items[$index]%%|*}"; return 0

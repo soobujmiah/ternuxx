@@ -254,7 +254,7 @@ def _private_write(path: Path, data: dict) -> None:
 import proot_software
 
 _PACKAGE_GROUPS = ("base", "desktop-compat", "development", "desktop-apps", "fonts", *(
-    "app-" + key for key in proot_software.APPS))
+    "app-" + key for key in (*proot_software.APPS, "graphics-runtime", "cpu-runtime")))
 
 
 def _selected_groups(groups: list[str] | None) -> list[str]:
@@ -273,7 +273,7 @@ def _workstation_packages(manifest: dict, selected_groups: list[str],
                           desktops: tuple[str, ...], provider: str = "debian-trixie") -> list[str]:
     base = _packages(manifest, selected_groups)
     all_desktops = set(proot_desktops.packages_for(provider, list(proot_desktops.catalog(provider))))
-    selected = proot_desktops.packages_for(provider, list(desktops))
+    selected = proot_desktops.packages_for(provider, list(desktops)) if desktops else []
     selected_set = set(selected)
     result = [package for package in base if package not in all_desktops or package in selected_set]
     result.extend(package for package in selected if package not in result)
@@ -298,6 +298,8 @@ def _packages(manifest: dict, selected: list[str] | None = None) -> list[str]:
         for package in values:
             if not isinstance(package, str) or not re.fullmatch(r"[a-z0-9][a-z0-9+.-]{0,100}", package):
                 raise FreshSetupError("invalid package name in the Debian manifest")
+            if group.startswith("app-") and package in result:
+                continue
             result.append(package)
     if len(set(result)) != len(result):
         raise FreshSetupError("duplicate package in Debian package groups")
@@ -358,16 +360,19 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
         groups = inherited.get("package_groups")
         if desktops is None:
             desktops = inherited.get("desktop_environments")
+            if desktops == []:
+                desktops = ["none"]
     chosen_groups = _selected_groups(groups)
     try:
-        chosen_desktops = proot_desktops.validate_selection(provider, desktops)
+        chosen_desktops = () if desktops == ["none"] else proot_desktops.validate_selection(provider, desktops)
     except proot_desktops.DesktopError as exc:
         raise FreshSetupError(str(exc)) from exc
     packages = _workstation_packages(manifest, chosen_groups, chosen_desktops, provider)
     ca_path, ca_sha256 = _native_ca_bundle(prefix)
     guest_ca_path = "/tmp/ternuxx-native-ca.pem"
     kgsl = _kgsl_accessible()
-    if kgsl:
+    turnip = kgsl and "app-cpu-runtime" not in chosen_groups
+    if turnip:
         for name in manifest.get("graphics", {}).get("hold_packages", []):
             if name not in packages:
                 packages.append(name)
@@ -393,7 +398,7 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
         "graphics": {
             "kgsl_accessible_at_preview": kgsl,
             "turnip_archive_sha256": manifest["graphics"]["turnip_archive"]["sha256"],
-            "turnip_install_planned": kgsl,
+            "turnip_install_planned": turnip,
             "rendering_verified": False,
         },
         "free_bytes_at_preview": shutil.disk_usage(_storage_anchor(prefix, containers)).free,

@@ -196,6 +196,36 @@ class DesktopInstallPlanTests(unittest.TestCase):
                 state_dir=str(self.state), selected=["xfce"], runner=runner)
         self.assertEqual(plan["status"], "already_installed")
 
+    def test_headless_graphics_addon_reuses_pinned_turnip_installer_after_exact_package_apply(self):
+        import proot_software
+        packages = proot_software.packages("debian", ["graphics-runtime"])
+
+        def runner(args, **kwargs):
+            if "-y" in args:
+                with (self.root / "var/lib/dpkg/status").open("a") as stream:
+                    for package in packages:
+                        stream.write(f"\n\nPackage: {package}\nStatus: install ok installed\nArchitecture: arm64\nVersion: 1.0\n")
+                output = f"0 upgraded, {len(packages)} newly installed, 0 to remove and 0 not upgraded.\n"
+            else:
+                output = "".join(f"Inst {package} (1.0 Debian:13/stable [arm64])\n" for package in packages)
+                output += f"0 upgraded, {len(packages)} newly installed, 0 to remove and 0 not upgraded.\n"
+            return subprocess.CompletedProcess(args, 0, output, "")
+
+        fresh = proot_desktop_setup.proot_fresh_setup
+        with mock.patch.object(proot_desktop_setup.proot_guest_retirement, "_assert_idle"), \
+             mock.patch.object(fresh, "_kgsl_accessible", return_value=True), \
+             mock.patch.object(fresh, "_stage_turnip", return_value=(Path("driver"), Path("icd"))) as stage, \
+             mock.patch.object(fresh, "_guest_turnip_install") as install:
+            plan = proot_desktop_setup.preview(prefix=str(self.prefix), home=str(self.home),
+                state_dir=str(self.state), selected=["none"], apps=["graphics-runtime"], runner=runner)
+            self.assertTrue(plan["operation"]["graphics_runtime"]["kgsl_accessible"])
+            self.assertEqual(plan["operation"]["desktop_environments"], [])
+            result = proot_desktop_setup.apply(prefix=str(self.prefix), home=str(self.home),
+                state_dir=str(self.state), plan_id=plan["plan_id"], confirmed=True, runner=runner)
+        self.assertEqual(result["status"], "complete")
+        stage.assert_called_once()
+        install.assert_called_once()
+
     def test_failed_or_unconfirmed_apply_is_refused(self):
         with self.assertRaisesRegex(proot_desktop_setup.DesktopSetupError, "requires --yes"):
             proot_desktop_setup.apply(prefix=str(self.prefix), home=str(self.home),

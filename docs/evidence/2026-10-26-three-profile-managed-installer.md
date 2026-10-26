@@ -76,3 +76,25 @@ The PRoot shortcut also provisions the Native X11/PulseAudio/Xephyr bridge throu
 its exact Native package preview when adding a guest GUI to a Minimal host. Explicit
 short desktop names are checked against accepted provider routes before that package
 phase, so unsupported names cannot trigger partial provider installation.
+
+## Follow-up: install-first help and optional headless acceleration setup
+
+Main help now starts with `./tx install` and lists later Native DE, PRoot and GPU
+commands. All guided profiles include Native sound/graphics runtimes. The shared
+`tx install gpu` scope selector precedes package changes and offers Native/PRoot/
+both setup without requiring a desktop. Native Zink is offered only after supported
+Vulkan enumeration, with existing preferences preserved by default. On a clean host
+it becomes the first recommendation after the successful probe. PRoot uses the
+managed pinned Turnip staging helper, CPU rendering libraries and authenticated
+Native sound integration; the CPU-runtime-only choice does not stage Turnip.
+`none` is an explicit headless desktop choice, and is mutually exclusive with DEs.
+Existing guest runtime changes bind the manifest and KGSL snapshot into their exact
+package plan; unknown driver content is refused, not overwritten. No live installer,
+driver configuration, service or GUI action was performed by the agent.
+
+Focused checks passed: 16 wizard/keyboard/GPU-offer tests, 30 fresh setup tests,
+10 managed guest desktop/runtime tests and 4 guest software tests. This includes
+headless CPU/audio without Turnip staging, checksum-helper reuse for an existing
+headless graphics addition, and omission of an unsupported Native GPU option.
+Prior revision `9ab2a39` had one unrelated CI Mesa recipe fixture subprocess exceed
+its existing ten-second timeout; the next complete CI run must independently pass.

@@ -215,3 +215,42 @@ are refused. Repeating a fully installed selection is a read-only no-op. The gue
 must be idle, and any source/package change invalidates the plan. The default guest
 CPU/GPU/audio configuration is preserved during add-on installs. On a fresh host,
 run `./tx install` first to prepare the repositories and Python.
+
+## Device-aware graphics and default sound runtime
+
+Every guided profile, including Minimal, installs the Native sound runtime and
+graphics/CPU rendering tools by default. Desktop environments remain optional;
+installing a runtime never starts an audio service, display server or GUI.
+Existing managed Native and guest configuration is preserved by default.
+
+The setup offers Native / PRoot / both backend configuration. Later, open the same
+selector directly:
+
+```sh
+tx install gpu
+```
+
+The scope selector appears before package changes. Native Zink is offered only
+when the installed Termux Freedreno ICD actually enumerates a supported Vulkan GPU.
+On a clean Native configuration it is the first recommendation after that probe;
+existing Native choices stay first when a saved preference exists. System Mesa
+defaults remain available without forcing a GPU backend. Backend changes are
+confirmed and affect future workloads; no running desktop is restarted.
+
+On readable KGSL devices the guest menu offers the existing pinned managed Turnip/
+Zink stack, CPU rendering libraries and authenticated Native audio integration.
+A CPU/audio-runtime-only choice preserves existing GPU files. For existing guests,
+GPU setup uses the same exact package/add-on plan, manifest hash, KGSL snapshot and
+checksum-verified Turnip staging helper as managed setup. Unrecognized existing
+driver files are preserved and cause refusal rather than being overwritten.
+
+Guest DE selectors also offer **CLI only / no desktop environment**. GPU-only guest
+setup uses this path, so a missing guest can be created without implicitly installing
+XFCE. An explicit headless CPU profile is available with
+`tx install proot debian none`, then the software/runtime choices, or through
+`tx install gpu`. The advanced fresh preview spelling is `--desktops none`.
+
+These steps provision dependencies and configuration. Vulkan enumeration, file
+presence, or a successful installer is not proof of rendered acceleration, audible
+sound, AI inference acceleration or clean-device reproducibility. Bounded workload
+and owner-visible/audio acceptance remain separate checks.
