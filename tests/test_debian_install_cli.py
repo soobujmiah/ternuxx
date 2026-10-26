@@ -41,6 +41,7 @@ class DistroNamedInstallCLITests(unittest.TestCase):
             script = '''source "$1"
 nt_require_termux() { return 0; }
 nt_require_command() { return 0; }
+_nt_managed_desktop_choices() { printf 'xfce: XFCE (standalone+nested)\nlxqt: LXQt (standalone+nested)\nmate: MATE (standalone+nested)\n'; }
 python3() {
   if [[ "$1" == */proot_setup_present.py ]]; then cat; return; fi
   printf '%s\n' "$*" >> "$CALL_LOG"
@@ -63,9 +64,14 @@ nt_cmd_install debian --user sobuj
             os.close(slave)
             output = bytearray()
             try:
+                while b"Install which desktop environments?" not in output:
+                    ready, _, _ = select.select([master], [], [], 8)
+                    self.assertTrue(ready, "guided install did not ask for desktop choices")
+                    output.extend(os.read(master, 8192))
+                os.write(master, b"lxqt,mate\n")
                 while b"Install this exact Debian Trixie plan" not in output:
                     ready, _, _ = select.select([master], [], [], 8)
-                    self.assertTrue(ready, "guided install did not reach confirmation")
+                    self.assertTrue(ready, "guided install did not reach plan confirmation")
                     output.extend(os.read(master, 8192))
                 os.write(master, b"y\n")
                 while process.poll() is None:
@@ -84,6 +90,7 @@ nt_cmd_install debian --user sobuj
             calls = log.read_text().splitlines()
             self.assertEqual(len(calls), 2)
             self.assertIn("fresh-preview", calls[0])
+            self.assertIn("--desktops lxqt,mate", calls[0])
             self.assertIn("fresh-install", calls[1])
             self.assertIn(plan_id, calls[1])
 

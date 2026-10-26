@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 585,
-  "read_count": 175,
+  "read_count": 178,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "0cb634e30e396abe713152a0196968f5e22d89a6033f5d7775b912b96ff40ca1",
+      "sha256": "b8053ae20c209266433ef61a4024c485083a8914d023733b7f943de4d4ebc267",
       "lines": 103,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "b8053ae20c209266433ef61a4024c485083a8914d023733b7f943de4d4ebc267"
     },
     {
       "path": "SECURITY.md",
@@ -155,10 +155,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "754d27fdfece4ecf67666275f993a936ece8c92acb82a3e549bf77bbdaefa37c",
+      "sha256": "75573fb46e7d84d82031170f13063a8041335635e03e11dd22fc15bff8c11faf",
       "lines": 124,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "75573fb46e7d84d82031170f13063a8041335635e03e11dd22fc15bff8c11faf"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -171,10 +171,10 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "a290e0eb740bf59d4b31aae2535741c96f02198fce64fa396c33d9292e6b04e1",
+      "sha256": "1fb442b07d807d263cfcb483b065ff7fcc2d1372b00781455b3bb59c0780c2c0",
       "lines": 65,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "1fb442b07d807d263cfcb483b065ff7fcc2d1372b00781455b3bb59c0780c2c0"
     },
     {
       "path": "docs/OPTIMIZATION.md",

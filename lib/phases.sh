@@ -925,9 +925,24 @@ nt_cmd_install() {
 
 # Short distro-named entrypoint for the managed guest installer. It retains
 # the same exact preview/apply plan and hidden password prompt as proot setup.
+_nt_managed_desktop_choices() {
+  local distro="$1" repo_root="$2"
+  PYTHONPATH="$repo_root/lib" python3 - "$distro" "$repo_root" <<'PYDESKTOPS'
+import sys
+import proot_desktops
+import proot_profiles
+alias, repo_root = sys.argv[1:]
+profile = proot_profiles.install_profile(repo_root, alias)
+for desktop_id, item in proot_desktops.PROVIDERS[profile["profile_id"]].items():
+    routes = sorted(proot_desktops.DESKTOP_ROUTES.get(desktop_id, ()))
+    route_label = "+".join(routes) if routes else "catalog-only; no accepted route"
+    print(f"{desktop_id}: {item['name']} ({route_label})")
+PYDESKTOPS
+}
+
 _nt_install_managed_guest() {
   local distro="$1"; shift
-  local label action=guided consent=0 user="" plan_id="" sudo_mode=password desktops="xfce" arg repo_root output answer
+  local label action=guided consent=0 user="" plan_id="" sudo_mode=password desktops="xfce" desktops_set=0 arg repo_root output answer
   repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   command -v python3 >/dev/null 2>&1 || { nt_fail "Python is required to load managed guest profiles."; return 1; }
   label="$(PYTHONPATH="$repo_root/lib" command python3 - "$distro" "$repo_root" <<'PYPROFILE'
@@ -946,7 +961,7 @@ PYPROFILE
       --user) [ $# -gt 0 ] || { nt_fail "--user needs the ${label} guest username."; return 2; }; user="$1"; shift ;;
       --plan-id) [ $# -gt 0 ] || { nt_fail "--plan-id needs the exact ID from the ${label} preview."; return 2; }; plan_id="$1"; shift ;;
       --sudo-mode) [ $# -gt 0 ] || { nt_fail "--sudo-mode needs password or passwordless."; return 2; }; sudo_mode="$1"; shift ;;
-      --desktops) [ $# -gt 0 ] || { nt_fail "--desktops needs comma-separated desktop IDs."; return 2; }; desktops="$1"; shift ;;
+      --desktops) [ $# -gt 0 ] || { nt_fail "--desktops needs comma-separated desktop IDs."; return 2; }; desktops="$1"; desktops_set=1; shift ;;
       --yes) action=apply; consent=1 ;;
       *) nt_fail "Unknown ${label} install option: $arg"; return 2 ;;
     esac
@@ -960,6 +975,15 @@ PYPROFILE
   nt_require_termux || return 1
   nt_require_command python3 || return 1
   if [ "$action" = guided ] && { [ ! -t 0 ] || [ "${TERNUXX_JSON:-0}" = 1 ]; }; then action=preview; fi
+  if [ "$action" = guided ] && [ "$desktops_set" = 0 ]; then
+    local choices
+    choices="$(_nt_managed_desktop_choices "$distro" "$repo_root")" || { nt_fail "Could not load the $label desktop choices."; return 1; }
+    nt_info "Desktop choices for $label (ID: name [routes]):"
+    while IFS= read -r answer; do [ -n "$answer" ] && nt_info "  $answer"; done <<<"$choices"
+    printf 'Install which desktop environments? Enter comma-separated IDs; blank keeps XFCE [xfce]: ' >/dev/tty
+    IFS= read -r answer </dev/tty || return 2
+    [ -z "$answer" ] || desktops="$answer"
+  fi
   if [ "$action" = preview ]; then
     [ -z "$plan_id" ] || { nt_fail "A preview does not accept --plan-id."; return 2; }
     local -a args=(fresh-preview --repo-root "$repo_root" --alias "$distro" --user "$user" --sudo-mode "$sudo_mode" --desktops "$desktops")
