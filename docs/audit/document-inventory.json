@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "56bdaf5cd04d866984c947dde354bb4184650dc10b1e4f3e86389c15847e40e2",
+      "sha256": "efdbddf7dff2e24de1c6ef988a8f23c0035c8e74716e9539177ea31957fa0784",
       "lines": 37,
       "read_status": "pending",
       "read_sha256": null
@@ -3619,7 +3619,7 @@
     {
       "path": "docs/evidence/2026-10-26-nested-debian-start-fix-and-live-check.md",
       "kind": "narrative",
-      "sha256": "2b1671791df624d06b5de5d16ea8d854166d6fff2901393372a5330d45e5f135",
+      "sha256": "6abda97739aa8808792c417b38a72a0c7273518230dc4ff7720a87ca1d52745e",
       "lines": 29,
       "read_status": "pending",
       "read_sha256": null

@@ -24,6 +24,6 @@ Ctrl-C exited only the nested launcher with its expected status 130. Follow-up `
 
 ## Validation and remaining scope
 
-Shell syntax and the focused routing/management group passed (102 tests). The full `env -u LD_LIBRARY_PATH PYTHONDONTWRITEBYTECODE=1 bash scripts/repo_test.sh` suite passed against this source change: 1,223 tests in 201.012 seconds. Document inventory, README bridge, `repo_knowledge verify`, and `git diff --check` also passed. This check confirms nested XFCE session startup and an Adreno-backed Vulkan workload; it does not qualify nested GLX/GLES drawing, Android foreground presentation, or audible playback.
+A separate read-only check of the fresh Debian replay guest returned no `dpkg --audit` findings and `apt-get check` exited successfully; XFCE packages were installed and no package transaction was run. Shell syntax and the focused routing/management group passed (102 tests). The full `env -u LD_LIBRARY_PATH PYTHONDONTWRITEBYTECODE=1 bash scripts/repo_test.sh` suite passed against this source change: 1,223 tests in 201.012 seconds. Document inventory, README bridge, `repo_knowledge verify`, and `git diff --check` also passed. This check confirms nested XFCE session startup and an Adreno-backed Vulkan workload; it does not qualify nested GLX/GLES drawing, Android foreground presentation, or audible playback.
 
 ![Live Debian XFCE desktop on nested Xephyr :2](proot-nested-xfce-live.png)
