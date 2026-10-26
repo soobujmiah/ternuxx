@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 584,
+  "document_count": 585,
   "read_count": 172,
   "reading_complete": false,
   "broken_local_links": [],
@@ -43,8 +43,8 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "09da63ae33cb77d9a199c09d2ea049a45bb756ba3ab9f05f87b6e4a724979f87",
-      "lines": 40,
+      "sha256": "3c853b9177f8e15d62ec98e8d5c6b4c2457a9f0702ae0a417659c172b79e382d",
+      "lines": 41,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -547,8 +547,8 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "e8989a55d2a8eefb2a3088f380e869732c9c8b9d75b82f007c074f7b5c46a853",
-      "lines": 161,
+      "sha256": "44ae7d56b5a74cb8a0beb65d2097d8bfc8483e545a8487228255708053498d16",
+      "lines": 165,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3669,6 +3669,14 @@
       "kind": "narrative",
       "sha256": "55a7d1ef7558625298a5f770026b2f2dc1b6b70abbed0905e890a35c265eac0d",
       "lines": 37,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-26-proot-guest-package-audit.md",
+      "kind": "narrative",
+      "sha256": "13e668279ad71c6b5487f3af1c0932c172dacabf794488a481135f302436caa7",
+      "lines": 5,
       "read_status": "pending",
       "read_sha256": null
     },

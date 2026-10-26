@@ -159,3 +159,7 @@ With owner approval, Native `:1` was temporarily stopped and existing Debian XFC
 ## Debian XFCE standalone delayed rerun (2026-10-26 about 11:31 UTC)
 
 After waiting 20 seconds from launch, the shared Debian standalone verifier returned `complete` with a 623-frame Zink/Turnip Adreno 825 GLX draw, Adreno 825 Vulkan XCB draw, and reachable Native PulseAudio endpoint. GLES draw remains unverified. The immediate earlier run had returned zero GLX frames, so startup readiness may influence results; this is an inference and the root cause is unresolved. Host `xwininfo` is unavailable, leaving panel/window-tree and Android visibility unchecked. Native XFCE was restored on `:1`; `:0`/`:2` and managed sessions are stopped. See [standalone render follow-up](../evidence/2026-10-26-debian-standalone-render-follow-up.md).
+
+## Existing managed guest package audit (2026-10-26 11:33 UTC)
+
+Read-only `dpkg --audit` returned exit 0 with no findings for canonical Debian, canonical Ubuntu, and the preserved Ternuxx clean-room replay alias. No guest packages or files were changed. This checks dpkg configuration state only; full desktop and install acceptance remain separate. See [managed guest package audit](../evidence/2026-10-26-proot-guest-package-audit.md).
