@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "19a1e23522ecea887c18937c04ccca089ba77e3dfad514aa515d2c6dd4739a84",
+      "sha256": "eb52b66f731e116d2c463decb41bf177cf14b2eb537ba092b8e6a17dc5c83808",
       "lines": 173,
       "read_status": "read",
-      "read_sha256": "19a1e23522ecea887c18937c04ccca089ba77e3dfad514aa515d2c6dd4739a84"
+      "read_sha256": "eb52b66f731e116d2c463decb41bf177cf14b2eb537ba092b8e6a17dc5c83808"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
