@@ -942,6 +942,7 @@ def main() -> int:
     parser.add_argument("--alias", help="fresh-only debian or ternuxx-replay-NAME target")
     parser.add_argument("--plan-id", default="")
     parser.add_argument("--backup-id", default="")
+    parser.add_argument("--apps", help="comma-separated optional guest app IDs for add-on preview")
     parser.add_argument("--groups", help="comma-separated fresh Debian package groups; base is required")
     parser.add_argument("--desktops", help="comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate,plasma,gnome,cinnamon")
     parser.add_argument("--sudo-mode", choices=("password", "passwordless"), default="password",
@@ -952,8 +953,10 @@ def main() -> int:
     if not args.prefix or not args.home or not args.state_dir:
         parser.error("Native Termux PREFIX, HOME, and Ternuxx state directory are required")
     try:
-        if args.alias is not None and args.action not in {"fresh-preview", "fresh-resume-preview", "fresh-install"}:
-            parser.error("--alias is supported only by fresh setup")
+        if args.alias is not None and args.action not in {"fresh-preview", "fresh-resume-preview", "fresh-install", "desktop-preview"}:
+            parser.error("--alias is supported only by fresh setup or managed add-on preview")
+        if args.apps is not None and args.action != "desktop-preview":
+            parser.error("--apps is supported only by desktop-preview")
         if args.groups is not None and args.action not in {"fresh-preview", "fresh-resume-preview"}:
             parser.error("--groups is supported only by fresh preview actions")
         if args.desktops is not None and args.action not in {"fresh-preview", "fresh-resume-preview", "desktop-preview"}:
@@ -965,11 +968,12 @@ def main() -> int:
                 parser.error("catalog does not accept setup options")
             result = proot_profiles.install_catalog(args.repo_root)
         elif args.action == "desktop-preview":
-            if not args.desktops or args.plan_id or args.yes or args.backup_id or args.user or args.groups or args.alias:
+            if not args.desktops or args.plan_id or args.yes or args.backup_id or args.user or args.groups:
                 parser.error("desktop-preview requires --desktops and no apply options")
             import proot_desktop_setup
             result = proot_desktop_setup.preview(prefix=args.prefix, home=args.home,
-                                                 state_dir=args.state_dir, selected=desktops)
+                                                 state_dir=args.state_dir, selected=desktops, alias=args.alias or "debian",
+                                                 apps=[] if not args.apps else args.apps.split(","))
         elif args.action == "desktop-resume-preview":
             if not args.plan_id or args.yes or args.backup_id or args.user or args.groups or args.desktops or args.alias:
                 parser.error("desktop-resume-preview requires --plan-id FAILED_DESKTOP_PLAN_ID")

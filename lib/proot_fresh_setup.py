@@ -251,7 +251,10 @@ def _private_write(path: Path, data: dict) -> None:
             pass
 
 
-_PACKAGE_GROUPS = ("base", "desktop-compat", "development", "desktop-apps", "fonts")
+import proot_software
+
+_PACKAGE_GROUPS = ("base", "desktop-compat", "development", "desktop-apps", "fonts", *(
+    "app-" + key for key in proot_software.APPS))
 
 
 def _selected_groups(groups: list[str] | None) -> list[str]:
@@ -285,6 +288,11 @@ def _packages(manifest: dict, selected: list[str] | None = None) -> list[str]:
     result = []
     for group in chosen:
         values = groups.get(group)
+        if group.startswith("app-"):
+            try:
+                values = proot_software.packages(manifest["distro"], [group[4:]])
+            except (KeyError, ValueError) as exc:
+                raise FreshSetupError("unsupported guest app group") from exc
         if not isinstance(values, list) or not values:
             raise FreshSetupError(f"Debian package group is missing: {group}")
         for package in values:

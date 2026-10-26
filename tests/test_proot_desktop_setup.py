@@ -157,6 +157,45 @@ class DesktopInstallPlanTests(unittest.TestCase):
                 proot_desktop_setup.resume_preview(prefix=str(self.prefix), home=str(self.home),
                     state_dir=str(self.state), failed_plan_id=failed_id)
 
+    def test_existing_ubuntu_writer_addon_preserves_installed_xfce_and_pins_apply(self):
+        container = self.root.parent
+        target = container.with_name("ubuntu")
+        container.rename(target)
+        self.root = target / "rootfs"
+        (self.root / "etc/os-release").write_text("ID=ubuntu\nVERSION_CODENAME=noble\n")
+
+        def runner(args, **kwargs):
+            self.calls.append(args)
+            self.assertIn("ubuntu", args)
+            self.assertNotIn("debian", args)
+            if "-y" in args:
+                self.assertIn("libreoffice-writer=1.0", args)
+                with (self.root / "var/lib/dpkg/status").open("a") as stream:
+                    stream.write("\n\nPackage: libreoffice-writer\nStatus: install ok installed\nArchitecture: arm64\nVersion: 1.0\n")
+                return subprocess.CompletedProcess(args, 0, "0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.\n", "")
+            output = "Inst libreoffice-writer (1.0 Ubuntu:noble [arm64])\n0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.\n"
+            return subprocess.CompletedProcess(args, 0, output, "")
+
+        with mock.patch.object(proot_desktop_setup.proot_guest_retirement, "_assert_idle"):
+            plan = proot_desktop_setup.preview(prefix=str(self.prefix), home=str(self.home),
+                state_dir=str(self.state), selected=["xfce"], alias="ubuntu", apps=["writer"], runner=runner)
+            self.assertEqual(plan["operation"]["alias"], "ubuntu")
+            self.assertEqual(plan["operation"]["apps"], ["writer"])
+            self.assertNotIn("libreoffice-calc", plan["operation"]["requested_packages"])
+            result = proot_desktop_setup.apply(prefix=str(self.prefix), home=str(self.home),
+                state_dir=str(self.state), plan_id=plan["plan_id"], confirmed=True, runner=runner)
+        self.assertEqual(result["status"], "complete")
+        self.assertEqual(result["desktop_environments"], ["xfce"])
+
+    def test_repeated_existing_desktop_selection_is_a_readonly_noop(self):
+        def runner(args, **kwargs):
+            self.assertNotIn("-y", args)
+            return subprocess.CompletedProcess(args, 0, "0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.\n", "")
+        with mock.patch.object(proot_desktop_setup.proot_guest_retirement, "_assert_idle"):
+            plan = proot_desktop_setup.preview(prefix=str(self.prefix), home=str(self.home),
+                state_dir=str(self.state), selected=["xfce"], runner=runner)
+        self.assertEqual(plan["status"], "already_installed")
+
     def test_failed_or_unconfirmed_apply_is_refused(self):
         with self.assertRaisesRegex(proot_desktop_setup.DesktopSetupError, "requires --yes"):
             proot_desktop_setup.apply(prefix=str(self.prefix), home=str(self.home),

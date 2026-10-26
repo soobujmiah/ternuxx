@@ -45,3 +45,29 @@ No package install/upgrade, guest creation, desktop lifecycle action, Android UI
 interaction, GPU workload or GTK build was run by the agent during this revision.
 The owner's independent install session was left untouched. Clean-device reinstall,
 rendered GUIs, nested rendering and acceleration remain separate live acceptance.
+
+## Follow-up: clean guests, optional software and later additions
+
+The owner clarified that Minimal must include the PRoot CLI provider, while managed
+guests retain their pinned base/clean graphics, CPU rendering and sound configuration.
+Optional guest apps are now selected after DEs and bound into that same preview.
+Writer-only requests `libreoffice-writer`; shared dependencies are allowed, while
+Calc/Impress are not requested. Debian keeps Firefox ESR (owner-reported working in
+PRoot); Ubuntu uses the APT-native Epiphany option rather than a Snap transition.
+
+Later additions use `tx install xfce|mate|plasma` and
+`tx install proot [debian|ubuntu] [DE]`. Existing canonical Debian/Ubuntu guests use
+the extended preview-bound desktop/app transaction; their rootfs and account remain
+intact. Source/package changes invalidate the plan, guest-idle checks remain required,
+and both requested packages and dependency versions are pinned. A fully installed
+selection returns a no-op. The original guest snapshot/configuration path remains
+in use for fresh installs. This provisions workstation rendering libraries and audio;
+it does not install or qualify an AI inference model/backend.
+
+The first revision `c885605` passed GitHub Actions run
+[40346171127](https://github.com/soobujmiah/ternuxx/actions/runs/40346171127).
+Follow-up fixture checks passed: 13 wizard/shortcut tests, 5 installer CLI tests,
+29 fresh-setup tests, 20 setup tests, 9 desktop/add-on tests and 3 optional-software
+tests. Ubuntu Writer add-on apply, an existing XFCE no-op, default clean packages,
+Snap avoidance and unknown app refusal are explicitly covered. The follow-up still
+requires its own CI result and the owner's live reinstall acceptance.

@@ -81,11 +81,11 @@ _nt_wizard_entrypoint() {
 _nt_install_wizard() {
   [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail 'Run tx install in an attached terminal; automation uses tx install preview.'; return 2; }
   nt_require_termux || return 1
-  local profile components=terminal,developer desktops apps distros distro root answer
+  local profile components=terminal,developer,proot desktops apps distros distro root answer
   root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   _nt_install_system_info || return $?
   profile="$(_nt_pick 'Choose your workstation' single '' \
-    'minimal|Minimal: CLI, TUI, Web UI, professional terminal and build tools' \
+    'minimal|Minimal: CLI/TUI/Web, terminal/build tools and PRoot CLI provider' \
     'native|Native Full: Minimal + GUI management, GPU tools, desktops and apps' \
     'proot|Native Full + PRoot: Native selection + one or more managed distros')" || return $?
   if [ "$profile" != minimal ]; then
@@ -103,7 +103,7 @@ _nt_install_wizard() {
     for answer in ${apps//,/ }; do [ "$answer" = none ] || components+=,"$answer"; done
   fi
   if [ "$profile" = proot ]; then
-    components+=,proot,nested
+    components+=,nested
     distros="$(_nt_pick 'Managed PRoot distributions (one or more)' multi debian \
       'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
   fi
@@ -128,4 +128,77 @@ _nt_install_wizard() {
   nt_info 'Commands: tx tui | tx web | tx gui | tx start --desktop ID'
   nt_info 'Guest: tx pgui [DE] (Debian XFCE default); tx pgui start --alias ubuntu --desktop xfce'
   nt_info 'Install/open the matching Termux:X11 Android app separately. GPU rendering and desktop visibility need live verification.'
+}
+
+_nt_choose_guest_desktops() {
+  local distro="$1" root="$2" choices choice
+  local -a items=()
+  choices="$(PYTHONPATH="$root/lib" command python3 - "$distro" "$root" <<'PYDESKTOPCHOICES'
+import sys, proot_profiles, proot_desktops
+profile = proot_profiles.install_profile(sys.argv[2], sys.argv[1])["profile_id"]
+for key, item in proot_desktops.PROVIDERS[profile].items():
+    routes = sorted(proot_desktops.DESKTOP_ROUTES.get(key, ()))
+    if routes:
+        print(key + "|" + item["name"] + " (" + ", ".join(routes) + ")")
+PYDESKTOPCHOICES
+)" || return 1
+  while IFS= read -r choice; do [ -z "$choice" ] || items+=("$choice"); done <<<"$choices"
+  _nt_pick "$distro desktops (one or more)" multi xfce "${items[@]}"
+}
+
+_nt_choose_guest_apps() {
+  local distro="$1" root="$2" choices choice
+  local -a items=('none|Base / clean workstation only (graphics, CPU rendering, audio)')
+  choices="$(PYTHONPATH="$root/lib" command python3 - "$distro" <<'PYAPPCHOICES'
+import sys, proot_software
+for key, (name, packages) in proot_software.catalog(sys.argv[1]).items():
+    print(key + "|" + name)
+PYAPPCHOICES
+)" || return 1
+  while IFS= read -r choice; do [ -z "$choice" ] || items+=("$choice"); done <<<"$choices"
+  _nt_pick "$distro optional software" multi none "${items[@]}"
+}
+
+_nt_install_guest_addons() {
+  local distro="$1" desktops="$2" apps="$3" desktops_set="$4" apps_set="$5" root="$6" output status plan_id
+  [ "$desktops_set" = 1 ] || desktops="$(_nt_choose_guest_desktops "$distro" "$root")" || return $?
+  [ "$apps_set" = 1 ] || apps="$(_nt_choose_guest_apps "$distro" "$root")" || return $?
+  apps=",$apps,"; apps="${apps//,none,/,}"; apps="${apps#,}"; apps="${apps%,}"
+  local -a args=(desktop-preview --repo-root "$root" --alias "$distro" --desktops "$desktops" --json)
+  [ -z "$apps" ] || args+=(--apps "$apps")
+  output="$(python3 "$root/lib/proot_setup.py" "${args[@]}")" || return $?
+  printf '%s\n' "$output" | command python3 -m json.tool || return 1
+  status="$(command python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])' <<<"$output")" || return 1
+  [ "$status" != already_installed ] || { nt_ok 'Selected guest desktops/apps are already installed.'; return 0; }
+  plan_id="$(command python3 -c 'import json,sys; print(json.load(sys.stdin)["plan_id"])' <<<"$output")" || return 1
+  _nt_confirm "Add the displayed desktops/apps to existing $distro (no rootfs replacement)?" || return $?
+  python3 "$root/lib/proot_setup.py" desktop-install --repo-root "$root" --yes --plan-id "$plan_id" --json
+}
+
+_nt_install_native_desktop() {
+  local desktop="${1/xfce4/xfce}" root="${_TN_LIB_DIR%/lib}" components=gui,developer,audio,sound-controls,graphics
+  shift
+  [ $# -eq 0 ] || { nt_fail 'Use tx install NATIVE_DE; guest desktops use tx install proot DISTRO DE.'; return 2; }
+  case "$desktop" in
+    xfce) components+=,desktop ;;
+    mate|plasma) components+=,"$desktop" ;;
+    *) nt_fail 'Supported Native desktops: xfce, mate, plasma.'; return 2 ;;
+  esac
+  nt_require_termux || return 1
+  _nt_wizard_native "$components" || return $?
+  bash "$root/scripts/install-management-center.sh"
+}
+
+_nt_install_proot_short() {
+  local distro="${1:-}" desktop="${2:-}" root="${_TN_LIB_DIR%/lib}"
+  [ $# -le 2 ] || { nt_fail 'Use tx install proot [debian|ubuntu] [DESKTOP].'; return 2; }
+  if [ -z "$distro" ]; then
+    distro="$(_nt_pick 'Choose a managed PRoot distro' single '' 'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
+  fi
+  case "$distro" in debian|ubuntu) ;; *) nt_fail 'Supported managed distros: debian, ubuntu.'; return 2 ;; esac
+  nt_require_termux || return 1
+  _nt_wizard_native proot,nested || return $?
+  local -a args=()
+  [ -z "$desktop" ] || args+=(--desktops "${desktop/xfce4/xfce}")
+  _nt_install_managed_guest "$distro" "${args[@]}"
 }

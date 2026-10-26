@@ -1,4 +1,4 @@
-"""Preview-bound additional Debian desktop package transactions."""
+"""Preview-bound managed Debian/Ubuntu desktop and optional app transactions."""
 from __future__ import annotations
 
 import fcntl
@@ -15,14 +15,18 @@ import proot_desktops
 import proot_fresh_setup
 import proot_guest_retirement
 import proot_packages
+import proot_profiles
+import proot_software
 
 
 class DesktopSetupError(ValueError):
     pass
 
 
-def _rootfs(prefix: str) -> tuple[Path, dict[str, int]]:
-    container, root = proot_fresh_setup._target_paths(prefix, "debian")
+def _rootfs(prefix: str, alias: str = "debian") -> tuple[Path, dict[str, int]]:
+    if alias not in {"debian", "ubuntu"}:
+        raise DesktopSetupError("unsupported managed add-on distro")
+    container, root = proot_fresh_setup._target_paths(prefix, alias)
     try:
         ident = proot_fresh_setup._root_identity(container, root)
         release_path = root / "etc/os-release"
@@ -40,8 +44,8 @@ def _rootfs(prefix: str) -> tuple[Path, dict[str, int]]:
         key, sep, value = line.partition("=")
         if sep:
             values[key] = value.strip().strip('"')
-    if values.get("ID") != "debian" or values.get("VERSION_CODENAME") != "trixie":
-        raise DesktopSetupError("additional desktop installation currently requires managed Debian Trixie")
+    if values.get("ID") != alias or values.get("VERSION_CODENAME") != {"debian": "trixie", "ubuntu": "noble"}[alias]:
+        raise DesktopSetupError("additional desktop installation requires managed Debian Trixie or Ubuntu Noble")
     return root, ident
 
 
@@ -80,7 +84,9 @@ def _source_digest(root: Path) -> str:
 
 
 def _run_guest(prefix: str, packages: list[str], *, apply: bool,
-               runner=subprocess.run) -> dict[str, object]:
+               runner=subprocess.run, alias: str = "debian") -> dict[str, object]:
+    if alias not in {"debian", "ubuntu"}:
+        raise DesktopSetupError("unsupported managed add-on distro")
     manager = str(Path(prefix) / "bin/proot-distro")
     apt = ["/usr/bin/apt-get", "--no-install-recommends", "--no-upgrade", "--no-remove",
            "-o", "Acquire::https::User-Agent=curl/8",
@@ -95,7 +101,7 @@ def _run_guest(prefix: str, packages: list[str], *, apply: bool,
            if key not in {"DBUS_SESSION_BUS_ADDRESS", "DBUS_SESSION_BUS_PID", "DBUS_STARTER_ADDRESS",
                           "DBUS_STARTER_BUS_TYPE", "LD_LIBRARY_PATH", "LD_PRELOAD", "DISPLAY"}
            and not key.startswith("ANDROID_")}
-    command = [manager, "run", "debian", "--isolated", "--env",
+    command = [manager, "run", alias, "--isolated", "--env",
                "DEBIAN_FRONTEND=noninteractive", "--"]
     result = runner([*command, *apt], capture_output=True, text=True, check=False, timeout=7200 if apply else 1800, env=env)
     output = (getattr(result, "stdout", "") or "") + "\n" + (getattr(result, "stderr", "") or "")
@@ -133,7 +139,7 @@ def _run_guest(prefix: str, packages: list[str], *, apply: bool,
             match = re.match(r"^Inst (\S+) \((\S+)", line)
             if match:
                 installs.append([match.group(1), match.group(2)])
-        if len(installs) != new_count or new_count <= 0:
+        if len(installs) != new_count:
             raise DesktopSetupError("APT simulation package list does not match its transaction summary")
     download = re.search(r"Need to get ([0-9]+(?:\.[0-9]+)?) (kB|MB|GB)(?:/[0-9]+(?:\.[0-9]+)? (?:kB|MB|GB))? of archives\.", estimate_output)
     disk = re.search(r"After this operation, ([0-9]+(?:\.[0-9]+)?) (kB|MB|GB) of additional disk space will be used\.", estimate_output)
@@ -145,21 +151,20 @@ def _run_guest(prefix: str, packages: list[str], *, apply: bool,
 
 
 def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
-          prefix: str, runner=subprocess.run) -> dict[str, object]:
+          prefix: str, runner=subprocess.run, alias: str = "debian",
+          apps: list[str] | None = None) -> dict[str, object]:
+    provider = proot_profiles.profile_for_alias(alias)
     try:
-        desktops = proot_desktops.validate_selection("debian-trixie", selected)
-        installed = set(proot_desktops.installed_desktops(root))
+        desktops = proot_desktops.validate_selection(provider, selected)
     except proot_desktops.DesktopError as exc:
         raise DesktopSetupError(str(exc)) from exc
-    already = sorted(set(desktops) & installed)
-    if already:
-        raise DesktopSetupError("requested Debian desktop is already installed: " + ", ".join(already))
-    packages = proot_desktops.packages_for("debian-trixie", desktops)
+    packages = list(dict.fromkeys([*proot_desktops.packages_for(provider, desktops),
+                                   *proot_software.packages(alias, apps or [])]))
     before = _package_inventory(root)
     status_path = root / "var/lib/dpkg/status"
     status_hash = _private_digest(status_path)
     source_hash = _source_digest(root)
-    transaction = _run_guest(prefix, packages, apply=False, runner=runner)
+    transaction = _run_guest(prefix, packages, apply=False, runner=runner, alias=alias)
     after_hash = _private_digest(status_path)
     if status_hash != after_hash:
         raise DesktopSetupError("guest dpkg status changed during the read-only preview")
@@ -171,8 +176,8 @@ def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
     if missing:
         raise DesktopSetupError("APT did not include selected desktop packages: " + ", ".join(missing))
     body: dict[str, object] = {
-        "schema_version": 1, "operation": "debian-desktop-install",
-        "alias": "debian", "rootfs_identity": identity,
+        "schema_version": 1, "operation": "debian-desktop-install" if alias == "debian" else "ubuntu-desktop-install",
+        "alias": alias, "apps": apps or [], "rootfs_identity": identity,
         "desktop_environments": list(desktops), "requested_packages": packages,
         "requested_versions": [[package, versions[package]] for package in packages],
         "transaction_packages": transaction_packages,
@@ -258,8 +263,11 @@ def _resume_plan(root: Path, identity: dict[str, int], state: Path, failed_plan_
 
 
 def resume_preview(*, prefix: str, home: str, state_dir: str, failed_plan_id: str) -> dict[str, object]:
-    root, identity = _rootfs(prefix)
+    if not re.fullmatch(r"[0-9a-f]{64}", failed_plan_id):
+        raise DesktopSetupError("failed desktop plan ID is invalid")
     state = proot_fresh_setup._state_root(home, state_dir, create=False)
+    previous = proot_fresh_setup._read_private(state / "previews" / f"desktop-{failed_plan_id}.json")
+    root, identity = _rootfs(prefix, previous.get("alias", "debian"))
     proot_guest_retirement._assert_idle(state, root)
     plan = _resume_plan(root, identity, state, failed_plan_id)
     proot_fresh_setup._private_write(state / "previews" / f"desktop-resume-{plan['plan_id']}.json", plan)
@@ -279,7 +287,11 @@ def resume_apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
         saved = proot_fresh_setup._read_private(state / "previews" / f"desktop-resume-{plan_id}.json")
         if saved.get("plan_id") != plan_id:
             raise DesktopSetupError("dpkg recovery preview identity is invalid")
-        root, identity = _rootfs(prefix)
+        if not re.fullmatch(r"[0-9a-f]{64}", str(saved.get("failed_plan_id", ""))):
+            raise DesktopSetupError("failed desktop plan ID is invalid")
+        previous = proot_fresh_setup._read_private(state / "previews" / f"desktop-{saved['failed_plan_id']}.json")
+        alias = previous.get("alias", "debian")
+        root, identity = _rootfs(prefix, alias)
         current = _resume_plan(root, identity, state, saved["failed_plan_id"])
         if current != saved:
             raise DesktopSetupError("dpkg recovery state changed; create a fresh preview")
@@ -288,7 +300,7 @@ def resume_apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
                if key not in {"DBUS_SESSION_BUS_ADDRESS", "DBUS_SESSION_BUS_PID", "DBUS_STARTER_ADDRESS",
                               "DBUS_STARTER_BUS_TYPE", "LD_LIBRARY_PATH", "LD_PRELOAD", "DISPLAY"}
                and not key.startswith("ANDROID_")}
-        command = [manager, "run", "debian", "--isolated", "--env", "DEBIAN_FRONTEND=noninteractive", "--"]
+        command = [manager, "run", alias, "--isolated", "--env", "DEBIAN_FRONTEND=noninteractive", "--"]
         journal = state / f"desktop-{saved['failed_plan_id']}.journal.json"
         proot_fresh_setup._private_write(journal, {"plan_id": saved["failed_plan_id"], "state": "resuming-dpkg",
                                                    "resume_plan_id": plan_id})
@@ -318,14 +330,14 @@ def resume_apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
         os.close(fd)
 
 
-def preview(*, prefix: str, home: str, state_dir: str, selected: list[str], runner=subprocess.run) -> dict[str, object]:
-    root, identity = _rootfs(prefix)
+def preview(*, prefix: str, home: str, state_dir: str, selected: list[str], runner=subprocess.run, alias: str = "debian", apps: list[str] | None = None) -> dict[str, object]:
+    root, identity = _rootfs(prefix, alias)
     state = proot_fresh_setup._state_root(home, state_dir, create=True)
     proot_guest_retirement._assert_idle(state, root)
-    plan = _plan(root, identity, selected=selected, prefix=prefix, runner=runner)
+    plan = _plan(root, identity, selected=selected, prefix=prefix, runner=runner, alias=alias, apps=apps)
     proot_fresh_setup._private_write(state / "previews" / f"desktop-{plan['plan_id']}.json", plan)
     transaction = dict(plan["transaction_summary"])
-    return {"status": "preview", "plan_id": plan["plan_id"], "operation": plan,
+    return {"status": "already_installed" if not plan["transaction_packages"] else "preview", "plan_id": plan["plan_id"], "operation": plan,
             "transaction": transaction}
 
 
@@ -353,20 +365,22 @@ def apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
         body = {key: value for key, value in saved.items() if key != "plan_id"}
         if hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest() != plan_id:
             raise DesktopSetupError("desktop preview plan was changed")
-        root, identity = _rootfs(prefix)
+        alias = saved.get("alias", "debian")
+        root, identity = _rootfs(prefix, alias)
         if identity != saved.get("rootfs_identity"):
             raise DesktopSetupError("managed Debian rootfs identity changed after preview")
         proot_guest_retirement._assert_idle(state, root)
-        current = _plan(root, identity, selected=saved["desktop_environments"], prefix=prefix, runner=runner)
+        current = _plan(root, identity, selected=saved["desktop_environments"], prefix=prefix, runner=runner, alias=alias, apps=saved.get("apps", []))
         if current != saved:
             raise DesktopSetupError("Debian packages or APT transaction changed after preview; review a fresh plan")
         journal = state / f"desktop-{plan_id}.journal.json"
         proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "applying",
                                                    "desktop_environments": saved["desktop_environments"]})
         before = _package_inventory(root)
-        exact_requests = [f"{package}={version}" for package, version in saved["requested_versions"]]
+        exact_versions = dict([*saved["requested_versions"], *saved["transaction_packages"]])
+        exact_requests = [f"{package}={version}" for package, version in exact_versions.items()]
         try:
-            result = _run_guest(prefix, exact_requests, apply=True, runner=runner)
+            result = _run_guest(prefix, exact_requests, apply=True, runner=runner, alias=alias)
         except (OSError, subprocess.TimeoutExpired, KeyboardInterrupt) as exc:
             proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "failed",
                                                        "failure_type": type(exc).__name__})
@@ -385,10 +399,10 @@ def apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
                                                        "changed_existing": sorted(changed_existing),
                                                        "removed_existing": sorted(removed_existing)})
             raise DesktopSetupError("guest package changes differ from the exact preview; inspect the retained journal")
-        if not set(saved["desktop_environments"]).issubset(proot_desktops.installed_desktops(root)):
+        if not set(saved["desktop_environments"]).issubset(proot_desktops.installed_desktops(root, provider=proot_profiles.profile_for_alias(alias))):
             proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "failed"})
             raise DesktopSetupError("APT completed but requested desktops are not fully installed")
-        receipt = {"schema_version": 1, "plan_id": plan_id, "alias": "debian",
+        receipt = {"schema_version": 1, "plan_id": plan_id, "alias": alias,
                    "rootfs_identity": identity, "desktop_environments": saved["desktop_environments"],
                    "requested_packages": saved["requested_packages"],
                    "transaction_packages": saved["transaction_packages"],

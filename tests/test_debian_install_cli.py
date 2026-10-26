@@ -56,7 +56,7 @@ nt_cmd_install debian --user sobuj
             process = subprocess.Popen(
                 ["bash", "-c", script, "bash", str(ROOT / "lib" / "phases.sh")],
                 stdin=slave, stdout=slave, stderr=slave,
-                env={**os.environ, "CALL_LOG": str(log), "PLAN_ID": plan_id,
+                env={**os.environ, "CALL_LOG": str(log), "PLAN_ID": plan_id, "PREFIX": str(Path(tmp) / "prefix"),
                      "TERNUXX_JSON": "0", "TERMUX_VERSION": "fixture", "TERM": "xterm"},
                 close_fds=True, start_new_session=True,
                 preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0),
@@ -64,11 +64,16 @@ nt_cmd_install debian --user sobuj
             os.close(slave)
             output = bytearray()
             try:
-                while b"Debian Trixie desktops (one or more)" not in output:
+                while b"debian desktops (one or more)" not in output:
                     ready, _, _ = select.select([master], [], [], 8)
                     self.assertTrue(ready, "guided install did not ask for desktop choices")
                     output.extend(os.read(master, 8192))
                 os.write(master, b" \x1b[B \x1b[B\x1b[B \n")
+                while b"debian optional software" not in output:
+                    ready, _, _ = select.select([master], [], [], 8)
+                    self.assertTrue(ready, "guest app selector did not render")
+                    output.extend(os.read(master, 8192))
+                os.write(master, b"\n")
                 while b"Install this exact Debian Trixie plan" not in output:
                     ready, _, _ = select.select([master], [], [], 8)
                     self.assertTrue(ready, "guided install did not reach plan confirmation")
@@ -166,7 +171,7 @@ _nt_wizard_native terminal,developer
             env=env, capture_output=True, text=True, timeout=5,
         )
         self.assertEqual(result.returncode, 2)
-        self.assertIn("Unknown install option", result.stderr)
+        self.assertIn("Supported managed distros", result.stderr)
         self.assertNotIn("proot_setup_present", result.stderr)
 
 

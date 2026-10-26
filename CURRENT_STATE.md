@@ -8,13 +8,22 @@
 
 The owner-requested three-profile keyboard wizard is implemented at `./tx install`
 (`interactive` remains an alias): device/system summary, Minimal terminal/build
-workstation, Native Full with DE/app selection, and Native Full + multiple managed
+workstation with PRoot CLI provider, Native Full with DE/app selection, and Native Full + multiple managed
 Debian/Ubuntu guests. Arrow/Space/Enter replace typed profile, DE and distro choices.
 Preparation, full system upgrade, Native packages, CLI shim, graphics selection and
 guest plans have separate confirmation boundaries. Native Full builds the GTK center;
 Python/X11 bootstrap stays inside the managed wizard. `tx pgui DE` accepts a desktop
 short name, and the existing auto routing keeps standalone :0 / Native :1 + Xephyr :2.
 XFCE is preferred by default even with multiple installed guest desktops.
+
+Guest setup now offers optional software after DE selection, including Writer-only.
+The pinned base/clean profile retains Mesa CPU rendering, device-gated Turnip graphics
+and authenticated Native audio. Short `tx install DE` and `tx install proot DISTRO [DE]`
+commands support later additions. Existing Debian/Ubuntu rootfs targets use preview-bound
+add-on transactions (no rootfs/account replacement; no upgrades/removals); already
+installed selections return a no-op. Ubuntu browser selection uses APT Epiphany to
+avoid the Snap-only Firefox path. These are implemented/fixture-tested paths; the
+owner's fresh reinstall and live workload acceptance remain pending.
 
 Writer-only Native installation remains unavailable because the official repository
 provides a monolithic LibreOffice package. This revision does not install it silently.

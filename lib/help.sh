@@ -126,14 +126,17 @@ EOF
       ;;
     install) cat <<'EOF'
 tx install debian [--user NAME] — Guided Debian Trixie guest setup
+Guest setup: choose DEs, then optional apps; base/clean keeps graphics/CPU rendering/audio.
 tx install ubuntu [--user NAME] — Guided Ubuntu Noble guest setup
 tx install debian preview --user NAME — Review-only; no guest changes
 tx proot setup catalog — List installable guest profiles and desktop routes
 tx install ubuntu preview --user NAME — Review-only; no guest changes
-tx install — Device info, then Minimal / Native Full / Native Full + PRoot
+tx install xfce|mate|plasma — Add a supported Native desktop
+ tx install proot [debian|ubuntu] [DE] — Create guest or add DE/apps to existing guest
+ tx install — Device info, then Minimal / Native Full / Native Full + PRoot
 tx install interactive — Choose, preview, and confirm a Native workstation profile in one session
 Use arrow keys + Space + Enter for profile, DE, app, distro and confirmation choices.
-Minimal includes CLI/TUI/Web and terminal/build tools; Full adds GUI management/audio/graphics.
+Minimal includes CLI/TUI/Web, terminal/build tools and the PRoot CLI provider; Full adds GUI management/audio/graphics.
 tx install preview [--profile NAME] [--components GROUPS] — Review exact package transaction
 tx install update preview — Review Native Ternuxx core updates
 tx install apply [--profile NAME] --yes --plan-id ID — Apply the exact saved plan

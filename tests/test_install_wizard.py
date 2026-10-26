@@ -111,7 +111,7 @@ _nt_install_wizard
     def test_native_selects_multiple_desktops_apps_and_management(self):
         rc, out = self.flow('native')
         self.assertEqual(rc, 0, out)
-        self.assertIn('PACKAGES=terminal,developer,gui,audio,sound-controls,graphics,mate,plasma,browser,pdf', out)
+        self.assertIn('PACKAGES=terminal,developer,proot,gui,audio,sound-controls,graphics,mate,plasma,browser,pdf', out)
         self.assertIn('GUI_BUILD', out)
         self.assertNotIn('GUEST=', out)
 
@@ -120,7 +120,8 @@ _nt_install_wizard
         self.assertEqual(rc, 0, out)
         self.assertIn('GUEST=debian', out)
         self.assertIn('GUEST=ubuntu', out)
-        self.assertIn(',proot,nested', out)
+        self.assertIn(',nested', out)
+        self.assertIn('PACKAGES=terminal,developer,proot', out)
         self.assertLess(out.index('PACKAGES='), out.index('GUEST=debian'))
 
     def test_new_components_are_deduplicated_and_no_office_suite_is_added(self):
@@ -177,6 +178,24 @@ _nt_wizard_prepare
         result, log = self.upgrade_fixture('Inst other (1.0 third-party stable [aarch64])')
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn('APPLY:', log)
+
+    def test_install_shortcuts_dispatch_native_and_guest_without_installing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            lib = Path(tmp)
+            (lib / 'install_wizard.sh').write_text('''_nt_install_native_desktop() { echo NATIVE:"$*"; }
+_nt_install_proot_short() { echo GUEST:"$*"; }
+''')
+            result = subprocess.run(['bash', '-c', f'''source "{ROOT}/lib/phases.sh"
+_TN_LIB_DIR="{lib}"
+nt_cmd_install xfce
+nt_cmd_install mate
+nt_cmd_install proot debian
+nt_cmd_install proot debian xfce
+nt_cmd_install proot ubuntu xfce
+'''], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines(), ['NATIVE:xfce', 'NATIVE:mate',
+                         'GUEST:debian', 'GUEST:debian xfce', 'GUEST:ubuntu xfce'])
 
     def test_pgui_short_desktop_routes_to_existing_supervisor(self):
         result = subprocess.run(['bash', '-c', f'''source "{ROOT}/lib/proot.sh"

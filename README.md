@@ -23,7 +23,7 @@ Start the managed installer directly from this checkout:
 ```
 
 It shows device/system information and offers three profiles: **Minimal** (CLI, TUI,
-Web UI and terminal/build tools), **Native Full** (Minimal plus GUI management,
+Web UI, terminal/build tools and PRoot CLI provider), **Native Full** (Minimal plus GUI management,
 audio, graphics tools, selectable desktops/apps), and **Native Full + PRoot**
 (the same Native selection plus one or more managed distributions). Use **Up/Down**,
 **Space** and **Enter**; **Esc** cancels. `./tx install interactive` is an alias.
@@ -38,7 +38,13 @@ Termux:X11 Android app is installed/opened separately.
 Native DEs are XFCE, MATE and Plasma; managed guests are Debian Trixie and Ubuntu
 Noble. Select multiple DEs, apps or distros with Space. Guest usernames and hidden
 passwords remain text inputs. A Writer-only Native package is unavailable; the
-wizard does not substitute the monolithic LibreOffice suite.
+wizard does not substitute the monolithic LibreOffice suite. Guest setup offers
+Writer-only and other optional apps after DE selection; the clean/base profile keeps
+its managed CPU rendering, graphics and audio setup.
+
+Later additions use `tx install xfce` (or `mate`/`plasma`) and
+`tx install proot debian [DE]` / `tx install proot ubuntu [DE]`. Existing guests get
+preview-bound DE/app additions, preserving their rootfs and accounts.
 
 Automation retains `./tx install preview --profile NAME` and exact-plan apply;
 see the [installation guide](docs/INSTALLATION.md).

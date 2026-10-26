@@ -576,6 +576,15 @@ _nt_offer_managed_guest() {
 }
 
 nt_cmd_install() {
+  case "${1:-}" in
+    xfce|xfce4|mate|plasma)
+      . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
+      _nt_install_native_desktop "$@"; return $? ;;
+    proot)
+      shift
+      . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
+      _nt_install_proot_short "$@"; return $? ;;
+  esac
   if [ $# -eq 0 ] || { [ $# -eq 1 ] && [[ "$1" = interactive || "$1" = --interactive ]]; }; then
     . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
     _nt_install_wizard
@@ -932,7 +941,7 @@ PYDESKTOPS
 
 _nt_install_managed_guest() {
   local distro="$1"; shift
-  local label action=guided consent=0 user="" plan_id="" sudo_mode=password desktops="xfce" desktops_set=0 arg repo_root output answer
+  local label action=guided consent=0 user="" plan_id="" sudo_mode=password desktops="xfce" desktops_set=0 apps="" apps_set=0 groups=base arg repo_root output answer
   repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   command -v python3 >/dev/null 2>&1 || { nt_fail "Python is required to load managed guest profiles."; return 1; }
   label="$(PYTHONPATH="$repo_root/lib" command python3 - "$distro" "$repo_root" <<'PYPROFILE'
@@ -951,11 +960,17 @@ PYPROFILE
       --user) [ $# -gt 0 ] || { nt_fail "--user needs the ${label} guest username."; return 2; }; user="$1"; shift ;;
       --plan-id) [ $# -gt 0 ] || { nt_fail "--plan-id needs the exact ID from the ${label} preview."; return 2; }; plan_id="$1"; shift ;;
       --sudo-mode) [ $# -gt 0 ] || { nt_fail "--sudo-mode needs password or passwordless."; return 2; }; sudo_mode="$1"; shift ;;
+      --apps) [ $# -gt 0 ] || { nt_fail "--apps needs comma-separated guest app IDs."; return 2; }; apps="$1"; apps_set=1; shift ;;
       --desktops) [ $# -gt 0 ] || { nt_fail "--desktops needs comma-separated desktop IDs."; return 2; }; desktops="$1"; desktops_set=1; shift ;;
       --yes) action=apply; consent=1 ;;
       *) nt_fail "Unknown ${label} install option: $arg"; return 2 ;;
     esac
   done
+  if [ "$action" = guided ] && [ -t 0 ] && { [ -e "$PREFIX/var/lib/proot-distro/containers/$distro" ] || [ -L "$PREFIX/var/lib/proot-distro/containers/$distro" ]; }; then
+    . "$repo_root/lib/install_wizard.sh"
+    _nt_install_guest_addons "$distro" "$desktops" "$apps" "$desktops_set" "$apps_set" "$repo_root"
+    return $?
+  fi
   if [ -z "$user" ]; then
     [ -t 0 ] || { nt_fail "Choose a ${label} guest account with --user NAME."; return 2; }
     read -r -p "New ${label} guest username: " user || return 2
@@ -966,25 +981,21 @@ PYPROFILE
   nt_require_command python3 || return 1
   if [ "$action" = guided ] && { [ ! -t 0 ] || [ "${TERNUXX_JSON:-0}" = 1 ]; }; then action=preview; fi
   if [ "$action" = guided ] && [ "$desktops_set" = 0 ]; then
-    . "$repo_root/lib/install_picker.sh"
-    local choices choice
-    local -a desktop_items=()
-    choices="$(PYTHONPATH="$repo_root/lib" command python3 - "$distro" "$repo_root" <<'PYCHOICES'
-import sys, proot_profiles, proot_desktops
-profile = proot_profiles.install_profile(sys.argv[2], sys.argv[1])["profile_id"]
-for key, item in proot_desktops.PROVIDERS[profile].items():
-    routes = sorted(proot_desktops.DESKTOP_ROUTES.get(key, ()))
-    if routes:
-        print(key + "|" + item["name"] + " (" + ", ".join(routes) + ")")
-PYCHOICES
-)" || return 1
-    while IFS= read -r choice; do [ -z "$choice" ] || desktop_items+=("$choice"); done <<<"$choices"
-    desktops="$(_nt_pick "$label desktops (one or more)" multi xfce "${desktop_items[@]}")" || return $?
-
+    . "$repo_root/lib/install_wizard.sh"
+    desktops="$(_nt_choose_guest_desktops "$distro" "$repo_root")" || return $?
   fi
+  if [ "$action" = guided ] && [ "$apps_set" = 0 ]; then
+    . "$repo_root/lib/install_wizard.sh"
+    apps="$(_nt_choose_guest_apps "$distro" "$repo_root")" || return $?
+  fi
+  local app
+  for app in ${apps//,/ }; do
+    [ "$app" = none ] || groups+=,app-"$app"
+  done
+
   if [ "$action" = preview ]; then
     [ -z "$plan_id" ] || { nt_fail "A preview does not accept --plan-id."; return 2; }
-    local -a args=(fresh-preview --repo-root "$repo_root" --alias "$distro" --user "$user" --sudo-mode "$sudo_mode" --desktops "$desktops")
+    local -a args=(fresh-preview --repo-root "$repo_root" --alias "$distro" --user "$user" --sudo-mode "$sudo_mode" --desktops "$desktops" --groups "$groups")
     [ "${TERNUXX_JSON:-0}" = 1 ] && args+=(--json)
     output="$(python3 "$repo_root/lib/proot_setup.py" "${args[@]}")" || return $?
     printf '%s\n' "$output"
@@ -997,7 +1008,7 @@ PYCHOICES
     return 0
   fi
   if [ "$action" = guided ]; then
-    local -a preview_args=(fresh-preview --repo-root "$repo_root" --alias "$distro" --user "$user" --sudo-mode "$sudo_mode" --desktops "$desktops" --json)
+    local -a preview_args=(fresh-preview --repo-root "$repo_root" --alias "$distro" --user "$user" --sudo-mode "$sudo_mode" --desktops "$desktops" --groups "$groups" --json)
     output="$(python3 "$repo_root/lib/proot_setup.py" "${preview_args[@]}")" || return $?
     printf '%s\n' "$output" | python3 "$repo_root/lib/proot_setup_present.py" || return $?
     local preview_id preview_status blocked

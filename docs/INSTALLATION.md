@@ -174,3 +174,42 @@ Auto uses standalone `:0` when the Native desktop is stopped, or nested Xephyr
 and display-ownership checks remain authoritative. Plasma remains standalone-only;
 unsupported nested routes are refused. These shortcuts do not install desktops or
 stop the Native desktop. Nested rendering limitations remain documented separately.
+
+## PRoot clean profile and later additions
+
+Minimal now includes the Native `proot-distro` CLI provider; it does not create any
+guest rootfs. Each managed guest keeps the existing pinned **base/clean** profile
+as its default: selected desktop(s), Mesa CPU rendering libraries, Vulkan/Turnip
+setup where device access supports it, and authenticated Native PulseAudio handoff.
+This is workstation graphics/CPU rendering configuration, not installation or
+qualification of an AI inference model/backend. Workload acceleration and audible
+playback still require separate checks.
+
+After choosing guest DEs, select optional apps with arrow keys/Space: browser,
+Audacious, Writer-only, Ristretto, Evince, Mousepad, Xarchiver and VLC. The clean
+choice adds no optional apps. Debian uses Firefox ESR; Ubuntu uses Epiphany because
+Noble Firefox delegates to Snap. Writer requests `libreoffice-writer`, not the full
+suite or Calc/Impress. Required shared Writer dependencies are resolved by APT.
+Apps are included in the same pinned guest preview before confirmation. Automation
+can use `tx install debian preview --user NAME --apps writer,pdf`.
+
+Install additional Native DEs or managed guests later:
+
+```sh
+tx install xfce             # Native XFCE (also accepts xfce4)
+tx install mate             # Native MATE
+tx install plasma           # Native KDE Plasma
+tx install proot            # keyboard distro selector
+tx install proot debian     # Debian, then DE and app selectors
+tx install proot debian xfce # explicit DE, then optional apps
+tx install proot ubuntu xfce
+```
+
+For a missing guest, these commands use the fresh pinned installer. For an existing
+managed Debian Trixie/Ubuntu Noble rootfs, they preview only the requested DE/app
+additions; they never replace the rootfs or recreate the account. Existing guest
+APT sources and installed versions are bound to the add-on plan; upgrades/removals
+are refused. Repeating a fully installed selection is a read-only no-op. The guest
+must be idle, and any source/package change invalidates the plan. The default guest
+CPU/GPU/audio configuration is preserved during add-on installs. On a fresh host,
+run `./tx install` first to prepare the repositories and Python.
