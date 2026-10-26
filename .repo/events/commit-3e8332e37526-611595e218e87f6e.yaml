@@ -1,0 +1,7 @@
+event_id: commit-3e8332e37526-611595e218e87f6e
+repository: soobujmiah/ternuxx
+commit: 3e8332e375262ff1708aa0bf77336ce8ad8b58ad
+kind: commit
+occurred_at: '2026-10-26T10:48:53Z'
+status: completed
+summary: 'docs: record latest Debian nested route evidence'
