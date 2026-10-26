@@ -5,11 +5,13 @@ _nt_master_prepare() {
   _nt_package_installed x11-repo || prerequisites+=(x11-repo)
   if [ "${#prerequisites[@]}" -gt 0 ]; then
     _nt_confirm "Bootstrap missing planner prerequisites ONLY: ${prerequisites[*]}? Workstation install requires combined approval later." || return 130
-    _nt_window_run _nt_network_retry 'Bootstrap metadata' env -u LD_LIBRARY_PATH pkg update -y || return $?
+    _nt_window_stage 'Bootstrap | Missing planner prerequisites only' 'Separately approved; no workstation apply'
+    _NT_WINDOW_QUERY=1 _nt_window_run _nt_network_retry 'Bootstrap metadata' env -u LD_LIBRARY_PATH pkg update -y || return $?
     _nt_window_run env -u LD_LIBRARY_PATH pkg install -y --no-upgrade "${prerequisites[@]}" || return $?
   fi
   _nt_confirm 'Refresh signed package indexes for planning? No package install or upgrade.' || return 130
-  _nt_window_run _nt_network_retry 'Planning metadata' env -u LD_LIBRARY_PATH pkg update -y
+  _nt_window_stage 'Plan | Refreshing signed metadata' 'No workstation package or guest apply'
+  _NT_WINDOW_QUERY=1 _nt_window_run _nt_network_retry 'Planning metadata' env -u LD_LIBRARY_PATH pkg update -y
 }
 
 _nt_master_gpu_choices() {

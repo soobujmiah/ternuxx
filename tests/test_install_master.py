@@ -120,6 +120,21 @@ printf 'MODE=%s ROOTS=%s TRANSACTION=%s\\n' "$_NT_PLAN_MODE" "${{_NT_PLAN_VERSIO
         self.assertIn('new-tool=2',result.stdout)
         self.assertNotIn('--no-upgrade',result.stderr)
 
+    def test_planning_metadata_uses_review_pane_and_never_runs_package_install(self):
+        script=f'''source "{ROOT}/lib/install_wizard.sh"
+_nt_package_installed() {{ return 0; }}
+_nt_confirm() {{ return 0; }}
+_nt_window_stage() {{ echo "STAGE:$1"; }}
+_nt_window_run() {{ echo "QUERY=${{_NT_WINDOW_QUERY:-0}} CMD=$*"; }}
+_nt_master_prepare
+'''
+        result=subprocess.run(['bash','-c',script],env=self.env,capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertIn('STAGE:Plan |',result.stdout)
+        self.assertIn('QUERY=1',result.stdout)
+        self.assertIn('pkg update',result.stdout)
+        self.assertNotIn('pkg install',result.stdout)
+
     def test_stream_emits_before_child_completion_and_keeps_machine_stdout_clean(self):
         script=f'''import sys;sys.path.insert(0,{str(ROOT/'lib')!r});import install_events
 install_events.run([sys.executable,'-u','-c',"import time;print('Get:1 fixture',flush=True);time.sleep(1);print('Setting up fixture',flush=True)"],timeout=5,env=None)
