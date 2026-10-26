@@ -155,10 +155,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "fe1690cde93f7b053cd4f5f229741855e8c56e3f1608a32d1bcd7ff2032c4437",
+      "sha256": "6ba3dc3704f094c7cf32e68eb948caf0a22db1afda2b8f5c5b28a5845ddf2541",
       "lines": 316,
       "read_status": "read",
-      "read_sha256": "fe1690cde93f7b053cd4f5f229741855e8c56e3f1608a32d1bcd7ff2032c4437"
+      "read_sha256": "6ba3dc3704f094c7cf32e68eb948caf0a22db1afda2b8f5c5b28a5845ddf2541"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",

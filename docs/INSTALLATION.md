@@ -67,15 +67,15 @@ remain installed. This is not an all-or-nothing rollback.
 
 The Native selection then uses the existing exact-plan preview/apply engine (no
 unrelated upgrades/removals). The wizard installs the checkout-backed `tx` shim
-through its own preview-bound installer and builds the Native GTK center only for
-Full profiles. Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT`.
+through its own preview-bound installer and builds the Native GTK center for every
+guided profile. Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT`.
 
 Native Termux currently has a monolithic `libreoffice` package and no separate
 `libreoffice-writer`; Writer-only cannot be installed by this Native catalog. The
 wizard reports this limitation and never substitutes the full suite. The matching
 Termux:X11 Android app remains a separate installation/open step.
 
-On Adreno/KGSL, the Full flow offers a separately confirmed, probe-gated
+On Adreno/KGSL, the guided flow offers a separately confirmed, probe-gated
 `termux-zink` backend selection for future starts. An unavailable Vulkan backend
 fails that stage rather than claiming acceleration. Workload acceleration remains
 a separate live acceptance check. No desktop or guest GUI starts during installation.
