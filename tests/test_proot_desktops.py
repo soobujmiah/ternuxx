@@ -72,10 +72,10 @@ class ProotDesktopCatalogTests(unittest.TestCase):
             root = Path(temporary)
             status = root / "var/lib/dpkg/status"
             status.parent.mkdir(parents=True)
-            status.write_text("Package: kde-plasma-desktop\nStatus: install ok installed\n")
+            status.write_text("Package: kde-plasma-desktop\nStatus: install ok installed\nArchitecture: all\n")
             self.assertNotIn("plasma", proot_desktops.installed_desktops(root))
             with status.open("a", encoding="utf-8") as stream:
-                stream.write("\nPackage: kwin-x11\nStatus: install ok installed\n")
+                stream.write("\nPackage: kwin-x11\nStatus: install ok installed\nArchitecture: arm64\n")
             installed = proot_desktops.installed_desktops(root)
             self.assertIn("plasma", installed)
             self.assertIn("plasma", proot_desktops.launchable_desktops(installed))
@@ -86,12 +86,12 @@ class ProotDesktopCatalogTests(unittest.TestCase):
             root = Path(temporary)
             status = root / "var/lib/dpkg/status"
             status.parent.mkdir(parents=True)
-            status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
-                              "Package: xfce4-terminal\nStatus: install ok installed\n\n"
-                              "Package: lxqt\nStatus: install ok installed\n\n"
-                              "Package: openbox\nStatus: install ok installed\n\n"
-                              "Package: kde-plasma-desktop\nStatus: install ok installed\n\n"
-                              "Package: kwin-x11\nStatus: install ok installed\n\n"
+            status.write_text("Package: xfce4\nStatus: install ok installed\nArchitecture: all\n\n"
+                              "Package: xfce4-terminal\nStatus: install ok installed\nArchitecture: all\n\n"
+                              "Package: lxqt\nStatus: install ok installed\nArchitecture: all\n\n"
+                              "Package: openbox\nStatus: install ok installed\nArchitecture: all\n\n"
+                              "Package: kde-plasma-desktop\nStatus: install ok installed\nArchitecture: all\n\n"
+                              "Package: kwin-x11\nStatus: install ok installed\nArchitecture: all\n\n"
                               "Package: lxde-core\nStatus: deinstall ok config-files\n")
             self.assertEqual(proot_desktops.installed_desktops(root),
                              ["xfce", "lxqt", "plasma"])

@@ -21,6 +21,7 @@ from contextlib import contextmanager
 
 import desktop_session_state
 import proot_fresh_setup
+import proot_packages
 
 
 class SetupError(ValueError):
@@ -117,70 +118,10 @@ def _observe_guest_file(root: Path, guest_path: str) -> dict[str, object]:
 
 
 def _guest_packages(root: Path, manifest: dict[str, object]) -> dict[str, object]:
-    database_dir = root / "var/lib/dpkg"
-    status_path = database_dir / "status"
     try:
-        for directory in (root / "var", root / "var/lib", database_dir):
-            metadata = directory.lstat()
-            if not stat.S_ISDIR(metadata.st_mode) or stat.S_ISLNK(metadata.st_mode):
-                raise SetupError("guest dpkg database path is unsafe")
-        try:
-            raw = _read_stable_regular_file(status_path, max_bytes=64 * 1024 * 1024)
-        except OSError as exc:
-            raise SetupError("guest dpkg status database is unsafe or unavailable") from exc
-        text = raw.decode("utf-8", "strict")
-    except SetupError:
-        raise
-    except (OSError, UnicodeError) as exc:
-        raise SetupError("guest dpkg package inventory is unavailable") from exc
-
-    installed: dict[str, list[dict[str, str]]] = {}
-    for paragraph in text.split("\n\n"):
-        fields: dict[str, str] = {}
-        for line in paragraph.splitlines():
-            if line and not line[0].isspace() and ":" in line:
-                key, value = line.split(":", 1)
-                fields[key] = value.strip()
-        state = fields.get("Status", "").split()
-        package = fields.get("Package", "")
-        architecture = fields.get("Architecture", "")
-        if (len(state) != 3 or state[1] != "ok" or state[2] != "installed"
-                or state[0] not in {"install", "hold"}
-                or not re.fullmatch(r"[a-z0-9][a-z0-9+.-]{0,127}", package.split(":", 1)[0])
-                or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,31}", architecture)):
-            continue
-        name = package.split(":", 1)[0]
-        installed.setdefault(name, []).append({"architecture": architecture,
-            "version": fields.get("Version", "unknown"), "held": "true" if state[0] == "hold" else "false"})
-
-    architecture = manifest.get("architecture")
-    expected_arch = {"aarch64": "arm64", "x86_64": "amd64"}.get(architecture, architecture)
-    groups = manifest.get("packages")
-    if not isinstance(groups, dict) or not isinstance(expected_arch, str):
-        raise SetupError("guest package profile is invalid")
-    inventory: dict[str, object] = {}
-    for group, requested in groups.items():
-        if (not isinstance(group, str) or not re.fullmatch(r"[a-z][a-z0-9-]{0,31}", group)
-                or not isinstance(requested, list) or len(requested) > 512):
-            raise SetupError("guest package groups are malformed")
-        present: dict[str, dict[str, str]] = {}
-        missing: list[str] = []
-        held: list[str] = []
-        for package in requested:
-            if not isinstance(package, str) or not re.fullmatch(r"[a-z0-9][a-z0-9+.-]{0,127}", package):
-                raise SetupError("guest package name is invalid")
-            candidates = installed.get(package, [])
-            candidates = [item for item in candidates if item["architecture"] in {expected_arch, "all"}]
-            if not candidates:
-                missing.append(package)
-                continue
-            selected = next((item for item in candidates if item["architecture"] == expected_arch), candidates[0])
-            present[package] = {"version": selected["version"], "architecture": selected["architecture"]}
-            if selected["held"] == "true":
-                held.append(package)
-        inventory[group] = {"requested": len(requested), "installed": len(present),
-                            "missing": missing, "held": held, "versions": present}
-    return {"groups": inventory, "dpkg_status_sha256": hashlib.sha256(raw).hexdigest()}
+        return proot_packages.grouped_inventory(root, manifest)
+    except proot_packages.PackageInventoryError as exc:
+        raise SetupError(str(exc)) from exc
 
 
 def _guest_profile(root: Path, user: str, manifest: dict[str, object]) -> dict[str, object]:

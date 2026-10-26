@@ -14,6 +14,7 @@ import time
 import proot_desktops
 import proot_fresh_setup
 import proot_guest_retirement
+import proot_packages
 
 
 class DesktopSetupError(ValueError):
@@ -57,25 +58,11 @@ def _private_digest(path: Path) -> str:
 
 
 def _package_inventory(root: Path) -> dict[str, str]:
-    status = root / "var/lib/dpkg/status"
-    if status.is_symlink():
-        raise DesktopSetupError("guest dpkg status is unsafe")
     try:
-        raw = status.read_text(encoding="utf-8")
-    except (OSError, UnicodeError) as exc:
-        raise DesktopSetupError("guest dpkg status is unavailable") from exc
-    result: dict[str, str] = {}
-    for paragraph in raw.split("\n\n"):
-        fields = {}
-        for line in paragraph.splitlines():
-            if line and not line[0].isspace() and ":" in line:
-                key, value = line.split(":", 1)
-                fields[key] = value.strip()
-        if fields.get("Status") == "install ok installed":
-            name, version = fields.get("Package", ""), fields.get("Version", "")
-            if re.fullmatch(r"[a-z0-9][a-z0-9+.-]{0,127}(?::[a-z0-9-]+)?", name) and version:
-                result[name] = version
-    return result
+        installed, _digest = proot_packages.installed_packages(root, "dpkg-status")
+    except proot_packages.PackageInventoryError as exc:
+        raise DesktopSetupError("guest dpkg package inventory is unavailable") from exc
+    return {name: candidates[0]["version"] for name, candidates in installed.items() if candidates}
 
 
 def _source_digest(root: Path) -> str:

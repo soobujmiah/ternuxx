@@ -14,6 +14,10 @@ The Web service binds to loopback, uses one-time bootstrap, scoped sessions, sam
 
 Ternuxx controls only the Native services and processes it records. Desktop and service recovery requires exact process/config identity and refuses ambiguous ownership. Termux:X11 Android Activity visibility is reported separately from server readiness. SSH management applies only to the fixed Native Runit service; the separately owner-managed development port remains external to product lifecycle controls.
 
+## PRoot package inventory adapters
+
+Managed guest package inspection uses one Ternuxx-owned, rootfs-confined inventory API. The current Debian and Ubuntu profiles use the dpkg status adapter; an APK installed-database reader is also implemented and fixture-tested as a building block for future Alpine profiles. That reader alone does not enable Alpine installation: package transaction previews/applies, pinned repositories/base image, desktop package mappings, graphics/audio compatibility, lifecycle, and recovery must all be qualified before an additional distro is exposed.
+
 ## Graphics and audio
 
 Native graphics selection is stored in private Ternuxx state and applies to future Native desktop sessions. Each managed guest uses its distro-compatible Mesa/Turnip stack and a bounded Native display/audio handoff; graphics claims are qualified per guest and display route. The two rendering contexts are qualified separately; installed libraries, device nodes, or a renderer string without a workload do not prove application acceleration. Native PulseAudio remains Native-owned.

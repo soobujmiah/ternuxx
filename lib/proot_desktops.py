@@ -4,6 +4,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import proot_packages
+
 
 # Provider package/session mappings are allowlisted here. Display commands are
 # never accepted from caller input or passed through a shell.
@@ -21,6 +23,7 @@ UBUNTU_DESKTOPS = {
     "xfce": {"name": "XFCE", "packages": ("xfce4", "xfce4-terminal"), "session": "startxfce4"},
 }
 PROVIDERS = {"debian-trixie": DEBIAN_DESKTOPS, "ubuntu-noble": UBUNTU_DESKTOPS}
+PACKAGE_DATABASES = {"debian-trixie": "dpkg-status", "ubuntu-noble": "dpkg-status"}
 DESKTOP_ROUTES = {
     "xfce": frozenset({"standalone", "nested"}),
     "lxqt": frozenset({"standalone", "nested"}),
@@ -93,23 +96,13 @@ def desktop_id(value: str, provider: str = "debian-trixie") -> str:
 
 def installed_desktops(rootfs: str | Path, provider: str = "debian-trixie") -> list[str]:
     desktops = PROVIDERS.get(provider)
-    if desktops is None:
+    database = PACKAGE_DATABASES.get(provider)
+    if desktops is None or database is None:
         raise DesktopError("desktop inventory is not implemented for this PRoot provider")
-    root = Path(rootfs)
-    status = root / "var/lib/dpkg/status"
     try:
-        raw = status.read_text(encoding="utf-8")
-    except OSError as exc:
+        installed = proot_packages.installed_names(rootfs, database)
+    except proot_packages.PackageInventoryError as exc:
         raise DesktopError("guest package inventory is unavailable") from exc
-    installed: set[str] = set()
-    for paragraph in raw.split("\n\n"):
-        fields = {}
-        for line in paragraph.splitlines():
-            if line and not line[0].isspace() and ":" in line:
-                key, value = line.split(":", 1)
-                fields[key] = value.strip()
-        if fields.get("Status") == "install ok installed":
-            installed.add(fields.get("Package", "").split(":", 1)[0])
     return [desktop for desktop, spec in desktops.items()
             if all(package in installed for package in spec["packages"])]
 

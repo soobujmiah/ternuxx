@@ -432,8 +432,8 @@ class ProotShortcutTests(unittest.TestCase):
         (rootfs / "etc/os-release").write_text("ID=debian\nVERSION_CODENAME=trixie\n")
         status = rootfs / "var/lib/dpkg/status"
         status.parent.mkdir(parents=True, exist_ok=True)
-        status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
-                          "Package: xfce4-terminal\nStatus: install ok installed\n")
+        status.write_text("Package: xfce4\nStatus: install ok installed\nArchitecture: all\n\n"
+                          "Package: xfce4-terminal\nStatus: install ok installed\nArchitecture: all\n")
         (apps / "org.example.Editor.desktop").write_text(
             "[Desktop Entry]\nType=Application\nName=Editor\nExec=/usr/bin/editor %f\n")
         data = self.home / "xfce-data"
@@ -508,10 +508,10 @@ class ProotShortcutTests(unittest.TestCase):
         rootfs = prefix / "var/lib/proot-distro/containers/debian/rootfs"
         status = rootfs / "var/lib/dpkg/status"
         status.parent.mkdir(parents=True)
-        status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
-                          "Package: xfce4-terminal\nStatus: install ok installed\n\n"
-                          "Package: lxqt\nStatus: install ok installed\n\n"
-                          "Package: openbox\nStatus: install ok installed\n")
+        status.write_text("Package: xfce4\nStatus: install ok installed\nArchitecture: all\n\n"
+                          "Package: xfce4-terminal\nStatus: install ok installed\nArchitecture: all\n\n"
+                          "Package: lxqt\nStatus: install ok installed\nArchitecture: all\n\n"
+                          "Package: openbox\nStatus: install ok installed\nArchitecture: all\n")
         (rootfs / "etc").mkdir(parents=True, exist_ok=True)
         (rootfs / "etc/os-release").write_text("ID=debian\nVERSION_CODENAME=trixie\n")
         kwargs = {"home": str(self.home), "prefix": str(prefix), "repo_root": str(self.repo)}
@@ -539,8 +539,8 @@ class ProotShortcutTests(unittest.TestCase):
         rootfs = prefix / "var/lib/proot-distro/containers/ubuntu/rootfs"
         status = rootfs / "var/lib/dpkg/status"
         status.parent.mkdir(parents=True)
-        status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
-                          "Package: xfce4-terminal\nStatus: install ok installed\n")
+        status.write_text("Package: xfce4\nStatus: install ok installed\nArchitecture: all\n\n"
+                          "Package: xfce4-terminal\nStatus: install ok installed\nArchitecture: all\n")
         with patch("proot_diagnostics.verify_managed_guest_alias",
                    side_effect=ValueError("receipt unavailable")):
             self.assertEqual(proot_shortcuts._installed_desktops(str(prefix)), [])
@@ -550,8 +550,8 @@ class ProotShortcutTests(unittest.TestCase):
         rootfs = prefix / "var/lib/proot-distro/containers/ubuntu/rootfs"
         status = rootfs / "var/lib/dpkg/status"
         status.parent.mkdir(parents=True)
-        status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
-                          "Package: xfce4-terminal\nStatus: install ok installed\n")
+        status.write_text("Package: xfce4\nStatus: install ok installed\nArchitecture: all\n\n"
+                          "Package: xfce4-terminal\nStatus: install ok installed\nArchitecture: all\n")
         (rootfs / "etc").mkdir(parents=True)
         (rootfs / "etc/os-release").write_text("ID=ubuntu\nVERSION_CODENAME=noble\n")
         data = self.home / "xfce-data"

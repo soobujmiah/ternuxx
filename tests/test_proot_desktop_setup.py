@@ -25,8 +25,8 @@ class DesktopInstallPlanTests(unittest.TestCase):
         (self.root / "etc/os-release").write_text('ID=debian\nVERSION_CODENAME=trixie\n')
         status = self.root / "var/lib/dpkg/status"
         status.parent.mkdir(parents=True)
-        status.write_text("Package: xfce4\nStatus: install ok installed\nVersion: 4.20.1\n\n"
-                          "Package: xfce4-terminal\nStatus: install ok installed\nVersion: 1.1.4-1\n")
+        status.write_text("Package: xfce4\nStatus: install ok installed\nArchitecture: all\nVersion: 4.20.1\n\n"
+                          "Package: xfce4-terminal\nStatus: install ok installed\nArchitecture: arm64\nVersion: 1.1.4-1\n")
         self.state = self.home / ".local/share/ternuxx"
         self.calls = []
 
@@ -37,7 +37,7 @@ class DesktopInstallPlanTests(unittest.TestCase):
         if applying:
             status = self.root / "var/lib/dpkg/status"
             with status.open("a") as stream:
-                stream.write("\n\nPackage: lxde-core\nStatus: install ok installed\nVersion: 1:48+2\n")
+                stream.write("\n\nPackage: lxde-core\nStatus: install ok installed\nArchitecture: all\nVersion: 1:48+2\n")
             output = "0 upgraded, 1 newly installed, 0 to remove and 1 not upgraded.\n"
             return subprocess.CompletedProcess(args, 0, output, "")
         output = ("Inst lxde-core (1:48+2 Debian:13/stable [arm64])\n"
@@ -68,7 +68,7 @@ class DesktopInstallPlanTests(unittest.TestCase):
     def test_preview_repairs_a_missing_required_plasma_x11_package(self):
         status = self.root / "var/lib/dpkg/status"
         with status.open("a", encoding="utf-8") as stream:
-            stream.write("\n\nPackage: kde-plasma-desktop\nStatus: install ok installed\nVersion: 5:162\n")
+            stream.write("\n\nPackage: kde-plasma-desktop\nStatus: install ok installed\nArchitecture: all\nVersion: 5:162\n")
 
         def runner(args, **kwargs):
             output = ("Inst kwin-x11 (4:6.3.6-1 Debian:13/stable [arm64])\n"

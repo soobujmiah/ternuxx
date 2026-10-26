@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 580,
-  "read_count": 172,
+  "document_count": 581,
+  "read_count": 175,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "673d73086b94666fb33d040ac08e22878afb6a00a675d94640a8451d0c283bd1",
+      "sha256": "067eccab964bb31b10f66e287b55d0d11931401f1a5579789647fa1785548b2d",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "673d73086b94666fb33d040ac08e22878afb6a00a675d94640a8451d0c283bd1"
+      "read_sha256": "067eccab964bb31b10f66e287b55d0d11931401f1a5579789647fa1785548b2d"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -131,10 +131,10 @@
     {
       "path": "docs/ARCHITECTURE.md",
       "kind": "narrative",
-      "sha256": "02c4c887d69dbd038f0e01098929d0c07920111f90c9d01f8c8e8a7342b08e54",
-      "lines": 23,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "578e9072d7ff6137567355e219513d1262ee40b062ab3ec797b05b3b63ce1335",
+      "lines": 27,
+      "read_status": "read",
+      "read_sha256": "578e9072d7ff6137567355e219513d1262ee40b062ab3ec797b05b3b63ce1335"
     },
     {
       "path": "docs/DEPENDENCY-FALLBACK-MATRIX.md",
@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "8cc2dbbfd01faced9c57925da41f91a4fa50039588f5fb93087bbb22d553d5fe",
-      "lines": 143,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "00c76ca06518ed540c3af030c1d7fb351debe45ed9d665e60eb788ef19a44245",
+      "lines": 147,
+      "read_status": "read",
+      "read_sha256": "00c76ca06518ed540c3af030c1d7fb351debe45ed9d665e60eb788ef19a44245"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3647,6 +3647,14 @@
       "lines": 37,
       "read_status": "pending",
       "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-26-proot-package-inventory-adapters.md",
+      "kind": "narrative",
+      "sha256": "00fc745eb022626bf64f11e1902f26e3f5b9b0571cba513d9bcb1af735a94e72",
+      "lines": 19,
+      "read_status": "read",
+      "read_sha256": "00fc745eb022626bf64f11e1902f26e3f5b9b0571cba513d9bcb1af735a94e72"
     },
     {
       "path": "docs/evidence/2026-10-26-supervisor-test-timeout.md",
