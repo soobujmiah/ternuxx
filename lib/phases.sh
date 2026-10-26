@@ -1035,8 +1035,9 @@ PYPROFILE
     return 0
   fi
   if [ "$action" = guided ]; then
+    . "$repo_root/lib/install_window.sh"
     local -a preview_args=(fresh-preview --repo-root "$repo_root" --alias "$distro" --user "$user" --sudo-mode "$sudo_mode" --desktops "$desktops" --groups "$groups" --json)
-    output="$(python3 "$repo_root/lib/proot_setup.py" "${preview_args[@]}")" || return $?
+    output="$(_nt_window_query "Review $distro rootfs and workstation plan" python3 "$repo_root/lib/proot_setup.py" "${preview_args[@]}")" || return $?
     printf '%s\n' "$output" | python3 "$repo_root/lib/proot_setup_present.py" || return $?
     local preview_id preview_status blocked
     preview_id="$(command python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("plan_id", ""))' <<<"$output")" || return 1

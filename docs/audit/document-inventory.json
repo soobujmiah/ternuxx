@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "c27c5aaadb880d2fac300c4269ccd90ec88d35938170a25cd0ad8a15031fbc22",
-      "lines": 163,
+      "sha256": "fc05ff4a4cee58dda650af8fb5edc6692139637847ed6abda570bdfcf72f9628",
+      "lines": 177,
       "read_status": "read",
-      "read_sha256": "c27c5aaadb880d2fac300c4269ccd90ec88d35938170a25cd0ad8a15031fbc22"
+      "read_sha256": "fc05ff4a4cee58dda650af8fb5edc6692139637847ed6abda570bdfcf72f9628"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -3779,10 +3779,10 @@
     {
       "path": "docs/evidence/2026-10-27-reinstall-repository-audit.md",
       "kind": "narrative",
-      "sha256": "e37cb125166913f1568fd1771fc57ba06cb11e23efcbb9820d10259aa9c7c6f7",
-      "lines": 113,
+      "sha256": "061f53ef51b984a4095ebebbe3cb6c8b578e9d4145dd24fe14f593793ff4a0fe",
+      "lines": 132,
       "read_status": "read",
-      "read_sha256": "e37cb125166913f1568fd1771fc57ba06cb11e23efcbb9820d10259aa9c7c6f7"
+      "read_sha256": "061f53ef51b984a4095ebebbe3cb6c8b578e9d4145dd24fe14f593793ff4a0fe"
     },
     {
       "path": "docs/evidence/P0-foundation.md",

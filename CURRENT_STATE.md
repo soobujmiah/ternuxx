@@ -4,6 +4,20 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Preview wait and visible username repair — 2026-10-27
+
+A subsequent owner screenshot showed a blank-looking stage 5/7. Guest previews
+can wait for captured APT simulation/download-size queries without showing their
+operation. Guided fresh/add-on previews now show a named busy state, refresh elapsed
+time/branding, keep JSON separate from terminal output, suppress keyboard echo and
+discard keys typed during that noninteractive wait. This identifies the operation;
+it does not prove the owner's exact backend wait cause from a screenshot alone.
+A separate confirmed field bug cropped short usernames to empty text; cropping now
+applies only to overlong values. PTY coverage asserts visible username text and
+clean JSON/input isolation through a delayed query. The logo uses a vertical green
+color wave. The header reports only `PulseAudio installed`; playback readiness
+remains a separate diagnostic claim, without an unsolicited audio test.
+
 ## Guest account input form repair — 2026-10-27
 
 The owner reported an apparently blank guest-account screen with echoed arrow

@@ -31,8 +31,8 @@ _nt_window_brand() {
   local color="${greens[$((SECONDS % 6))]}"
   if [ "${_NT_WINDOW_SHIFT:-0}" = 2 ]; then
     _nt_window_center 1 '╺┳╸ ┏━╸ ┏━┓ ┏┓╻ ╻ ╻ ╻ ╻ ╻ ╻' "$color"
-    _nt_window_center 2 ' ┃  ┣╸  ┣┳┛ ┃┗┫ ┃ ┃  ╳   ╳ ' "$color"
-    _nt_window_center 3 ' ╹  ┗━╸ ╹┗╸ ╹ ╹ ┗━┛ ╹ ╹ ╹ ╹' "$color"
+    _nt_window_center 2 ' ┃  ┣╸  ┣┳┛ ┃┗┫ ┃ ┃  ╳   ╳ ' "${greens[$(((SECONDS + 1) % 6))]}"
+    _nt_window_center 3 ' ╹  ┗━╸ ╹┗╸ ╹ ╹ ┗━┛ ╹ ╹ ╹ ╹' "${greens[$(((SECONDS + 2) % 6))]}"
     _nt_window_center 4 'Workstation In Your Hand' 114
   else
     _nt_window_center 1 TERNUXX "$color"
@@ -83,7 +83,7 @@ _nt_window_snapshot() {
   if [ -r /dev/kgsl-3d0 ]; then _NT_WINDOW_GPU='/dev/kgsl-3d0 (readable)'
   elif [ -d /dev/dri ]; then _NT_WINDOW_GPU='/dev/dri (present; probe required)'; fi
   _NT_WINDOW_AUDIO='PulseAudio not installed'
-  if command -v pulseaudio >/dev/null 2>&1; then _NT_WINDOW_AUDIO='PulseAudio installed; playback unverified'; fi
+  if command -v pulseaudio >/dev/null 2>&1; then _NT_WINDOW_AUDIO='PulseAudio installed'; fi
   _NT_WINDOW_KERNEL="$(uname -r)"
   _NT_WINDOW_ABI="$(uname -m)"
 }
@@ -240,5 +240,36 @@ _nt_window_session() (
   _nt_window_stage "Finished | exit $result" 'Press Enter to return to your terminal'
   local answer
   IFS= read -r answer </dev/tty || true
+  return "$result"
+)
+
+# Observe a noninteractive JSON preview without mixing progress into its stdout.
+# Only the temporary captured response is removed; product state is untouched.
+_nt_window_query() (
+  local label="$1"; shift
+  if [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ]; then "$@"; return $?; fi
+  local response saved_terminal result
+  umask 077
+  response="$(mktemp "${TMPDIR:-/tmp}/ternuxx-query.XXXXXX")" || return 2
+  saved_terminal="$(stty -g </dev/tty)" || { rm -- "$response"; return 2; }
+  _nt_query_cleanup() {
+    # Busy queries do not accept choices; discard keys typed while they ran.
+    python3 -c 'import os,termios; fd=os.open("/dev/tty",os.O_RDWR); termios.tcflush(fd,termios.TCIFLUSH); os.close(fd)' 2>/dev/null || true
+    stty "$saved_terminal" </dev/tty
+    rm -- "$response"
+  }
+  trap _nt_query_cleanup EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM HUP
+  stty -echo </dev/tty || return 2
+  _NT_WINDOW_PENDING="Working: $label | not a selection screen"
+  _nt_window_content_clear
+  printf 'Working: %s\nWaiting for command output; elapsed time updates below.\n' "$label" >/dev/tty
+  _nt_window_footer
+  _nt_query_worker() { "$@" </dev/null >"$response"; }
+  if _nt_window_run _nt_query_worker "$@"; then result=0; else result=$?; fi
+  if [ "$result" = 0 ]; then cat "$response"; else
+    printf '\nPreview failed (exit %s): %s\n' "$result" "$label" >/dev/tty
+  fi
   return "$result"
 )

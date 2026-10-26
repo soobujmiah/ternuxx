@@ -178,7 +178,9 @@ _nt_input() (
       fi
       shown="$value"
       if [ "$hidden" = 1 ]; then printf -v shown '%*s' "${#value}" ''; shown=${shown// /*}; fi
-      printf '\033[?25h> %.*s\033[K' "$((${_NT_WINDOW_COLS:-80} - 4))" "${shown: -$((${_NT_WINDOW_COLS:-80} - 4))}" >&3
+      local field_width=$((${_NT_WINDOW_COLS:-80} - 4))
+      if [ "${#shown}" -gt "$field_width" ]; then shown="${shown: -field_width}"; fi
+      printf '\033[?25h> %s\033[K' "$shown" >&3
     fi
     key=''; IFS= read -rn1 -t 1 key <&3; status=$?
     if [ "$status" != 0 ]; then [ "$status" -gt 128 ] || return 130; continue; fi

@@ -182,7 +182,9 @@ echo ACCOUNT_FORM_DONE
 ''')
             term.wait_for(b'Type text |')
             self.assertFalse(termios.tcgetattr(term.slave)[3] & termios.ECHO)
-            term.send(b'\x1b[B\x1b[AaliceX\x7f\n')
+            term.send(b'\x1b[B\x1b[AaliceX\x7f')
+            term.wait_for(b'> alice')
+            term.send(b'\n')
             term.wait_for(b'1/2 |')
             term.send(b'\n')
             term.wait_for(b'Create guest sudo password')
@@ -204,6 +206,28 @@ echo ACCOUNT_FORM_DONE
             self.assertNotIn('Installation log', out)
             self.assertIn('╺┳╸ ┏━╸ ┏━┓', out)
             self.assertEqual(termios.tcgetattr(term.slave), term.original)
+
+    def test_slow_guest_query_is_visible_silent_input_and_json_clean(self):
+        term = self.fixture(f'''source "{ROOT}/lib/install_window.sh"
+_NT_WINDOW_ACTIVE=1; _NT_WINDOW_INSTALLING=1; _NT_WINDOW_STARTED=$SECONDS
+_nt_window_snapshot
+_nt_window_draw
+response=$(_nt_window_query 'Review debian packages' bash -c 'sleep 1.3; printf "{{\\"ok\\":true}}"') || exit $?
+printf 'RESPONSE=%s\\n' "$response"
+next=$(_nt_pick 'Next choice' single '' 'a|Alpha' 'b|Beta'); echo NEXT=$next
+''')
+        term.wait_for(b'Working: Review debian packages')
+        self.assertFalse(termios.tcgetattr(term.slave)[3] & termios.ECHO)
+        term.send(b'\x1b[B\x1b[B')
+        term.wait_for(b'1/2 |')
+        term.send(b'\n')
+        out = term.finish()
+        self.assertIn('RESPONSE={"ok":true}', out)
+        self.assertNotIn('^[[', out)
+        # Keys typed during a busy query must not select Beta in the next menu.
+        self.assertIn('NEXT=a', out)
+        self.assertEqual(term.process.returncode, 0, out)
+        self.assertEqual(termios.tcgetattr(term.slave), term.original)
 
     def test_text_form_escape_restores_terminal(self):
         term = self.fixture('_nt_input "Guest username"; exit $?')

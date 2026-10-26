@@ -220,7 +220,7 @@ _nt_install_guest_addons() {
   apps=",$apps,"; apps="${apps//,none,/,}"; apps="${apps#,}"; apps="${apps%,}"
   local -a args=(desktop-preview --repo-root "$root" --alias "$distro" --desktops "$desktops" --json)
   [ -z "$apps" ] || args+=(--apps "$apps")
-  output="$(python3 "$root/lib/proot_setup.py" "${args[@]}")" || return $?
+  output="$(_nt_window_query "Review $distro packages and download sizes" python3 "$root/lib/proot_setup.py" "${args[@]}")" || return $?
   command python3 -c '
 import json,sys
 d=json.load(sys.stdin)

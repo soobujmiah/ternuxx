@@ -111,3 +111,22 @@ root-only passwd discovery, username editing with arrows, sudo selection, both
 hidden password fields, resize from large to compact layout and termios recovery.
 Fixtures create no live guest or account. Large green animated logo and styled
 rules have source/PTY evidence; actual owner-device visual acceptance is pending.
+
+## Subsequent stage-5 wait / username visibility report
+
+Confirmed source defect: the text field always used a negative tail offset, even
+when the username was shorter than the field. Bash returned an empty substring.
+Only overlong display strings are cropped now; a real PTY assertion checks visible
+`> alice` text after arrow filtering and Backspace editing.
+
+The owner's later stage-5 screenshot alone cannot establish which backend command
+was waiting. Source review identified silent captured guest previews: existing
+rootfs APT simulation and download-size estimation have bounded subprocess waits,
+but previously provided no live operation label. The guided preview observer now
+shows the named operation plus elapsed-time/branding refresh, retains stdout as
+machine JSON in a private temporary file, relays stderr, and restores terminal
+state after success/failure. Noninteractive preview input is disabled and queued
+keys are discarded before the next selector. The PTY delayed-query fixture checks
+this contract. No live APT, package installation, audio playback or guest mutation
+was run to reproduce the owner's install. Backend wait diagnosis remains pending
+owner retry with the operation label visible.
