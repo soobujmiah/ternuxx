@@ -1,0 +1,7 @@
+event_id: commit-2ddbfcf25818-9cb6ffb7451685d6
+repository: soobujmiah/ternuxx
+commit: 2ddbfcf2581863c135aba86fe3452128e4a1c745
+kind: commit
+occurred_at: '2026-10-26T16:42:27Z'
+status: completed
+summary: 'fix(installer): match early password validation to guest contract'
