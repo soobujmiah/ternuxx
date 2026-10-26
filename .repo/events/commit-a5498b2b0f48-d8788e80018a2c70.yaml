@@ -1,0 +1,7 @@
+event_id: commit-a5498b2b0f48-d8788e80018a2c70
+repository: soobujmiah/ternuxx
+commit: a5498b2b0f48a245e7ca27d031f76f622166801f
+kind: commit
+occurred_at: '2026-10-26T10:45:41Z'
+status: completed
+summary: 'fix(proot): pass alias into nested guest session'
