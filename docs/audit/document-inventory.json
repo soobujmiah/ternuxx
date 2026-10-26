@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 585,
-  "read_count": 178,
+  "document_count": 588,
+  "read_count": 181,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "e26fe2947725e0492454c2725389f9815fce61e83e9371fe1a8e05db913ed336",
-      "lines": 42,
+      "sha256": "0e1992555a8700165c737016ffeb5d67e5ec8a5ae3cc94105096b29598f59a60",
+      "lines": 44,
       "read_status": "read",
-      "read_sha256": "e26fe2947725e0492454c2725389f9815fce61e83e9371fe1a8e05db913ed336"
+      "read_sha256": "0e1992555a8700165c737016ffeb5d67e5ec8a5ae3cc94105096b29598f59a60"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "98fd2533b92d08c3efee4c7bc1adaf6dc29344de43c45e82d075d4c4d48e1b7e",
-      "lines": 169,
+      "sha256": "e13be0086dcb0fca7f17bae9e158f3d07a584423ee15e5c27714d21f1669c2da",
+      "lines": 173,
       "read_status": "read",
-      "read_sha256": "98fd2533b92d08c3efee4c7bc1adaf6dc29344de43c45e82d075d4c4d48e1b7e"
+      "read_sha256": "e13be0086dcb0fca7f17bae9e158f3d07a584423ee15e5c27714d21f1669c2da"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3577,6 +3577,14 @@
       "read_sha256": "2fddf4d583c9cf5b9f244f79ac2feefb134572b0a48c416aac1a19feaf2fcfc9"
     },
     {
+      "path": "docs/evidence/2026-10-26-debian-extra-desktop-cleanup.md",
+      "kind": "narrative",
+      "sha256": "67c61f0d45790848bf2bbebc128d5ec0e3adf72980140e88391fd7cdea411a93",
+      "lines": 17,
+      "read_status": "read",
+      "read_sha256": "67c61f0d45790848bf2bbebc128d5ec0e3adf72980140e88391fd7cdea411a93"
+    },
+    {
       "path": "docs/evidence/2026-10-26-debian-standalone-render-follow-up.md",
       "kind": "narrative",
       "sha256": "fb0a293bf6fd092aebb91f7f308e783b1b482466606c3123f1563b0bb456d3ba",
@@ -3635,10 +3643,10 @@
     {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
       "kind": "narrative",
-      "sha256": "c8afc0f05bb412d962cd259f20fe60a21e6099d1f52f59ca2c74bb2f518ca04f",
-      "lines": 67,
+      "sha256": "3f3fec9a1445bdd7c22ebe3b1a66eee96e8ae4c228c3ac0861a54fea998ab2dc",
+      "lines": 71,
       "read_status": "read",
-      "read_sha256": "c8afc0f05bb412d962cd259f20fe60a21e6099d1f52f59ca2c74bb2f518ca04f"
+      "read_sha256": "3f3fec9a1445bdd7c22ebe3b1a66eee96e8ae4c228c3ac0861a54fea998ab2dc"
     },
     {
       "path": "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",
@@ -3959,6 +3967,22 @@
       "lines": 1,
       "read_status": "pending",
       "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/data/2026-10-26-debian-extra-desktop-removal-plan.txt",
+      "kind": "narrative",
+      "sha256": "fb7bb079a207a849c0880a82416762bed52c94f892151aea56411a921897d571",
+      "lines": 531,
+      "read_status": "read",
+      "read_sha256": "fb7bb079a207a849c0880a82416762bed52c94f892151aea56411a921897d571"
+    },
+    {
+      "path": "docs/evidence/data/2026-10-26-debian-failed-desktop-residual-purge-plan.txt",
+      "kind": "narrative",
+      "sha256": "b27f877c7bce9a54fb78e496a866d8947cefb7566cb37ec3ee762a606b20dc8e",
+      "lines": 22,
+      "read_status": "read",
+      "read_sha256": "b27f877c7bce9a54fb78e496a866d8947cefb7566cb37ec3ee762a606b20dc8e"
     },
     {
       "path": "docs/evidence/data/2026-10-26-p12-mesa-generated-source-audit-40128850286.json",

@@ -1,0 +1,22 @@
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  cinnamon-common* cinnamon-control-center-data* cinnamon-desktop-data*
+  cinnamon-screensaver* cinnamon-session-common* cinnamon-settings-daemon*
+  gnome-control-center-data* gnome-disk-utility* gnome-keyring* gnome-menus*
+  gnome-session-common* gnome-settings-daemon* gnome-software*
+0 upgraded, 0 newly installed, 13 to remove and 1 not upgraded.
+Purg cinnamon-common
+Purg cinnamon-control-center-data
+Purg cinnamon-desktop-data
+Purg cinnamon-screensaver
+Purg cinnamon-session-common
+Purg cinnamon-settings-daemon
+Purg gnome-control-center-data
+Purg gnome-disk-utility
+Purg gnome-keyring
+Purg gnome-menus
+Purg gnome-session-common
+Purg gnome-settings-daemon
+Purg gnome-software

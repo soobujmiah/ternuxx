@@ -1,0 +1,531 @@
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  baloo6* breeze* breeze-cursor-theme* breeze-wallpaper* bubblewrap* bzip2*
+  caja* caja-common* debian-mate-default-settings* dictionaries-common*
+  dolphin* dolphin-data* drkonqi* emacsen-common* featherpad* fonts-cantarell*
+  frameworkintegration6* gdb* gir1.2-glib-2.0* gir1.2-matemenu-2.0*
+  gtk2-engines* gtk2-engines-murrine* gtk2-engines-pixbuf* hunspell-en-us*
+  kde-baseapps* kde-cli-tools* kde-cli-tools-data* kde-plasma-desktop*
+  kde-style-breeze* kde-style-breeze-data* kdialog* kglobalacceld*
+  kirigami-addons-data* kwin-common* kwin-data* kwin-style-breeze*
+  kwin-wayland* laptop-detect* libaccounts-glib0* libaccounts-qt6-1*
+  libadwaita-1-0* libappimage1.0abi1t64* libappstream5* libappstreamqt3*
+  libaribb24-0t64* libass9* libavcodec61* libavfilter10* libavformat61*
+  libavutil59* libbabeltrace1* libbatterycontrol6* libblas3*
+  libboost-filesystem1.83.0* libbs2b0* libcaja-extension1* libcanberra-gtk3-0*
+  libcddb2* libchromaprint1* libcjson1* libcodec2-1.2* libcolorcorrect6*
+  libdbus-glib-1-2* libdc1394-25* libdebuginfod-common* libdebuginfod1t64*
+  libdmtx0t64* libdolphinvcs6* libdvbpsi10* libdvdnav4* libdvdread8t64*
+  libdw1t64* libebml5* libeditorconfig0* libeis1* libepub0* libexempi8*
+  libexiv2-28* libexiv2-data* libfaad2* libfftw3-double3* libflite1*
+  libfm-data* libfm-gtk-data* libfm-gtk3-4t64* libfm-modules* libfm4t64*
+  libgail-3-0t64* libgfortran5* libgif7* libgme0* libgs-common* libgs10*
+  libgs10-common* libgsm1* libgtk2.0-0t64* libgtk2.0-common*
+  libhunspell-1.7-0* libhwy1t64* libibus-1.0-5* libid3tag0* libidn12*
+  libijs-0.35* libimlib2t64* libinih1* libinireader0* libiw30t64*
+  libixml11t64* libjbig2dec0* libjs-underscore* libjxl0.11* libkaccounts6-2*
+  libkate1* libkexiv2qt6-0* libkf6attica6* libkf6baloo6* libkf6balooengine6*
+  libkf6baloowidgets6* libkf6bookmarks-data* libkf6bookmarks6*
+  libkf6bookmarkswidgets6* libkf6calendarevents6* libkf6declarative-data*
+  libkf6filemetadata-bin* libkf6filemetadata-data* libkf6filemetadata3*
+  libkf6holidays-data* libkf6holidays6* libkf6i18nlocaledata6*
+  libkf6itemmodels6* libkf6kcmutils6* libkf6kiofilewidgets6*
+  libkf6networkmanagerqt6* libkf6newstuff-data* libkf6newstuffcore6*
+  libkf6newstuffwidgets6* libkf6notifyconfig-data* libkf6notifyconfig6*
+  libkf6parts-data* libkf6parts6* libkf6prison6* libkf6prisonscanner6*
+  libkf6pty-data* libkf6pty6* libkf6qqc2desktopstyle-data* libkf6runner6*
+  libkf6sonnet-data* libkf6sonnetcore6* libkf6sonnetui6*
+  libkf6statusnotifieritem-data* libkf6statusnotifieritem6* libkf6style6*
+  libkf6su-bin* libkf6su-data* libkf6su6* libkf6syndication6*
+  libkf6syntaxhighlighting-data* libkf6syntaxhighlighting6*
+  libkf6texteditor-bin* libkf6texteditor-data* libkf6texteditor6*
+  libkf6textwidgets-data* libkf6textwidgets6* libkf6unitconversion-data*
+  libkf6unitconversion6* libkf6userfeedback-data* libkf6userfeedbackcore6*
+  libkf6userfeedbackwidgets6* libkfontinst6* libkfontinstui6* libklipper6*
+  libkmpris6* libkpipewire-data* libkpipewire6* libkpipewiredmabuf6*
+  libkpipewirerecord6* libksysguard-data* libksysguardformatter2*
+  libksysguardsensorfaces2* libksysguardsensors2* libksysguardsystemstats2*
+  libkworkspace6-6* liblapack3* liblirc-client0t64* liblua5.2-0*
+  liblxqt-globalkeys-ui2* libmad0* libmarco-private2* libmate-desktop-2-17t64*
+  libmate-menu2* libmate-panel-applet-4-1* libmate-slab0t64*
+  libmate-window-settings1t64* libmatekbd-common* libmatekbd4*
+  libmatemixer-common* libmatemixer0* libmateweather-common*
+  libmateweather1t64* libmatroska7* libmbedcrypto16* libmpcdec6*
+  libmuparser2v5* libnorm1t64* libnotificationmanager1* libnuma1*
+  libobrender32v5* libobt2v5* libopenmpt-modplug1* libopenmpt0t64*
+  libpackagekitqt6-1* libpangoxft-1.0-0* libpaper2* libpgm-5.3-0t64*
+  libphonon-l10n* libphonon4qt6-4t64* libplacebo349*
+  libplasma-geolocation-interface6* libplasma5support-data*
+  libplasma5support6* libplasmaactivitiesstats1* libpocketsphinx3*
+  libpoppler-qt6-3t64* libpostproc58* libprocesscore10* libprotobuf-lite32t64*
+  libpython3.13* libqalculate-data* libqalculate23* libqmobipocket6-2*
+  libqrencode4* libqt6labsplatform6* libqt6multimedia6* libqt6openglwidgets6*
+  libqt6positioning6* libqt6positioning6-plugins* libqt6positioningquick6*
+  libqt6quickwidgets6* libqt6serialport6* libqt6shadertools6*
+  libqt6texttospeech6* libqt6uitools6* libqt6virtualkeyboard6*
+  libquickcharts1* libquickchartscontrols1* librabbitmq4* librda-common*
+  librda0* libresid-builder0c2a* librist4* librubberband2* libsamplerate0*
+  libscim8v5* libsdl2-2.0-0* libshine3* libsidplay2* libsignon-qt6-1*
+  libsnappy1v5* libsodium23* libsource-highlight-common*
+  libsource-highlight4t64* libsoxr0* libspatialaudio0t64* libspectre1*
+  libsphinxbase3t64* libsquashfuse0* libsrt1.5-gnutls* libssh-4*
+  libstatgrab10t64* libstemmer0d* libswresample5* libswscale8*
+  libsysstat-qt6-1* libtaskmanager6* libtext-charwidth-perl*
+  libtext-iconv-perl* libtext-wrapi18n-perl* libunibreak6* libupnp17t64*
+  libva-drm2* libva-wayland2* libva-x11-2* libva2* libvdpau1* libvidstab1.1*
+  libvlc5* libvlccore9* libweather-ion7* libwebpdemux2* libwebpmux3*
+  libx264-164* libx265-215* libxdgutilsbasedir1.0.1*
+  libxdgutilsdesktopentry1.0.1* libxkbregistry0* libxmlb2* libxvidcore4*
+  libzimg2* libzip5* libzmq5* libzvbi-common* libzvbi0t64* libzxing3*
+  lxde-common* lxde-core* lxmenu-data* lxpanel* lxpanel-data* lxqt*
+  lxqt-about* lxqt-admin* lxqt-archiver* lxqt-branding-debian* lxqt-core*
+  lxqt-globalkeys* lxqt-openssh-askpass* lxqt-panel* lxqt-runner*
+  lxqt-theme-debian* lxsession* lxsession-data* lxsession-logout* marco*
+  marco-common* mate-control-center* mate-control-center-common* mate-desktop*
+  mate-desktop-environment-core* mate-icon-theme* mate-menus* mate-panel*
+  mate-panel-common* mate-session-manager* mate-settings-daemon*
+  mate-settings-daemon-common* mate-themes* milou* ocean-sound-theme*
+  ocl-icd-libopencl1* openbox* openbox-lxde-session* oxygen-sounds*
+  pavucontrol-qt* pcmanfm* phonon-backend-vlc-common* phonon4qt6*
+  phonon4qt6-backend-vlc* plasma-desktop* plasma-desktop-data*
+  plasma-desktoptheme* plasma-integration* plasma-workspace*
+  plasma-workspace-data* python3-psutil* qdbus-qt6*
+  qml6-module-org-kde-activities* qml6-module-org-kde-baloo*
+  qml6-module-org-kde-breeze* qml6-module-org-kde-config*
+  qml6-module-org-kde-coreaddons* qml6-module-org-kde-desktop*
+  qml6-module-org-kde-draganddrop* qml6-module-org-kde-graphicaleffects*
+  qml6-module-org-kde-guiaddons* qml6-module-org-kde-iconthemes*
+  qml6-module-org-kde-kcmutils* qml6-module-org-kde-kholidays*
+  qml6-module-org-kde-kirigamiaddons-components*
+  qml6-module-org-kde-kirigamiaddons-delegates*
+  qml6-module-org-kde-kirigamiaddons-tableview*
+  qml6-module-org-kde-kirigamiaddons-treeview*
+  qml6-module-org-kde-kitemmodels* qml6-module-org-kde-kquickcontrols*
+  qml6-module-org-kde-kquickcontrolsaddons* qml6-module-org-kde-ksvg*
+  qml6-module-org-kde-ksysguard* qml6-module-org-kde-kwindowsystem*
+  qml6-module-org-kde-newstuff* qml6-module-org-kde-notifications*
+  qml6-module-org-kde-pipewire* qml6-module-org-kde-plasma-plasma5support*
+  qml6-module-org-kde-prison* qml6-module-org-kde-quickcharts*
+  qml6-module-org-kde-sonnet* qml6-module-org-kde-syntaxhighlighting*
+  qml6-module-org-kde-userfeedback* qml6-module-qt-labs-folderlistmodel*
+  qml6-module-qt-labs-platform* qml6-module-qt-labs-qmlmodels*
+  qml6-module-qt5compat-graphicaleffects* qml6-module-qtcore*
+  qml6-module-qtmultimedia* qml6-module-qtpositioning*
+  qml6-module-qtquick-dialogs* qml6-module-qtquick-effects*
+  qml6-module-qtquick-tooling* qml6-module-qtquick-virtualkeyboard*
+  qtxdg-tools* sddm-theme-debian-elarun* ucf* vlc-data* vlc-plugin-base*
+  vlc-plugin-video-output* xdg-desktop-portal* xdg-desktop-portal-gtk*
+  xdg-user-dirs-gtk* xdg-utils* xwayland* zenity* zenity-common*
+0 upgraded, 0 newly installed, 410 to remove and 1 not upgraded.
+Purg kde-plasma-desktop [5:162]
+Purg kde-baseapps [4:24.12.0+5.162]
+Purg dolphin [4:25.04.3-1+deb13u1]
+Purg baloo6 [6.13.0-1]
+Purg plasma-desktop [4:6.3.6-1]
+Purg mate-desktop-environment-core [1.26.0+2]
+Purg plasma-workspace [4:6.3.6-2]
+Purg plasma-integration [6.3.6-1]
+Purg breeze [4:6.3.5-1]
+Purg breeze-cursor-theme [4:6.3.5-1]
+Purg breeze-wallpaper [4:6.3.5-1]
+Purg xdg-desktop-portal-gtk [1.15.3-1]
+Purg xdg-desktop-portal [1.20.3+ds-1]
+Purg bubblewrap [0.12.0-1~deb13u1]
+Purg lxqt [33.2]
+Purg lxqt-archiver [1.1.0-1]
+Purg bzip2 [1.0.8-6]
+Purg caja [1.26.4-1]
+Purg mate-control-center [1.26.1-1.1+b4]
+Purg caja-common [1.26.4-1]
+Purg mate-session-manager [1.26.1-2+b2]
+Purg debian-mate-default-settings [1.26.1-2]
+Purg hunspell-en-us [1:2020.12.07-4]
+Purg dictionaries-common [1.30.10]
+Purg dolphin-data [4:25.04.3-1+deb13u1]
+Purg drkonqi [6.3.4-1]
+Purg emacsen-common [3.0.8]
+Purg featherpad [1.6.1-1]
+Purg fonts-cantarell [0.303.1-4]
+Purg frameworkintegration6 [6.13.0-2]
+Purg gdb [16.3-1]
+Purg mate-panel [1.27.1-4.1]
+Purg mate-menus [1.26.1-1]
+Purg gir1.2-matemenu-2.0 [1.26.1-1+b2]
+Purg gir1.2-glib-2.0 [2.84.4-3~deb13u5]
+Purg mate-themes [3.22.26-1]
+Purg gtk2-engines [1:2.20.2-8]
+Purg gtk2-engines-murrine [0.98.2-4+b1]
+Purg gtk2-engines-pixbuf [2.24.33-7]
+Purg kde-cli-tools [4:6.3.4-1]
+Purg kde-cli-tools-data [4:6.3.4-1]
+Purg kwin-style-breeze [4:6.3.5-1]
+Purg kde-style-breeze [4:6.3.5-1]
+Purg kde-style-breeze-data [4:6.3.5-1]
+Purg kdialog [4:25.04.0-1]
+Purg kwin-common [4:6.3.6-1]
+Purg kglobalacceld [6.3.6-1]
+Purg qml6-module-org-kde-kirigamiaddons-components [1.7.0-1]
+Purg qml6-module-org-kde-kirigamiaddons-delegates [1.7.0-1]
+Purg qml6-module-org-kde-kirigamiaddons-treeview [1.7.0-1]
+Purg qml6-module-org-kde-kirigamiaddons-tableview [1.7.0-1]
+Purg kirigami-addons-data [1.7.0-1]
+Purg kwin-data [4:6.3.6-1]
+Purg kwin-wayland [4:6.3.6-1]
+Purg lxde-core [13.0]
+Purg openbox-lxde-session [0.99.3-1]
+Purg lxsession [0.5.6-2]
+Purg laptop-detect [0.16+nmu1]
+Purg libkaccounts6-2 [4:25.04.0-1]
+Purg libaccounts-qt6-1 [1.17-4+b1]
+Purg libaccounts-glib0 [1.27-1+b1]
+Purg marco [1.26.2-4.1]
+Purg zenity [4.1.90-1]
+Purg libadwaita-1-0 [1.7.6-1~deb13u1]
+Purg libkf6baloowidgets6 [4:25.04.0-1]
+Purg libkf6filemetadata-bin [6.13.0-1]
+Purg libappimage1.0abi1t64 [1.0.4-5-4]
+Purg libappstreamqt3 [1.0.5-1]
+Purg libappstream5 [1.0.5-1]
+Purg phonon4qt6 [4:4.12.0-5]
+Purg phonon4qt6-backend-vlc [0.12.0-3+b4]
+Purg vlc-plugin-base [3.0.24-0+deb13u1]
+Purg libaribb24-0t64 [1.0.3-2.1+b2]
+Purg qml6-module-org-kde-pipewire [6.3.6-1]
+Purg libkpipewirerecord6 [6.3.6-1]
+Purg libavfilter10 [7:7.1.5-0+deb13u1]
+Purg libass9 [1:0.17.3-1+deb13u1]
+Purg vlc-plugin-video-output [3.0.24-0+deb13u1]
+Purg libkf6textwidgets6 [6.13.0-1]
+Purg libqt6texttospeech6 [6.8.2-2] [libkf6texteditor6:arm64 ]
+Purg libqt6multimedia6 [6.8.2-8] [libkf6prisonscanner6:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libavcodec61 [7:7.1.5-0+deb13u1] [libkf6prisonscanner6:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libavformat61:arm64 ]
+Purg libavformat61 [7:7.1.5-0+deb13u1] [libkf6prisonscanner6:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libswscale8 [7:7.1.5-0+deb13u1] [libkf6prisonscanner6:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libswresample5 [7:7.1.5-0+deb13u1] [libkf6prisonscanner6:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libavutil59 [7:7.1.5-0+deb13u1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libbabeltrace1 [1.5.11-4+b2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libbatterycontrol6 [4:6.3.6-2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libpocketsphinx3 [0.8+5prealpha+1-15+b4] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libsphinxbase3t64 [0.8+5prealpha+1-21+b1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg liblapack3 [3.12.1-6] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libblas3 [3.12.1-6] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libboost-filesystem1.83.0 [1.83.0-4.2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libbs2b0 [3.1.0+dfsg-8+b1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libcaja-extension1 [1.26.4-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg mate-settings-daemon [1.26.1-1.2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libmarco-private2 [1.26.2-4.1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libcanberra-gtk3-0 [0.30-18] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libcddb2 [1.3.2-7.1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libchromaprint1 [1.5.1-7] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg librist4 [0.2.11+dfsg-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libcjson1 [1.7.18-3.1+deb13u1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libcodec2-1.2 [1.2.0-3] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libcolorcorrect6 [4:6.3.6-2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg pcmanfm [1.4.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg lxpanel [0.11.1-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 ]
+Purg libfm4t64 [1.4.0-2] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libdbus-glib-1-2 [0.114-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libdc1394-25 [2.2.6-5] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libdebuginfod1t64 [0.192-4] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libdebuginfod-common [0.192-4] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libklipper6 [4:6.3.6-2] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg qml6-module-org-kde-prison [6.13.0-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libkf6prison6 [6.13.0-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libdmtx0t64 [0.7.7-1.2+b1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libdolphinvcs6 [4:25.04.3-1+deb13u1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libdvbpsi10 [1.3.3-1+b2] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libdvdnav4 [6.1.1-3+b1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libdvdread8t64 [6.1.3-2] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libdw1t64 [0.192-4] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libmatroska7 [1.7.1-1+b2] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libebml5 [1.4.5-1+b1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libkf6texteditor-bin [6.13.0-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libkf6texteditor6:arm64 libfm-modules:arm64 ]
+Purg libkf6texteditor6 [6.13.0-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libeditorconfig0 [0.12.9+~0.17.1-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libeis1 [1.3.901-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libepub0 [0.2.2-6+b3] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libexempi8 [2.6.6-2] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libkexiv2qt6-0 [25.04.0-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libexiv2-28 [0.28.5+dfsg-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libexiv2-data [0.28.5+dfsg-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libfaad2 [2.11.2-1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg librubberband2 [3.3.0+dfsg-2+b3] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libfftw3-double3 [3.3.10-2+b1] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libflite1 [2.2-7] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libfm-data [1.4.0-2] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libfm-modules:arm64 ]
+Purg libfm-modules [1.4.0-2] [libkf6prisonscanner6:arm64 libfm-gtk3-4t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libfm-gtk3-4t64 [1.4.0-2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libfm-gtk-data [1.4.0-2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libgail-3-0t64 [3.24.49-3] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libgfortran5 [14.2.0-19] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg openbox [3.6.1-12+b2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libobrender32v5 [3.6.1-12+b2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libimlib2t64 [1.12.4-2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libgif7 [5.2.2-1+deb13u1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libgme0 [0.6.3-7+b2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libspectre1 [0.2.12-1+b2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libgs10 [10.05.1~dfsg-1+deb13u3] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libgs10-common [10.05.1~dfsg-1+deb13u3] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libgs-common [10.05.1~dfsg-1+deb13u3] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libgsm1 [1.0.22-1+b2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libgtk2.0-0t64 [2.24.33-7] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libgtk2.0-common [2.24.33-7] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-qtquick-virtualkeyboard [6.8.2+dfsg-3] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libhunspell-1.7-0 [1.7.2+really1.7.2-10+b4] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libjxl0.11 [0.11.2-0.1~deb13u3] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libhwy1t64 [1.2.0-2+b2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libibus-1.0-5 [1.5.32-2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libid3tag0 [0.16.3-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libvlc5 [3.0.24-0+deb13u1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libvlccore9 [3.0.24-0+deb13u1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libidn12 [1.43-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libijs-0.35 [0.35-15.2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libinireader0 [59-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libinih1 [59-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libiw30t64 [30~pre9-18+b1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libupnp17t64 [1:1.14.20-1+deb13u1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libixml11t64 [1:1.14.20-1+deb13u1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libjbig2dec0 [0.20-1+deb13u1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libjs-underscore [1.13.4~dfsg+~1.11.4-3] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkate1 [0.4.3-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-newstuff [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6newstuffwidgets6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6newstuffcore6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6attica6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-baloo [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6baloo6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6balooengine6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-plasma-plasma5support [4:6.3.4-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libweather-ion7 [4:6.3.6-2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libplasma5support6 [4:6.3.4-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libnotificationmanager1 [4:6.3.6-2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6kiofilewidgets6 [6.13.0-6] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6bookmarkswidgets6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6bookmarks6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6bookmarks-data [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6calendarevents6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6declarative-data [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6filemetadata3 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6filemetadata-data [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-kholidays [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6holidays6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6holidays-data [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6i18nlocaledata6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg milou [4:6.3.5-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6runner6 [6.13.0-1] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libtaskmanager6 [4:6.3.6-2] [libkf6prisonscanner6:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6itemmodels6 [6.13.0-1] [libkf6prisonscanner6:arm64 qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6kcmutils6 [6.13.0-2] [libkf6prisonscanner6:arm64 qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libplasma-geolocation-interface6 [4:6.3.4-1] [libkf6prisonscanner6:arm64 qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6networkmanagerqt6 [6.13.0-1] [libkf6prisonscanner6:arm64 qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6newstuff-data [6.13.0-1] [libkf6prisonscanner6:arm64 qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6notifyconfig6 [6.13.0-1] [libkf6prisonscanner6:arm64 qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6notifyconfig-data [6.13.0-1] [libkf6prisonscanner6:arm64 qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6parts6 [6.13.0-1] [libkf6prisonscanner6:arm64 qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6parts-data [6.13.0-1] [libkf6prisonscanner6:arm64 qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6prisonscanner6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6su-bin [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6su6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6pty6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6pty-data [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-desktop [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6qqc2desktopstyle-data [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-sonnet [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6sonnetui6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6sonnetcore6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6sonnet-data [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6statusnotifieritem6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6statusnotifieritem-data [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6style6 [6.13.0-2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6su-data [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6syndication6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-syntaxhighlighting [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6syntaxhighlighting6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6syntaxhighlighting-data [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6texteditor-data [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6textwidgets-data [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6unitconversion6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6unitconversion-data [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-userfeedback [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6userfeedbackwidgets6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6userfeedbackcore6 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkf6userfeedback-data [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkfontinstui6 [4:6.3.6-2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkfontinst6 [4:6.3.6-2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkmpris6 [4:6.3.6-2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkpipewiredmabuf6 [6.3.6-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkpipewire6 [6.3.6-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkpipewire-data [6.3.6-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-ksysguard [4:6.3.5-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libprocesscore10 [4:6.3.5-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libksysguardsensorfaces2 [4:6.3.5-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libksysguardsensors2 [4:6.3.5-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libksysguardsystemstats2 [4:6.3.5-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libksysguard-data [4:6.3.5-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 libksysguardformatter2:arm64 ]
+Purg libksysguardformatter2 [4:6.3.5-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libkworkspace6-6 [4:6.3.6-2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg liblirc-client0t64 [0.10.2-0.10] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg liblua5.2-0 [5.2.4-3+b3] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxqt-core [33.2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxqt-panel [2.1.4-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxqt-runner [2.1.2-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg liblxqt-globalkeys-ui2 [2.1.0-2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmad0 [0.15.1b-11+b1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg mate-desktop [1.26.2-1.2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmate-slab0t64 [1.26.1-1.1+b4] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmate-desktop-2-17t64 [1.26.2-1.2] [qml6-module-org-kde-kitemmodels:arm64 libmate-window-settings1t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmate-menu2 [1.26.1-1+b2] [qml6-module-org-kde-kitemmodels:arm64 libmate-window-settings1t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmate-panel-applet-4-1 [1.27.1-4.1] [qml6-module-org-kde-kitemmodels:arm64 libmate-window-settings1t64:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmate-window-settings1t64 [1.26.1-1.1+b4] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmatekbd4 [1.26.1-1+b2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmatekbd-common [1.26.1-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmatemixer0 [1.26.1-1+b2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmatemixer-common [1.26.1-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmateweather1t64 [1.26.3-4] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmateweather-common [1.26.3-4] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmbedcrypto16 [3.6.6-0.1~deb13u1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmpcdec6 [2:0.1~r495-3] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libmuparser2v5 [2.3.4-1+b1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libzmq5 [4.3.5-1+b3] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libnorm1t64 [1.5.9+dfsg-3.1+b2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libx265-215 [4.1-2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libnuma1 [2.0.19-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libobt2v5 [3.6.1-12+b2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libopenmpt-modplug1 [0.8.9.0-openmpt1-2+b3] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libopenmpt0t64 [0.7.13-1+b1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libpackagekitqt6-1 [1.1.2-1+b1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libpangoxft-1.0-0 [1.56.3-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libpaper2 [2.2.5-0.3+b2] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libpgm-5.3-0t64 [5.3.128~dfsg-2.1+b1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libphonon4qt6-4t64 [4:4.12.0-5] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libphonon-l10n [4:4.12.0-5] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libplacebo349 [7.349.0-3] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libplasma5support-data [4:6.3.4-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libplasmaactivitiesstats1 [6.3.4-1] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libpoppler-qt6-3t64 [25.03.0-5+deb13u4] [qml6-module-org-kde-kitemmodels:arm64 libpostproc58:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libpostproc58 [7:7.1.5-0+deb13u1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libprotobuf-lite32t64 [3.21.12-11+deb13u1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libpython3.13 [3.13.5-2+deb13u5] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqalculate23 [5.5.2-1+b1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqalculate-data [5.5.2-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqmobipocket6-2 [4:25.04.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqrencode4 [4.1.1-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-qt-labs-platform [6.8.2+dfsg-7] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqt6labsplatform6 [6.8.2+dfsg-7] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqt6uitools6 [6.8.2-5] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqt6openglwidgets6 [6.8.2+dfsg-9+deb13u2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-qtpositioning [6.8.2-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqt6positioning6-plugins [6.8.2-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqt6positioningquick6 [6.8.2-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqt6positioning6 [6.8.2-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqt6quickwidgets6 [6.8.2+dfsg-7] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqt6serialport6 [6.8.2-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg plasma-desktoptheme [6.3.5-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-qt5compat-graphicaleffects [6.8.2-3+b1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqt6shadertools6 [6.8.2-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libqt6virtualkeyboard6 [6.8.2+dfsg-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-quickcharts [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libquickchartscontrols1 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libquickcharts1 [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg librabbitmq4 [0.15.0-1+deb13u2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg librda0 [0.0.5-1.1+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg librda-common [0.0.5-1.1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libresid-builder0c2a [2.1.1-16] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsdl2-2.0-0 [2.32.4+dfsg-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsamplerate0 [0.2.2-4+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libscim8v5 [1.4.18+git20211204-0.2+b4] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libshine3 [3.1.1-2+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsidplay2 [2.1.1-16] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsignon-qt6-1 [8.61+git20231015.c8ad982-7] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsnappy1v5 [1.2.2-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsodium23 [1.0.18-1+deb13u1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsource-highlight4t64 [3.1.9-4.3+b1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsource-highlight-common [3.1.9-4.3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsoxr0 [0.1.3-4+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libspatialaudio0t64 [0.3.0+git20180730+dfsg1-2.1+b1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsquashfuse0 [0.5.2-0.2+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsrt1.5-gnutls [1.5.4-1+deb13u1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libssh-4 [0.11.5-0+deb13u1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libstatgrab10t64 [0.92.1-1.2+b1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libstemmer0d [2.2.0-4+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libsysstat-qt6-1 [1.1.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg ucf [3.0052] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libtext-wrapi18n-perl [0.06-10] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libtext-charwidth-perl [0.04-11+b4] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libtext-iconv-perl [1.7-8+b4] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libunibreak6 [6.1-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libva-drm2 [2.22.0-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libva-wayland2 [2.22.0-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libva-x11-2 [2.22.0-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libva2 [2.22.0-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libvdpau1 [1.5-3+b1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libvidstab1.1 [1.1.0-2+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libwebpdemux2 [1.5.0-0.1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libwebpmux3 [1.5.0-0.1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libx264-164 [2:0.164.3108+git31e19f9-2+b1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libxdgutilsbasedir1.0.1 [1.0.1-3.1+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libxdgutilsdesktopentry1.0.1 [1.0.1-3.1+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libxkbregistry0 [1.7.0-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libxmlb2 [0.3.22-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libxvidcore4 [2:1.3.7-1+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libzimg2 [3.0.5+ds1-1+b2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libzip5 [1.11.3-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libzvbi0t64 [0.2.44-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libzvbi-common [0.2.44-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg libzxing3 [2.3.0-4] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxde-common [0.99.3-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxmenu-data [0.1.6-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxpanel-data [0.11.1-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxqt-about [2.1.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxqt-admin [2.1.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxqt-branding-debian [0.14.0.6] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxqt-globalkeys [2.1.0-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxqt-openssh-askpass [2.1.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxqt-theme-debian [0.14.0.6] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxsession-logout [0.5.6-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg lxsession-data [0.5.6-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg marco-common [1.26.2-4.1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg mate-control-center-common [1.26.1-1.1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg mate-icon-theme [1.26.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg mate-panel-common [1.27.1-4.1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg mate-settings-daemon-common [1.26.1-1.2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg ocean-sound-theme [6.3.4-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg ocl-icd-libopencl1 [2.3.3-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg oxygen-sounds [4:6.3.4-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg pavucontrol-qt [2.1.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg phonon-backend-vlc-common [0.12.0-3] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg plasma-desktop-data [4:6.3.6-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg plasma-workspace-data [4:6.3.6-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg python3-psutil [7.0.0-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qdbus-qt6 [6.8.2-5] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-activities [6.3.4-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-breeze [6.3.5-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-kcmutils [6.13.0-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-config [6.13.0-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-coreaddons [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-draganddrop [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-graphicaleffects [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-guiaddons [6.13.0-1] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-iconthemes [6.13.0-2] [qml6-module-org-kde-kitemmodels:arm64 qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-kitemmodels [6.13.0-1] [qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-kquickcontrols [6.13.0-1] [qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-kquickcontrolsaddons [6.13.0-1] [qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-ksvg [6.13.0-1] [qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-kwindowsystem [6.13.0-2] [qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-org-kde-notifications [6.13.0-1] [qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-qtquick-dialogs [6.8.2+dfsg-7] [qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-qt-labs-folderlistmodel [6.8.2+dfsg-7] [qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-qt-labs-qmlmodels [6.8.2+dfsg-7] [qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-qtcore [6.8.2+dfsg-7] [qml6-module-qtmultimedia:arm64 ]
+Purg qml6-module-qtmultimedia [6.8.2-8]
+Purg qml6-module-qtquick-effects [6.8.2+dfsg-7]
+Purg qml6-module-qtquick-tooling [6.8.2+dfsg-7]
+Purg qtxdg-tools [4.1.0-1]
+Purg sddm-theme-debian-elarun [0.21.0+git20250502.4fe234b-2]
+Purg vlc-data [3.0.24-0+deb13u1]
+Purg xdg-user-dirs-gtk [0.14-1]
+Purg xdg-utils [1.2.1-2]
+Purg xwayland [2:24.1.6-1]
+Purg zenity-common [4.1.90-1]
