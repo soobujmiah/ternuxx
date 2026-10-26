@@ -1,0 +1,7 @@
+event_id: commit-98a50240a9d7-059e5e46e2f70023
+repository: soobujmiah/ternuxx
+commit: 98a50240a9d7107ac742688019f22612df450380
+kind: commit
+occurred_at: '2026-10-26T19:14:02Z'
+status: completed
+summary: 'test(reinstall): align guest help and isolate Native API environment'
