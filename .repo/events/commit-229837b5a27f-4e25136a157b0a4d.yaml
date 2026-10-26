@@ -1,0 +1,7 @@
+event_id: commit-229837b5a27f-4e25136a157b0a4d
+repository: soobujmiah/ternuxx
+commit: 229837b5a27fab513d9004268650bef8c9c2fe3c
+kind: commit
+occurred_at: '2026-10-26T11:25:14Z'
+status: completed
+summary: 'docs: record Debian standalone render follow-up'
