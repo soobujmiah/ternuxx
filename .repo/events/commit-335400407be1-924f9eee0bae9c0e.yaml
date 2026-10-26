@@ -1,0 +1,7 @@
+event_id: commit-335400407be1-924f9eee0bae9c0e
+repository: soobujmiah/ternuxx
+commit: 335400407be12d602cd7986019feecbcd8fbb5bd
+kind: commit
+occurred_at: '2026-10-26T00:30:13Z'
+status: completed
+summary: 'feat(proot): streamline managed Debian and Ubuntu installs'
