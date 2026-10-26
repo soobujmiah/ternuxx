@@ -1,0 +1,7 @@
+event_id: commit-d80378588626-ccd3f34b0a409a13
+repository: soobujmiah/ternuxx
+commit: d80378588626a7ba96b3e5d8f04ad29d35975fe5
+kind: commit
+occurred_at: '2026-10-26T20:33:30Z'
+status: completed
+summary: Separate installer review from execution and polish responsive status header
