@@ -220,6 +220,7 @@ _nt_install_wizard
 
     def test_minimal_flow_works_with_real_cli_nounset_mode(self):
         script = f'''set -u
+TERNUXX_QUIET=0
 source "{ROOT}/lib/phases.sh"
 source "{ROOT}/lib/install_wizard.sh"
 nt_require_termux() {{ :; }}
