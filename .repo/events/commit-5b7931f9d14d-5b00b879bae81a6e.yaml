@@ -1,0 +1,7 @@
+event_id: commit-5b7931f9d14d-5b00b879bae81a6e
+repository: soobujmiah/ternuxx
+commit: 5b7931f9d14db4ccde4c37358fd7e1b46a7cd7a1
+kind: commit
+occurred_at: '2026-10-26T11:30:02Z'
+status: completed
+summary: 'docs: reconcile current route and P12 status'
