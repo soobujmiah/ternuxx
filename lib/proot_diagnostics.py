@@ -50,7 +50,13 @@ def _read_proot_guest_passwd(*, distro: str, prefix: str) -> tuple[Path, list[st
 
 
 def resolve_proot_guest_user(*, distro: str, prefix: str) -> str:
-    """Resolve one ordinary account from an installed rootfs without Ternux."""
+    """Resolve the receipted user for managed guests, otherwise inspect passwd."""
+    if distro == "ubuntu":
+        receipt = verify_managed_guest_alias(distro, prefix)
+        user = receipt.get("guest_user")
+        if isinstance(user, str) and _GUEST_USER.fullmatch(user) and user != "root":
+            return user
+        raise GuestProfileError("managed Ubuntu receipt has no ordinary guest account")
     _root, lines = _read_proot_guest_passwd(distro=distro, prefix=prefix)
     users = []
     for line in lines:
@@ -497,7 +503,9 @@ def verify_managed_guest_alias(distro: str, prefix: str = "/data/data/com.termux
         receipt = proot_fresh_setup._read_private(state / "fresh-provider-ubuntu.json")
         if (receipt.get("schema_version") != 1 or receipt.get("alias") != "ubuntu"
                 or receipt.get("release") != "Ubuntu 24.04 LTS (Noble)"
-                or receipt.get("profile_id") != proot_profiles.PROFILE_IDS["ubuntu-noble"]
+                or receipt.get("profile_id") not in {"ubuntu-noble", proot_profiles.PROFILE_IDS["ubuntu-noble"]}
+                or not isinstance(receipt.get("guest_user"), str)
+                or not _GUEST_USER.fullmatch(receipt["guest_user"]) or receipt["guest_user"] == "root"
                 or receipt.get("requested_packages_verified_installed") is not True
                 or receipt.get("package_versions_recorded") is not True
                 or not isinstance(receipt.get("plan_id"), str)):
@@ -505,7 +513,7 @@ def verify_managed_guest_alias(distro: str, prefix: str = "/data/data/com.termux
         identity = receipt.get("rootfs_identity")
         proot_fresh_setup._verify_owned_target(prefix, "ubuntu", identity)
         return {"alias": "ubuntu", "profile_id": "ubuntu-noble", "plan_id": receipt["plan_id"],
-                "release": receipt["release"], "rootfs_identity": identity}
+                "guest_user": receipt["guest_user"], "release": receipt["release"], "rootfs_identity": identity}
     except (OSError, ValueError, KeyError) as exc:
         raise ValueError("Ubuntu guest lacks an exact, valid Ternuxx install receipt") from exc
 

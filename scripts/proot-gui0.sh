@@ -61,7 +61,7 @@ if requested:
 elif len(available) == 1:
     choice = available[0]
 elif not available:
-    print("no route-verified Debian desktop is installed for this mode", file=sys.stderr)
+    print(f"no route-verified {sys.argv[4]} desktop is installed for this mode", file=sys.stderr)
     raise SystemExit(2)
 else:
     print("choose an installed desktop with --desktop: " + ", ".join(available), file=sys.stderr)
@@ -79,7 +79,7 @@ Auto uses standalone :0 when Native GUI is stopped, otherwise nested Xephyr :2 i
 Standalone and Native desktop sessions cannot run together. Nested mode holds the lifecycle lock until closed.
 Choose an installed environment with `tx pgui start --desktop ID`; when several are installed, selection is required.
 The canonical Debian guest is the default. Ubuntu requires a Ternuxx install receipt; receipt-verified replay aliases can use standalone :0 or nested :2 with `--alias`.
-Use tx pgui graphics verify to inspect the running Debian GUI's GLES, GLX, and Vulkan devices.
+Use tx pgui graphics verify to inspect the selected guest GUI's GLES, GLX, and Vulkan devices.
 USAGE
 }
 
@@ -202,7 +202,7 @@ PYROUTE
       if [ "$nested_display_state" = busy ]; then
         nested_recovery="$(python3 "$DISPLAY_TOOL" recover-proot "$TMP_ROOT" 2 "$PREFIX/var/lib/proot-distro/containers/$DISTRO_ID/rootfs" 2>/dev/null || true)"
         if [ "$nested_recovery" = recovered ]; then
-          echo "Recovered the exact dead Debian PRoot Xephyr :2 lock/socket chain; no process was signaled."
+          echo "Recovered the exact dead PRoot Xephyr :2 lock/socket chain; no process was signaled."
           nested_display_state="$(python3 "$DISPLAY_TOOL" "$TMP_ROOT" 2 2>/dev/null || true)"
           [ -n "$nested_display_state" ] || nested_display_state=unknown
         fi
@@ -269,10 +269,10 @@ system_bus_address="unix:path=$system_bus_dir/bus"
 system_bus_pid=$!
 for _ in $(seq 1 80); do
   [ -S "$system_bus_dir/bus" ] && break
-  kill -0 "$system_bus_pid" 2>/dev/null || { wait "$system_bus_pid" || true; echo "Private Debian system bus failed; nested desktop was not started." >&2; exit 1; }
+  kill -0 "$system_bus_pid" 2>/dev/null || { wait "$system_bus_pid" || true; echo "Private guest system bus failed; nested desktop was not started." >&2; exit 1; }
   sleep 0.05
 done
-[ -S "$system_bus_dir/bus" ] || { echo "Private Debian system bus did not become ready; nested desktop was not started." >&2; exit 1; }
+[ -S "$system_bus_dir/bus" ] || { echo "Private guest system bus did not become ready; nested desktop was not started." >&2; exit 1; }
 export DBUS_SYSTEM_BUS_ADDRESS="$system_bus_address"
 trap 'exit 130' INT
 trap 'exit 143' TERM
@@ -285,7 +285,7 @@ for _ in $(seq 1 80); do
 done
 [ "$ready" -eq 1 ] || { echo "Xephyr :2 did not become ready; see $state/xephyr.log" >&2; exit 1; }
 renderer="$(DISPLAY=:2 es2_info 2>&1 | sed -n 's/^GL_RENDERER: //p' | head -n 1 || true)"
-printf 'Nested Debian %s display :2 is ready; GLES context renderer (draw/presentation not verified): %s\n' "$TERNUXX_DESKTOP_ID" "${renderer:-unreported}"
+printf 'Nested %s %s display :2 is ready; GLES context renderer (draw/presentation not verified): %s\n' "$DISTRO_ID" "$TERNUXX_DESKTOP_ID" "${renderer:-unreported}"
 DISPLAY=:2 dbus-launch --exit-with-session "${desktop_argv[@]}" &
 xfce_pid=$!
 wait "$xfce_pid"

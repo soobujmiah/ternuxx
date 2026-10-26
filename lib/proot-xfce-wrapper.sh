@@ -93,7 +93,7 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
     export XDG_SESSION_TYPE=x11
     # PRoot has no systemd or Android system bus. Give desktop sessions a
     # private guest-local bus so system-bus clients can degrade gracefully;
-    # never export or bind the Native host system bus into Debian.
+    # never export or bind the Native host system bus into a guest.
     system_bus_dir="$(mktemp -d "$XDG_RUNTIME_DIR/system-bus.XXXXXX")"
     system_bus_address="unix:path=$system_bus_dir/bus"
     system_bus_pid=
@@ -108,7 +108,7 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
     trap "exit 130" INT
     trap "exit 143" TERM
     trap "exit 129" HUP
-    [ -x /usr/bin/dbus-daemon ] || { echo "Debian dbus-daemon is unavailable." >&2; exit 127; }
+    [ -x /usr/bin/dbus-daemon ] || { echo "Guest dbus-daemon is unavailable." >&2; exit 127; }
     printf "Ternuxx PRoot starting private dbus-daemon: %s\n" "$system_bus_address" >&2
     /usr/bin/dbus-daemon --session --address="$system_bus_address" --nofork >"$state/system-bus.log" 2>&1 &
     system_bus_pid=$!
@@ -121,7 +121,7 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
       fi
       sleep 0.05
     done
-    [ -S "$system_bus_dir/bus" ] || { kill -TERM "$system_bus_pid" 2>/dev/null || true; wait "$system_bus_pid" 2>/dev/null || true; rmdir "$system_bus_dir"; echo "Private Debian system bus did not become ready." >&2; exit 1; }
+    [ -S "$system_bus_dir/bus" ] || { kill -TERM "$system_bus_pid" 2>/dev/null || true; wait "$system_bus_pid" 2>/dev/null || true; rmdir "$system_bus_dir"; echo "Private guest system bus did not become ready." >&2; exit 1; }
     export DBUS_SYSTEM_BUS_ADDRESS="$system_bus_address"
     printf "Ternuxx PRoot private system bus ready; launching: %s\n" "${desktop_argv[*]}" >&2
     dbus-launch --exit-with-session "${desktop_argv[@]}" &

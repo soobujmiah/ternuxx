@@ -27,6 +27,24 @@ class FreshSetupError(ValueError):
     pass
 
 
+def _read_guest_release_identity(rootfs: Path) -> dict[str, str]:
+    """Read /etc/os-release while allowing only links that stay inside rootfs."""
+    root = rootfs.resolve(strict=True)
+    release_path = rootfs / "etc/os-release"
+    try:
+        resolved = release_path.resolve(strict=True)
+        resolved.relative_to(root)
+        info = resolved.lstat()
+    except (OSError, ValueError) as exc:
+        raise FreshSetupError("new guest release identity is unsafe") from exc
+    if not stat.S_ISREG(info.st_mode) or stat.S_ISLNK(info.st_mode) or info.st_size > 65536:
+        raise FreshSetupError("new guest release identity is unsafe")
+    try:
+        raw = resolved.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        raise FreshSetupError("new guest release identity is unreadable") from exc
+    return dict(line.split("=", 1) for line in raw.splitlines() if "=" in line)
+
 
 def _alias(value: str) -> str:
     if value not in {"debian", "ubuntu"} and not re.fullmatch(r"ternuxx-replay-[a-z0-9][a-z0-9-]{0,31}", value):
@@ -767,12 +785,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                             text=True, capture_output=True, check=False, timeout=120)
             if result.returncode:
                 raise FreshSetupError("Debian guest password could not be configured")
-        release_path = rootfs / "etc/os-release"
-        release_info = release_path.lstat()
-        if not stat.S_ISREG(release_info.st_mode) or stat.S_ISLNK(release_info.st_mode) or release_info.st_size > 65536:
-            raise FreshSetupError("new guest release identity is unsafe")
-        release = release_path.read_text(encoding="utf-8")
-        release_values = dict(line.split("=", 1) for line in release.splitlines() if "=" in line)
+        release_values = _read_guest_release_identity(rootfs)
         if (release_values.get("ID", "").strip('"') != manifest["release_id"]
                 or release_values.get("VERSION_CODENAME", "").strip('"') != manifest["codename"]):
             raise FreshSetupError("new guest release did not match the selected Ternuxx profile")
@@ -809,7 +822,8 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         record = {
             "schema_version": 1, "plan_id": plan_id, "alias": alias, "guest_user": user,
             "sudo_mode": sudo_mode, "desktop_environments": plan["desktop_environments"],
-            "manifest_sha256": plan["manifest_sha256"], "profile_id": plan["profile_id"],
+            "manifest_sha256": plan["manifest_sha256"],
+            "profile_id": proot_profiles.PROFILE_IDS[plan["profile_id"]],
             "distro": plan["distro"], "release": plan["release"],
             "package_versions_sha256": hashlib.sha256(out.encode() if isinstance(out, str) else b"").hexdigest(),
             "package_versions_recorded": True, "requested_packages_verified_installed": True,

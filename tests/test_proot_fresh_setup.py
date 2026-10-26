@@ -43,6 +43,24 @@ class FreshProotSetupTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
+    def test_release_identity_accepts_safe_in_root_os_release_symlink(self):
+        rootfs = self.base / "release-rootfs"
+        (rootfs / "etc").mkdir(parents=True)
+        (rootfs / "usr/lib").mkdir(parents=True)
+        (rootfs / "usr/lib/os-release").write_text("ID=ubuntu\nVERSION_CODENAME=noble\n")
+        (rootfs / "etc/os-release").symlink_to("../usr/lib/os-release")
+        self.assertEqual(proot_fresh_setup._read_guest_release_identity(rootfs),
+                         {"ID": "ubuntu", "VERSION_CODENAME": "noble"})
+
+    def test_release_identity_rejects_os_release_symlink_outside_rootfs(self):
+        rootfs = self.base / "release-rootfs"
+        (rootfs / "etc").mkdir(parents=True)
+        external = self.base / "external-os-release"
+        external.write_text("ID=ubuntu\nVERSION_CODENAME=noble\n")
+        (rootfs / "etc/os-release").symlink_to(external)
+        with self.assertRaisesRegex(proot_fresh_setup.FreshSetupError, "identity is unsafe"):
+            proot_fresh_setup._read_guest_release_identity(rootfs)
+
     def test_fresh_plan_binds_multiple_desktop_choices_and_required_packages(self):
         with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False):
             plan = proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
@@ -130,7 +148,7 @@ class FreshProotSetupTests(unittest.TestCase):
                 plan_id=plan["plan_id"], confirmed=True, sudo_mode="passwordless",
                 runner=self._fixture_runner([]))
         self.assertEqual(result["status"], "installed")
-        self.assertEqual(result["record"]["profile_id"], "ubuntu-noble")
+        self.assertEqual(result["record"]["profile_id"], "ternuxx-ubuntu-noble-workstation")
         self.assertEqual(result["record"]["distro"], "ubuntu")
         self.assertEqual(result["record"]["release"], "Ubuntu 24.04 LTS (Noble)")
 

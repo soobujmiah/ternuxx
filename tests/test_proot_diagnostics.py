@@ -201,8 +201,8 @@ class ProotDiagnosticsTests(unittest.TestCase):
             identity = proot_fresh_setup._root_identity(container, root)
             receipt = {"schema_version": 1, "alias": "ubuntu", "plan_id": "d" * 64,
                        "rootfs_identity": identity, "package_versions_recorded": True,
-                       "requested_packages_verified_installed": True,
-                       "release": "Ubuntu 24.04 LTS (Noble)", "profile_id": "ternuxx-ubuntu-noble-workstation"}
+                       "requested_packages_verified_installed": True, "guest_user": "sobuj",
+                       "release": "Ubuntu 24.04 LTS (Noble)", "profile_id": "ubuntu-noble"}
             receipt_path = setup_state / "fresh-provider-ubuntu.json"
             receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
             receipt_path.chmod(0o600)
@@ -215,6 +215,12 @@ class ProotDiagnosticsTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "exact, valid Ternuxx install receipt"):
                 proot_diagnostics.verify_managed_guest_alias(
                     "ubuntu", str(prefix), home=str(home), state_dir=str(state))
+
+    def test_resolves_ubuntu_user_from_the_install_receipt(self):
+        with mock.patch.object(proot_diagnostics, "verify_managed_guest_alias",
+                               return_value={"guest_user": "sobuj"}):
+            self.assertEqual(proot_diagnostics.resolve_proot_guest_user(
+                distro="ubuntu", prefix="/prefix"), "sobuj")
 
     def test_receipt_verified_replay_guest_can_run_the_same_readonly_graphics_probe(self):
         alias = "ternuxx-replay-cleanroom-20261026"
@@ -474,15 +480,17 @@ class ProotDiagnosticsTests(unittest.TestCase):
 
     def test_guest_verify_fails_closed_for_unsafe_or_unsupported_inputs(self):
         calls = []
-        for values in (
-            {"distro": "ubuntu", "user": "sbj", "display": ":1", "backend": "zink"},
-            {"distro": "debian", "user": "root", "display": ":1", "backend": "zink"},
-            {"distro": "debian", "user": "sbj;id", "display": ":1", "backend": "zink"},
-            {"distro": "debian", "user": "sbj", "display": ":1;id", "backend": "zink"},
-            {"distro": "debian", "user": "sbj", "display": ":1", "backend": "auto"},
-        ):
-            with self.subTest(values=values), self.assertRaises(ValueError):
-                proot_diagnostics.verify_proot_guest(**values, runner=lambda *a, **k: calls.append(a))
+        with mock.patch.object(proot_diagnostics, "verify_managed_guest_alias",
+                               side_effect=ValueError("guest receipt unavailable")):
+            for values in (
+                {"distro": "ubuntu", "user": "sbj", "display": ":1", "backend": "zink"},
+                {"distro": "debian", "user": "root", "display": ":1", "backend": "zink"},
+                {"distro": "debian", "user": "sbj;id", "display": ":1", "backend": "zink"},
+                {"distro": "debian", "user": "sbj", "display": ":1;id", "backend": "zink"},
+                {"distro": "debian", "user": "sbj", "display": ":1", "backend": "auto"},
+            ):
+                with self.subTest(values=values), self.assertRaises(ValueError):
+                    proot_diagnostics.verify_proot_guest(**values, runner=lambda *a, **k: calls.append(a))
         self.assertEqual(calls, [])
 
     def test_guest_diagnostic_outcomes_match_strict_response_schema(self):

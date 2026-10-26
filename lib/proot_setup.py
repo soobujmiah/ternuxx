@@ -1083,7 +1083,9 @@ def main() -> int:
                 parser.error("fresh-install requires --yes --plan-id ID; --user and --alias are optional checks against the saved preview")
             password = None
             if args.sudo_mode == "password":
-                password = getpass.getpass("Create sudo password for the selected Debian guest user: ")
+                selected_alias = args.alias or "debian"
+                distro_name = "Ubuntu" if selected_alias == "ubuntu" or selected_alias.startswith("ternuxx-replay-ubuntu-") else "Debian"
+                password = getpass.getpass(f"Create sudo password for the selected {distro_name} guest user: ")
                 confirm_password = getpass.getpass("Confirm guest sudo password: ")
                 if password != confirm_password:
                     raise proot_fresh_setup.FreshSetupError("password entries did not match")
