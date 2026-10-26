@@ -1,0 +1,7 @@
+event_id: commit-068ca9434637-b9c54679e1728df2
+repository: soobujmiah/ternuxx
+commit: 068ca9434637b6cbc12acd9fa6c71551b57785a4
+kind: commit
+occurred_at: '2026-10-26T10:16:47Z'
+status: completed
+summary: 'test(tui): mark native environment in install fixtures'
