@@ -236,7 +236,7 @@
       "id": "P12",
       "title": "Qualify Native CPU, GPU and NPU acceleration",
       "status": "in_progress",
-      "summary": "Mesa generated-edge inputs are mapped; Wayland 1.49 source notices are checked; Rust generator provenance, package notice closure, and longer guarded workload qualification remain open.",
+      "summary": "Mesa capture now maps extracted Ubuntu host dependencies through exact package-index, archive, and payload hashes, and records candidate dpkg database availability; the pinned rerun is pending.",
       "evidence": [
         "docs/evidence/2026-10-24-native-acceleration-live-check.md",
         "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
@@ -267,7 +267,7 @@
         "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",
         "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md"
       ],
-      "next_action": "Extend the pinned workflow to capture external dependency file/package hashes, Rust/Cargo generator inputs and generated-output hashes/headers, and Meson install-plan/package provenance; audit shipped notice closure and remaining applicable license records, then continue longer bounded CPU/Vulkan/HTP qualification with memory, timeout and process guards active."
+      "next_action": "Run the pinned Mesa capture, review all host/target owner candidates and dpkg-root inventory, then resolve remaining target-prefix ownership and license-evidence gaps."
     }
   ]
 }

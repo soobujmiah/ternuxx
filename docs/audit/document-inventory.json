@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 583,
-  "read_count": 173,
+  "read_count": 172,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,8 +43,8 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "81d9b5344fb16f7a4188918744a7605eeeb906162ad3864a83befae4b81fe0b8",
-      "lines": 37,
+      "sha256": "69b293accfa5a305cfa415d4d9e310836f8fe558235cbbf901899a9b317a7a31",
+      "lines": 39,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -187,10 +187,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "ec5f927b05e7714fe936350c559558dacd3007ae3e75d46287da00ef634fd93e",
+      "sha256": "5afc0e101c6db0d0639eab951a89a015fad1e6966b31b6267946c63f685faa85",
       "lines": 170,
-      "read_status": "read",
-      "read_sha256": "ec5f927b05e7714fe936350c559558dacd3007ae3e75d46287da00ef634fd93e"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -243,7 +243,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "9b0b415e5a94f26e162f1d3e5af2a922e138711343d679991cd7780a60bca24b",
+      "sha256": "9e05e88a090f9f23810e812cd27a7897321e903d29e493d9039b3b6fdaedbcf4",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -547,8 +547,8 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "692945ba098fd0e2ac6947221b174add872e63135c3dd9814a3a36e3d0685c74",
-      "lines": 149,
+      "sha256": "c4645876183a031383ab5c49fe3cb4099ba7c412b2f8ea57d509c829119a8d6f",
+      "lines": 153,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3619,16 +3619,16 @@
     {
       "path": "docs/evidence/2026-10-26-nested-debian-start-fix-and-live-check.md",
       "kind": "narrative",
-      "sha256": "6abda97739aa8808792c417b38a72a0c7273518230dc4ff7720a87ca1d52745e",
-      "lines": 29,
+      "sha256": "53eec03202814bd78cd08018ea209cf690822afc3b70e3572ba4a4f0b433b5ca",
+      "lines": 35,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
       "kind": "narrative",
-      "sha256": "9e6a26faa2ca75f4f41f6083a915b12051c7affe9fb55bf0864bf6d8024cfa24",
-      "lines": 53,
+      "sha256": "faa5255a783b656a6efbdf6c04fd6459ff4e5521af135b605d519eb8d7529cbc",
+      "lines": 61,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -4307,7 +4307,7 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "a5293a4a5852c6d371870120b6d08b6150d71e7fb825fb4b76ac75e903e27184",
+      "sha256": "71eb6a740e3493d7916e7cb238210cca705bf874b4be8f6ef0a33701b6246b1d",
       "lines": 273,
       "read_status": "pending",
       "read_sha256": null

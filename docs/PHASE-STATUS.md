@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Mesa generated-edge inputs are mapped; Wayland 1.49 source notices are checked. The pinned workflow capture helper now records generated text/Rust output hashes and notices, Cargo manifests/cache archives, Ninja external-input hashes/package-owner candidates, and a Meson install dry-run. The pinned capture run 40241516521 passed and its artifact validates with generated/Rust inputs, all staged `.deb` hashes, and bounded Mesa notice text. Its external package-owner records remain unresolved. Twelve focused fixtures now cover dpkg file-list ownership and ambiguous owners; that latest correction still needs a pinned rerun. Package notice closure and longer guarded workload qualification remain open.
+Mesa capture now maps extracted Ubuntu host dependencies through exact package-index, archive, and payload hashes, and records candidate dpkg database availability; the pinned rerun is pending.
 
-**Next action:** Investigate why the completed pinned capture workflow produced zero package-owner candidates for all 29 host and 49 target external build inputs; fix the metadata join and rerun the pinned workflow. Then establish shipped notice closure and remaining applicable license records. Continue bounded CPU/Vulkan/HTP qualification with memory, timeout and process guards active; the owner-authorized thermal-limit override is available and sensor readings must remain in reports.
+**Next action:** Run the pinned Mesa capture, review all host/target owner candidates and dpkg-root inventory, then resolve remaining target-prefix ownership and license-evidence gaps.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

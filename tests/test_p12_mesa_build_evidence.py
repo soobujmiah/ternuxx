@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import gzip
 import hashlib
 import io
 import json
@@ -62,6 +63,8 @@ termux_step_post_make_install() {
         self.assertIn('generated-output-and-rust-provenance.json', text)
         self.assertIn('--targets > "$evidence_dir/meson-targets.json"', text)
         self.assertIn('read -r -a meson_command <<< "$TERMUX_MESON"', text)
+        self.assertIn('termux_download_ubuntu_packages() {', text)
+        self.assertIn('ubuntu-package-requests.tsv', text)
 
     def test_capture_executes_termux_meson_command_and_arguments_as_words(self) -> None:
         instrument_recipe(self.recipe)
@@ -75,8 +78,32 @@ termux_step_post_make_install() {
         external_input.write_text("<protocol/>\n", encoding="utf-8")
         binary_input = self.root / "libfixture.so"
         binary_input.write_bytes(b"\x7fELF\0Copyright fake binary bytes")
+        hostbuild_dir = self.root / "host-build"
+        ubuntu_root = hostbuild_dir / "ubuntu_packages"
+        ubuntu_input = ubuntu_root / "usr/lib/libhost.a"
+        ubuntu_input.parent.mkdir(parents=True)
+        ubuntu_payload = b"host dependency archive payload"
+        ubuntu_input.write_bytes(ubuntu_payload)
         (build / "build.ninja").write_text(
-            f"build generated.o: custom {external_input} {binary_input}\n", encoding="utf-8")
+            f"build generated.o: custom {external_input} {binary_input} {ubuntu_input}\n", encoding="utf-8")
+        package_tmpdir = self.root / "package-tmp"
+        package_tmpdir.mkdir()
+        common_cache = self.root / "common-cache"
+        common_cache.mkdir()
+        ubuntu_archive = common_cache / "fixture-ubuntu-dep_4.2_amd64.deb"
+        ubuntu_archive_bytes = b"fixture ubuntu package archive"
+        ubuntu_archive.write_bytes(ubuntu_archive_bytes)
+        ubuntu_tar = io.BytesIO()
+        with tarfile.open(fileobj=ubuntu_tar, mode="w") as archive:
+            info = tarfile.TarInfo("./usr/lib/libhost.a")
+            info.size = len(ubuntu_payload)
+            archive.addfile(info, io.BytesIO(ubuntu_payload))
+        index_text = (
+            "Package: fixture-ubuntu-dep\nVersion: 4.2\nArchitecture: amd64\n"
+            "Filename: pool/fixture-ubuntu-dep_4.2_amd64.deb\n"
+            f"SHA256: {hashlib.sha256(ubuntu_archive_bytes).hexdigest()}\n\n")
+        with gzip.open(package_tmpdir / "Packages_ubuntu_resolute_amd64_main.gz", "wt", encoding="utf-8") as index:
+            index.write(index_text)
         source_root = self.root / "mesa-source"
         rusticl = source_root / "src/gallium/frontends/rusticl"
         rusticl.mkdir(parents=True)
@@ -118,6 +145,17 @@ else:
  raise SystemExit(1)
 """, encoding="utf-8")
         fake_query.chmod(0o700)
+        fake_dpkg_deb = fake_bin / "dpkg-deb"
+        fake_dpkg_deb.write_text("""#!/usr/bin/env python3
+import base64, os, sys
+if sys.argv[1] == '--field':
+ print('Package: fixture-ubuntu-dep\\nVersion: 4.2\\nArchitecture: amd64')
+elif sys.argv[1] == '--fsys-tarfile':
+ sys.stdout.buffer.write(base64.b64decode(os.environ['FAKE_UBUNTU_DATA_TAR']))
+else:
+ raise SystemExit(1)
+""", encoding="utf-8")
+        fake_dpkg_deb.chmod(0o700)
         calls = self.root / "meson-calls.jsonl"
         env = {
             **os.environ,
@@ -127,6 +165,10 @@ else:
             "TERMUX_ARCH": "aarch64",
             "TERMUX_PKG_SRCDIR": str(source_root),
             "TERMUX_PREFIX": str(termux_prefix),
+            "TERMUX_PKG_HOSTBUILD_DIR": str(hostbuild_dir),
+            "TERMUX_PKG_TMPDIR": str(package_tmpdir),
+            "TERMUX_COMMON_CACHEDIR": str(common_cache),
+            "FAKE_UBUNTU_DATA_TAR": base64.b64encode(ubuntu_tar.getvalue()).decode("ascii"),
             "MESON_CALLS": str(calls),
             "GENERATED_SOURCE": str(generated_source),
             "PATH": f"{fake_bin}:{os.environ.get('PATH', '')}",
@@ -134,7 +176,7 @@ else:
             "BUILD_DIR": str(build),
         }
         result = subprocess.run(
-            ["bash", "-c", 'source "$1"; _ternuxx_capture_meson "$BUILD_DIR" target', "bash", str(self.recipe)],
+            ["bash", "-c", 'termux_download_ubuntu_packages() { :; }; source "$1"; termux_download_ubuntu_packages fixture-ubuntu-dep; _ternuxx_capture_meson "$BUILD_DIR" target', "bash", str(self.recipe)],
             env=env, text=True, capture_output=True, timeout=10, check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
@@ -161,7 +203,19 @@ else:
         self.assertEqual(protocol["package_candidates"], [{
             "name": "fixture-termux-dep", "version": "1.2.3",
             "package_database": str(termux_prefix / "var/lib/dpkg"),
+            "owner_evidence": [{"type": "dpkg-file-list",
+                                "package_database": str(termux_prefix / "var/lib/dpkg")}],
         }])
+        ubuntu_record = next(item for item in provenance["external_build_inputs"]
+                             if item["absolute_path"] == str(ubuntu_input))
+        self.assertEqual(ubuntu_record["package"], "fixture-ubuntu-dep")
+        self.assertEqual(ubuntu_record["package_version"], "4.2")
+        owner_evidence = ubuntu_record["package_candidates"][0]["owner_evidence"][0]
+        self.assertEqual(owner_evidence["type"], "ubuntu-package-archive")
+        self.assertEqual(owner_evidence["payload_sha256"], hashlib.sha256(ubuntu_payload).hexdigest())
+        archive_report = json.loads((self.root / "evidence/aarch64/target/ubuntu-package-archive-inputs.json").read_text())
+        self.assertEqual(archive_report["packages"][0]["status"], "captured")
+        self.assertTrue(archive_report["packages"][0]["archive_hash_matches_index"])
         binary = next(item for item in provenance["external_build_inputs"]
                       if item["absolute_path"] == str(binary_input))
         self.assertEqual(binary["header_license_status"], "BINARY_NOT_SCANNED")
@@ -296,7 +350,7 @@ class MesaCaptureValidationTests(unittest.TestCase):
             rust_records = [{"path": f"rusticl/generated-{index}.rs", "sha256": str(index) * 64}
                             for index in range(1, 6)] if role == "target" else []
             provenance = {
-                "schema_version": 2,
+                "schema_version": 3,
                 "generated_text_outputs": rust_records,
                 "rust_generated_outputs": rust_records,
                 "rust_source_inputs": ([{"path": "src/gallium/frontends/rusticl/kernel.rs",
@@ -312,6 +366,8 @@ class MesaCaptureValidationTests(unittest.TestCase):
                                              "package_database": "/data/data/com.termux/files/usr/var/lib/dpkg"}],
                 }] if role == "target" else []),
                 "rust_tool_versions": {"cargo": "cargo 1.0", "rustc": "rustc 1.0"},
+                "package_database_inventory": [],
+                "ubuntu_package_archives": [],
             }
             (role_dir / "generated-output-and-rust-provenance.json").write_text(
                 json.dumps(provenance), encoding="utf-8")
@@ -367,6 +423,19 @@ class MesaCaptureValidationTests(unittest.TestCase):
 
     def test_validates_pinned_graphs_and_split_package_architectures(self) -> None:
         validate_capture(self.root)
+
+    def test_rejects_unowned_hostbuild_ubuntu_external_input(self) -> None:
+        path = self.root / "aarch64/host/generated-output-and-rust-provenance.json"
+        provenance = json.loads(path.read_text(encoding="utf-8"))
+        provenance["external_build_inputs"].append({
+            "path": "home/builder/.termux-build/mesa/host-build/ubuntu_packages/usr/lib/libfixture.a",
+            "absolute_path": "/home/builder/.termux-build/mesa/host-build/ubuntu_packages/usr/lib/libfixture.a",
+            "sha256": "a" * 64, "package": "unresolved", "package_version": "unresolved",
+            "package_candidates": [],
+        })
+        path.write_text(json.dumps(provenance), encoding="utf-8")
+        with self.assertRaisesRegex(EvidenceError, "missing requested Ubuntu package archives"):
+            validate_capture(self.root)
 
     def test_rejects_external_input_with_hidden_multiple_package_owners(self) -> None:
         path = self.root / "aarch64/target/generated-output-and-rust-provenance.json"

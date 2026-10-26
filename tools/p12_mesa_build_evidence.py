@@ -26,6 +26,21 @@ EXPECTED_PACKAGE_ARCHITECTURES = {
 }
 MARKER = "# TERNUXX P12 build-evidence capture (audit only)"
 _HELPER = r'''# TERNUXX P12 build-evidence capture (audit only)
+if [[ "${TERNUXX_MESA_BUILD_CAPTURE:-0}" == "1" ]] && declare -F termux_download_ubuntu_packages >/dev/null; then
+	_ternuxx_ubuntu_downloader_definition="$(declare -f termux_download_ubuntu_packages)"
+	_ternuxx_ubuntu_downloader_definition="${_ternuxx_ubuntu_downloader_definition/termux_download_ubuntu_packages ()/_ternuxx_original_termux_download_ubuntu_packages ()}"
+	eval "$_ternuxx_ubuntu_downloader_definition"
+	termux_download_ubuntu_packages() {
+		local evidence_root="${TERNUXX_MESA_EVIDENCE_DIR:-$HOME/p12-mesa-evidence}"
+		local request_file="$evidence_root/ubuntu-package-requests.tsv"
+		local package
+		mkdir -p "$evidence_root"
+		for package in "$@"; do
+			printf '%s\t%s\t%s\t%s\t%s\n' "$package" "${UBUNTU_RELEASE:-resolute}" "${ARCHITECTURE:-amd64}" "${TERMUX_PKG_TMPDIR:-}" "${TERMUX_COMMON_CACHEDIR:-}" >> "$request_file"
+		done
+		_ternuxx_original_termux_download_ubuntu_packages "$@"
+	}
+fi
 _ternuxx_capture_meson() {
 	[[ "${TERNUXX_MESA_BUILD_CAPTURE:-0}" == "1" ]] || return 0
 	local build_dir="$1" role="$2"
@@ -55,14 +70,16 @@ _ternuxx_capture_meson() {
 	fi
 	git -C "$TERMUX_PKG_SRCDIR" rev-parse HEAD > "$evidence_dir/source-commit.txt"
 	python3 - "$build_dir" "$TERMUX_PKG_SRCDIR" "$evidence_dir" <<'PY_CAPTURE'
+import gzip
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import shutil
 import subprocess
 import sys
+import tarfile
 
 build_dir, source_dir, evidence_dir = map(Path, sys.argv[1:])
 build_root = build_dir.resolve()
@@ -178,9 +195,16 @@ for line in (build_root / "build.ninja").read_text(encoding="utf-8").splitlines(
                     pass
                 if resolved.is_file():
                     external_paths.add(resolved)
+# The pinned Termux recipe writes target dependencies below this well-known prefix.
+# Some package-builder shell variables are not exported into this Python capture.
+TERMUX_CANONICAL_PREFIX = Path("/data/data/com.termux/files/usr")
+if (TERMUX_CANONICAL_PREFIX.exists()
+        and any(path == TERMUX_CANONICAL_PREFIX or TERMUX_CANONICAL_PREFIX in path.parents
+                for path in external_paths)):
+    os.environ.setdefault("TERNUXX_INFERRED_TERMUX_PREFIX", str(TERMUX_CANONICAL_PREFIX))
 def package_database_roots():
     result = []
-    for variable in ("TERMUX_PREFIX", "PREFIX"):
+    for variable in ("TERMUX_PREFIX", "PREFIX", "TERNUXX_INFERRED_TERMUX_PREFIX"):
         value = os.environ.get(variable)
         if value:
             root = Path(value).resolve()
@@ -211,7 +235,169 @@ def normalized_package_paths(path, root):
             values.add("/data/data/com.termux/files/usr/" + relative)
     return values
 
+ubuntu_package_requests = []
+request_file = Path(os.environ.get("TERNUXX_MESA_EVIDENCE_DIR", str(Path.home() / "p12-mesa-evidence"))) / "ubuntu-package-requests.tsv"
+if request_file.is_file():
+    for line in request_file.read_text(encoding="utf-8", errors="replace").splitlines():
+        fields = line.split("\t")
+        if len(fields) == 5 and fields[0]:
+            package_name, release, architecture, package_tmpdir, common_cache = fields
+            ubuntu_package_requests.append({"name": package_name, "release": release,
+                                            "architecture": architecture,
+                                            "package_tmpdir": package_tmpdir,
+                                            "common_cache": common_cache})
+ubuntu_package_archives = []
+ubuntu_archive_owners = {}
+ubuntu_root = (Path(os.environ["TERMUX_PKG_HOSTBUILD_DIR"]).resolve() / "ubuntu_packages"
+               if os.environ.get("TERMUX_PKG_HOSTBUILD_DIR") else None)
+dpkg_deb_tool = shutil.which("dpkg-deb")
+requests_by_context = {}
+for request in ubuntu_package_requests:
+    context = (request["release"], request["architecture"], request["package_tmpdir"], request["common_cache"])
+    requests_by_context.setdefault(context, set()).add(request["name"])
+for (release, architecture, package_tmpdir, common_cache), requested_names in sorted(requests_by_context.items()):
+    index_root = Path(package_tmpdir) if package_tmpdir else None
+    cache_root = Path(common_cache) if common_cache else None
+    package_stanzas = {}
+    index_records = []
+    if index_root and index_root.is_dir():
+        for index_path in sorted(index_root.glob(f"Packages_ubuntu_{release}_{architecture}_*.gz")):
+            index_hash = hashlib.sha256(index_path.read_bytes()).hexdigest()
+            index_records.append({"filename": index_path.name, "sha256": index_hash})
+            try:
+                with gzip.open(index_path, "rt", encoding="utf-8", errors="replace") as index_stream:
+                    stanza = {}
+                    for raw_line in index_stream:
+                        line = raw_line.rstrip("\n")
+                        if not line:
+                            name = stanza.get("Package")
+                            if name in requested_names and name not in package_stanzas:
+                                package_stanzas[name] = (stanza, index_path.name, index_hash)
+                            stanza = {}
+                            continue
+                        if line[:1].isspace() or ": " not in line:
+                            continue
+                        key, _, value = line.partition(": ")
+                        stanza[key] = value
+                    if stanza:
+                        name = stanza.get("Package")
+                        if name in requested_names and name not in package_stanzas:
+                            package_stanzas[name] = (stanza, index_path.name, index_hash)
+            except (OSError, EOFError):
+                continue
+    for package_name in sorted(requested_names):
+        captured = {"requested_name": package_name, "release": release,
+                    "architecture": architecture, "status": "unresolved"}
+        indexed = package_stanzas.get(package_name)
+        if indexed:
+            stanza, index_name, index_hash = indexed
+            captured.update({"index_filename": index_name, "index_sha256": index_hash,
+                             "indexed_version": stanza.get("Version"),
+                             "index_architecture": stanza.get("Architecture"),
+                             "filename": stanza.get("Filename"),
+                             "declared_sha256": stanza.get("SHA256")})
+            archive_path = cache_root / Path(stanza["Filename"]).name if cache_root and stanza.get("Filename") else None
+            if archive_path and archive_path.is_file():
+                archive_hash = hashlib.sha256(archive_path.read_bytes()).hexdigest()
+                captured["archive_sha256"] = archive_hash
+                captured["archive_size"] = archive_path.stat().st_size
+                captured["archive_hash_matches_index"] = archive_hash == stanza.get("SHA256")
+                actual_fields = {}
+                if dpkg_deb_tool:
+                    try:
+                        field_output = subprocess.check_output(
+                            [dpkg_deb_tool, "--field", str(archive_path), "Package", "Version", "Architecture"],
+                            text=True, stderr=subprocess.DEVNULL)
+                        actual_fields = {key.strip(): value.strip() for key, _, value in
+                                         (row.partition(":") for row in field_output.splitlines()) if key}
+                    except (OSError, subprocess.CalledProcessError):
+                        actual_fields = {}
+                captured["control"] = actual_fields
+                captured["status"] = "captured" if captured["archive_hash_matches_index"] else "hash-mismatch"
+                matched_files = []
+                if captured["status"] == "captured" and dpkg_deb_tool and ubuntu_root and ubuntu_root.is_dir():
+                    wanted = {}
+                    for external_path in external_paths:
+                        try:
+                            relative = external_path.relative_to(ubuntu_root).as_posix()
+                        except ValueError:
+                            continue
+                        wanted[relative] = (external_path, hashlib.sha256(external_path.read_bytes()).hexdigest())
+                    if wanted:
+                        process = subprocess.Popen([dpkg_deb_tool, "--fsys-tarfile", str(archive_path)],
+                                                   stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                        try:
+                            with tarfile.open(fileobj=process.stdout, mode="r|") as package_tar:
+                                for member in package_tar:
+                                    member_path = member.name
+                                    while member_path.startswith("./"):
+                                        member_path = member_path[2:]
+                                    member_path = member_path.lstrip("/")
+                                    if member_path not in wanted or not member.isfile():
+                                        continue
+                                    source = package_tar.extractfile(member)
+                                    if source is None:
+                                        continue
+                                    digest = hashlib.sha256()
+                                    size = 0
+                                    for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                                        digest.update(chunk)
+                                        size += len(chunk)
+                                    external_path, external_hash = wanted[member_path]
+                                    payload_hash = digest.hexdigest()
+                                    matched = {"path": member_path,
+                                               "absolute_path": str(external_path),
+                                               "payload_size": size,
+                                               "payload_sha256": payload_hash,
+                                               "external_sha256": external_hash,
+                                               "content_matches": payload_hash == external_hash}
+                                    matched_files.append(matched)
+                                    if matched["content_matches"]:
+                                        ubuntu_archive_owners.setdefault(str(external_path), []).append({
+                                            "name": actual_fields.get("Package", package_name),
+                                            "version": actual_fields.get("Version", stanza.get("Version", "unresolved")),
+                                            "archive_filename": archive_path.name,
+                                            "archive_sha256": archive_hash,
+                                            "index_filename": index_name,
+                                            "index_sha256": index_hash,
+                                            "payload_path": member_path,
+                                            "payload_sha256": payload_hash})
+                        finally:
+                            if process.stdout:
+                                process.stdout.close()
+                            process.wait()
+                captured["matched_external_files"] = matched_files
+            else:
+                captured["status"] = "archive-missing-from-cache"
+        else:
+            captured["available_indexes"] = index_records
+        ubuntu_package_archives.append(captured)
+if request_file.is_file():
+    (evidence_dir / "ubuntu-package-archive-inputs.json").write_text(
+        json.dumps({"schema_version": 1, "requests": ubuntu_package_requests,
+                    "packages": ubuntu_package_archives}, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8")
+
 package_roots = package_database_roots()
+package_database_inventory = []
+database_root_candidates = [(name, os.environ.get(name))
+                            for name in ("TERMUX_PREFIX", "PREFIX", "TERNUXX_INFERRED_TERMUX_PREFIX")]
+if os.environ.get("TERMUX_PKG_HOSTBUILD_DIR"):
+    database_root_candidates.append(("hostbuild_ubuntu_packages",
+                                     str(Path(os.environ["TERMUX_PKG_HOSTBUILD_DIR"]).resolve() / "ubuntu_packages")))
+database_root_candidates.append(("system", "/"))
+for source, raw_root in database_root_candidates:
+    if not raw_root:
+        continue
+    root = Path(raw_root).resolve()
+    admin = root / "var/lib/dpkg"
+    info = admin / "info"
+    package_database_inventory.append({"source": source, "database": str(admin),
+                                       "package_root": str(root),
+                                       "database_dir_present": admin.is_dir(),
+                                       "status_file_present": (admin / "status").is_file(),
+                                       "info_dir_present": info.is_dir(),
+                                       "file_list_count": len(list(info.glob("*.list"))) if info.is_dir() else 0})
 package_file_owners = {}
 for admin, root in package_roots:
     info = admin / "info"
@@ -267,9 +453,35 @@ def package_owner(path):
             except (OSError, subprocess.CalledProcessError):
                 pass
         records.append({"name": package, "version": version,
-                        "package_database": admin_text or None})
+                        "package_database": admin_text or None,
+                        "owner_evidence": ([{"type": "dpkg-file-list", "package_database": admin_text}]
+                                           if admin_text else [])})
+    for archive_owner in ubuntu_archive_owners.get(str(path), []):
+        records.append({"name": archive_owner["name"], "version": archive_owner["version"],
+                        "package_database": None,
+                        "owner_evidence": [{"type": "ubuntu-package-archive",
+                                            "archive_filename": archive_owner["archive_filename"],
+                                            "archive_sha256": archive_owner["archive_sha256"],
+                                            "index_filename": archive_owner["index_filename"],
+                                            "index_sha256": archive_owner["index_sha256"],
+                                            "payload_path": archive_owner["payload_path"],
+                                            "payload_sha256": archive_owner["payload_sha256"]}]})
+    merged = {}
+    for candidate in records:
+        identity = (candidate["name"], candidate["version"])
+        if identity not in merged:
+            merged[identity] = candidate
+            continue
+        existing = merged[identity]
+        databases = {value for value in (existing.get("package_database"), candidate.get("package_database")) if value}
+        existing["package_database"] = next(iter(databases)) if len(databases) == 1 else None
+        existing.setdefault("owner_evidence", [])
+        for evidence in candidate.get("owner_evidence", []):
+            if evidence not in existing["owner_evidence"]:
+                existing["owner_evidence"].append(evidence)
+    records = [merged[key] for key in sorted(merged)]
     if len(records) == 1:
-        owner, version, package_db = records[0]["name"], records[0]["version"], records[0]["package_database"]
+        owner, version, package_db = records[0]["name"], records[0]["version"], records[0].get("package_database")
     elif records:
         owner, version, package_db = "ambiguous", "unresolved", None
     else:
@@ -287,10 +499,12 @@ for path in sorted(external_paths):
     if package_db is not None:
         record["package_database"] = package_db
     external_inputs.append(record)
-report = {"schema_version": 2, "generated_text_outputs": generated_records,
+report = {"schema_version": 3, "generated_text_outputs": generated_records,
           "rust_generated_outputs": [item for item in generated_records if item["path"].endswith(".rs")],
           "rust_source_inputs": rust_inputs, "cargo_registry_archives": registry_archives,
           "external_build_inputs": external_inputs, "rust_tool_versions": rust_versions,
+          "package_database_inventory": package_database_inventory,
+          "ubuntu_package_archives": ubuntu_package_archives,
           "scope_limit": "Hashes and leading notice metadata for generated text outputs, Rusticl source inputs, Cargo archives, external build inputs and package-owner/version candidates; hashes all staged .deb archives and captures small shipped license/notice text. This is provenance evidence, not a complete license conclusion."}
 (evidence_dir / "generated-output-and-rust-provenance.json").write_text(
     json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -529,14 +743,30 @@ def validate_capture(evidence_dir: Path) -> None:
             if artifact.is_symlink() or not artifact.is_file() or artifact.stat().st_size == 0:
                 raise EvidenceError(f"{role} build graph/provenance evidence is missing or empty: {name}")
         provenance = read_json(role_dir / "generated-output-and-rust-provenance.json")
-        if not isinstance(provenance, dict) or provenance.get("schema_version") != 2:
+        if not isinstance(provenance, dict) or provenance.get("schema_version") != 3:
             raise EvidenceError(f"{role} generated-output provenance schema is unsupported")
         for key in ("generated_text_outputs", "rust_generated_outputs", "rust_source_inputs",
-                    "cargo_registry_archives", "external_build_inputs"):
+                    "cargo_registry_archives", "external_build_inputs", "package_database_inventory",
+                    "ubuntu_package_archives"):
             if not isinstance(provenance.get(key), list):
                 raise EvidenceError(f"{role} generated-output provenance is missing {key}")
         if not isinstance(provenance.get("rust_tool_versions"), dict):
             raise EvidenceError(f"{role} generated-output provenance is missing Rust tool versions")
+        for database in provenance["package_database_inventory"]:
+            if (not isinstance(database, dict)
+                    or not isinstance(database.get("source"), str)
+                    or not isinstance(database.get("database"), str)
+                    or type(database.get("database_dir_present")) is not bool
+                    or type(database.get("status_file_present")) is not bool
+                    or type(database.get("info_dir_present")) is not bool
+                    or type(database.get("file_list_count")) is not int
+                    or database["file_list_count"] < 0):
+                raise EvidenceError(f"{role} package database inventory has an invalid record")
+        for archive in provenance["ubuntu_package_archives"]:
+            if (not isinstance(archive, dict)
+                    or not isinstance(archive.get("requested_name"), str)
+                    or not isinstance(archive.get("status"), str)):
+                raise EvidenceError(f"{role} Ubuntu package archive inventory has an invalid record")
         for record in provenance["generated_text_outputs"] + provenance["rust_source_inputs"] + provenance["external_build_inputs"]:
             if not isinstance(record, dict) or not isinstance(record.get("path"), str) \
                     or not isinstance(record.get("sha256"), str) \
@@ -552,8 +782,22 @@ def validate_capture(evidence_dir: Path) -> None:
                             or not candidate["name"]
                             or not isinstance(candidate.get("version"), str)
                             or (candidate.get("package_database") is not None
-                                and not isinstance(candidate.get("package_database"), str))):
+                                and not isinstance(candidate.get("package_database"), str))
+                            or ("owner_evidence" in candidate and not isinstance(candidate.get("owner_evidence"), list))):
                         raise EvidenceError(f"{role} external build input has an invalid package-owner candidate")
+                    for evidence in candidate.get("owner_evidence", []):
+                        if not isinstance(evidence, dict) or evidence.get("type") not in {
+                                "dpkg-file-list", "ubuntu-package-archive"}:
+                            raise EvidenceError(f"{role} external build input has invalid ownership evidence")
+                        if evidence.get("type") == "ubuntu-package-archive":
+                            for field in ("archive_filename", "index_filename", "payload_path"):
+                                if not isinstance(evidence.get(field), str) or not evidence[field]:
+                                    raise EvidenceError(f"{role} Ubuntu package ownership evidence is incomplete")
+                            for field in ("archive_sha256", "index_sha256", "payload_sha256"):
+                                if not isinstance(evidence.get(field), str) or not re.fullmatch(r"[0-9a-f]{64}", evidence[field]):
+                                    raise EvidenceError(f"{role} Ubuntu package ownership evidence has an invalid hash")
+                            if evidence["payload_sha256"] != record["sha256"]:
+                                raise EvidenceError(f"{role} Ubuntu package payload hash does not match its external input")
                 if len(candidates) == 1:
                     candidate = candidates[0]
                     if (record.get("package") != candidate["name"]
@@ -574,6 +818,28 @@ def validate_capture(evidence_dir: Path) -> None:
             raise EvidenceError("target provenance does not include all five known Rusticl generated outputs")
         if role == "target" and not provenance["rust_source_inputs"]:
             raise EvidenceError("target provenance does not include Rusticl source inputs")
+        if role == "host":
+            ubuntu_inputs = [item for item in provenance["external_build_inputs"]
+                             if "/ubuntu_packages/" in item.get("absolute_path", "")]
+            if ubuntu_inputs:
+                if not provenance["ubuntu_package_archives"]:
+                    raise EvidenceError("host provenance is missing requested Ubuntu package archives")
+                if any(item.get("package") in {"unresolved", "ambiguous"} for item in ubuntu_inputs):
+                    raise EvidenceError("host-build Ubuntu extracted input has no unique package archive owner")
+                for archive in provenance["ubuntu_package_archives"]:
+                    if (not isinstance(archive, dict) or archive.get("status") != "captured"
+                            or archive.get("archive_hash_matches_index") is not True
+                            or not isinstance(archive.get("filename"), str)
+                            or not isinstance(archive.get("index_filename"), str)
+                            or not isinstance(archive.get("control"), dict)
+                            or archive["control"].get("Package") != archive.get("requested_name")
+                            or archive["control"].get("Version") != archive.get("indexed_version")
+                            or archive["control"].get("Architecture") != archive.get("index_architecture")):
+                        raise EvidenceError("a requested Ubuntu build dependency archive is missing or unverified")
+                    for field in ("archive_sha256", "index_sha256", "declared_sha256"):
+                        if not isinstance(archive.get(field), str) or not re.fullmatch(r"[0-9a-f]{64}", archive[field]):
+                            raise EvidenceError("a requested Ubuntu build dependency has incomplete hash provenance")
+
 
     target_graph_path = evidence_dir / "aarch64" / "target" / "meson-targets.json"
     target_graph = read_json(target_graph_path)
