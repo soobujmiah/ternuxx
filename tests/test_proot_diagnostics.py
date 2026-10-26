@@ -26,6 +26,18 @@ class ProotDiagnosticsTests(unittest.TestCase):
         (root / "etc/passwd").write_text(passwd)
         return base / "prefix"
 
+    def test_resolves_account_from_long_receipt_scoped_replay_alias(self):
+        alias = "ternuxx-replay-cleanroom-20261026"
+        with tempfile.TemporaryDirectory(prefix="ternuxx-replay-account-") as temporary:
+            prefix = Path(temporary)
+            root = prefix / "var/lib/proot-distro/containers" / alias / "rootfs"
+            (root / "etc").mkdir(parents=True)
+            (root / "etc/passwd").write_text(
+                "root:x:0:0:root:/root:/bin/bash\nsobuj:x:1000:1000:Sobuj:/home/sobuj:/bin/bash\n",
+                encoding="utf-8",
+            )
+            self.assertEqual(proot_diagnostics.resolve_proot_guest_user(distro=alias, prefix=str(prefix)), "sobuj")
+
     def test_resolves_unique_regular_guest_account_from_rootfs_without_ternux(self):
         with tempfile.TemporaryDirectory(prefix="ternuxx-rootfs-user-") as temp:
             prefix = self._rootfs_fixture(Path(temp),
@@ -172,7 +184,7 @@ class ProotDiagnosticsTests(unittest.TestCase):
             self.assertEqual(report["installed_distributions"], sorted(set(report["installed_distributions"])))
 
     def test_receipt_verified_replay_guest_can_run_the_same_readonly_graphics_probe(self):
-        alias = "ternuxx-replay-fixture"
+        alias = "ternuxx-replay-cleanroom-20261026"
         with tempfile.TemporaryDirectory(prefix="ternuxx-replay-probe-") as temporary:
             base = Path(temporary)
             home = base / "home"
@@ -188,21 +200,38 @@ class ProotDiagnosticsTests(unittest.TestCase):
             container = containers / alias
             root = container / "rootfs"
             (root / "etc").mkdir(parents=True)
+            external_release = base / "external-os-release"
+            external_release.write_text("ID=ubuntu\nVERSION_CODENAME=noble\n", encoding="utf-8")
+            (root / "etc/os-release").symlink_to(external_release)
+            unreceipted = containers / "ternuxx-replay-unreceipted" / "rootfs"
+            (unreceipted / "etc").mkdir(parents=True)
+            (unreceipted / "etc/os-release").write_text("ID=debian\nVERSION_CODENAME=trixie\n", encoding="utf-8")
             identity = proot_fresh_setup._root_identity(container, root)
             receipt = {"schema_version": 1, "alias": alias, "plan_id": "a" * 64,
                        "rootfs_identity": identity, "package_versions_recorded": True,
-                       "requested_packages_verified_installed": True}
+                       "requested_packages_verified_installed": True, "release": "Debian Trixie"}
             receipt_path = setup_state / f"fresh-provider-{alias}.json"
             receipt_path.write_text(json.dumps(receipt))
             receipt_path.chmod(0o600)
             outputs = [
-                SimpleNamespace(returncode=0, stdout=f"Installed containers:\n * {alias}\nLog in with: proot-distro login <name>\n"),
+                SimpleNamespace(returncode=0, stdout="Installed containers:\n * Debian\nLog in with: proot-distro login <name>\n"),
                 SimpleNamespace(returncode=0, stdout="Display: :1\nX11: reachable\nRenderer: zink Vulkan (Turnip)\nGLX draw: verified\nGLX draw frames: 10\nGLX draw renderer: zink Turnip\nVulkan draw: verified\nVulkan draw device: Adreno 825\n"),
             ]
             calls = []
             def runner(args, **kwargs):
                 calls.append((args, kwargs))
                 return outputs.pop(0)
+            inventory = proot_diagnostics.inspect_installed(
+                prefix=str(prefix), home=str(home), state_dir=str(state),
+                which=lambda name: "/prefix/bin/proot-distro" if name == "proot-distro" else None,
+                runner=lambda *_args, **_kwargs: SimpleNamespace(
+                    returncode=0, stdout="Installed containers:\n * Debian\nLog in with: proot-distro login <name>\n"),
+            )
+            self.assertEqual(inventory["installed_distributions"], ["debian", alias])
+            schema = json.loads((ROOT / "schemas/proot-distribution-inventory.schema.json").read_text())
+            alias_pattern = schema["properties"]["installed_distributions"]["items"]["pattern"]
+            self.assertRegex(alias, alias_pattern)
+            self.assertFalse(inventory["guest_entered"])
             with mock.patch.object(proot_diagnostics.Path, "home", return_value=home), \
                  mock.patch.dict(os.environ, {"TERNUXX_STATE_DIR": str(state)}), \
                  mock.patch.object(proot_diagnostics, "_native_pulse_cookie_path", return_value=None):
@@ -214,6 +243,7 @@ class ProotDiagnosticsTests(unittest.TestCase):
             self.assertEqual(report["distro"], alias)
             self.assertEqual(report["status"], "partial")
             self.assertIn(alias, calls[1][0])
+            self.assertEqual(calls[0][0], ["/prefix/bin/proot-distro", "list"])
 
     def test_replay_graphics_probe_rejects_missing_or_replaced_receipt_rootfs(self):
         with self.assertRaisesRegex(ValueError, "valid Ternuxx install receipt"):

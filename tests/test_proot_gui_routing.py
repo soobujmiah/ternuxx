@@ -38,6 +38,8 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertIn('query_display_geometry(os.environ["DISPLAY"])', script)
         self.assertIn('/usr/bin/Xephyr :2 -glamor_gles2 -screen "$native_geometry" -resizeable', script)
         self.assertIn('--env TERNUXX_REPO_ROOT="$ROOT"', script)
+        self.assertIn('args=(login "$DISTRO_ID" --shared-tmp --user "$guest_user"', script)
+        self.assertIn('verify_managed_replay_alias(alias,prefix)', script)
         self.assertIn('catalog("debian-trixie", route=route)', script)
         self.assertIn('selected not in proot_desktops.catalog("debian-trixie", route=route)', script)
         self.assertIn('plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma KWIN_COMPOSE=N', script)
@@ -74,7 +76,7 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertLess(preflight, guest_check)
         self.assertLess(preflight, audio_start)
         self.assertIn('refusing startup because existing display ownership cannot be verified', script)
-        self.assertIn('recover-proot "$TMP_ROOT" 2 "$PREFIX/var/lib/proot-distro/containers/debian/rootfs"', script)
+        self.assertIn('recover-proot "$TMP_ROOT" 2 "$PREFIX/var/lib/proot-distro/containers/$DISTRO_ID/rootfs"', script)
         self.assertIn('nested_recovery" = recovered', script)
 
     def test_standalone_supervisor_is_detached_from_terminal_lifecycle(self) -> None:
@@ -119,6 +121,20 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertIn('glxinfo -B 2>&1', script)
         self.assertIn('vulkaninfo --summary 2>&1', script)
         self.assertIn('do not prove frame presentation or inference offload', script)
+
+    def test_unreceipted_replay_alias_is_rejected_before_state_mutation(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="ternuxx-pgui-alias-") as temp:
+            home = Path(temp)
+            env = {**os.environ, "HOME": str(home), "PREFIX": str(home / "prefix"),
+                   "TMPDIR": str(home / "tmp")}
+            result = subprocess.run(
+                ["bash", str(ROOT / "scripts/proot-gui0.sh"), "start", "--mode", "nested",
+                 "--desktop", "xfce", "--alias", "ternuxx-replay-untrusted"],
+                capture_output=True, text=True, env=env, timeout=10,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("exact receipt-verified Ternuxx Debian Trixie replay alias", result.stderr)
+            self.assertFalse((home / ".local/share/ternuxx").exists())
 
     def test_invalid_mode_is_rejected_before_state_mutation(self) -> None:
         with tempfile.TemporaryDirectory(prefix="ternuxx-shared-gui-") as temp:

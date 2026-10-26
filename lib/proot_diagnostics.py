@@ -24,7 +24,9 @@ class GuestProfileError(ValueError):
 
 
 def _read_proot_guest_passwd(*, distro: str, prefix: str) -> tuple[Path, list[str]]:
-    if not isinstance(distro, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,31}", distro):
+    valid_upstream_name = isinstance(distro, str) and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_-]{0,31}", distro)
+    valid_replay_alias = isinstance(distro, str) and re.fullmatch(r"ternuxx-replay-[a-z0-9][a-z0-9-]{0,31}", distro)
+    if not (valid_upstream_name or valid_replay_alias):
         raise GuestProfileError("distro name is invalid")
     root = Path(prefix) / "var/lib/proot-distro/containers" / distro / "rootfs"
     passwd = root / "etc/passwd"
@@ -259,10 +261,34 @@ def inspect_host_proot_processes(*, proc_root: str | os.PathLike[str] = "/proc")
             "visibility": visibility, "ownership": "unverified"}
 
 
+def _managed_replay_aliases(*, prefix: str, home: str, state_dir: str | None) -> list[str]:
+    """List only receipt-verified Debian Trixie aliases whose rootfs identity still matches."""
+    state_path = state_dir or os.environ.get("TERNUXX_STATE_DIR") or str(Path(home) / ".local/share/ternuxx")
+    try:
+        setup_state = proot_fresh_setup._state_root(home, state_path, create=False)
+        receipts = sorted(setup_state.glob("fresh-provider-ternuxx-replay-*.json"))
+    except (OSError, ValueError):
+        return []
+    aliases = []
+    for receipt_path in receipts:
+        alias = receipt_path.name.removeprefix("fresh-provider-").removesuffix(".json")
+        try:
+            receipt = verify_managed_replay_alias(alias, prefix, home=home, state_dir=state_path)
+            if receipt.get("release") == "Debian Trixie":
+                aliases.append(alias)
+        except (OSError, ValueError, KeyError):
+            continue
+    return aliases
+
+
 def inspect_installed(*, which: Callable[[str], str | None] = shutil.which,
                       runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run,
-                      proc_root: str | os.PathLike[str] = "/proc") -> dict[str, object]:
+                      proc_root: str | os.PathLike[str] = "/proc",
+                      prefix: str = "/data/data/com.termux/files/usr",
+                      home: str | None = None, state_dir: str | None = None) -> dict[str, object]:
     process_observation = inspect_host_proot_processes(proc_root=proc_root)
+    home_path = str(Path(home).expanduser()) if home is not None else str(Path.home())
+    include_managed_replays = home is not None or state_dir is not None
     manager = which("proot-distro")
     if not manager:
         return {
@@ -282,6 +308,9 @@ def inspect_installed(*, which: Callable[[str], str | None] = shutil.which,
         result = None
     names = (_installed_names(result.stdout) if isinstance(getattr(result, "stdout", None), str)
              else None) if result is not None and result.returncode == 0 else None
+    if names is not None and include_managed_replays:
+        names = sorted(set(names) | set(_managed_replay_aliases(
+            prefix=prefix, home=home_path, state_dir=state_dir)))
     status = "unknown" if names is None else "installed" if names else "none"
     return {
         "component": "proot_distribution_inventory",
@@ -454,24 +483,27 @@ fi
 """
 
 
-def verify_managed_replay_alias(distro: str, prefix: str = "/data/data/com.termux/files/usr") -> dict[str, object]:
+def verify_managed_replay_alias(distro: str, prefix: str = "/data/data/com.termux/files/usr", *,
+                                home: str | None = None, state_dir: str | None = None) -> dict[str, object]:
     """Verify an exact replay receipt and current rootfs identity before routing."""
     if not isinstance(distro, str) or not re.fullmatch(
             r"ternuxx-replay-[a-z0-9][a-z0-9-]{0,31}", distro):
         raise ValueError("the managed guest operation supports only an exact Ternuxx replay alias")
-    state_dir = os.environ.get(
-        "TERNUXX_STATE_DIR", str(Path.home() / ".local/share/ternuxx"))
+    home = str(Path(home).expanduser()) if home is not None else str(Path.home())
+    state_dir = state_dir or os.environ.get("TERNUXX_STATE_DIR", str(Path(home) / ".local/share/ternuxx"))
     try:
-        state = proot_fresh_setup._state_root(str(Path.home()), state_dir, create=False)
+        state = proot_fresh_setup._state_root(home, state_dir, create=False)
         receipt = proot_fresh_setup._read_private(state / f"fresh-provider-{distro}.json")
         identity = receipt.get("rootfs_identity")
         if (receipt.get("schema_version") != 1 or receipt.get("alias") != distro
                 or receipt.get("requested_packages_verified_installed") is not True
                 or receipt.get("package_versions_recorded") is not True
+                or receipt.get("release") != "Debian Trixie"
                 or not isinstance(receipt.get("plan_id"), str)):
             raise ValueError("replay install receipt is incomplete")
         proot_fresh_setup._verify_owned_target(prefix, distro, identity)
-        return {"alias": distro, "plan_id": receipt["plan_id"], "rootfs_identity": identity}
+        return {"alias": distro, "plan_id": receipt["plan_id"], "release": receipt["release"],
+                "rootfs_identity": identity}
     except (OSError, ValueError, KeyError) as exc:
         raise ValueError("replay guest lacks an exact, valid Ternuxx install receipt") from exc
 
@@ -481,7 +513,8 @@ def verify_proot_guest(*, distro: str, user: str, display: str, backend: str,
                        which: Callable[[str], str | None] = shutil.which,
                        runner: Callable[..., subprocess.CompletedProcess[str]] = subprocess.run) -> dict[str, object]:
     """Run a bounded probe against Debian or a receipt-verified Ternuxx replay guest."""
-    if distro != "debian":
+    managed_replay = distro != "debian"
+    if managed_replay:
         verify_managed_replay_alias(distro, prefix)
     if not isinstance(user, str) or not _GUEST_USER.fullmatch(user) or user == "root":
         raise ValueError("guest user must be a non-root Debian username")
@@ -512,7 +545,7 @@ def verify_proot_guest(*, distro: str, user: str, display: str, backend: str,
     if installed is None:
         return verification_result(status="unknown", display=display, backend=backend,
                                   blockers=["installed PRoot distribution inventory is unavailable or unrecognized"])
-    if distro not in installed:
+    if distro not in installed and not managed_replay:
         return verification_result(status="not_installed", display=display, backend=backend,
                                   blockers=[f"{distro} is not listed as an installed PRoot distribution"])
 

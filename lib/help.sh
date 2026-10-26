@@ -58,6 +58,9 @@ Choose `--sudo-mode password` for hidden prompts, or `passwordless` for
 NOPASSWD sudo inside the guest. Never put passwords in
 command arguments. Fresh setup runs in an attached Native Termux terminal and
 preserves an existing guest.
+Receipt-verified Ternuxx Debian Trixie replay aliases can launch nested with
+`tx pgui start --mode nested --desktop xfce --alias ALIAS`; canonical `debian`
+is the default, and standalone :0 uses that canonical guest.
 `tx proot sessions list` inspects managed sessions;
 `tx proot sessions recovery-inspect SESSION_ID` and `reconcile-preview`
 inspect interrupted records. Apply reconciliation only when its exact preview

@@ -597,7 +597,9 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 confirmed=args["confirmed"], password=args.get("password"),
                 sudo_mode=args["sudo_mode"])
         elif operation == "proot.status":
-            data = proot_diagnostics.inspect_installed()
+            data = proot_diagnostics.inspect_installed(
+                prefix=process_env["PREFIX"], home=home,
+                state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
             data["ternuxx_sessions"] = proot_sessions.list_sessions(
                 state_dir or os.path.join(home, ".local/share/ternuxx"))
         elif operation == "terminal.broker.service.status":

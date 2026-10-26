@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 576,
+  "document_count": 577,
   "read_count": 173,
   "reading_complete": false,
   "broken_local_links": [],
@@ -19,7 +19,7 @@
     {
       "path": ".github/workflows/repo-contract.yml",
       "kind": "structured",
-      "sha256": "5d4b8f9764c1441a3aa32e8399c66296807745cd2ed40f6bab31884a84c0f6b0",
+      "sha256": "48798d73d549b40cc47ad9c2866f1b2bba4d6401ee5cf516493f3f9273b325a9",
       "lines": 56,
       "read_status": "pending",
       "read_sha256": null
@@ -27,7 +27,7 @@
     {
       "path": ".github/workflows/repo-knowledge-sync.yml",
       "kind": "structured",
-      "sha256": "cad78fb36ebe8fa70759c5037ae6c1f4aff9312d395134a84e764823ca5ff2a5",
+      "sha256": "ab80f6b86e4acae685e9d11b7ff54975cd2599c095aaf9d4184d1e838f5cf360",
       "lines": 83,
       "read_status": "pending",
       "read_sha256": null
@@ -43,7 +43,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "2f155b33a29a63883a6fa28fcc21f4d2de51962cd682049897657ba66efbced3",
+      "sha256": "df14cdcab589de3c792798018af1e036c4363d4dade553a405ca66bb1f3f54e7",
       "lines": 37,
       "read_status": "pending",
       "read_sha256": null
@@ -539,7 +539,7 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "dfc91c2f62341fabf5565a93331331ac4f3e7bc4a4a69e811365efd9294aa840",
+      "sha256": "9b85ecec34060cfd0c213ddeda3a51875d4742282fcf4498a45f18aacda082d7",
       "lines": 135,
       "read_status": "pending",
       "read_sha256": null
@@ -3585,10 +3585,18 @@
       "read_sha256": "813d0ebbb303198e93fcf2553f70e4a4d4aa5d2078d9c9e2d4fbe2577f3fc113"
     },
     {
+      "path": "docs/evidence/2026-10-26-fresh-debian-guest-nested-route-acceptance.md",
+      "kind": "narrative",
+      "sha256": "7722f96f154d41b1d381bb09876cc7058267e29f909f9b9842ec0451e3caea41",
+      "lines": 42,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
       "kind": "narrative",
-      "sha256": "8982205cfbe264982f04cf054183d55ca974d533f255363df50675466bc2746a",
-      "lines": 47,
+      "sha256": "9e6a26faa2ca75f4f41f6083a915b12051c7affe9fb55bf0864bf6d8024cfa24",
+      "lines": 53,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -4475,7 +4483,7 @@
     {
       "path": "schemas/proot-distribution-inventory.schema.json",
       "kind": "structured",
-      "sha256": "4bbce10cb723f9f11c441c86d3c56b29c04fa896b74b740ddb8e4d6c399f7897",
+      "sha256": "45a83232452644cd6c36ee584f28d839114726f1c869b12234c40c731a1acfcc",
       "lines": 53,
       "read_status": "pending",
       "read_sha256": null

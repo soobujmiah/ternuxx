@@ -18,19 +18,30 @@ ACTION="${1:-status}"
 shift || true
 MODE=auto
 DESKTOP_ID=""
+DISTRO_ID=debian
 if [ "$ACTION" = start ]; then
   while [ "$#" -gt 0 ]; do
     case "$1" in
       --mode) [ "$#" -ge 2 ] || { echo "--mode needs auto|standalone|nested" >&2; exit 2; }; MODE="$2"; shift 2 ;;
       --desktop) [ "$#" -ge 2 ] || { echo "--desktop needs an installed desktop ID" >&2; exit 2; }; DESKTOP_ID="$2"; shift 2 ;;
+      --alias) [ "$#" -ge 2 ] || { echo "--alias needs an installed Ternuxx guest alias" >&2; exit 2; }; DISTRO_ID="$2"; shift 2 ;;
       --help|-h) ACTION=help; shift ;;
       *) echo "Unknown pgui start option: $1" >&2; exit 2 ;;
     esac
   done
   [[ "$MODE" = auto || "$MODE" = standalone || "$MODE" = nested ]] || { echo "--mode must be auto, standalone, or nested." >&2; exit 2; }
   if [ "$ACTION" = start ]; then
-    guest_user="$(PYTHONPATH="$ROOT/lib" python3 -c 'import os,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro="debian",prefix=os.environ["PREFIX"]))')" 2>/dev/null || { echo "Could not resolve one ordinary Debian guest account; no desktop was started." >&2; exit 1; }
-    selection="$(PYTHONPATH="$ROOT/lib" python3 - "$PREFIX/var/lib/proot-distro/containers/debian/rootfs" "$DESKTOP_ID" "$MODE" <<'PYSEL'
+    if [ "$DISTRO_ID" != debian ]; then
+      [ "$MODE" != standalone ] || { echo "Standalone display :0 currently supports the canonical Debian guest only." >&2; exit 2; }
+      PYTHONPATH="$ROOT/lib" python3 - "$DISTRO_ID" "$PREFIX" <<'PYALIAS' || { echo "The selected guest is not an exact receipt-verified Ternuxx Debian Trixie replay alias; no desktop was started." >&2; exit 1; }
+import sys
+import proot_diagnostics
+alias,prefix=sys.argv[1:]
+proot_diagnostics.verify_managed_replay_alias(alias,prefix)
+PYALIAS
+    fi
+    guest_user="$(PYTHONPATH="$ROOT/lib" python3 -c 'import os,sys,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro=sys.argv[1],prefix=os.environ["PREFIX"]))' "$DISTRO_ID")" 2>/dev/null || { echo "Could not resolve one ordinary account in the selected Debian guest; no desktop was started." >&2; exit 1; }
+    selection="$(PYTHONPATH="$ROOT/lib" python3 - "$PREFIX/var/lib/proot-distro/containers/$DISTRO_ID/rootfs" "$DESKTOP_ID" "$MODE" <<'PYSEL'
 import sys
 import proot_desktops
 installed = proot_desktops.installed_desktops(sys.argv[1])
@@ -62,10 +73,11 @@ PYSEL
 fi
 
 usage() { cat <<'USAGE'
-Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|plasma]|status|stop]
+Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|plasma] [--alias debian|ternuxx-replay-NAME]|status|stop]
 Auto uses standalone :0 when Native GUI is stopped, otherwise nested Xephyr :2 inside Native :1.
 Standalone and Native desktop sessions cannot run together. Nested mode holds the lifecycle lock until closed.
 Choose an installed environment with `tx pgui start --desktop ID`; when several are installed, selection is required.
+The canonical Debian guest is the default. Receipt-verified Ternuxx Debian Trixie replay aliases can use nested mode with `--alias`; standalone :0 currently uses canonical Debian.
 Use tx pgui graphics verify to inspect the running Debian GUI's GLES, GLX, and Vulkan devices.
 USAGE
 }
@@ -112,7 +124,7 @@ d=json.loads(sys.argv[1])
 if d.get("state")!="running" or d.get("display")!=":0": raise SystemExit(1)
 PY
     guest_user="$(PYTHONPATH="$ROOT/lib" python3 -c 'import os,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro="debian",prefix=os.environ["PREFIX"]))')" || { echo "Could not resolve the Debian guest account; no graphics checks were run." >&2; exit 1; }
-    args=(login debian --shared-tmp --user "$guest_user"
+    args=(login "$DISTRO_ID" --shared-tmp --user "$guest_user"
       --env DISPLAY=:0 --env GALLIUM_DRIVER=zink --env MESA_LOADER_DRIVER_OVERRIDE=zink
       --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw)
     [ ! -c /dev/kgsl-3d0 ] || args+=(--bind /dev/kgsl-3d0:/dev/kgsl)
@@ -166,6 +178,10 @@ exit "$result"
     native_report="$(python3 "$STATE_HELPER" inspect "$HOME" "$NATIVE_STATE" /proc "$TMP_ROOT")" || { echo "Native GUI ownership is unknown; refusing PRoot GUI startup." >&2; exit 1; }
     native_state="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("state","unknown"))' <<<"$native_report")"
     [ "$MODE" != auto ] || { [ "$native_state" = running ] && MODE=nested || MODE=standalone; }
+    if [ "$DISTRO_ID" != debian ] && [ "$MODE" != nested ]; then
+      echo "Receipt-verified replay aliases currently require --mode nested; standalone display :0 uses the canonical Debian guest." >&2
+      exit 2
+    fi
     PYTHONPATH="$ROOT/lib" python3 - "$DESKTOP_ID" "$MODE" <<'PYROUTE'
 import sys
 import proot_desktops
@@ -182,7 +198,7 @@ PYROUTE
       nested_display_state="$(python3 "$DISPLAY_TOOL" "$TMP_ROOT" 2 2>/dev/null || true)"
       [ -n "$nested_display_state" ] || nested_display_state=unknown
       if [ "$nested_display_state" = busy ]; then
-        nested_recovery="$(python3 "$DISPLAY_TOOL" recover-proot "$TMP_ROOT" 2 "$PREFIX/var/lib/proot-distro/containers/debian/rootfs" 2>/dev/null || true)"
+        nested_recovery="$(python3 "$DISPLAY_TOOL" recover-proot "$TMP_ROOT" 2 "$PREFIX/var/lib/proot-distro/containers/$DISTRO_ID/rootfs" 2>/dev/null || true)"
         if [ "$nested_recovery" = recovered ]; then
           echo "Recovered the exact dead Debian PRoot Xephyr :2 lock/socket chain; no process was signaled."
           nested_display_state="$(python3 "$DISPLAY_TOOL" "$TMP_ROOT" 2 2>/dev/null || true)"
@@ -193,7 +209,7 @@ PYROUTE
         echo "Nested Xephyr display :2 is $nested_display_state; refusing startup because existing display ownership cannot be verified." >&2
         exit 1
       }
-      PYTHONPATH="$ROOT/lib" python3 -c 'import os,sys,proot_diagnostics; proot_diagnostics.resolve_proot_guest_shell(distro="debian",user=sys.argv[1],prefix=os.environ["PREFIX"])' "$guest_user" >/dev/null 2>&1 || { echo "The selected Debian guest account profile is unavailable; no setup changes were made." >&2; exit 1; }
+      PYTHONPATH="$ROOT/lib" python3 -c 'import os,sys,proot_diagnostics; proot_diagnostics.resolve_proot_guest_shell(distro=sys.argv[1],user=sys.argv[2],prefix=os.environ["PREFIX"])' "$DISTRO_ID" "$guest_user" >/dev/null 2>&1 || { echo "The selected Debian guest account profile is unavailable; no setup changes were made." >&2; exit 1; }
       "$ROOT/tx" audio start >/dev/null || { echo "Ternuxx Native PulseAudio could not be made ready; no Debian GUI was started." >&2; exit 1; }
       cookie="$(PYTHONPATH="$ROOT/lib" python3 -c 'import proot_diagnostics; print(proot_diagnostics._native_pulse_cookie_path() or "")' 2>/dev/null)"
       [ -n "$cookie" ] && [ -f "$cookie" ] && [ ! -L "$cookie" ] || { echo "Ternuxx Native PulseAudio cookie is unavailable; no PRoot GUI was started." >&2; exit 1; }
@@ -273,7 +289,7 @@ xfce_pid=$!
 wait "$xfce_pid"
 GUEST
 )
-      args=(login debian --shared-tmp --user "$guest_user"
+      args=(login "$DISTRO_ID" --shared-tmp --user "$guest_user"
         --bind "$cookie:/tmp/.ternuxx-pulse-cookie"
         --env DISPLAY=:1 --env TERNUXX_DESKTOP_ID="$DESKTOP_ID" --env TERNUXX_DESKTOP_SESSION="$DESKTOP_SESSION" --env TERNUXX_REPO_ROOT="$ROOT" --env PULSE_SERVER=tcp:127.0.0.1:4713 --env PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie
         --env GALLIUM_DRIVER=zink --env MESA_LOADER_DRIVER_OVERRIDE=zink
