@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 583,
-  "read_count": 174,
+  "read_count": 173,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "00c76ca06518ed540c3af030c1d7fb351debe45ed9d665e60eb788ef19a44245",
-      "lines": 147,
-      "read_status": "read",
-      "read_sha256": "00c76ca06518ed540c3af030c1d7fb351debe45ed9d665e60eb788ef19a44245"
+      "sha256": "692945ba098fd0e2ac6947221b174add872e63135c3dd9814a3a36e3d0685c74",
+      "lines": 149,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
