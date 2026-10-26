@@ -1,0 +1,7 @@
+event_id: commit-24793eda66a3-990abd3c2ab16227
+repository: soobujmiah/ternuxx
+commit: 24793eda66a36ebf745c2c7271d7a7a90d761240
+kind: commit
+occurred_at: '2026-10-26T08:36:03Z'
+status: completed
+summary: 'fix(proot): qualify managed Ubuntu desktop routes'
