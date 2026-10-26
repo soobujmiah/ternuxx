@@ -1,0 +1,7 @@
+event_id: commit-57042761beeb-4f7e719da137b8b0
+repository: soobujmiah/ternuxx
+commit: 57042761beebfe1b9a702b5dbf3292b549380474
+kind: commit
+occurred_at: '2026-10-26T15:34:48Z'
+status: completed
+summary: 'test: align help assertions with keyboard-driven install flow'
