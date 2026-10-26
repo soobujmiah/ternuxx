@@ -781,11 +781,14 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn('id="guest-password" type="password"', page)
         self.assertIn('id="proot-install-scope"', page)
         self.assertIn('async function installManagedGuest()', page)
+        self.assertIn('run("proot.setup.catalog",{},true)', page)
+        self.assertIn('profile.desktops.map(desktop=>', page)
+        self.assertIn('op?.manifest_sha256!==profile.manifest_sha256', page)
         self.assertIn('run("proot.setup.fresh.preview"', page)
         self.assertIn('run("proot.setup.fresh.apply",args)', page)
         self.assertIn('args.password=""', page)
         self.assertIn('existing_guests_are_preserved', page) if 'existing_guests_are_preserved' in page else self.assertIn('Existing guests are preserved.', page)
-        self.assertIn('Ubuntu currently offers XFCE; Debian offers the wider desktop catalog', page)
+        self.assertIn('Desktop choices and accepted display routes come from the selected pinned Ternuxx profile.', page)
 
     def test_web_proot_shortcut_sync_and_rollback_are_preview_confirmed(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()

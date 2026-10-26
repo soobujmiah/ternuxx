@@ -307,7 +307,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
                 mock.patch.object(terminal_ui, "_call", return_value=missing):
             result = terminal_ui._proot_workload_action(object(), resource)
         self.assertEqual(result["data"]["guest_status"], "missing")
-        self.assertIn("Install an optional managed Debian or Ubuntu guest", result["data"]["next_step"])
+        self.assertIn("Install an optional managed guest distro", result["data"]["next_step"])
         self.assertIn("shows the pinned target", result["data"]["next_step"])
         self.assertIn("Existing guests are preserved", result["data"]["next_step"])
 
@@ -326,6 +326,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
             result = terminal_ui._proot_workload_action(screen, resource)
         self.assertTrue(result["ok"])
         self.assertEqual(result["data"]["guest_status"], "setup_finished")
+        self.assertIn("Debian Trixie installer", result["data"]["message"])
         run.assert_called_once_with(["/data/data/com.termux/files/usr/bin/tx", "install", "debian", "--desktops", "xfce,lxqt"], check=False)
         screen.clear.assert_called_once()
 
@@ -344,6 +345,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
             result = terminal_ui._proot_workload_action(screen, resource)
         self.assertTrue(result["ok"])
         self.assertEqual(result["data"]["guest_status"], "setup_finished")
+        self.assertIn("Ubuntu 24.04 LTS (Noble) installer", result["data"]["message"])
         run.assert_called_once_with(["/data/data/com.termux/files/usr/bin/tx", "install", "ubuntu", "--desktops", "xfce"], check=False)
 
     def test_proot_stop_uses_only_verified_running_sessions_and_exact_preview(self) -> None:

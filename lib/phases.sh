@@ -577,14 +577,14 @@ PYRECORD
 
 _nt_offer_managed_guest() {
   [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || return 0
-  printf 'Set up an optional Ternuxx-managed proot guest now? [d]ebian / [u]buntu / [N]o: ' >/dev/tty
-  local answer
+  local distro_options answer profile_lib="${_TN_LIB_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)}" profile_root
+  profile_root="$(cd -- "$profile_lib/.." && pwd -P)" || return 0
+  distro_options="$(PYTHONPATH="$profile_lib" python3 -c 'import sys; from proot_profiles import installable_aliases; print(" / ".join(installable_aliases(sys.argv[1])))' "$profile_root")" || return 0
+  [ -n "$distro_options" ] || return 0
+  printf 'Set up an optional Ternuxx-managed proot guest now? [%s / n] ' "$distro_options" >/dev/tty
   IFS= read -r answer </dev/tty || return 0
-  case "$answer" in
-    d|D|debian|Debian) _nt_install_managed_guest debian; return $? ;;
-    u|U|ubuntu|Ubuntu) _nt_install_managed_guest ubuntu; return $? ;;
-    *) return 0 ;;
-  esac
+  case " $distro_options " in *" $answer "*) _nt_install_managed_guest "$answer"; return $? ;; esac
+  return 0
 }
 
 nt_cmd_install() {
@@ -592,14 +592,16 @@ nt_cmd_install() {
   # value into this command as well as accepting the direct helper argument.
   local apply=0 consent=0 update=0 interactive=0 guided=0 profile="full-native" profile_set=0 components="" verbose="${TERNUXX_VERBOSE:-0}" arg plan_id="" guest_plan_id="" guest_user=""
   local combined_guest=0
+  local profile_lib="${_TN_LIB_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)}"
+  if [ -n "${1:-}" ] && command -v python3 >/dev/null 2>&1 && PYTHONPATH="$profile_lib" command python3 -c 'import sys; from proot_profiles import installable_aliases; sys.exit(0 if sys.argv[1] in installable_aliases(sys.argv[2]) else 1)' "$1" "$(cd -- "$profile_lib/.." && pwd -P)"; then
+    local distro="$1"
+    shift
+    _nt_install_managed_guest "$distro" "$@"
+    return $?
+  fi
   case "${1:-}" in
-    debian|ubuntu)
-      local distro="$1"
-      shift
-      _nt_install_managed_guest "$distro" "$@"
-      return $? ;;
     alpine|archlinux|fedora|void)
-      nt_fail "Ternuxx does not yet have a managed ${1} setup profile. Debian Trixie and Ubuntu Noble have pinned workstation profiles."
+      nt_fail "Ternuxx does not yet have a managed ${1} setup profile."
       return 2 ;;
   esac
   _NT_INSTALL_GUEST_USER=""
@@ -926,7 +928,16 @@ nt_cmd_install() {
 _nt_install_managed_guest() {
   local distro="$1"; shift
   local label action=guided consent=0 user="" plan_id="" sudo_mode=password desktops="xfce" arg repo_root output answer
-  case "$distro" in debian) label="Debian Trixie" ;; ubuntu) label="Ubuntu Noble" ;; *) nt_fail "Unsupported managed distro."; return 2 ;; esac
+  repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
+  command -v python3 >/dev/null 2>&1 || { nt_fail "Python is required to load managed guest profiles."; return 1; }
+  label="$(PYTHONPATH="$repo_root/lib" command python3 - "$distro" "$repo_root" <<'PYPROFILE'
+import sys
+import proot_profiles
+alias, root = sys.argv[1:]
+profile = proot_profiles.install_profile(root, alias)
+print(profile["label"])
+PYPROFILE
+  )" || { nt_fail "Unsupported managed distro: $distro."; return 2; }
   while [ $# -gt 0 ]; do
     arg="$1"; shift
     case "$arg" in
@@ -946,7 +957,6 @@ _nt_install_managed_guest() {
   fi
   [[ "$user" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { nt_fail "Invalid guest username."; return 2; }
   case "$sudo_mode" in password|passwordless) ;; *) nt_fail "Choose --sudo-mode password or passwordless."; return 2 ;; esac
-  repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   nt_require_termux || return 1
   nt_require_command python3 || return 1
   if [ "$action" = guided ] && { [ ! -t 0 ] || [ "${TERNUXX_JSON:-0}" = 1 ]; }; then action=preview; fi

@@ -157,6 +157,7 @@ READ_ONLY_OPERATIONS = frozenset({
     "proot.shortcuts.sync.rollback.preview",
     "proot.start.preview",
     "proot.status",
+    "proot.setup.catalog",
     "proot.stop.preview",
     "recovery.inspect",
     "recovery.rollback.preview",

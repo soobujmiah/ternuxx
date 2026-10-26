@@ -357,7 +357,7 @@ nt_cmd_proot() {
       local action="${1:-status}" user="" plan_id="" backup_id="" guest_alias="" package_groups="" desktop_choices="" sudo_mode="password" migration_id="" confirmed=0 option
       [ $# -eq 0 ] || shift
       case "$action" in
-        status|adopt-preview|adopt|adoption-rollback-preview|adoption-rollback|fresh-preview|fresh-resume-preview|fresh-install|desktop-preview|desktop-install|desktop-resume-preview|desktop-resume|retire-preview|retire|restore-preview|restore|icd-migrate-preview|icd-migrate|icd-rollback-preview|icd-rollback) ;;
+        catalog|status|adopt-preview|adopt|adoption-rollback-preview|adoption-rollback|fresh-preview|fresh-resume-preview|fresh-install|desktop-preview|desktop-install|desktop-resume-preview|desktop-resume|retire-preview|retire|restore-preview|restore|icd-migrate-preview|icd-migrate|icd-rollback-preview|icd-rollback) ;;
         *) nt_fail "Use tx proot setup status|adopt-preview|adopt|fresh-preview|fresh-install|icd-migrate-preview|icd-migrate|icd-rollback-preview|icd-rollback|retire-preview|retire|restore-preview|restore."; return 2 ;;
       esac
       while [ "$#" -gt 0 ]; do
@@ -434,6 +434,9 @@ nt_cmd_proot() {
       case "$sudo_mode" in password|passwordless) ;; *) nt_fail "--sudo-mode must be password or passwordless."; return 2 ;; esac
       local setup_args=("$action" --repo-root "$repo_root" --json)
       case "$action" in
+        catalog) [ -z "$user$plan_id$backup_id$package_groups$desktop_choices$guest_alias$migration_id" ] && [ "$confirmed" -eq 0 ] && [ "$sudo_mode" = password ] || {
+          nt_fail "Usage: tx proot setup catalog"; return 2;
+        } ;;
         status) [ -z "$user" ] && [ -z "$plan_id" ] && [ "$confirmed" -eq 0 ] || {
           nt_fail "Usage: tx proot setup status"; return 2;
         } ;;

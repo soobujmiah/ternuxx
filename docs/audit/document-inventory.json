@@ -331,10 +331,10 @@
     {
       "path": "docs/architecture/MANAGEMENT-API.md",
       "kind": "narrative",
-      "sha256": "1edf3746f0ff4c0ecee1cab6fd23708ce413f20aa6bd201d2655ec1ef8ec9c34",
+      "sha256": "cb710243ca880e84893669a664c0580119ecc75dbd416f8de08e4f6272f39c3b",
       "lines": 11,
       "read_status": "read",
-      "read_sha256": "1edf3746f0ff4c0ecee1cab6fd23708ce413f20aa6bd201d2655ec1ef8ec9c34"
+      "read_sha256": "cb710243ca880e84893669a664c0580119ecc75dbd416f8de08e4f6272f39c3b"
     },
     {
       "path": "docs/architecture/NATIVE-GRAPHICS-AUDIO.md",

@@ -22,6 +22,7 @@ from contextlib import contextmanager
 import desktop_session_state
 import proot_fresh_setup
 import proot_packages
+import proot_profiles
 
 
 class SetupError(ValueError):
@@ -932,7 +933,7 @@ def status(*, repo_root: str, prefix: str, home: str, state_dir: str) -> dict[st
 
 def main() -> int:
     parser = argparse.ArgumentParser(prog="tx proot setup")
-    parser.add_argument("action", choices=("status", "adopt-preview", "adopt", "adoption-rollback-preview", "adoption-rollback", "fresh-preview", "fresh-resume-preview", "fresh-install", "desktop-preview", "desktop-install", "desktop-resume-preview", "desktop-resume"))
+    parser.add_argument("action", choices=("catalog", "status", "adopt-preview", "adopt", "adoption-rollback-preview", "adoption-rollback", "fresh-preview", "fresh-resume-preview", "fresh-install", "desktop-preview", "desktop-install", "desktop-resume-preview", "desktop-resume"))
     parser.add_argument("--repo-root", required=True)
     parser.add_argument("--prefix", default=os.environ.get("PREFIX", ""))
     parser.add_argument("--home", default=os.environ.get("HOME", ""))
@@ -959,7 +960,11 @@ def main() -> int:
             parser.error("--desktops is supported only by preview actions")
         groups = None if args.groups is None else args.groups.split(",")
         desktops = None if args.desktops is None else args.desktops.split(",")
-        if args.action == "desktop-preview":
+        if args.action == "catalog":
+            if args.alias or args.plan_id or args.backup_id or args.user or args.groups or args.desktops or args.yes or args.sudo_mode != "password":
+                parser.error("catalog does not accept setup options")
+            result = proot_profiles.install_catalog(args.repo_root)
+        elif args.action == "desktop-preview":
             if not args.desktops or args.plan_id or args.yes or args.backup_id or args.user or args.groups or args.alias:
                 parser.error("desktop-preview requires --desktops and no apply options")
             import proot_desktop_setup

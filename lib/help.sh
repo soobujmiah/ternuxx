@@ -45,7 +45,8 @@ EOF
       ;;
     proot|db|pgui|virgl)
       cat <<'EOF'
-Managed PRoot guests use the Native Termux host. The short flows are `tx install debian`
+Managed PRoot guests use the Native Termux host. Run `tx proot setup catalog` to
+list profiles and their accepted desktop routes. The short flows are `tx install debian`
 and `tx install ubuntu`; each asks for the guest username, previews the pinned
 profile, defaults to XFCE, then asks before applying that exact plan. You do not
 need to copy a plan ID in the guided flow. Use explicit `preview`/`apply` only
@@ -126,6 +127,7 @@ EOF
 tx install debian [--user NAME] — Guided Debian Trixie guest setup
 tx install ubuntu [--user NAME] — Guided Ubuntu Noble guest setup
 tx install debian preview --user NAME — Review-only; no guest changes
+tx proot setup catalog — List installable guest profiles and desktop routes
 tx install ubuntu preview --user NAME — Review-only; no guest changes
 tx install interactive — Choose, preview, and confirm a Native workstation profile in one session
 tx install preview [--profile NAME] [--components GROUPS] — Review exact package transaction

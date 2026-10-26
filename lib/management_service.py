@@ -56,6 +56,7 @@ import timezone_support
 import terminal_broker
 import fixed_service_deployment
 import proot_setup
+import proot_profiles
 import proot_sessions
 import proot_diagnostics
 import proot_guest_retirement as retire_fresh_guest
@@ -108,6 +109,7 @@ OPERATIONS = {
     "desktop.stop": {"args": set()},
     "desktop.restart": {"args": {"display", "desktop_id"}},
     "proot.status": {"args": set()},
+    "proot.setup.catalog": {"args": set()},
     "proot.setup.fresh.preview": {"args": {"user", "sudo_mode", "desktops", "distro"}},
     "proot.setup.fresh.apply": {"args": {"user", "sudo_mode", "plan_id", "confirmed", "password", "distro"}},
     "proot.profiles.list": {"args": set()},
@@ -343,7 +345,7 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
         return _error(request_id, "confirmation_required", "PRoot start requires a profile, exact preview plan, confirmation, and bounded timeout")
     if operation == "proot.setup.fresh.preview" and (
             set(args) not in ({"user", "sudo_mode", "desktops"}, {"user", "sudo_mode", "desktops", "distro"})
-            or args.get("distro", "debian") not in {"debian", "ubuntu"}
+            or not _installable_guest_alias(args.get("distro", "debian"))
             or not isinstance(args.get("user"), str)
             or args.get("sudo_mode") not in {"password", "passwordless"}
             or not isinstance(args.get("desktops"), list)
@@ -353,7 +355,7 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
     if operation == "proot.setup.fresh.apply":
         required = {"user", "sudo_mode", "plan_id", "confirmed"}
         if (set(args) not in (required, required | {"password"}, required | {"distro"}, required | {"password", "distro"})
-                or args.get("distro", "debian") not in {"debian", "ubuntu"}
+                or not _installable_guest_alias(args.get("distro", "debian"))
                 or not isinstance(args.get("user"), str)
                 or args.get("sudo_mode") not in {"password", "passwordless"}
                 or not isinstance(args.get("plan_id"), str)
@@ -584,10 +586,13 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 return _error(request_id, "invalid_arguments", "provider, graphics API, or display is invalid")
             repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             data = graphics_manager.verify(provider, api, home=home, state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"), process_env=process_env, prefix=process_env["PREFIX"], repo_root=repo_root)
+        elif operation == "proot.setup.catalog":
+            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            data = proot_profiles.install_catalog(repo_root)
         elif operation == "proot.setup.fresh.preview":
             distro = args.get("distro", "debian")
-            if distro not in {"debian", "ubuntu"}:
-                return _error(request_id, "unsupported_profile", "choose a supported Ternuxx guest profile")
+            if not _installable_guest_alias(distro):
+                return _error(request_id, "unsupported_profile", "choose a complete supported Ternuxx guest install profile")
             repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             data = proot_setup.proot_fresh_setup.preview(
                 repo_root=repo_root, prefix=process_env["PREFIX"], home=home,
@@ -595,8 +600,8 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 user=args["user"], alias=distro, sudo_mode=args["sudo_mode"], desktops=args["desktops"])
         elif operation == "proot.setup.fresh.apply":
             distro = args.get("distro", "debian")
-            if distro not in {"debian", "ubuntu"}:
-                return _error(request_id, "unsupported_profile", "choose a supported Ternuxx guest profile")
+            if not _installable_guest_alias(distro):
+                return _error(request_id, "unsupported_profile", "choose a complete supported Ternuxx guest install profile")
             repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             data = proot_setup.proot_fresh_setup.apply(
                 repo_root=repo_root, prefix=process_env["PREFIX"], home=home,
@@ -1286,6 +1291,15 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
     except (KeyError, TypeError, OSError, RuntimeError, subprocess.TimeoutExpired) as exc:
         return _error(request_id, "operation_failed", f"operation could not complete ({exc.__class__.__name__})")
     return {"api_version": API_VERSION, "request_id": request_id, "ok": True, "operation": operation, "data": data}
+
+
+def _installable_guest_alias(alias: object) -> bool:
+    if not isinstance(alias, str):
+        return False
+    try:
+        return alias in proot_profiles.installable_aliases(Path(__file__).resolve().parent.parent)
+    except (OSError, ValueError, proot_profiles.ProfileError):
+        return False
 
 
 def _error(request_id: str, code: str, message: str) -> dict[str, object]:
@@ -2054,7 +2068,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
                 return 1
             payload.update({"confirmed": True, "plan_id": args.plan_id})
-    elif args.operation in {"proot.status", "proot.profiles.list", "proot.sessions.list", "terminal.broker.status"}:
+    elif args.operation in {"proot.status", "proot.setup.catalog", "proot.profiles.list", "proot.sessions.list", "terminal.broker.status"}:
         payload = {}
     elif args.operation == "proot.app.launch":
         if (bool(args.app_id) == bool(args.desktop_id) or args.yes or args.plan_id):

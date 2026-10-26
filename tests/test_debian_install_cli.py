@@ -31,7 +31,7 @@ class DistroNamedInstallCLITests(unittest.TestCase):
             capture_output=True, text=True, timeout=5,
         )
         self.assertEqual(result.returncode, 2)
-        self.assertIn("Choose a Ubuntu Noble guest account with --user NAME", result.stderr)
+        self.assertIn("Choose a Ubuntu 24.04 LTS (Noble) guest account with --user NAME", result.stderr)
         self.assertNotIn("Unknown install option", result.stderr)
 
     def test_guided_install_applies_the_exact_plan_after_terminal_confirmation(self):

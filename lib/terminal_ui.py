@@ -1377,7 +1377,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
                ("sessions", "Inspect owned guest sessions"),
                ("probe", "Start bounded headless Debian probe"),
                ("login", "Read interactive Debian login instructions")]
-    choices.append(("install", "Install an optional managed Debian or Ubuntu guest"))
+    choices.append(("install", "Install an optional managed guest distro"))
     if "proot.shortcuts.list" in operations:
         choices.append(("apps", "Browse and launch an allowlisted Debian app"))
     if {"proot.shortcuts.list", "proot.shortcuts.preview", "proot.shortcuts.apply"} <= operations:
@@ -1391,7 +1391,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
         choices.append(("stop", "Preview and stop a verified managed guest session"))
     if {"proot.recovery.inspect", "proot.recovery.reconcile.preview", "proot.recovery.reconcile"} <= operations:
         choices.append(("reconcile", "Inspect or reconcile an exited guest session record"))
-    action = _choose(screen, "Debian PRoot workloads", choices)
+    action = _choose(screen, "Managed PRoot workloads", choices)
     if action == "status":
         return _call("proot.status")
     if action == "profiles":
@@ -1404,12 +1404,24 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
         if prefix != "/data/data/com.termux/files/usr" or not executable.is_file():
             return {"ok": False, "error": {"code": "native_tx_unavailable",
                     "message": "The fixed Native Termux tx command is unavailable."}}
-        distro = _choose(screen, "Choose a managed guest distro", [
-            ("debian", "Debian Trixie"), ("ubuntu", "Ubuntu Noble")])
-        profile = "debian-trixie" if distro == "debian" else "ubuntu-noble"
-        available = proot_desktops.catalog(profile)
+        catalog = _call("proot.setup.catalog")
+        profiles = catalog.get("data", {}).get("profiles", []) if catalog.get("ok") else []
+        distro_entries = [(item["distro"], item["label"]) for item in profiles
+                          if isinstance(item, dict) and isinstance(item.get("distro"), str)
+                          and isinstance(item.get("label"), str)]
+        if not distro_entries:
+            return {"ok": False, "error": {"code": "no_managed_guest_profiles",
+                    "message": "No complete managed guest installation profiles are available."}}
+        distro = _choose(screen, "Choose a managed guest distro", distro_entries)
+        selected_profile = next((item for item in profiles if item.get("distro") == distro), None)
+        if selected_profile is None or not isinstance(selected_profile.get("profile_id"), str):
+            return {"ok": False, "error": {"code": "managed_guest_profile_changed",
+                    "message": "The selected managed guest profile is no longer available."}}
+        profile = selected_profile["profile_id"]
+        available = tuple(item["id"] for item in selected_profile.get("desktops", [])
+                          if isinstance(item, dict) and isinstance(item.get("id"), str))
         selection = _prompt(screen, f"{distro.title()} desktop IDs ({', '.join(available)}; default xfce): ").strip()
-        desktops = [item.strip() for item in selection.split(",") if item.strip()] if selection else ["xfce"]
+        desktops = [item.strip() for item in selection.split(",") if item.strip()] if selection else selected_profile.get("default_desktops", ["xfce"])
         try:
             validated = proot_desktops.validate_selection(profile, desktops)
         except ValueError as exc:
@@ -1425,7 +1437,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
             return {"ok": False, "error": {"code": "guest_install_launch_failed", "message": str(exc)}}
         finally:
             curses.reset_prog_mode(); screen.clear(); screen.refresh()
-        label = "Debian" if distro == "debian" else "Ubuntu"
+        label = selected_profile["label"]
         return {"ok": result.returncode == 0,
                 "data": {"guest_status": "setup_finished" if result.returncode == 0 else "setup_failed",
                          "exit_code": result.returncode,
@@ -1439,7 +1451,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
             return {"ok": True, "data": {"guest_status": "installed",
                 "next_step": "Debian is installed. Exit TUI and run `tx db` in an attached Native Termux terminal."}}
         return {"ok": True, "data": {"guest_status": "missing",
-            "next_step": "Choose Install an optional managed Debian or Ubuntu guest, select its supported desktop environments, and start the guided installer here. It asks for the guest username, shows the pinned target, and asks before installing Ternuxx graphics/audio configuration. Existing guests are preserved."}}
+            "next_step": "Choose Install an optional managed guest distro, select its supported desktop environments, and start the guided installer here. It asks for the guest username, shows the pinned target, and asks before installing Ternuxx graphics/audio configuration. Existing guests are preserved."}}
     if action == "stop" and {"proot.stop.preview", "proot.stop"} <= operations:
         inventory = _call("proot.sessions.list")
         if not inventory.get("ok"):

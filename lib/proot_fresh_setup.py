@@ -48,8 +48,8 @@ def _read_guest_release_identity(rootfs: Path) -> dict[str, str]:
 
 
 def _alias(value: str) -> str:
-    if value not in {"debian", "ubuntu"} and not re.fullmatch(r"ternuxx-replay-[a-z0-9][a-z0-9-]{0,31}", value):
-        raise FreshSetupError("fresh alias must be debian, ubuntu, or an explicit ternuxx-replay-NAME")
+    if value not in proot_profiles.PROFILE_ALIASES and not re.fullmatch(r"ternuxx-replay-[a-z0-9][a-z0-9-]{0,31}", value):
+        raise FreshSetupError("fresh alias must be a supported managed distro or an explicit ternuxx-replay-NAME")
     return value
 
 
@@ -62,14 +62,16 @@ def _profile(repo_root: str | Path, alias: str, profile_id: str | None = None) -
     expected_alias = proot_profiles.PROFILE_ALIASES.get(alias)
     if expected_alias is not None and expected_alias != selected:
         raise FreshSetupError("canonical guest alias does not match the selected Ternuxx profile")
-    if not (alias == "debian" and selected == "debian-trixie") and not (
-            alias == "ubuntu" and selected == "ubuntu-noble") and not alias.startswith("ternuxx-replay-"):
+    if expected_alias is None and not alias.startswith("ternuxx-replay-"):
         raise FreshSetupError("Ternuxx replay alias is not valid for this profile")
+    if alias in proot_profiles.PROFILE_ALIASES and alias not in proot_profiles.installable_aliases(repo_root):
+        raise FreshSetupError("selected Ternuxx profile has no complete fresh-install backend")
     if alias.startswith("ternuxx-replay-ubuntu-noble-") and selected != "ubuntu-noble":
         raise FreshSetupError("Ubuntu replay alias must use the Ubuntu Noble profile")
     if alias.startswith("ternuxx-replay-debian-trixie-") and selected != "debian-trixie":
         raise FreshSetupError("Debian replay alias must use the Debian Trixie profile")
-    if (manifest.get("provider") != "proot-distro" or manifest.get("distro") not in {"debian", "ubuntu"}
+    if (manifest.get("provider") != "proot-distro" or not isinstance(manifest.get("distro"), str)
+            or not re.fullmatch(r"[a-z][a-z0-9-]{0,31}", manifest.get("distro", ""))
             or not isinstance(manifest.get("release_id"), str)
             or not isinstance(manifest.get("codename"), str)):
         raise FreshSetupError("Ternuxx distro profile metadata is unsupported")
@@ -77,11 +79,9 @@ def _profile(repo_root: str | Path, alias: str, profile_id: str | None = None) -
 
 
 def _operation_names(profile_id: str) -> tuple[str, str]:
-    if profile_id == "debian-trixie":
-        return "fresh-debian-trixie", "resume-fresh-debian-trixie"
-    if profile_id == "ubuntu-noble":
-        return "fresh-ubuntu-noble", "resume-fresh-ubuntu-noble"
-    raise FreshSetupError("Ternuxx fresh setup profile is unsupported")
+    if profile_id not in proot_profiles.PROFILE_FILES:
+        raise FreshSetupError("Ternuxx fresh setup profile is unsupported")
+    return f"fresh-{profile_id}", f"resume-fresh-{profile_id}"
 
 
 def _directory(path: Path, *, private: bool = False) -> os.stat_result:

@@ -277,6 +277,7 @@ class LaunchCommandTests(unittest.TestCase):
         self.assertIn("tx proot shortcuts list", proot_help.stdout)
         self.assertIn("shortcuts sync preview", proot_help.stdout)
         self.assertIn("shortcuts rollback list", proot_help.stdout)
+        self.assertIn("tx proot setup catalog", proot_help.stdout)
         self.assertIn("tx proot setup fresh-install --yes --plan-id ID", proot_help.stdout)
         self.assertIn("tx proot setup icd-migrate-preview --alias debian", proot_help.stdout)
         self.assertIn("hidden prompts", proot_help.stdout)
@@ -293,6 +294,16 @@ class LaunchCommandTests(unittest.TestCase):
         self.assertIn("args+=(--guest-user-from rootfs)", script)
         self.assertNotIn("--guest-user-source", script)
         self.assertIn('parser.add_argument("--guest-user-from", "--user-source"', service)
+
+    def test_proot_setup_catalog_lists_only_complete_install_profiles(self):
+        self.env["PREFIX"] = "/data/data/com.termux/files/usr"
+        self.env["TERMUX_VERSION"] = "fixture"
+        result = self.cli("proot", "setup", "catalog")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        profiles = json.loads(result.stdout)["profiles"]
+        self.assertEqual({item["distro"] for item in profiles}, {"debian", "ubuntu"})
+        self.assertEqual({item["package_manager"] for item in profiles}, {"apt"})
+        self.assertEqual(next(item for item in profiles if item["distro"] == "ubuntu")["desktops"][0]["id"], "xfce")
 
     def test_distro_named_debian_install_requests_account_before_guest_preview(self):
         result = self.cli("install", "debian", "preview")

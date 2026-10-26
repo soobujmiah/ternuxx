@@ -60,7 +60,7 @@ DOMAINS = [
         'status': 'installed-live-acceptance-passed',
         'providers': ['native-termux', 'proot-distro'],
         'operations': [
-            'proot.status', 'proot.setup.fresh.preview', 'proot.setup.fresh.apply',
+            'proot.status', 'proot.setup.catalog', 'proot.setup.fresh.preview', 'proot.setup.fresh.apply',
             'proot.profiles.list', 'proot.profiles.show',
             'proot.sessions.list', 'proot.sessions.show', 'proot.sessions.health',
             'proot.recovery.inspect', 'proot.recovery.reconcile.preview',
@@ -166,6 +166,7 @@ RESOURCES: list[Resource] = [
                    'defaults': {'distro': 'debian'},
                    'contains_secrets': False},
  'supported_operations': ['proot.status',
+                          'proot.setup.catalog',
                           'proot.setup.fresh.preview',
                           'proot.setup.fresh.apply',
                           'proot.profiles.list',
@@ -201,7 +202,7 @@ RESOURCES: list[Resource] = [
                 'status': 'previewed-headless-probe-and-brokered-foreground-tty'},
  'boot': {'configurable': False, 'status': 'not-in-boot-profile'},
  'logs': {'status': 'unavailable', 'path': ''},
- 'diagnostics': ['proot.status', 'proot.profiles.list', 'proot.sessions.list', 'proot.guest.verify'],
+ 'diagnostics': ['proot.status', 'proot.setup.catalog', 'proot.profiles.list', 'proot.sessions.list', 'proot.guest.verify'],
  'recovery': ['proot.sessions.show'],
  'identity': {'source': 'private versioned session registry plus PID start, isolated SID/PGRP, marker, '
                         'launcher and rootfs identities',

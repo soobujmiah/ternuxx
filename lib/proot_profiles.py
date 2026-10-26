@@ -33,6 +33,49 @@ def profile_for_alias(alias: str) -> str:
     raise ProfileError("no Ternuxx profile is defined for this guest alias")
 
 
+def install_catalog(repo_root: str | Path) -> dict[str, object]:
+    """Return the distro and desktop choices backed by complete Ternuxx profiles."""
+    import proot_desktops
+
+    profiles = []
+    for alias, profile_id in PROFILE_ALIASES.items():
+        manifest, digest, _raw = load(repo_root, profile_id)
+        desktop_ids = proot_desktops.catalog(profile_id)
+        desktops = [{
+            "id": desktop_id,
+            "name": proot_desktops.PROVIDERS[profile_id][desktop_id]["name"],
+            "routes": sorted(proot_desktops.DESKTOP_ROUTES.get(
+                desktop_id, frozenset({"standalone", "nested"}))),
+        } for desktop_id in desktop_ids]
+        database = manifest.get("package_database", proot_desktops.PACKAGE_DATABASES.get(profile_id))
+        package_manager = manifest.get("package_manager") or {"dpkg-status": "apt"}.get(database, "unsupported")
+        if package_manager != "apt" or not isinstance(manifest.get("fresh_install"), dict):
+            continue
+        profiles.append({
+            "distro": alias,
+            "profile_id": profile_id,
+            "label": manifest.get("release_name") or f"{manifest['distro']} {manifest['release']}",
+            "release": manifest["release"],
+            "manifest_sha256": digest,
+            "package_manager": package_manager,
+            "package_database": database,
+            "default_desktops": list(proot_desktops.DEFAULT_DESKTOPS),
+            "desktops": desktops,
+        })
+    return {"profiles": profiles}
+
+
+def installable_aliases(repo_root: str | Path) -> tuple[str, ...]:
+    return tuple(item["distro"] for item in install_catalog(repo_root)["profiles"])
+
+
+def install_profile(repo_root: str | Path, alias: str) -> dict[str, object]:
+    for profile in install_catalog(repo_root)["profiles"]:
+        if profile["distro"] == alias:
+            return profile
+    raise ProfileError("no complete managed install profile is available for this distro")
+
+
 def load(repo_root: str | Path, profile_id: str) -> tuple[dict, str, str]:
     filename = PROFILE_FILES.get(profile_id)
     if filename is None:

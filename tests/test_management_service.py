@@ -33,6 +33,20 @@ def request(operation: object, args: object = None, api_version: int = 1) -> dic
 
 
 class ManagementServiceTests(unittest.TestCase):
+    def test_managed_guest_install_catalog_comes_from_pinned_profiles(self) -> None:
+        result = management_service.dispatch(request("proot.setup.catalog"), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        profiles = result["data"]["profiles"]
+        self.assertEqual({item["distro"] for item in profiles}, {"debian", "ubuntu"})
+        debian = next(item for item in profiles if item["distro"] == "debian")
+        ubuntu = next(item for item in profiles if item["distro"] == "ubuntu")
+        self.assertEqual(debian["package_manager"], "apt")
+        self.assertEqual({item["id"] for item in debian["desktops"]},
+                         {"xfce", "lxqt", "lxde", "mate", "plasma", "gnome", "cinnamon"})
+        self.assertEqual({item["id"] for item in ubuntu["desktops"]}, {"xfce"})
+        self.assertEqual(next(item for item in debian["desktops"] if item["id"] == "plasma")["routes"], ["standalone"])
+        self.assertEqual(next(item for item in debian["desktops"] if item["id"] == "gnome")["routes"], [])
+
     def test_fresh_guest_setup_service_routes_one_exact_preview_and_apply(self) -> None:
         preview_data = {"status": "preview", "plan_id": "a" * 64,
                         "operation": {"alias": "debian", "guest_user": "sobuj"}}
