@@ -4,6 +4,29 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Keyboard and installer branding follow-up — 2026-10-26
+
+The owner reported literal arrow escape text and a stuck existing-Debian add-on
+confirmation. Selector input now keeps one noncanonical/non-echo terminal mode,
+accepts delayed CSI/SS3 sequences, uses the controlling terminal independently of
+stdin, and restores terminal state on exit/cancel/signals. A single writer handles
+selection, progress/clock and package/build output; the racing background ticker
+was removed. Resize redraws include scroll margins; undersized selection pauses
+until the terminal grows again.
+
+The frame uses centered green `TERNUXX`, `Workstation In Your Hand`, spaced green
+system labels, contextual keyboard/title dividers and centered copyright. The log
+heading is absent before installation starts. Optional catalogs now cover 51 Native
+and 49 guest entries, including clearly labeled AI prerequisite/setup recipes;
+Blender is guest-only and Claude guidance is PRoot-only. No external AI installer,
+agent login or Hermes repository enrollment is performed by selection. The supplied
+Hermes upstream guide currently warns its Termux package is broken.
+
+See [keyboard/UI evidence](docs/evidence/2026-10-26-installer-keyboard-branding.md)
+and [AI setup guidance](docs/AI-TOOLS.md). These changes have isolated PTY/source
+coverage; the owner's physical Termux reinstall and application workloads remain
+separate acceptance checks. Existing live installer/services/guests were untouched.
+
 ## Installer crash and reliability follow-up — 2026-10-26
 
 The reported post-package `KeyError: 'changed'` came from reading the CLI shim's

@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 594,
-  "read_count": 189,
+  "document_count": 596,
+  "read_count": 191,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "fe1bcea74298b8eb545fec62eb2bc0ab8ffa5e4937a9e41d9a51355773f0d2ec",
-      "lines": 100,
+      "sha256": "5e943eb8246635014521dbe17eefd555f0bf106db46695d8885dbb9efd97ef7c",
+      "lines": 123,
       "read_status": "read",
-      "read_sha256": "fe1bcea74298b8eb545fec62eb2bc0ab8ffa5e4937a9e41d9a51355773f0d2ec"
+      "read_sha256": "5e943eb8246635014521dbe17eefd555f0bf106db46695d8885dbb9efd97ef7c"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "8777fec6686e5c317258f4cf3fa80759e9c16ef48a0e2fd3ba0fd728696be2b5",
-      "lines": 136,
+      "sha256": "e1e869d46ec37a7147e0ef86430b2786c41173f0775a5a4507742effcbfeefe2",
+      "lines": 138,
       "read_status": "read",
-      "read_sha256": "8777fec6686e5c317258f4cf3fa80759e9c16ef48a0e2fd3ba0fd728696be2b5"
+      "read_sha256": "e1e869d46ec37a7147e0ef86430b2786c41173f0775a5a4507742effcbfeefe2"
     },
     {
       "path": "SECURITY.md",
@@ -129,6 +129,14 @@
       "read_sha256": null
     },
     {
+      "path": "docs/AI-TOOLS.md",
+      "kind": "narrative",
+      "sha256": "64c2a4281aac9061431b2ad7e0d1bf459318397291fe9bf9ae8c5a841170fce7",
+      "lines": 85,
+      "read_status": "read",
+      "read_sha256": "64c2a4281aac9061431b2ad7e0d1bf459318397291fe9bf9ae8c5a841170fce7"
+    },
+    {
       "path": "docs/ARCHITECTURE.md",
       "kind": "narrative",
       "sha256": "578e9072d7ff6137567355e219513d1262ee40b062ab3ec797b05b3b63ce1335",
@@ -155,10 +163,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "6ba3dc3704f094c7cf32e68eb948caf0a22db1afda2b8f5c5b28a5845ddf2541",
-      "lines": 316,
+      "sha256": "8b04628b38d424eb8df0bfdbb566ff6313fb447c54c3ccf998282d41e9c880ab",
+      "lines": 340,
       "read_status": "read",
-      "read_sha256": "6ba3dc3704f094c7cf32e68eb948caf0a22db1afda2b8f5c5b28a5845ddf2541"
+      "read_sha256": "8b04628b38d424eb8df0bfdbb566ff6313fb447c54c3ccf998282d41e9c880ab"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -227,10 +235,10 @@
     {
       "path": "docs/README.md",
       "kind": "narrative",
-      "sha256": "5633b597e29748712ede3044d794d3c1a85a36a7ebd928df59689be8ed865b5d",
-      "lines": 61,
+      "sha256": "a8b671c080a18c0c08f79c5807c0568def2eea6a7663fd1cb1c125828133e7fd",
+      "lines": 62,
       "read_status": "read",
-      "read_sha256": "5633b597e29748712ede3044d794d3c1a85a36a7ebd928df59689be8ed865b5d"
+      "read_sha256": "a8b671c080a18c0c08f79c5807c0568def2eea6a7663fd1cb1c125828133e7fd"
     },
     {
       "path": "docs/RESEARCH.md",
@@ -251,10 +259,10 @@
     {
       "path": "docs/SOFTWARE-CATALOG.md",
       "kind": "narrative",
-      "sha256": "06150a8030202230f917ca0db415aca74b3f1d0512b2f04173ab1887ee2f931c",
-      "lines": 36,
+      "sha256": "6e3722bb8406c5a580b71f2c1b72fe297edc499a2aa65f7a05df16227fb778a0",
+      "lines": 69,
       "read_status": "read",
-      "read_sha256": "06150a8030202230f917ca0db415aca74b3f1d0512b2f04173ab1887ee2f931c"
+      "read_sha256": "6e3722bb8406c5a580b71f2c1b72fe297edc499a2aa65f7a05df16227fb778a0"
     },
     {
       "path": "docs/WINE-NATIVE.md",
@@ -3655,6 +3663,14 @@
       "lines": 15,
       "read_status": "pending",
       "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-26-installer-keyboard-branding.md",
+      "kind": "narrative",
+      "sha256": "342a0d08a9c05b4a7a2ad346bf75007fd39b8e3625d1384cd1f22669afa855c2",
+      "lines": 61,
+      "read_status": "read",
+      "read_sha256": "342a0d08a9c05b4a7a2ad346bf75007fd39b8e3625d1384cd1f22669afa855c2"
     },
     {
       "path": "docs/evidence/2026-10-26-installer-reliability.md",

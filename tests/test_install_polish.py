@@ -25,6 +25,25 @@ class PolishTests(unittest.TestCase):
             env={**os.environ, 'HOME': str(home), 'TERNUXX_STATE_DIR': str(home / 'state'),
                  'TERNUXX_JSON': '0', 'TERNUXX_QUIET': '0'}, capture_output=True, text=True, timeout=12)
 
+    def test_native_catalog_resolves_new_apps_and_correct_official_sources(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result = self.shell('''_nt_select_install_profile custom gimp,krita,inkscape,ncdu,ai-codex,ai-hermes,nodejs || exit $?
+printf 'PACKAGES=%s\\n' "${_NT_BASE_PACKAGES[*]}"
+for package in mpv gnuplot octave nodejs-lts gimp krita; do
+ printf '%s=%s\\n' "$package" "$(_nt_native_app_repository "$package")"
+done
+_nt_native_app_lookup 'not-an-app; touch unsafe' && exit 90
+exit 0
+''', Path(tmp))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            packages = result.stdout.splitlines()[0].split('=', 1)[1].split()
+            for package in ('gimp', 'krita', 'inkscape', 'ncdu', 'nodejs-lts', 'gnupg'):
+                self.assertIn(package, packages)
+            self.assertEqual(len(packages), len(set(packages)))
+            for package in ('mpv', 'gnuplot', 'octave', 'nodejs-lts'):
+                self.assertIn(package + '=termux-main', result.stdout)
+            self.assertIn('gimp=termux-x11', result.stdout)
+
     def test_transport_retries_are_bounded_and_signature_failures_never_retry(self):
         for output, expected in [('Could not resolve mirror', 3), ('Hash Sum mismatch', 1)]:
             with self.subTest(output=output), tempfile.TemporaryDirectory() as tmp:

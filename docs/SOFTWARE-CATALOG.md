@@ -1,6 +1,39 @@
 # Native software catalog and installation
 
-Ternuxx supports Native Termux packages only. It does not install or manage a Linux guest, distribution, or second package provider. Android companion apps such as Termux:X11 are installed and updated through their publisher; Ternuxx does not sideload APKs.
+Ternuxx manages Native Termux packages and optional pinned Debian/Ubuntu guest packages through separate reviewed plans. Native remains the host/control plane. Android companion apps such as Termux:X11 are installed and updated through their publisher; Ternuxx does not sideload APKs.
+
+## Workstation installer selections
+
+`tx install` offers keyboard-selected optional apps. Up/Down and Space select;
+Home/End and PageUp/PageDown navigate long lists. `none` excludes other choices.
+Native definitions live in `lib/install_catalog.sh`; guest definitions live in
+`lib/proot_software.py`. The existing package engines bind every selected package
+and dependency to a reviewed exact plan. A missing candidate stops preview rather
+than adding another package source.
+
+| Category | Examples in Native | Additional guest selections |
+|---|---|---|
+| Graphics/photos | GIMP, Inkscape, Krita, Darktable, RawTherapee, ImageMagick, Flameshot | Blender, FreeCAD |
+| CAD | OpenSCAD | OpenSCAD, FreeCAD, Blender |
+| Media | Audacity, Kdenlive, HandBrake, FFmpeg, mpv, VLC, Audacious | Audacity, Kdenlive, FFmpeg, mpv, VLC |
+| Office | AbiWord, Gnumeric, Qalculate, TeXstudio, Evince | LibreOffice Writer/Calc/Impress as separate choices |
+| Development | Geany, Kate, Meld, QGit, Neovim, Lazygit, Node.js LTS, Rust, Go, jq, SQLite | Guest-native editor/language tools |
+| System | XFCE task manager, ncdu, duf, lsof, strace | htop, ncdu, lsof, strace |
+| Security/network | KeePassXC, Rclone, Syncthing, aria2, Nmap, iperf3, qBittorrent | Corresponding available APT choices |
+| Science | Gnuplot, GNU Octave | Gnuplot, GNU Octave |
+| AI setup recipes | Codex Termux `@next`, experimental Hermes canary | Upstream Codex, Hermes and Claude Code |
+
+AI entries install only labeled prerequisites and show [explicit setup recipes](AI-TOOLS.md).
+They do not claim an installed agent. Native Claude is not offered. Blender was
+absent from the checked official Native index and is guest-only in this catalog.
+Native Writer-only remains unavailable; AbiWord is a separate alternative and is
+never silently substituted. Guest browser defaults remain Debian Firefox ESR and
+Ubuntu Epiphany (no Snap).
+
+Package availability is not workload qualification. Graphics-heavy programs need
+separate CPU/GPU/display acceptance; installing network tools does not start a
+service. No package source is added by these choices. The Native catalog was checked
+against the existing signed index without refreshing or changing device packages.
 
 ## What is implemented
 
@@ -13,7 +46,7 @@ Ternuxx supports Native Termux packages only. It does not install or manage a Li
 - `tx mng catalog list` shows the shared management resource catalog. Catalog status distinguishes implemented Native operations from partial and planned work.
 - `tx guides` routes to Native package preview, Doctor, status, desktop start, pinned CPU-model setup, CPU/GPU/NPU status, Debian inventory and fresh-guest preview, TUI, authenticated Web management, GTK management, and the installation/operations guides.
 
-The curated app IDs are deliberately limited. Arbitrary package names, third-party repositories, guest distributions, APK sideloading, shared-storage paths, and symlink traversal are outside this workflow.
+The separate `tx app` lifecycle catalog remains limited to those three IDs; the wider workstation installer catalog above uses `tx install`. Arbitrary package names, third-party repositories, APK sideloading, shared-storage paths, and symlink traversal are outside that per-app lifecycle workflow.
 
 ## Safe package workflow
 

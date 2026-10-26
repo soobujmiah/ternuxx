@@ -1,57 +1,112 @@
-# Dependency-free selector. stdout is IDs; input/rendering use the terminal.
+# Keyboard selector. stdout contains IDs only; the controlling terminal owns input.
 _nt_pick() (
   local title="$1" mode="$2" defaults="$3"; shift 3
   local -a items=("$@") selected=()
-  local index=0 offset=0 height rows columns key tail item id i mark
-  [ -t 0 ] && [ "${TERM:-dumb}" != dumb ] || {
-    printf 'Selection needs an attached terminal with arrow keys.\n' >&2; return 2;
-  }
+  local index=0 offset=0 height rows columns key tail sequence item id i mark saved_terminal count read_status redraw=1 previous_rows=0 previous_columns=0 dimensions_changed=0
+  [ "${TERM:-dumb}" != dumb ] || { printf 'Selection needs an attached terminal with arrow keys.\n' >&2; return 2; }
   [ ${#items[@]} -gt 0 ] || return 2
   exec 3<>/dev/tty || return 2
+  saved_terminal="$(stty -g <&3)" || return 2
+  _nt_picker_cleanup() {
+    stty "$saved_terminal" <&3
+    printf '\033[0m\033[?25h' >&3
+    if [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ]; then
+      printf '\033[?1049l' >&3
+    else
+      _nt_window_content_clear
+      if [ "${_NT_WINDOW_INSTALLING:-0}" = 1 ]; then
+        _nt_window_stage "${_NT_WINDOW_STAGE:-Installation}" "${_NT_WINDOW_PENDING:-Review and confirm}"
+      fi
+    fi
+  }
+  trap _nt_picker_cleanup EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM HUP
+  # Keep one noncanonical, non-echo mode across the entire escape sequence.
+  # Per-byte silent reads previously left echo/canonical gaps between key bytes.
+  stty -echo -icanon -ixon min 1 time 0 <&3 || return 2
+  if [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ]; then printf '\033[?1049h' >&3; fi
+  printf '\033[?25l' >&3
   for item in "${items[@]}"; do
     id="${item%%|*}"
     case ",$defaults," in *",$id,"*) selected+=(1) ;; *) selected+=(0) ;; esac
   done
-  if [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ]; then
-    printf '\033[?1049h' >&3
-    trap 'printf "\033[?1049l" >&3' EXIT
-  fi
-  trap 'exit 130' INT
-  trap 'exit 143' TERM HUP
   while :; do
     read -r rows columns < <(stty size <&3 2>/dev/null)
     rows="${rows:-24}"; columns="${columns:-80}"
     [ "$rows" -ge 7 ] || rows=24
     [ "$columns" -ge 10 ] || columns=80
-    height=$((rows - 5))
+    dimensions_changed=0
+    if [ "$rows" != "$previous_rows" ] || [ "$columns" != "$previous_columns" ]; then redraw=1; dimensions_changed=1; fi
+    previous_rows="$rows"; previous_columns="$columns"
+    height=$((rows - 7))
     if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
       _nt_window_size
-      height=$((_NT_WINDOW_LOG_LAST - _NT_WINDOW_LOG_FIRST - 2))
+      if [ "$dimensions_changed" = 1 ]; then _nt_window_draw; fi
+      if [ "$_NT_WINDOW_TOO_SMALL" = 1 ]; then
+        key=''
+        IFS= read -rn1 -t 1 key <&3
+        read_status=$?
+        [ "$read_status" = 0 ] || [ "$read_status" -gt 128 ] || return 130
+        [ "$key" != $'\033' ] || return 130
+        redraw=0
+        continue
+      fi
+      height=$((_NT_WINDOW_LOG_LAST - _NT_WINDOW_LOG_FIRST))
       [ "$height" -gt 0 ] || height=1
     fi
     [ "$index" -ge "$offset" ] || offset="$index"
     [ "$index" -lt "$((offset + height))" ] || offset=$((index - height + 1))
-    if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
-      _nt_window_content_clear
-    else
-      printf '\033[H\033[2J' >&3
+    if [ "$redraw" = 1 ]; then
+      if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
+        _nt_window_selection "$title"
+      else
+        printf '\033[H\033[2J' >&3
+        printf '%.*s\r\n' "$((columns - 1))" 'Arrow keys: move | Space: select | Enter: continue | Esc: cancel' >&3
+        printf '%.*s\r\n%.*s\r\n%.*s\r\n' "$((columns - 1))" '-------------------------------------------------------------------------------' "$((columns - 1))" "$title" "$((columns - 1))" '-------------------------------------------------------------------------------' >&3
+      fi
+      for ((i=offset; i<${#items[@]} && i<offset+height; i++)); do
+        mark=' '; [ "${selected[$i]}" = 0 ] || mark=x
+        if [ "$i" = "$index" ]; then printf '\033[1;38;5;46m> ' >&3; else printf '  ' >&3; fi
+        printf '[%s] %.*s\033[0m\r\n' "$mark" "$((columns - 7))" "${items[$i]#*|}" >&3
+      done
+      count=0
+      for i in "${selected[@]}"; do count=$((count + i)); done
+      printf '\033[2K\033[38;5;114m%.*s\033[0m' "$((columns - 1))" "$((index + 1))/${#items[@]} | $count selected | Home/End, PgUp/PgDn" >&3
+    elif [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
+      _nt_window_footer
+      printf '\033[s' >&3
+      _nt_window_brand
+      printf '\033[u' >&3
     fi
-    printf '%s\r\nArrow keys: move | Space: select | Enter: continue | Esc: cancel\r\n' "$title" >&3
-    for ((i=offset; i<${#items[@]} && i<offset+height; i++)); do
-      mark=' '; [ "${selected[$i]}" = 0 ] || mark=x
-      [ "$i" != "$index" ] || printf '\033[7m' >&3
-      printf '[%s] %.*s\033[0m\r\n' "$mark" "$((columns - 5))" "${items[$i]#*|}" >&3
-    done
-    IFS= read -rsn1 key <&3 || return 130
+    # Timeout refreshes elapsed time/green pulse in this same writer, never a competing ticker.
+    key=''
+    IFS= read -rn1 -t 1 key <&3
+    read_status=$?
+    if [ "$read_status" -ne 0 ]; then
+      [ "$read_status" -gt 128 ] && [ -t 3 ] || return 130
+      redraw=0
+      continue
+    fi
+    redraw=1
     case "$key" in
       $'\033')
-        tail=''
-        IFS= read -rsn1 -t 0.15 tail <&3 || return 130
-        [[ "$tail" = '[' || "$tail" = O ]] || return 130
-        IFS= read -rsn1 -t 0.15 tail <&3 || return 130
-        case "$tail" in
-          A) index=$(((index + ${#items[@]} - 1) % ${#items[@]})) ;;
-          B) index=$(((index + 1) % ${#items[@]})) ;;
+        tail=''; sequence=''
+        IFS= read -rn1 -t 0.4 tail <&3 || return 130
+        [[ "$tail" = '[' || "$tail" = O ]] || continue
+        for ((i=0; i<16; i++)); do
+          tail=''
+          IFS= read -rn1 -t 0.4 tail <&3 || break
+          sequence+="$tail"
+          [[ "$tail" = [A-Za-z~] ]] && break
+        done
+        case "$sequence" in
+          A|[0-9]*A) index=$(((index + ${#items[@]} - 1) % ${#items[@]})) ;;
+          B|[0-9]*B) index=$(((index + 1) % ${#items[@]})) ;;
+          H|1~|7~) index=0 ;;
+          F|4~|8~) index=$((${#items[@]} - 1)) ;;
+          5~) index=$((index - height)); [ "$index" -ge 0 ] || index=0 ;;
+          6~) index=$((index + height)); [ "$index" -lt "${#items[@]}" ] || index=$((${#items[@]} - 1)) ;;
         esac ;;
       ' ')
         if [ "$mode" = single ]; then
@@ -64,10 +119,8 @@ _nt_pick() (
             if [[ "${items[$index]%%|*}" = none || "${items[$i]%%|*}" = none ]]; then selected[$i]=0; fi
           done
         fi ;;
-      '')
-        if [ "$mode" = single ]; then
-          printf '%s\n' "${items[$index]%%|*}"; return 0
-        fi
+      ''|$'\r')
+        if [ "$mode" = single ]; then printf '%s\n' "${items[$index]%%|*}"; return 0; fi
         local result=''
         for i in "${!selected[@]}"; do
           [ "${selected[$i]}" = 1 ] || continue

@@ -41,12 +41,15 @@ RAM and prefix storage. Three keyboard-driven profiles follow:
   editors, tmux, process monitoring, search and clang/CMake/GDB/Make build tools.
 - **Native Full:** Minimal plus selectable desktops, audio controls, graphics
   tools and one or more Native XFCE/MATE/Plasma desktops. Optional apps are Firefox,
-  Audacious, Ristretto, Evince, Mousepad, Xarchiver and VLC.
+  media, graphics/photo, CAD, office, development, system, security, network and
+  science tools. See the [software catalog](SOFTWARE-CATALOG.md). Blender is offered
+  in managed guests; Native does not add an unofficial Blender package source.
 - **Native Full + PRoot:** the same Native choices plus the PRoot provider/Xephyr
   and one or more managed Debian Trixie/Ubuntu Noble guests. Each guest presents
   its supported desktop selector and its own pinned preview and confirmation.
 
-Use Up/Down to move, Space to toggle selections and Enter to continue. Single-choice
+Use Up/Down to move, Space to toggle selections and Enter to continue. Home/End
+and PageUp/PageDown navigate long lists; the list shows position and selection count. Single-choice
 screens accept the highlighted row with Enter. Esc cancels and restores the terminal.
 Lists scroll on small terminals. No profile number, distro ID or DE ID must be typed.
 All profiles include CLI/TUI/Web/GTK management and SSH/service management tools;
@@ -271,9 +274,16 @@ and owner-visible/audio acceptance remain separate checks.
 ## Installer window, checks and recovery
 
 The guided workstation, desktop, guest-shortcut and GPU setup paths share a terminal
-window with a fixed device/CPU/RAM/storage/kernel/runtime header, GPU-node and sound
-availability, current stage, elapsed time and next action. Only choices/logs scroll.
-Use at least 22 terminal rows. GPU-node access and installed audio packages are
+window. Centered `TERNUXX` in changing green tones and `Workstation In Your Hand`
+head a fixed device/CPU/RAM/storage/kernel/runtime summary. Labels are spaced from
+their values; GPU nodes and sound availability are included. A divider, keyboard
+help, divider, current selection title and divider precede choices. The log heading
+appears only when a stage runs. Copyright is centered; elapsed time and next action
+stay in the footer. Only choices/logs scroll. Green/elapsed updates during selection, package/build output and stage transitions
+use one writer, avoiding background cursor races.
+Use at least 22 terminal rows and 32 columns. If a resize makes choices smaller,
+selection pauses until the terminal is enlarged; already running commands continue.
+Output during an undersized command interval may not be displayed. GPU-node access and installed audio packages are
 availability hints; verify actual rendering and playback after installation.
 
 Before the guided session changes packages, it acquires a nonblocking installer
@@ -314,3 +324,17 @@ Ternuxx does not change this setting. Without it, the client reports the fixed
 `tx install` or `tx install gpu` command to run manually. A handoff request is not
 proof that installation completed. Actual Android handoff/rendered-client acceptance
 remains a device check.
+
+
+AI entries in the Native/guest optional-app selectors are explicitly labeled setup
+recipes with prerequisites. Codex uses the owner's community Termux `@next` recipe
+or upstream Linux npm package; Hermes offers the supplied official canary guide
+with its current experimental/broken-package status; Claude Code is guest-only.
+Selecting them does not run external installers or log into an agent. Follow
+[AI tool setup](AI-TOOLS.md) for commands and source links.
+
+
+If an old installer shows literal arrow escape text, cancel it yourself with Ctrl+C,
+then update the clean checkout and rerun `./tx install`. If your shell's echo/input
+remains broken after interruption, run `stty sane` in that terminal first. The new
+selector restores its saved terminal mode on normal exit, Esc and handled signals.

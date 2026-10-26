@@ -22,13 +22,13 @@ _nt_wizard_prepare() {
   # Bootstrap must work before Python exists. No external curl installer.
   nt_info 'Preparation refreshes signed indexes (pkg update), enables official X11 if needed, and installs Python if missing.'
   _nt_confirm 'Prepare official Termux repositories and installer prerequisites?' || return $?
-  _nt_network_retry 'Package indexes' env -u LD_LIBRARY_PATH pkg update -y || return $?
+  _nt_window_run _nt_network_retry 'Package indexes' env -u LD_LIBRARY_PATH pkg update -y || return $?
   if ! _nt_package_installed x11-repo; then
-    env -u LD_LIBRARY_PATH pkg install -y x11-repo || return $?
-    _nt_network_retry 'Package indexes' env -u LD_LIBRARY_PATH pkg update -y || return $?
+    _nt_window_run env -u LD_LIBRARY_PATH pkg install -y x11-repo || return $?
+    _nt_window_run _nt_network_retry 'Package indexes' env -u LD_LIBRARY_PATH pkg update -y || return $?
   fi
   if ! command -v python3 >/dev/null 2>&1; then
-    env -u LD_LIBRARY_PATH pkg install -y python || return $?
+    _nt_window_run env -u LD_LIBRARY_PATH pkg install -y python || return $?
   fi
   return 0
 }
@@ -120,7 +120,7 @@ except (KeyError, TypeError, ValueError) as exc:
 _nt_install_wizard() {
   [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail 'Run tx install in an attached terminal; automation uses tx install preview.'; return 2; }
   nt_require_termux || return 1
-  local profile components=terminal,developer,proot,audio,graphics,gui,services desktops apps distros="" distro root answer
+  local profile components=terminal,developer,proot,audio,graphics,gui,services desktops apps="" distros="" distro root answer
   root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   _nt_install_system_info || return $?
   profile="$(_nt_pick 'Choose your workstation' single '' \
@@ -135,10 +135,7 @@ _nt_install_wizard() {
     case ",$desktops," in *,mate,*) components+=,mate ;; esac
     case ",$desktops," in *,plasma,*) components+=,plasma ;; esac
     nt_info 'Writer-only is unavailable in Native Termux: libreoffice is a monolithic suite. It is not silently installed.'
-    apps="$(_nt_pick 'Optional Native apps (select none to skip extras)' multi none \
-      'none|No optional apps' 'browser|Firefox browser' 'music|Audacious music player' \
-      'images|Ristretto image viewer' 'pdf|Evince PDF viewer' 'editor|Mousepad text editor' \
-      'archive|Xarchiver archive manager' 'video|VLC media player')" || return $?
+    apps="$(_nt_choose_native_apps)" || return $?
     for answer in ${apps//,/ }; do [ "$answer" = none ] || components+=,"$answer"; done
   fi
   if [ "$profile" = proot ]; then
@@ -146,10 +143,12 @@ _nt_install_wizard() {
     distros="$(_nt_pick 'Managed PRoot distributions (one or more)' multi debian \
       'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
   fi
+  _nt_ai_guidance native "$apps"
   _nt_window_stage '1/7 | Preparing repositories and prerequisites' 'Next: dependency plan'
   _nt_wizard_prepare || return $?
   for distro in ${distros//,/ }; do
     _nt_collect_guest "$distro" "$root" || return $?
+    _nt_ai_guidance "$distro" "${_NT_GUEST_APPS[$distro]:-}"
   done
   _nt_window_stage '2/7 | Reviewing system upgrade' 'Next: Native management'
   _nt_wizard_upgrade || return $?
@@ -161,7 +160,7 @@ _nt_install_wizard() {
   {
     _nt_window_stage '4/7 | Shared GTK management client' 'Next: managed guests'
     nt_info 'Building the Native GTK management center from the selected checkout.'
-    bash "$root/scripts/install-management-center.sh" || return $?
+    _nt_window_run bash "$root/scripts/install-management-center.sh" || return $?
   }
   _nt_window_stage '5/7 | Managed guest installation' 'Next: graphics and sound'
   for distro in ${distros//,/ }; do
@@ -172,6 +171,8 @@ _nt_install_wizard() {
   _nt_window_stage '6/7 | Default graphics and sound' 'Next: final checks'
   _nt_gpu_setup "$root" || return $?
   _nt_window_stage '7/7 | Installation summary' 'Ready to use tx'
+  _nt_ai_guidance native "$apps"
+  for distro in ${distros//,/ }; do _nt_ai_guidance "$distro" "${_NT_GUEST_APPS[$distro]:-}"; done
   nt_ok 'Selected setup stages completed. No desktop was started.'
   nt_info 'Commands: tx tui | tx web | tx gui | tx start --desktop ID'
   nt_info 'Guest: tx pgui [DE] (Debian XFCE default); tx pgui start --alias ubuntu --desktop xfce'
@@ -211,6 +212,7 @@ _nt_install_guest_addons() {
   local distro="$1" desktops="$2" apps="$3" desktops_set="$4" apps_set="$5" root="$6" output status plan_id
   [ "$desktops_set" = 1 ] || desktops="$(_nt_choose_guest_desktops "$distro" "$root")" || return $?
   [ "$apps_set" = 1 ] || apps="$(_nt_choose_guest_apps "$distro" "$root")" || return $?
+  _nt_ai_guidance "$distro" "$apps"
   apps=",$apps,"; apps="${apps//,none,/,}"; apps="${apps#,}"; apps="${apps%,}"
   local -a args=(desktop-preview --repo-root "$root" --alias "$distro" --desktops "$desktops" --json)
   [ -z "$apps" ] || args+=(--apps "$apps")

@@ -10,6 +10,7 @@
 # Native host packages include Debian PRoot support, graphical diagnostics, and
 # X11 test utilities. Heavy applications and Mesa providers remain optional.
 declare -gA _NT_GUEST_READY _NT_GUEST_USER _NT_GUEST_SUDO _NT_GUEST_DESKTOPS _NT_GUEST_APPS _NT_GUEST_PASSWORD
+. "$(dirname "${BASH_SOURCE[0]}")/install_catalog.sh"
 _NT_CORE_PACKAGES=(python)
 _NT_DESKTOP_PACKAGES=(
   termux-x11-nightly dbus xfce4-session xfce4-panel xfce4-settings xfwm4
@@ -148,13 +149,6 @@ _nt_select_install_profile() {
           gui) selected+=("${_NT_GUI_PACKAGES[@]}") ;;
           guest-display) selected+=(termux-x11-nightly dbus pulseaudio xorg-server-xephyr) ;;
           nested) selected+=("${_NT_NESTED_PACKAGES[@]}") ;;
-          browser) selected+=(firefox) ;;
-          music) selected+=(audacious) ;;
-          images) selected+=(ristretto) ;;
-          pdf) selected+=(evince) ;;
-          editor) selected+=(mousepad) ;;
-          archive) selected+=(xarchiver) ;;
-          video) selected+=(vlc) ;;
           desktop) selected+=("${_NT_DESKTOP_PACKAGES[@]}") ;;
           audio) selected+=("${_NT_AUDIO_PACKAGES[@]}") ;;
           proot) selected+=("${_NT_PROOT_PACKAGES[@]}") ;;
@@ -162,7 +156,13 @@ _nt_select_install_profile() {
           developer) selected+=("${_NT_DEVELOPER_PACKAGES[@]}") ;;
           mate) selected+=("${_NT_MATE_PACKAGES[@]}") ;;
           plasma) selected+=("${_NT_PLASMA_PACKAGES[@]}") ;;
-          *) nt_fail "Unknown component group '$group'. Choose desktop,audio,proot,graphics,developer,mate,plasma,terminal,gui,sound-controls,nested,guest-display,browser,music,images,pdf,editor,archive,video."; return 2 ;;
+          *)
+            if _nt_native_app_lookup "$group"; then
+              selected+=("${_NT_OPTIONAL_PACKAGES[@]}")
+            else
+              nt_fail "Unknown component group '$group'. Use a documented built-in group or curated Native app ID."
+              return 2
+            fi ;;
         esac
       done ;;
     *) nt_fail "Unknown install profile '$profile'. Choose minimal-native, full-native, graphical, developer, native-proot-provider, native-debian, or custom."; return 2 ;;
@@ -285,7 +285,7 @@ _nt_make_install_plan() {
     fi
     case "$package" in
       dbus|pulseaudio|python|proot-distro|vulkan-tools|mesa-vulkan-icd-freedreno|clang|cmake|gdb|make|pkg-config|git|openssh|curl|wget|rsync|nano|vim|tmux|htop|tree|unzip|zip|ripgrep|less|vlc|termux-services|util-linux) expected_repo="termux-main" ;;
-      *) expected_repo="termux-x11" ;;
+      *) expected_repo="$(_nt_native_app_repository "$package")" || expected_repo="termux-x11" ;;
     esac
     candidate="$(_nt_package_candidate_from_official_repo "$package" "$expected_repo")" || {
       nt_fail "No $expected_repo candidate found for $package. Enable/check the official repository and refresh package indexes yourself."
@@ -347,7 +347,7 @@ _nt_make_update_plan() {
     _nt_package_installed "$package" || continue
     case "$package" in
       dbus|pulseaudio|python|proot-distro|vulkan-tools|mesa-vulkan-icd-freedreno) expected_repo="termux-main" ;;
-      *) expected_repo="termux-x11" ;;
+      *) expected_repo="$(_nt_native_app_repository "$package")" || expected_repo="termux-x11" ;;
     esac
     installed="$(dpkg-query -W -f='${Version}' "$package" 2>/dev/null)" || {
       nt_fail "Could not read the installed version for $package; refusing an update plan."
@@ -490,11 +490,16 @@ _nt_apply_install_transaction() {
   local -a options=(--assume-yes --no-install-recommends --no-remove)
   [ "${_NT_PLAN_MODE:-install}" = update ] || options+=(--no-upgrade)
   if [ "${TERNUXX_WIZARD_ACTIVE:-0}" = 1 ]; then
-    _nt_network_retry 'Exact package download' env -u LD_LIBRARY_PATH apt-get "${options[@]}" --download-only install "${_NT_PLAN_TRANSACTION[@]}" || return $?
+    options+=(-o Dpkg::Use-Pty=0 -o Dpkg::Progress-Fancy=0)
+    _nt_window_run _nt_network_retry 'Exact package download' env -u LD_LIBRARY_PATH apt-get "${options[@]}" --download-only install "${_NT_PLAN_TRANSACTION[@]}" || return $?
     # APT validates signed index/package hashes; mutation never fetches a different payload.
     options+=(--no-download)
   fi
-  env -u LD_LIBRARY_PATH apt-get "${options[@]}" install "${_NT_PLAN_TRANSACTION[@]}"
+  if [ "${TERNUXX_WIZARD_ACTIVE:-0}" = 1 ]; then
+    _nt_window_run env -u LD_LIBRARY_PATH apt-get "${options[@]}" install "${_NT_PLAN_TRANSACTION[@]}"
+  else
+    env -u LD_LIBRARY_PATH apt-get "${options[@]}" install "${_NT_PLAN_TRANSACTION[@]}"
+  fi
 }
 
 _nt_install_state_dir_safe() {
@@ -1009,6 +1014,7 @@ PYPROFILE
     . "$repo_root/lib/install_wizard.sh"
     apps="$(_nt_choose_guest_apps "$distro" "$repo_root")" || return $?
   fi
+  if [ "$action" = guided ]; then _nt_ai_guidance "$distro" "$apps"; fi
   local app
   for app in ${apps//,/ }; do
     [ "$app" = none ] || groups+=,app-"$app"
@@ -1057,7 +1063,11 @@ PYPROFILE
     exec {password_fd}< <(printf '%s\n' "${_NT_GUEST_PASSWORD[$distro]}")
     args+=(--password-fd "$password_fd")
   fi
-  python3 "$repo_root/lib/proot_setup.py" "${args[@]}"
+  if [ "${_NT_USE_COLLECTED:-0}" = 1 ] && [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
+    _nt_window_run python3 "$repo_root/lib/proot_setup.py" "${args[@]}"
+  else
+    python3 "$repo_root/lib/proot_setup.py" "${args[@]}"
+  fi
   local result=$?
   [ -z "$password_fd" ] || exec {password_fd}<&-
   unset '_NT_GUEST_PASSWORD[$distro]'

@@ -17,6 +17,7 @@ Use this page to find the current product, operating, architecture, testing, aud
 
 - [Native graphics and audio](architecture/NATIVE-GRAPHICS-AUDIO.md)
 - [Software catalog](SOFTWARE-CATALOG.md)
+- [AI tool setup recipes (Native and guest)](AI-TOOLS.md)
 - [Optimization guide](OPTIMIZATION.md)
 - [Wine/Hangover research (not implemented)](WINE-NATIVE.md)
 

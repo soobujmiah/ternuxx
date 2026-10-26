@@ -53,13 +53,15 @@ a desktop. Guest selectors include a CLI-only option; current backend choices st
 the default, and a clean Native host gets a Zink recommendation only after a Vulkan probe. Existing guests get
 preview-bound DE/app additions, preserving their rootfs and accounts.
 
-The installer keeps device information, progress and elapsed time visible while its
-content pane scrolls. It checks package state/free space and refuses a second guided
+The installer centers `TERNUXX` and `Workstation In Your Hand` above spaced system
+information. Keyboard choices and installation logs share its content pane; the
+footer shows elapsed time and next action. It checks package state/free space and refuses a second guided
 installer without stopping the first. Transient downloads have bounded retries;
 integrity failures stop. See the guide for recovery and diagnostic details.
 
 Automation retains `./tx install preview --profile NAME` and exact-plan apply;
-see the [installation guide](docs/INSTALLATION.md).
+see the [installation guide](docs/INSTALLATION.md), [software catalog](docs/SOFTWARE-CATALOG.md)
+and [AI tool setup recipes](docs/AI-TOOLS.md).
 
 ```sh
 tx doctor
