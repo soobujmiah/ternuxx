@@ -1,0 +1,7 @@
+event_id: commit-c885605a26aa-bb875690971d24ae
+repository: soobujmiah/ternuxx
+commit: c885605a26aa35155e050cc5d02322ca679982aa
+kind: commit
+occurred_at: '2026-10-26T15:07:10Z'
+status: completed
+summary: 'feat: add keyboard-driven three-profile managed installer'
