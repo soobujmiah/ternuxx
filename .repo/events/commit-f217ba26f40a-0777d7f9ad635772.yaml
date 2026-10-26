@@ -1,0 +1,7 @@
+event_id: commit-f217ba26f40a-0777d7f9ad635772
+repository: soobujmiah/ternuxx
+commit: f217ba26f40a84c3102593dcc31f32709c9f2985
+kind: commit
+occurred_at: '2026-10-26T15:31:13Z'
+status: completed
+summary: 'feat: add headless graphics setup and install-first help'
