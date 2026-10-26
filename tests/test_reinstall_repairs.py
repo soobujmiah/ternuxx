@@ -133,7 +133,7 @@ class RepairsTests(unittest.TestCase):
     def test_shared_ubuntu_preview_receives_its_alias_and_rejects_unknown_distro(self):
         request={'api_version':1,'request_id':'alias-preview','operation':'proot.start.preview','args':{'profile':'debian-interactive','alias':'ubuntu'}}
         with mock.patch.object(proot_sessions,'preview_start',return_value={'plan_id':'fixture'}) as preview:
-            result=management_service.dispatch(request)
+            result=management_service.dispatch(request,env={'PREFIX':'/data/data/com.termux/files/usr','HOME':str(self.home),'TERMUX_VERSION':'fixture'})
             self.assertTrue(result['ok'],result);self.assertEqual(preview.call_args.kwargs['alias'],'ubuntu')
         request['args']['alias']='kali'
         self.assertFalse(management_service.dispatch(request)['ok'])

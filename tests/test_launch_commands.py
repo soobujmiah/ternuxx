@@ -268,7 +268,7 @@ class LaunchCommandTests(unittest.TestCase):
         self.assertIn("tx install proot [DISTRO] [DE]", result.stdout)
         self.assertIn("tx install gpu", result.stdout)
         self.assertLess(result.stdout.index("./tx install"), result.stdout.index("Open and inspect:"))
-        self.assertIn("Debian: db", result.stdout)
+        self.assertIn("tx db (Debian), tx ub (Ubuntu)", result.stdout)
 
     def test_native_management_alias_and_proot_help(self):
         result = self.cli("mng", "--help")
