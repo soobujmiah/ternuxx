@@ -68,7 +68,7 @@ Pinned workflow [40318021029](https://github.com/soobujmiah/ternuxx/actions/runs
 
 ## Direct archive-listing instrumentation
 
-The second capture found no external-input basename in any of the eight Ubuntu package payload streams. The official Ubuntu `libclang-21-dev` file list does include the expected `/usr/lib/llvm-21/lib/libclang*.a` paths ([package file list](https://packages.ubuntu.com/resolute/amd64/libclang-21-dev/filelist)), which narrows the discrepancy but does not identify the exact archived bytes used by the build. The next pinned capture now records `dpkg-deb --contents` basename candidates alongside the `--fsys-tarfile` member count and exit code, and validation rejects incomplete listing/stream diagnostics. The 14 focused evidence tests pass locally; this updated instrumentation has not yet run in GitHub Actions.
+The second capture found no external-input basename in any of the eight Ubuntu package payload streams. The official Ubuntu `libclang-21-dev` file list does include the expected `/usr/lib/llvm-21/lib/libclang*.a` paths ([package file list](https://packages.ubuntu.com/resolute/amd64/libclang-21-dev/filelist)), which narrows the discrepancy but does not identify the exact archived bytes used by the build. The next pinned capture now records `dpkg-deb --contents` basename candidates alongside the `--fsys-tarfile` member count and exit code, and validation rejects incomplete listing/stream diagnostics. The 14 focused evidence tests pass locally. Pinned workflow [40325224173](https://github.com/soobujmiah/ternuxx/actions/runs/40325224173), on source commit `7e6d567e2a632109785b95d5cd27ba1373146bbb`, passed instrumentation setup and is still building Mesa; archive diagnostics and validation remain pending.
 
 ## Next work
 

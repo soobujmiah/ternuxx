@@ -3667,10 +3667,10 @@
     {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
       "kind": "narrative",
-      "sha256": "6574845bf4d5a9965489063bef2ea47f70c55d86489e536a6b642adcf01bf8d7",
+      "sha256": "b51fe7ea768ea385e3a60873fe6b0645573d3058dbaf6131ffeafc261f1f08b6",
       "lines": 75,
       "read_status": "read",
-      "read_sha256": "6574845bf4d5a9965489063bef2ea47f70c55d86489e536a6b642adcf01bf8d7"
+      "read_sha256": "b51fe7ea768ea385e3a60873fe6b0645573d3058dbaf6131ffeafc261f1f08b6"
     },
     {
       "path": "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",
