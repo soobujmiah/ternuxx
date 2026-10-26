@@ -23,6 +23,16 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(proot_desktops.DesktopError, "this route"):
             proot_desktops.session_command("debian-trixie", "plasma", route="nested")
 
+    def test_every_routed_desktop_has_proc_comm_safe_readiness_checks(self):
+        accepted = set(proot_desktops.catalog("debian-trixie", route="standalone"))
+        accepted.update(proot_desktops.catalog("debian-trixie", route="nested"))
+        self.assertEqual(set(proot_desktops.DESKTOP_READY_PROCESSES), accepted)
+        for desktop_id, required in proot_desktops.DESKTOP_READY_PROCESSES.items():
+            with self.subTest(desktop=desktop_id):
+                self.assertGreaterEqual(len(required), 4)
+                self.assertEqual(len(required), len(set(required)))
+                self.assertTrue(all(name and len(name) <= 15 and "/" not in name for name in required))
+
     def test_debian_desktops_map_to_fixed_packages_and_session_commands(self):
         self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["mate", "lxqt"]),
                          ("lxqt", "mate"))

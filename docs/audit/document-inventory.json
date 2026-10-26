@@ -43,8 +43,8 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "3c853b9177f8e15d62ec98e8d5c6b4c2457a9f0702ae0a417659c172b79e382d",
-      "lines": 41,
+      "sha256": "bdc1aba31d762f27a2d716bed3a3b72f06d3a7a758f1523410bdec523bbed96d",
+      "lines": 42,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -171,8 +171,8 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "3cc5bb23570af17c9693ade7dd4001eaac4e555a398830b143147239dfc6c4e6",
-      "lines": 63,
+      "sha256": "a290e0eb740bf59d4b31aae2535741c96f02198fce64fa396c33d9292e6b04e1",
+      "lines": 65,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -547,8 +547,8 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "44ae7d56b5a74cb8a0beb65d2097d8bfc8483e545a8487228255708053498d16",
-      "lines": 165,
+      "sha256": "f08a8710303b576cfe1557ed13e880e728480c666bcb7193a48eeb760d37264c",
+      "lines": 169,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3579,8 +3579,8 @@
     {
       "path": "docs/evidence/2026-10-26-debian-standalone-render-follow-up.md",
       "kind": "narrative",
-      "sha256": "b82786952e30c9fde3246f2d39b037b617b63e36ed825a641d8bed0e516ad6a1",
-      "lines": 13,
+      "sha256": "fb0a293bf6fd092aebb91f7f308e783b1b482466606c3123f1563b0bb456d3ba",
+      "lines": 21,
       "read_status": "pending",
       "read_sha256": null
     },

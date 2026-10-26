@@ -135,6 +135,58 @@ class DesktopSessionStateTests(unittest.TestCase):
         self.assertEqual(result["display_state"], "absent")
         self.assertEqual(result["processes"], {"supervisor": "absent", "x11": "absent", "desktop": "absent"})
 
+    def _proot_readiness_fixture(self, *, omit: set[str] | None = None,
+                                 other_group: set[str] | None = None) -> dict:
+        import proot_desktops
+        session = self._session()
+        session.update(provider="proot", display=":0", desktop_id="xfce", guest_alias="debian")
+        session["desktop"]["command_marker"] = "proot-display0"
+        path = self.state / "session.json"
+        path.write_text(json.dumps(session), encoding="utf-8")
+        path.chmod(0o600)
+        names = proot_desktops.DESKTOP_READY_PROCESSES["xfce"]
+        pid = 104
+        for name in names:
+            if omit and name in omit:
+                continue
+            proc = self.proc / str(pid)
+            proc.mkdir()
+            fields = ["S", "1", "103", "103"] + ["0"] * 15 + ["789"]
+            (proc / "stat").write_text(f"{pid} ({name}) {' '.join(fields)}\n", encoding="ascii")
+            (proc / "comm").write_text(name + "\n", encoding="ascii")
+            (proc / "status").write_text(
+                f"Name:\t{name}\nUid:\t{os.getuid()}\t{os.getuid()}\t{os.getuid()}\t{os.getuid()}\n",
+                encoding="ascii")
+            pid += 1
+        for name in other_group or set():
+            proc = self.proc / str(pid)
+            proc.mkdir()
+            fields = ["S", "1", "999", "999"] + ["0"] * 15 + ["789"]
+            (proc / "stat").write_text(f"{pid} ({name}) {' '.join(fields)}\n", encoding="ascii")
+            (proc / "comm").write_text(name + "\n", encoding="ascii")
+            (proc / "status").write_text(
+                f"Name:\t{name}\nUid:\t{os.getuid()}\t{os.getuid()}\t{os.getuid()}\t{os.getuid()}\n",
+                encoding="ascii")
+            pid += 1
+        listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        listener.bind(str(self.tmp / ".X11-unix/X0"))
+        listener.listen(2)
+        self.addCleanup(listener.close)
+        (self.tmp / ".X0-lock").write_text("102\n", encoding="ascii")
+        return self._inspect()
+
+    def test_proot_readiness_requires_shell_wm_panel_and_desktop_in_owned_group(self) -> None:
+        ready = self._proot_readiness_fixture()
+        self.assertEqual(ready["state"], "running")
+        self.assertEqual(ready["desktop_readiness"]["state"], "ready")
+        self.assertEqual(ready["desktop_readiness"]["missing_processes"], [])
+
+    def test_proot_readiness_ignores_expected_processes_outside_owned_group(self) -> None:
+        partial = self._proot_readiness_fixture(omit={"xfce4-panel"}, other_group={"xfce4-panel"})
+        self.assertEqual(partial["state"], "running")
+        self.assertEqual(partial["desktop_readiness"]["state"], "starting")
+        self.assertEqual(partial["desktop_readiness"]["missing_processes"], ["xfce4-panel"])
+
     def test_proot_exec_transition_uses_frozen_process_group_identity(self) -> None:
         session = self._session()
         session["provider"] = "proot"

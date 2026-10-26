@@ -24,6 +24,17 @@ UBUNTU_DESKTOPS = {
 }
 PROVIDERS = {"debian-trixie": DEBIAN_DESKTOPS, "ubuntu-noble": UBUNTU_DESKTOPS}
 PACKAGE_DATABASES = {"debian-trixie": "dpkg-status", "ubuntu-noble": "dpkg-status"}
+# Required processes for a usable managed session. These are scoped to the
+# Ternuxx-owned desktop process group; their presence is not Android visibility.
+DESKTOP_READY_PROCESSES = {
+    "xfce": ("xfce4-session", "xfwm4", "xfce4-panel", "xfdesktop"),
+    "lxqt": ("lxqt-session", "openbox", "lxqt-panel", "pcmanfm-qt"),
+    "lxde": ("lxsession", "openbox", "lxpanel", "pcmanfm"),
+    "mate": ("mate-session", "marco", "mate-panel", "caja"),
+    "plasma": ("startplasma-x11", "kwin_x11", "ksmserver", "plasmashell"),
+}
+
+
 DESKTOP_ROUTES = {
     "xfce": frozenset({"standalone", "nested"}),
     "lxqt": frozenset({"standalone", "nested"}),

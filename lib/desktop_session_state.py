@@ -11,6 +11,7 @@ import sys
 import tempfile
 
 import native_desktops
+import proot_desktops
 import proot_profiles
 
 MARKERS = {"supervisor": "desktop-supervisor.sh", "x11": "termux-x11", "desktop": "xfce4-session"}
@@ -244,6 +245,76 @@ def ensure_state_dir(home: Path, state_dir: Path) -> None:
             os.chmod(current, 0o700, follow_symlinks=False)
 
 
+
+def _proot_desktop_readiness(session: dict, proc: Path) -> dict[str, object]:
+    """Check shell, WM, panel and desktop processes in the owned PRoot session group."""
+    desktop_id = session.get("desktop_id", "xfce")
+    if not isinstance(desktop_id, str):
+        return {"state": "unknown", "desktop_id": "unknown",
+                "required_processes": [], "observed_processes": [], "missing_processes": []}
+    required = proot_desktops.DESKTOP_READY_PROCESSES.get(desktop_id)
+    if required is None:
+        return {"state": "unsupported", "desktop_id": desktop_id,
+                "required_processes": [], "observed_processes": [], "missing_processes": []}
+    identity = session.get("desktop")
+    if not isinstance(identity, dict):
+        return {"state": "unknown", "desktop_id": desktop_id,
+                "required_processes": sorted(required), "observed_processes": [],
+                "missing_processes": sorted(required)}
+    pgid, sid = identity.get("pgid"), identity.get("sid")
+    if type(pgid) is not int or pgid < 1 or sid != pgid:
+        return {"state": "unknown", "desktop_id": desktop_id,
+                "required_processes": sorted(required), "observed_processes": [],
+                "missing_processes": sorted(required)}
+    found: set[str] = set()
+    uncertain = False
+    visible = 0
+    for entry in proc.iterdir():
+        if not entry.name.isdecimal():
+            continue
+        try:
+            raw = (entry / "stat").read_text(encoding="ascii")
+        except FileNotFoundError:
+            continue
+        except OSError:
+            uncertain = True
+            continue
+        _comm, separator, tail = raw.rpartition(")")
+        fields = tail.strip().split() if separator else []
+        if len(fields) < 4 or fields[0] in {"Z", "X"}:
+            continue
+        if fields[2] != str(pgid) or fields[3] != str(sid):
+            continue
+        visible += 1
+        try:
+            name = (entry / "comm").read_text(encoding="ascii").strip()
+            status = (entry / "status").read_text(encoding="ascii")
+        except FileNotFoundError:
+            continue
+        except OSError:
+            uncertain = True
+            continue
+        uid_match = re.search(r"^Uid:\s+(\d+)", status, re.M)
+        if not uid_match:
+            uncertain = True
+            continue
+        if int(uid_match.group(1)) != os.getuid():
+            return {"state": "unsafe", "desktop_id": desktop_id,
+                    "required_processes": sorted(required),
+                    "observed_processes": sorted(found),
+                    "missing_processes": sorted(set(required) - found)}
+        if name in required:
+            found.add(name)
+    missing = sorted(set(required) - found)
+    if not visible or uncertain:
+        state = "unknown"
+    else:
+        state = "ready" if not missing else "starting"
+    return {"state": state, "desktop_id": desktop_id,
+            "required_processes": sorted(required), "observed_processes": sorted(found),
+            "missing_processes": missing}
+
+
 def inspect(home: Path, state_dir: Path, proc: Path, tmp_root: Path) -> dict:
     try:
         _validate_state_dir(home, state_dir)
@@ -310,7 +381,15 @@ def inspect(home: Path, state_dir: Path, proc: Path, tmp_root: Path) -> dict:
             state = "failed"
         else:
             state = "unknown"
-        return {"state": state, "reason": "record and verified process/display evidence reconciled", "display": data["display"], "display_state": display, "processes": roles, "recorded_status": data["status"]}
+        result = {"state": state, "reason": "record and verified process/display evidence reconciled", "display": data["display"], "display_state": display, "processes": roles, "recorded_status": data["status"]}
+        if provider == "proot" and state == "running":
+            readiness = _proot_desktop_readiness(data, proc)
+            if readiness["state"] == "unsafe":
+                return {"state": "unsafe", "reason": "PRoot desktop process group includes a different owner",
+                        "display": data["display"], "display_state": display,
+                        "processes": roles, "desktop_readiness": readiness}
+            result["desktop_readiness"] = readiness
+        return result
     except FileNotFoundError:
         return {"state": "stopped", "reason": "session record is absent", "processes": {name: "absent" for name in MARKERS}, "display": "absent"}
     except (OSError, ValueError, KeyError, StateError) as exc:

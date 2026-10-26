@@ -21,11 +21,14 @@ class ProotGuiRoutingTests(unittest.TestCase):
             self.assertIn("Standalone managed guest GUI: stopped; target display :0", result.stdout)
             self.assertIn("Nested display :2 socket is absent.", result.stdout)
 
-    def test_live_status_and_start_copy_distinguish_session_liveness_from_desktop_readiness(self) -> None:
+    def test_live_status_and_start_wait_for_owned_desktop_process_readiness(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
-        self.assertIn("process group live on %s; desktop shell/panel readiness not checked", script)
-        self.assertIn("session processes are live on standalone display :0", script)
-        self.assertIn("Desktop shell/panel readiness and Android visibility are not verified", script)
+        self.assertIn("desktop shell/WM/panel check %s", script)
+        self.assertIn("for _ in $(seq 1 60); do", script)
+        self.assertIn('readiness=\"$(python3 -c', script)
+        self.assertIn("passed shell, window-manager, panel and desktop process checks", script)
+        self.assertIn("session was left running; inspect with 'tx pgui status'", script)
+        self.assertIn("Android visibility remains unverified", script)
 
     def test_guest_desktop_launchers_drop_the_native_termux_path(self) -> None:
         expected = "export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"

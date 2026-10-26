@@ -163,3 +163,7 @@ After waiting 20 seconds from launch, the shared Debian standalone verifier retu
 ## Existing managed guest package audit (2026-10-26 11:33 UTC)
 
 Read-only `dpkg --audit` returned exit 0 with no findings for canonical Debian, canonical Ubuntu, and the preserved Ternuxx clean-room replay alias. No guest packages or files were changed. This checks dpkg configuration state only; full desktop and install acceptance remain separate. See [managed guest package audit](../evidence/2026-10-26-proot-guest-package-audit.md).
+
+## PRoot standalone desktop readiness (2026-10-26 about 11:44 UTC)
+
+`tx pgui start` now waits up to 60 seconds for shell, WM, panel, and desktop processes in the verified Ternuxx process group; `tx pgui status` reports those same checks. A live `:0` matrix started XFCE, LXQt, LXDE, MATE, and Plasma successfully; Plasma remains standalone-only. The XFCE verifier drew 615 GLX frames on Zink/Turnip Adreno 825, passed an Adreno 825 Vulkan draw, and reached the Native PulseAudio endpoint. GLES draw, per-DE window trees in this rerun, audible playback, and Android visibility remain open. Native XFCE was restored on `:1`; `:0`/`:2` and managed sessions are stopped. The full 1,227-test suite and CLI help contract passed. See [standalone readiness and render evidence](../evidence/2026-10-26-debian-standalone-render-follow-up.md).

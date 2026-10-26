@@ -107,7 +107,7 @@ case "$ACTION" in
       echo "Standalone managed guest GUI: stopped; target display :0"
     else
       report="$(inspect)" || { echo "PRoot GUI ownership is unknown or unsafe; state preserved." >&2; exit 1; }
-      python3 -c 'import json,sys; d=json.load(sys.stdin); state=d.get("state"); display=d.get("display",":0"); detail=d.get("reason","unknown"); print(("Standalone managed guest GUI session: process group live on %s; desktop shell/panel readiness not checked" % display) if state=="running" else "Standalone managed guest GUI: state={state} display={display} detail={detail}".format(state=state,display=display,detail=detail))' <<<"$report"
+      python3 -c 'import json,sys; d=json.load(sys.stdin); state=d.get("state"); display=d.get("display",":0"); detail=d.get("reason","unknown"); readiness=d.get("desktop_readiness",{}); missing=readiness.get("missing_processes",[]); rstate=readiness.get("state","unknown"); print(("Standalone managed guest GUI: %s on %s; selected desktop shell/WM/panel check %s%s" % ("running" if rstate=="ready" else "process group live",display,rstate,("; missing "+", ".join(missing)) if missing else "")) if state=="running" else "Standalone managed guest GUI: state={state} display={display} detail={detail}".format(state=state,display=display,detail=detail))' <<<"$report"
     fi
     if [ -S "$TMP_ROOT/.X11-unix/X2" ]; then
       echo "Nested display :2 socket exists; socket presence alone does not establish session ownership."
@@ -362,7 +362,23 @@ PY
       sleep 0.25
     done
     [ "$ready" -eq 1 ] || { echo "PRoot GUI did not become ready on :0. Inspect $STATE_DIR/desktop.log; no unrelated process was stopped." >&2; exit 1; }
-    printf "Ternuxx-owned %s %s session processes are live on standalone display :0. Desktop shell/panel readiness and Android visibility are not verified; allow the selected environment time to finish loading.\n" "$DISTRO_ID" "$DESKTOP_ID"
+    desktop_ready=0
+    report=""
+    for _ in $(seq 1 60); do
+      report="$(inspect 2>/dev/null || true)"
+      current_state="$(json_state "$report" unknown)"
+      readiness="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("desktop_readiness",{}).get("state","unknown"))' <<<"$report" 2>/dev/null || printf unknown)"
+      if [ "$current_state" = running ] && [ "$readiness" = ready ]; then desktop_ready=1; break; fi
+      [ "$current_state" = running ] || break
+      sleep 1
+    done
+    if [ "$desktop_ready" -eq 1 ]; then
+      printf "Ternuxx-owned %s %s session passed shell, window-manager, panel and desktop process checks on standalone display :0. Android visibility remains unverified.\n" "$DISTRO_ID" "$DESKTOP_ID"
+    else
+      missing="$(python3 -c 'import json,sys; print(", ".join(json.load(sys.stdin).get("desktop_readiness",{}).get("missing_processes",[])))' <<<"$report" 2>/dev/null || true)"
+      echo "The managed session group is live, but $DESKTOP_ID desktop readiness is incomplete${missing:+; missing $missing}. The session was left running; inspect with 'tx pgui status' and do not infer a usable desktop." >&2
+      exit 1
+    fi
     echo "Graphics: $DISTRO_ID Zink/Turnip is configured per guest process; inspect the running GUI with 'tx pgui graphics verify'."
     echo "Audio: uses the authenticated Ternuxx Native PulseAudio client endpoint; the server remains Native-owned."
     ;;
