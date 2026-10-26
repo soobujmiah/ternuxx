@@ -52,6 +52,20 @@ class ProotPackageInventoryTests(unittest.TestCase):
         self.assertEqual(result["groups"]["graphics"]["held"], ["mesa-vulkan-drivers"])
         self.assertEqual(result["groups"]["graphics"]["missing"], ["unfinished"])
 
+    def test_apk_version_inventory_is_normalized_and_requires_every_requested_package(self):
+        database = self.root / "lib/apk/db/installed"
+        database.parent.mkdir(parents=True)
+        database.write_text(
+            "P:apk-tools\nV:2.14.6-r3\nA:aarch64\n\n"
+            "P:busybox\nV:1.37.0-r19\nA:aarch64\n"
+        )
+        rows = proot_packages.version_inventory_text(
+            self.root, "apk-installed", ["busybox", "apk-tools"], "aarch64")
+        self.assertEqual(rows, "ii \tapk-tools=2.14.6-r3\nii \tbusybox=1.37.0-r19\n")
+        with self.assertRaisesRegex(proot_packages.PackageInventoryError, "missing from the installed inventory"):
+            proot_packages.version_inventory_text(
+                self.root, "apk-installed", ["absent"], "aarch64")
+
     def test_database_symlink_and_unknown_adapter_are_rejected(self):
         database = self.root / "var/lib/dpkg/status"
         database.parent.mkdir(parents=True)

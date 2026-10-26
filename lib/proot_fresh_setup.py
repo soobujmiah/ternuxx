@@ -10,6 +10,7 @@ from pathlib import Path
 
 import proot_desktops
 import proot_profiles
+import proot_packages
 import re
 import shlex
 import shutil
@@ -797,13 +798,13 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
             if actual_driver != expected_driver:
                 raise FreshSetupError("installed Turnip driver does not match the pinned artifact")
         _verify_owned_target(prefix, alias, owned)
-        versions = runner([manager, "login", "--isolated", "--user", "root", alias,
-                           "--", "/usr/bin/dpkg-query", "-W", "-f", "$"+"{db:Status-Abbrev}\\t$"+"{binary:Package}=$"+"{Version}\\n"],
-                          capture_output=True, text=True, check=False, timeout=120)
-        out = getattr(versions, "stdout", "")
-        if versions.returncode != 0 or not isinstance(out, str) or not out.strip():
-            raise FreshSetupError("installed package-version inventory could not be recorded")
         _verify_owned_target(prefix, alias, owned)
+        try:
+            out = proot_packages.version_inventory_text(
+                rootfs, str(manifest.get("package_database", "dpkg-status")),
+                package_set, manifest["fresh_install"]["architecture"])
+        except proot_packages.PackageInventoryError as exc:
+            raise FreshSetupError("installed package-version inventory could not be recorded") from exc
         _version_inventory(out, package_set)
         version_path = state / f"{alias}-package-versions.txt"
         fd, version_tmp = tempfile.mkstemp(prefix=".versions-", dir=state)

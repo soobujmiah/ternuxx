@@ -178,6 +178,35 @@ def grouped_inventory(rootfs: str | Path, manifest: dict[str, object]) -> dict[s
             **({"dpkg_status_sha256": digest} if database == "dpkg-status" else {})}
 
 
+def version_inventory_text(rootfs: str | Path, database: str, packages: list[str],
+                           architecture: str) -> str:
+    installed, _digest = installed_packages(rootfs, database)
+    if database == "dpkg-status":
+        expected_arch = {"aarch64": "arm64", "x86_64": "amd64"}.get(architecture, architecture)
+    else:
+        expected_arch = {"arm64": "aarch64", "amd64": "x86_64"}.get(architecture, architecture)
+    if not isinstance(expected_arch, str) or not isinstance(packages, list):
+        raise PackageInventoryError("guest package-version profile is invalid")
+    rows = []
+    for package in sorted(set(packages)):
+        if not isinstance(package, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9+_.-]{0,127}", package):
+            raise PackageInventoryError("requested package name is invalid")
+        candidates = [item for item in installed.get(package, [])
+                      if item["architecture"] in {expected_arch, "all", "noarch"}]
+        if not candidates:
+            raise PackageInventoryError("requested package is missing from the installed inventory: " + package)
+        selected = next((item for item in candidates if item["architecture"] == expected_arch), candidates[0])
+        version = selected["version"]
+        if not re.fullmatch(r"[0-9][0-9A-Za-z.+:~_-]*", version):
+            raise PackageInventoryError("installed package version is malformed: " + package)
+        # Keep the established receipt text format so existing Debian state
+        # readers continue to validate prior successful installs.
+        rows.append("ii \t" + package + "=" + version + "\n")
+    if not rows:
+        raise PackageInventoryError("requested package inventory is empty")
+    return "".join(rows)
+
+
 def installed_names(rootfs: str | Path, database: str = "dpkg-status") -> set[str]:
     installed, _ = installed_packages(rootfs, database)
     return set(installed)

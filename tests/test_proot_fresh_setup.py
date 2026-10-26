@@ -92,6 +92,20 @@ class FreshProotSetupTests(unittest.TestCase):
         self.assertFalse((self.prefix / "var").exists())
         self.assertGreater(plan["operation"]["free_bytes_at_preview"], 0)
 
+    def _write_fixture_package_database(self, alias="debian"):
+        provider = proot_profiles.profile_for_alias(alias)
+        manifest = json.loads((self.repo / "config/proot" / proot_profiles.PROFILE_FILES[provider]).read_text())
+        raw = self._version_output(alias)
+        records = []
+        for line in raw.splitlines():
+            _status, separator, entry = line.partition("\t")
+            name, equals, version = entry.partition("=")
+            if separator and equals:
+                records.append(f"Package: {name}\nStatus: install ok installed\nArchitecture: arm64\nVersion: {version}")
+        status = self.containers / alias / "rootfs/var/lib/dpkg/status"
+        status.parent.mkdir(parents=True, exist_ok=True)
+        status.write_text("\n\n".join(records) + "\n")
+
     def _fixture_runner(self, calls):
         def run(args, **kwargs):
             calls.append(args)
@@ -110,9 +124,9 @@ class FreshProotSetupTests(unittest.TestCase):
                     "manifest": {"config": {"digest": spec["config_digest"], "size": spec["config_size"]},
                                  "layers": [{"digest": spec["layer_digest"], "size": spec["layer_size"]}]},
                     "image_config": {"architecture": "arm64", "created": spec["image_created"]}}))
-            if "/usr/bin/dpkg-query" in args:
+            if "/bin/bash" in args:
                 alias = args[args.index("--user") + 2]
-                return SimpleNamespace(returncode=0, stdout=self._version_output(alias))
+                self._write_fixture_package_database(alias)
             return SimpleNamespace(returncode=0)
         return run
 
@@ -366,9 +380,9 @@ class FreshProotSetupTests(unittest.TestCase):
                                              "size": 49761105}]},
                     "image_config": {"architecture": "arm64", "created": "2026-10-05T00:00:00Z"}}))
                 return SimpleNamespace(returncode=0)
-            if "/usr/bin/dpkg-query" in args:
+            if "/bin/bash" in args:
                 alias = args[args.index("--user") + 2]
-                return SimpleNamespace(returncode=0, stdout=self._version_output(alias))
+                self._write_fixture_package_database(alias)
             return SimpleNamespace(returncode=0)
         with patch.object(proot_fresh_setup.shutil, "which", return_value="/prefix/bin/proot-distro"), \
              patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False):
@@ -409,11 +423,11 @@ class FreshProotSetupTests(unittest.TestCase):
                     "manifest": {"config": {"digest": "sha256:4bb08c595249772893799a9189839e5a94900e8deaa14885896307e562b51e88", "size": 466},
                                  "layers": [{"digest": "sha256:df9831efb49cab24dec437e8482f2a9ddbd9e239131fa3ffe095dc1492081e1d", "size": 49761105}]},
                     "image_config": {"architecture": "arm64", "created": "2026-10-05T00:00:00Z"}}))
-            elif "/usr/bin/dpkg-query" in args:
-                return SimpleNamespace(returncode=0, stdout=self._version_output())
             elif "/bin/bash" in args and fail_once:
                 fail_once = False
                 return SimpleNamespace(returncode=1)
+            elif "/bin/bash" in args:
+                self._write_fixture_package_database("debian")
             return SimpleNamespace(returncode=0)
         with patch.object(proot_fresh_setup.shutil, "which", return_value="/prefix/bin/proot-distro"), \
              patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False):
@@ -452,11 +466,11 @@ class FreshProotSetupTests(unittest.TestCase):
                     "manifest": {"config": {"digest": spec["config_digest"], "size": spec["config_size"]},
                                  "layers": [{"digest": spec["layer_digest"], "size": spec["layer_size"]}]},
                     "image_config": {"architecture": "arm64", "created": spec["image_created"]}}))
-            elif "/usr/bin/dpkg-query" in args:
-                return SimpleNamespace(returncode=0, stdout=self._version_output())
             elif "/bin/bash" in args and fail_once:
                 fail_once = False
                 return SimpleNamespace(returncode=1)
+            elif "/bin/bash" in args:
+                self._write_fixture_package_database("debian")
             return SimpleNamespace(returncode=0)
         with patch.object(proot_fresh_setup.shutil, "which", return_value="/prefix/bin/proot-distro"), \
              patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False):
