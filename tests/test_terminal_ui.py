@@ -317,7 +317,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         completed = mock.Mock(returncode=0)
         with mock.patch.object(terminal_ui, "_choose", side_effect=["install", "debian"]), \
                 mock.patch.object(terminal_ui, "_prompt", return_value="lxqt,xfce"), \
-                mock.patch.dict(terminal_ui.os.environ, {"PREFIX": "/data/data/com.termux/files/usr"}), \
+                mock.patch.dict(terminal_ui.os.environ, {"PREFIX": "/data/data/com.termux/files/usr", "TERMUX_VERSION": "fixture"}), \
                 mock.patch.object(terminal_ui.Path, "is_file", return_value=True), \
                 mock.patch.object(terminal_ui.curses, "def_prog_mode"), \
                 mock.patch.object(terminal_ui.curses, "endwin"), \
@@ -336,7 +336,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         completed = mock.Mock(returncode=0)
         with mock.patch.object(terminal_ui, "_choose", side_effect=["install", "ubuntu"]), \
                 mock.patch.object(terminal_ui, "_prompt", return_value="xfce"), \
-                mock.patch.dict(terminal_ui.os.environ, {"PREFIX": "/data/data/com.termux/files/usr"}), \
+                mock.patch.dict(terminal_ui.os.environ, {"PREFIX": "/data/data/com.termux/files/usr", "TERMUX_VERSION": "fixture"}), \
                 mock.patch.object(terminal_ui.Path, "is_file", return_value=True), \
                 mock.patch.object(terminal_ui.curses, "def_prog_mode"), \
                 mock.patch.object(terminal_ui.curses, "endwin"), \
