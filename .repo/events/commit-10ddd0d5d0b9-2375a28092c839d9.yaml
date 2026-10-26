@@ -1,0 +1,7 @@
+event_id: commit-10ddd0d5d0b9-2375a28092c839d9
+repository: soobujmiah/ternuxx
+commit: 10ddd0d5d0b9200a743064bb2c8db72fa04ce71f
+kind: commit
+occurred_at: '2026-10-26T09:11:04Z'
+status: completed
+summary: 'fix(proot): bind desktop shortcuts to guest aliases'
