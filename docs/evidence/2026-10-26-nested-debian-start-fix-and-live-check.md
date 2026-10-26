@@ -27,3 +27,9 @@ Ctrl-C exited only the nested launcher with its expected status 130. Follow-up `
 A separate read-only check of the fresh Debian replay guest returned no `dpkg --audit` findings and `apt-get check` exited successfully; XFCE packages were installed and no package transaction was run. Shell syntax and the focused routing/management group passed (102 tests). The full `env -u LD_LIBRARY_PATH PYTHONDONTWRITEBYTECODE=1 bash scripts/repo_test.sh` suite passed against this source change: 1,223 tests in 201.012 seconds. Document inventory, README bridge, `repo_knowledge verify`, and `git diff --check` also passed. This check confirms nested XFCE session startup and an Adreno-backed Vulkan workload; it does not qualify nested GLX/GLES drawing, Android foreground presentation, or audible playback.
 
 ![Live Debian XFCE desktop on nested Xephyr :2](proot-nested-xfce-live.png)
+
+## Fresh standalone `:0` replay check
+
+After the owner approved a temporary Native desktop stop/restore for this exact test, the receipt-verified Debian replay alias `ternuxx-replay-cleanroom-20261026` was launched with XFCE on standalone `:0`. `xdpyinfo` reached the display and `xdotool` found visible X11 windows. `tx pgui graphics verify` reported an OpenGL ES 3.2 Zink/Turnip context on Adreno 825, a successful GLX draw of 736 frames on that renderer, and a successful Vulkan draw on Adreno 825. The Native PulseAudio endpoint at `tcp:127.0.0.1:4713` was reachable. This verifies the standalone graphics route; it does not verify audible playback or Android Activity foreground visibility.
+
+The managed `:0` session was stopped and Native XFCE was restored to `:1`. Final read-only status showed Native XFCE running, standalone `:0` stopped, nested `:2` absent, no managed PRoot sessions or host PRoot processes, and Native PulseAudio still running on `OpenSL_ES_sink`.
