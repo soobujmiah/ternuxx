@@ -21,7 +21,17 @@ class DistroNamedInstallCLITests(unittest.TestCase):
             capture_output=True, text=True, timeout=5,
         )
         self.assertEqual(result.returncode, 2)
-        self.assertIn("Choose a Debian guest account with --user NAME", result.stderr)
+        self.assertIn("Choose a Debian Trixie guest account with --user NAME", result.stderr)
+        self.assertNotIn("Unknown install option", result.stderr)
+
+    def test_ubuntu_install_route_requests_account_before_running_preview(self):
+        result = subprocess.run(
+            ["bash", str(CLI), "install", "ubuntu"],
+            env={**os.environ, "TERMUX_VERSION": "fixture"},
+            capture_output=True, text=True, timeout=5,
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("Choose a Ubuntu Noble guest account with --user NAME", result.stderr)
         self.assertNotIn("Unknown install option", result.stderr)
 
     def test_guided_install_applies_the_exact_plan_after_terminal_confirmation(self):
@@ -53,7 +63,7 @@ nt_cmd_install debian --user sobuj
             os.close(slave)
             output = bytearray()
             try:
-                while b"Install this exact Debian plan" not in output:
+                while b"Install this exact Debian Trixie plan" not in output:
                     ready, _, _ = select.select([master], [], [], 8)
                     self.assertTrue(ready, "guided install did not reach confirmation")
                     output.extend(os.read(master, 8192))
@@ -98,7 +108,7 @@ _nt_compute_plan_id() { printf '%s\n' "$PLAN_ID"; }
 _nt_reviewed_preview_matches() { test "$1" = "$PLAN_ID"; }
 _nt_install_capacity_preflight() { return 0; }
 _nt_apply_install_transaction() { printf 'apply\n' >> "$CALL_LOG"; }
-_nt_offer_managed_debian() { printf 'guest-offer\n' >> "$CALL_LOG"; }
+_nt_offer_managed_guest() { printf 'guest-offer\n' >> "$CALL_LOG"; }
 nt_cmd_install interactive
 '''
             master, slave = pty.openpty()

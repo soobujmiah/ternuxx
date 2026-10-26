@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "profile_id": "ternuxx-ubuntu-noble-workstation",
+  "provider": "proot-distro",
+  "distro": "ubuntu",
+  "release": "Ubuntu 24.04 LTS (Noble)",
+  "architecture": "aarch64",
+  "lifecycle_owner": "ternuxx",
+  "rootfs_policy": {
+    "existing": "adopt-in-place; never reinstall, reset, or replace",
+    "missing": "create only through an explicit preview-confirmed Ternuxx setup"
+  },
+  "guest": {
+    "user": "required-install-input",
+    "locale": "en_US.UTF-8",
+    "startup_files": "do-not-edit",
+    "audio_client": "receive authenticated Native PulseAudio settings from Ternuxx at launch"
+  },
+  "packages": {
+    "base": [
+      "ca-certificates",
+      "dbus-x11",
+      "libegl-mesa0",
+      "libgbm1",
+      "libgl1-mesa-dri",
+      "libglx-mesa0",
+      "libvulkan1",
+      "locales",
+      "mesa-utils",
+      "mesa-vulkan-drivers",
+      "pulseaudio-utils",
+      "sudo",
+      "vulkan-tools",
+      "x11-utils",
+      "xauth",
+      "xfce4",
+      "xfce4-terminal",
+      "xserver-xephyr"
+    ],
+    "desktop-compat": [
+      "colord",
+      "nano",
+      "polkitd"
+    ],
+    "development": [
+      "build-essential",
+      "cmake",
+      "git",
+      "jq",
+      "ninja-build",
+      "nodejs",
+      "npm",
+      "python3-venv",
+      "tmux"
+    ],
+    "desktop-apps": [
+      "ffmpeg",
+      "poppler-utils",
+      "unzip",
+      "zip"
+    ],
+    "fonts": [
+      "fonts-noto-color-emoji",
+      "fonts-noto-core",
+      "fonts-symbola"
+    ]
+  },
+  "graphics": {
+    "backend": "zink-turnip",
+    "open_gl_environment": {
+      "MESA_LOADER_DRIVER_OVERRIDE": "zink",
+      "GALLIUM_DRIVER": "zink",
+      "TU_DEBUG": "sysmem,noconform",
+      "MESA_VK_WSI_DEBUG": "sw",
+      "MESA_SHADER_CACHE_DISABLE": "true"
+    },
+    "turnip_archive": {
+      "url": "https://github.com/lfdevs/mesa-for-android-container/releases/download/mesa-26.3.0-devel-20260824/mesa-for-android-container_26.3.0-devel-20260824_debian_trixie_arm64.tar.gz",
+      "sha256": "c014cf66bdbff96417ee30d34f006cf51df64ae04893d599711b0b6b73b52ccf",
+      "upstream_commit": "98f3d6229d",
+      "driver_member": "usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so",
+      "driver_sha256": "7ece28e1132cf791b6c81d4060142ff1481a239349fa86d7556c0883184caa5d",
+      "icd_member": "usr/share/vulkan/icd.d/freedreno_icd.aarch64.json",
+      "icd_sha256": "c9682812b58deb347fdeaa0fb3e5975651e20d37d31c682b2e5a7ed76ce348ae"
+    },
+    "managed_install_paths": {
+      "driver": "/usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so",
+      "icd": "/usr/local/share/vulkan/icd.d/ternuxx_freedreno_icd.json"
+    },
+    "hold_packages": [
+      "libegl-mesa0",
+      "libgbm1",
+      "libgl1-mesa-dri",
+      "libglx-mesa0",
+      "mesa-vulkan-drivers"
+    ]
+  },
+  "native_handoff": {
+    "display": "explicit Ternuxx session display",
+    "pulse_server": "tcp:127.0.0.1:4713",
+    "pulse_authentication": "private Ternuxx-managed cookie; never store in this manifest",
+    "guest_abi": "glibc",
+    "native_bionic_libraries_allowed": false
+  },
+  "legacy_ternux_cli": {
+    "required_for_new_install": false,
+    "remove_from_existing_install_only_after": "Ternuxx setup and workload verification plus a preview-bound exact-file removal"
+  },
+  "fresh_install": {
+    "base_image": "ubuntu:noble-20260930.1",
+    "image_index_digest": "sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac",
+    "image_date": "2026-09-30",
+    "architecture": "aarch64",
+    "source": "official Docker Hub Ubuntu image; Canonical-generated Ubuntu Noble rootfs",
+    "package_versions": "resolved from the pinned Ubuntu archive snapshot and recorded after install",
+    "arch_manifest_digest": "sha256:18b33ff3829707f31ada654a963b9ee35f2e6f0241b964bd17a22a9b330cb63d",
+    "config_digest": "sha256:f3ff6f5009cb3b8de09d949f24109461606f626fae231a81f66ba3226c8302a6",
+    "config_size": 2069,
+    "layer_digest": "sha256:d5aec63251bb323f816a0f4b8a554bd84e478466a9ed1068daef07368328e9a3",
+    "layer_size": 28939761,
+    "image_created": "2026-10-02T08:10:26.157815299Z",
+    "apt_snapshot": {
+      "snapshot_id": "20261001T000000Z",
+      "main_archive": "https://snapshot.ubuntu.com/ubuntu/20261001T000000Z/",
+      "security_archive": "https://snapshot.ubuntu.com/ubuntu/20261001T000000Z/",
+      "suites": [
+        "noble",
+        "noble-updates",
+        "noble-security"
+      ],
+      "components": [
+        "main",
+        "universe"
+      ],
+      "keyring": "/usr/share/keyrings/ubuntu-archive-keyring.gpg",
+      "valid_until": "disabled for historical snapshots; signed InRelease metadata remains required",
+      "mirror": "snapshot.ubuntu.com"
+    }
+  },
+  "release_id": "ubuntu",
+  "codename": "noble",
+  "release_name": "Ubuntu 24.04 LTS (Noble)"
+}

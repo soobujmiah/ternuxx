@@ -24,7 +24,7 @@ python3 scripts/cli_entrypoint.py apply --yes --plan-id PLAN_ID
 tx help
 ```
 
-Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT` before using the installed shim. In the attached Native terminal, run `tx install interactive` to choose a workstation profile, see its package summary, and confirm installation in the same session. Ternuxx then offers the optional managed Debian guest. Later, `tx install debian` starts that guided guest setup directly and asks before applying the pinned target. Both normal flows keep the exact plan internal, so you do not need to copy an ID.
+Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT` before using the installed shim. In the attached Native terminal, run `tx install interactive` to choose a workstation profile, see its package summary, and confirm installation in the same session. Ternuxx then offers the optional managed Debian or Ubuntu guest. Later, `tx install debian` starts that guided guest setup directly and asks before applying the pinned target. Both normal flows keep the exact plan internal, so you do not need to copy an ID. `tx install ubuntu` starts the same guided flow for Ubuntu Noble.
 
 The guided Native installer refuses removals, upgrades, unapproved repositories, and a changed transaction. It installs the selected Native packages; the matching Termux:X11 Android app is installed separately. For exact package automation and detailed APT review, `tx install preview --verbose` followed by `tx install apply --yes --plan-id PLAN_ID` remains available. See the [installation guide](docs/INSTALLATION.md) for advanced profiles and custom components.
 
@@ -51,16 +51,17 @@ tx gui
 
 Each client exposes its supported operations through the shared management service. Review the [capability matrix](docs/architecture/CAPABILITY-MATRIX.md) for current client coverage and open checks.
 
-## Optional Debian guest
+## Optional managed guest
 
-Install a fresh, pinned Debian Trixie guest:
+Install a fresh, pinned Debian Trixie guest or the currently unqualified Ubuntu Noble profile:
 
 ```sh
 tx install debian
+# or: tx install ubuntu
 tx proot status
 ```
 
-In an attached Native terminal, run `tx install debian` and follow the prompts. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Other distro names will use the same `tx install <distro>` pattern as their managed profiles become supported. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. The TUI can launch this guided installer directly from its attached terminal. Web and GTK currently guide setup through the attached Native terminal.
+In an attached Native terminal, run `tx install debian` and follow the prompts. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Ubuntu Noble currently offers XFCE and still needs live device qualification; other distro profiles will appear through the same `tx install <distro>` command when ready. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. The TUI can launch this guided installer from its terminal; Web and GTK provide distro selectors and open the guided installer in Native terminal sessions.
 
 ## SSH and services
 

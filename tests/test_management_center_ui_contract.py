@@ -34,10 +34,10 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
                 self.assertIn(contract, SOURCE)
         self.assertIn("start-desktop", BRIDGE)
 
-    def test_gtk_managed_guest_desktop_picker_is_a_multi_select_checkbox_group(self):
+    def test_gtk_managed_guest_picker_selects_distro_and_desktops(self):
         for contract in ("proot_desktop_checks[7]", "gtk_check_button_new_with_label",
                          "gtk_check_button_get_active", "Desktop environments (select one or more)",
-                         '"install", "debian", "--desktops", desktops->str'):
+                         "gtk_drop_down_new_from_strings", "ubuntu", "--desktops"):
             with self.subTest(contract=contract):
                 self.assertIn(contract, SOURCE)
         self.assertNotIn("proot_desktop_entry", SOURCE)
@@ -183,10 +183,10 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
             self.assertIn(contract, BRIDGE)
 
     def test_gtk_proot_setup_launches_guided_installer_with_desktop_selection(self):
-        self.assertIn("Install managed Debian", SOURCE)
+        self.assertIn("Install managed proot distro", SOURCE)
         self.assertIn("proot_desktop_checks[7]", SOURCE)
         self.assertIn("gtk_check_button_get_active", SOURCE)
-        self.assertIn('"install", "debian", "--desktops", desktops->str', SOURCE)
+        self.assertIn('"install", (gchar *)distro, "--desktops", desktops->str', SOURCE)
         self.assertIn("Existing guests are preserved", SOURCE)
 
     def test_gtk_replay_guest_retirement_and_restore_use_inline_exact_plan_review(self):

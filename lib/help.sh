@@ -1,5 +1,5 @@
 # =============================================================================
-#  Ternuxx CLI help — Native Termux host with optional Debian PRoot guest
+#  Ternuxx CLI help — Native Termux host with managed PRoot guests
 # =============================================================================
 . "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 
@@ -7,7 +7,7 @@ _nt_help_raw() {
   local cmd="${1:-}"
   case "$cmd" in
     "") cat <<'EOF'
-Ternuxx — Native Termux host and optional Debian PRoot workstation management
+Ternuxx — Native Termux host and managed PRoot workstation management
 
 Usage: tx <command> [options]
 
@@ -44,9 +44,11 @@ EOF
       ;;
     proot|db|pgui|virgl)
       cat <<'EOF'
-Debian PRoot uses the Native Termux host. `tx install preview` includes the
-proot-distro runtime. The short install flow is `tx install debian --user NAME`;
-it previews the pinned guest, defaults to XFCE, then asks before applying that exact plan. Use the explicit `preview` command for review-only automation.
+Managed PRoot guests use the Native Termux host. The short flows are `tx install debian`
+and `tx install ubuntu`; each asks for the guest username, previews the pinned
+profile, defaults to XFCE, then asks before applying that exact plan. You do not
+need to copy a plan ID in the guided flow. Use explicit `preview`/`apply` only
+for review-only or automated setup.
 The lower-level equivalent is `tx proot setup fresh-preview --user NAME
 --desktops xfce,lxqt`; Debian desktop IDs are `xfce`, `lxqt`, `lxde`, `mate`,
 `plasma`, `gnome`, `cinnamon`; only selected desktops are installed (XFCE is the default).
@@ -121,20 +123,21 @@ or stop processes. GUI visibility is reported as unknown unless observed.
 EOF
       ;;
     install) cat <<'EOF'
-tx install debian [--user NAME] — Guided setup of the managed Debian guest
-tx install debian preview --user NAME — Advanced review-only form; no guest changes
+tx install debian [--user NAME] — Guided Debian Trixie guest setup
+tx install ubuntu [--user NAME] — Guided Ubuntu Noble guest setup
+tx install debian preview --user NAME — Review-only; no guest changes
+tx install ubuntu preview --user NAME — Review-only; no guest changes
 tx install interactive — Choose, preview, and confirm a Native workstation profile in one session
 tx install preview [--profile NAME] [--components GROUPS] — Review exact package transaction
 tx install update preview — Review Native Ternuxx core updates
 tx install apply [--profile NAME] --yes --plan-id ID — Apply the exact saved plan
-Profiles: minimal-native, full-native, graphical, developer, native-proot-provider, native-debian (advanced combined), custom.
+Profiles: minimal-native, full-native, graphical, developer, native-proot-provider, custom.
 The guided Native flow previews the transaction and asks before installing; after
-it, you can also set up the optional managed Debian guest. `tx install debian`
+it, you can also set up the optional managed Debian or Ubuntu guest. `tx install debian` or `tx install ubuntu`
 shows its pinned target and confirms the same plan in one terminal flow. Plan-ID
 commands are for explicit review and automation.
 Custom groups: desktop,audio,proot,graphics,developer,mate,plasma. All profiles use the same
 repository and dependency checks. The PRoot-provider profile installs the runtime only.
-The native-debian profile is an advanced combined automation path.
 If APT fails, some packages may have changed; create a fresh preview before retrying.
 EOF
       ;;

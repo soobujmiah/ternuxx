@@ -52,6 +52,16 @@ class ManagementServiceTests(unittest.TestCase):
         self.assertNotIn("temporary-secret", json.dumps(result))
         self.assertEqual(apply.call_args.kwargs["password"], "temporary-secret")
 
+    def test_fresh_guest_setup_service_routes_ubuntu_profile(self) -> None:
+        preview_data = {"status": "preview", "plan_id": "b" * 64,
+                        "operation": {"alias": "ubuntu", "guest_user": "sobuj"}}
+        with patch.object(management_service.proot_setup.proot_fresh_setup, "preview",
+                          return_value=preview_data) as preview:
+            result = management_service.dispatch(request("proot.setup.fresh.preview", {
+                "distro": "ubuntu", "user": "sobuj", "sudo_mode": "passwordless", "desktops": ["xfce"]}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(preview.call_args.kwargs["alias"], "ubuntu")
+
     def test_fresh_guest_apply_rejects_missing_or_wrong_plan_confirmation(self) -> None:
         for args in (
                 {"user": "sobuj", "sudo_mode": "password", "plan_id": "a" * 64, "confirmed": True},

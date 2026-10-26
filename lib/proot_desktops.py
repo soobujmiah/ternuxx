@@ -5,8 +5,8 @@ import re
 from pathlib import Path
 
 
-# Debian Trixie package and session mappings are allowlisted here. Display
-# commands are never accepted from caller input or passed through a shell.
+# Provider package/session mappings are allowlisted here. Display commands are
+# never accepted from caller input or passed through a shell.
 DEBIAN_DESKTOPS = {
     "xfce": {"name": "XFCE", "packages": ("xfce4", "xfce4-terminal"), "session": "startxfce4"},
     "lxqt": {"name": "LXQt", "packages": ("lxqt", "openbox"), "session": "startlxqt"},
@@ -17,6 +17,10 @@ DEBIAN_DESKTOPS = {
     "cinnamon": {"name": "Cinnamon", "packages": ("cinnamon-desktop-environment",), "session": "cinnamon-session"},
 }
 DEFAULT_DESKTOPS = ("xfce",)
+UBUNTU_DESKTOPS = {
+    "xfce": {"name": "XFCE", "packages": ("xfce4", "xfce4-terminal"), "session": "startxfce4"},
+}
+PROVIDERS = {"debian-trixie": DEBIAN_DESKTOPS, "ubuntu-noble": UBUNTU_DESKTOPS}
 DESKTOP_ROUTES = {
     "xfce": frozenset({"standalone", "nested"}),
     "lxqt": frozenset({"standalone", "nested"}),
@@ -35,7 +39,8 @@ class DesktopError(ValueError):
 
 
 def validate_selection(provider: str, selected: list[str] | tuple[str, ...] | None = None, *, route: str | None = None) -> tuple[str, ...]:
-    if provider != "debian-trixie":
+    desktops = PROVIDERS.get(provider)
+    if desktops is None:
         raise DesktopError("desktop selection is not implemented for this PRoot provider")
     if route not in {None, "standalone", "nested"}:
         raise DesktopError("desktop route must be standalone or nested")
@@ -44,17 +49,18 @@ def validate_selection(provider: str, selected: list[str] | tuple[str, ...] | No
     if (not isinstance(selected, (list, tuple)) or not selected
             or any(not isinstance(item, str) or item not in available for item in selected)
             or len(set(selected)) != len(selected)):
-        raise DesktopError("choose one or more route-verified Debian desktop IDs: " + ", ".join(available))
-    return tuple(item for item in DEBIAN_DESKTOPS if item in selected)
+        raise DesktopError("choose one or more route-verified desktop IDs: " + ", ".join(available))
+    return tuple(item for item in desktops if item in selected)
 
 
 def catalog(provider: str, *, route: str | None = None) -> tuple[str, ...]:
-    if provider != "debian-trixie":
+    desktops = PROVIDERS.get(provider)
+    if desktops is None:
         raise DesktopError("desktop catalog is not implemented for this PRoot provider")
     if route not in {None, "standalone", "nested"}:
         raise DesktopError("desktop route must be standalone or nested")
-    return tuple(item for item in DEBIAN_DESKTOPS
-                 if route is None or route in DESKTOP_ROUTES[item])
+    return tuple(item for item in desktops
+                 if route is None or route in DESKTOP_ROUTES.get(item, frozenset({"standalone", "nested"})))
 
 
 def packages_for(provider: str, selected: list[str] | tuple[str, ...] | None = None) -> list[str]:
@@ -63,11 +69,12 @@ def packages_for(provider: str, selected: list[str] | tuple[str, ...] | None = N
 
 
 def session_argv(provider: str, selected: str, *, route: str | None = None) -> tuple[str, ...]:
-    if provider != "debian-trixie" or selected not in catalog(provider, route=route):
+    desktops = PROVIDERS.get(provider, {})
+    if selected not in catalog(provider, route=route):
         raise DesktopError("unsupported PRoot desktop selection for this route")
-    if selected == "gnome":
+    if provider == "debian-trixie" and selected == "gnome":
         return ("gnome-session", "--session=gnome")
-    return (str(DEBIAN_DESKTOPS[selected]["session"]),)
+    return (str(desktops[selected]["session"]),)
 
 
 def session_command(provider: str, selected: str, *, route: str | None = None) -> str:
@@ -75,16 +82,17 @@ def session_command(provider: str, selected: str, *, route: str | None = None) -
     return session_argv(provider, selected, route=route)[0]
 
 
-def desktop_id(value: str) -> str:
+def desktop_id(value: str, provider: str = "debian-trixie") -> str:
     if not isinstance(value, str) or not re.fullmatch(r"[a-z][a-z0-9-]{0,31}", value):
         raise DesktopError("invalid desktop ID")
-    if value not in DEBIAN_DESKTOPS:
-        raise DesktopError("unsupported Debian desktop catalog ID")
+    if value not in PROVIDERS.get(provider, {}):
+        raise DesktopError("unsupported desktop catalog ID")
     return value
 
 
 def installed_desktops(rootfs: str | Path, provider: str = "debian-trixie") -> list[str]:
-    if provider != "debian-trixie":
+    desktops = PROVIDERS.get(provider)
+    if desktops is None:
         raise DesktopError("desktop inventory is not implemented for this PRoot provider")
     root = Path(rootfs)
     status = root / "var/lib/dpkg/status"
@@ -101,13 +109,14 @@ def installed_desktops(rootfs: str | Path, provider: str = "debian-trixie") -> l
                 fields[key] = value.strip()
         if fields.get("Status") == "install ok installed":
             installed.add(fields.get("Package", "").split(":", 1)[0])
-    return [desktop for desktop, spec in DEBIAN_DESKTOPS.items()
+    return [desktop for desktop, spec in desktops.items()
             if all(package in installed for package in spec["packages"])]
 
 
-def launchable_desktops(installed: list[str] | tuple[str, ...], *, route: str | None = None) -> list[str]:
+def launchable_desktops(installed: list[str] | tuple[str, ...], *, route: str | None = None,
+                        provider: str = "debian-trixie") -> list[str]:
     """Return only installed desktop entries with a live-accepted display route."""
     if route not in {None, "standalone", "nested"}:
         raise DesktopError("desktop route must be standalone or nested")
-    accepted = set(catalog("debian-trixie", route=route))
+    accepted = set(catalog(provider, route=route))
     return [item for item in installed if item in accepted and DESKTOP_ROUTES.get(item)]

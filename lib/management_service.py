@@ -108,8 +108,8 @@ OPERATIONS = {
     "desktop.stop": {"args": set()},
     "desktop.restart": {"args": {"display", "desktop_id"}},
     "proot.status": {"args": set()},
-    "proot.setup.fresh.preview": {"args": {"user", "sudo_mode", "desktops"}},
-    "proot.setup.fresh.apply": {"args": {"user", "sudo_mode", "plan_id", "confirmed", "password"}},
+    "proot.setup.fresh.preview": {"args": {"user", "sudo_mode", "desktops", "distro"}},
+    "proot.setup.fresh.apply": {"args": {"user", "sudo_mode", "plan_id", "confirmed", "password", "distro"}},
     "proot.profiles.list": {"args": set()},
     "proot.profiles.show": {"args": {"profile"}},
     "proot.sessions.list": {"args": set()},
@@ -342,16 +342,18 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             or not 30 <= args["timeout_seconds"] <= 1800):
         return _error(request_id, "confirmation_required", "PRoot start requires a profile, exact preview plan, confirmation, and bounded timeout")
     if operation == "proot.setup.fresh.preview" and (
-            set(args) != {"user", "sudo_mode", "desktops"}
+            set(args) not in ({"user", "sudo_mode", "desktops"}, {"user", "sudo_mode", "desktops", "distro"})
+            or args.get("distro", "debian") not in {"debian", "ubuntu"}
             or not isinstance(args.get("user"), str)
             or args.get("sudo_mode") not in {"password", "passwordless"}
             or not isinstance(args.get("desktops"), list)
             or len(args.get("desktops", [])) > 8
             or any(not isinstance(item, str) for item in args.get("desktops", []))):
-        return _error(request_id, "invalid_arguments", "fresh Debian preview requires a username, sudo mode, and selected desktop IDs")
+        return _error(request_id, "invalid_arguments", "fresh guest preview requires a supported distro, username, sudo mode, and desktop IDs")
     if operation == "proot.setup.fresh.apply":
         required = {"user", "sudo_mode", "plan_id", "confirmed"}
-        if (set(args) not in (required, required | {"password"})
+        if (set(args) not in (required, required | {"password"}, required | {"distro"}, required | {"password", "distro"})
+                or args.get("distro", "debian") not in {"debian", "ubuntu"}
                 or not isinstance(args.get("user"), str)
                 or args.get("sudo_mode") not in {"password", "passwordless"}
                 or not isinstance(args.get("plan_id"), str)
@@ -361,7 +363,7 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 or (args.get("sudo_mode") == "passwordless" and "password" in args)
                 or ("password" in args and (len(args["password"]) < 4 or len(args["password"]) > 1024
                     or any(ch in args["password"] for ch in "\x00\r\n")))):
-            return _error(request_id, "confirmation_required", "fresh Debian apply requires the exact preview, selected options, confirmation, and valid guest credentials")
+            return _error(request_id, "confirmation_required", "fresh guest apply requires the exact preview, selected options, confirmation, and valid guest credentials")
     if operation == "proot.stop.preview" and (
             set(args) != {"session_id"} or not isinstance(args.get("session_id"), str)):
         return _error(request_id, "invalid_arguments", "a Ternuxx session ID is required")
@@ -583,17 +585,23 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             data = graphics_manager.verify(provider, api, home=home, state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"), process_env=process_env, prefix=process_env["PREFIX"], repo_root=repo_root)
         elif operation == "proot.setup.fresh.preview":
+            distro = args.get("distro", "debian")
+            if distro not in {"debian", "ubuntu"}:
+                return _error(request_id, "unsupported_profile", "choose a supported Ternuxx guest profile")
             repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             data = proot_setup.proot_fresh_setup.preview(
                 repo_root=repo_root, prefix=process_env["PREFIX"], home=home,
                 state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
-                user=args["user"], sudo_mode=args["sudo_mode"], desktops=args["desktops"])
+                user=args["user"], alias=distro, sudo_mode=args["sudo_mode"], desktops=args["desktops"])
         elif operation == "proot.setup.fresh.apply":
+            distro = args.get("distro", "debian")
+            if distro not in {"debian", "ubuntu"}:
+                return _error(request_id, "unsupported_profile", "choose a supported Ternuxx guest profile")
             repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             data = proot_setup.proot_fresh_setup.apply(
                 repo_root=repo_root, prefix=process_env["PREFIX"], home=home,
                 state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
-                user=args["user"], alias="debian", plan_id=args["plan_id"],
+                user=args["user"], alias=distro, plan_id=args["plan_id"],
                 confirmed=args["confirmed"], password=args.get("password"),
                 sudo_mode=args["sudo_mode"])
         elif operation == "proot.status":

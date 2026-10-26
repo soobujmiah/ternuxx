@@ -290,7 +290,7 @@ class LaunchCommandTests(unittest.TestCase):
     def test_distro_named_debian_install_requests_account_before_guest_preview(self):
         result = self.cli("install", "debian", "preview")
         self.assertEqual(result.returncode, 2)
-        self.assertIn("Choose a Debian guest account with --user NAME", result.stderr)
+        self.assertIn("Choose a Debian Trixie guest account with --user NAME", result.stderr)
         self.assertNotIn("Unknown install option", result.stderr)
 
 

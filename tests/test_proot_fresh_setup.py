@@ -16,6 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "lib"))
 import proot_fresh_setup
 import proot_desktops
+import proot_profiles
 
 
 class FreshProotSetupTests(unittest.TestCase):
@@ -34,6 +35,8 @@ class FreshProotSetupTests(unittest.TestCase):
         (self.repo / "config/proot").mkdir(parents=True)
         shutil.copyfile(ROOT / "config/proot/debian-trixie.json",
                         self.repo / "config/proot/debian-trixie.json")
+        shutil.copyfile(ROOT / "config/proot/ubuntu-noble.json",
+                        self.repo / "config/proot/ubuntu-noble.json")
         self.state = self.home / ".local/share/ternuxx"
         self.state.mkdir(parents=True, mode=0o700)
 
@@ -78,23 +81,58 @@ class FreshProotSetupTests(unittest.TestCase):
                 alias = args[args.index("--name") + 1]
                 root = self.containers / alias / "rootfs"
                 (root / "etc").mkdir(parents=True)
-                (root / "etc/os-release").write_text("ID=debian\nVERSION_CODENAME=trixie\n")
-                spec = json.loads((self.repo / "config/proot/debian-trixie.json").read_text())["fresh_install"]
+                provider = proot_profiles.profile_for_alias(alias)
+                manifest_path = self.repo / "config/proot" / proot_profiles.PROFILE_FILES[provider]
+                manifest = json.loads(manifest_path.read_text())
+                (root / "etc/os-release").write_text(
+                    f"ID={manifest['release_id']}\nVERSION_CODENAME={manifest['codename']}\n")
+                spec = manifest["fresh_install"]
                 (root.parent / "manifest.json").write_text(json.dumps({
                     "image_ref": proot_fresh_setup._pinned_image_reference(spec), "arch": "aarch64",
                     "manifest": {"config": {"digest": spec["config_digest"], "size": spec["config_size"]},
                                  "layers": [{"digest": spec["layer_digest"], "size": spec["layer_size"]}]},
                     "image_config": {"architecture": "arm64", "created": spec["image_created"]}}))
             if "/usr/bin/dpkg-query" in args:
-                return SimpleNamespace(returncode=0, stdout=self._version_output())
+                alias = args[args.index("--user") + 2]
+                return SimpleNamespace(returncode=0, stdout=self._version_output(alias))
             return SimpleNamespace(returncode=0)
         return run
 
-    def _version_output(self):
-        manifest = json.loads((self.repo / "config/proot/debian-trixie.json").read_text())
+    def _version_output(self, alias="debian"):
+        provider = proot_profiles.profile_for_alias(alias)
+        manifest = json.loads((self.repo / "config/proot" / proot_profiles.PROFILE_FILES[provider]).read_text())
         packages = proot_fresh_setup._packages(manifest)
-        packages.extend(proot_desktops.packages_for("debian-trixie"))
+        packages.extend(proot_desktops.packages_for(provider))
         return "".join("ii \t" + p + "=1.0\n" for p in packages)
+
+    def test_ubuntu_noble_preview_binds_its_image_snapshot_and_xfce_route(self):
+        with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False):
+            result = proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="sobuj", alias="ubuntu")
+        plan = result["operation"]
+        self.assertEqual(plan["profile_id"], "ubuntu-noble")
+        self.assertEqual(plan["distro"], "ubuntu")
+        self.assertEqual(plan["release"], "Ubuntu 24.04 LTS (Noble)")
+        self.assertEqual(plan["desktop_environments"], ["xfce"])
+        self.assertEqual(plan["image"], "ubuntu:noble-20260930.1@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac")
+        self.assertIn("xserver-xephyr", plan["packages"])
+        self.assertIn("mesa-vulkan-drivers", plan["packages"])
+        self.assertEqual(plan["apt_snapshot"]["snapshot_id"], "20261001T000000Z")
+
+    def test_ubuntu_noble_apply_uses_its_pinned_root_and_records_profile(self):
+        with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False), \
+             patch.object(proot_fresh_setup.shutil, "which", return_value="/prefix/bin/proot-distro"):
+            plan = proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="sobuj", alias="ubuntu",
+                sudo_mode="passwordless")
+            result = proot_fresh_setup.apply(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="sobuj", alias="ubuntu",
+                plan_id=plan["plan_id"], confirmed=True, sudo_mode="passwordless",
+                runner=self._fixture_runner([]))
+        self.assertEqual(result["status"], "installed")
+        self.assertEqual(result["record"]["profile_id"], "ubuntu-noble")
+        self.assertEqual(result["record"]["distro"], "ubuntu")
+        self.assertEqual(result["record"]["release"], "Ubuntu 24.04 LTS (Noble)")
 
     def test_fresh_apply_requires_password_for_the_selected_guest_account(self):
         with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False):
@@ -171,7 +209,7 @@ class FreshProotSetupTests(unittest.TestCase):
         self.assertEqual(result["record"]["guest_user"], "workuser")
         self.assertEqual(marker.read_text(), "preserve")
         self.assertFalse((self.state / "proot-setup/fresh-provider.json").exists())
-        for bad in ("ubuntu", "../debian", "ternuxx-replay-", "ternuxx-replay-../debian", "debian/other"):
+        for bad in ("../debian", "ternuxx-replay-", "ternuxx-replay-../debian", "debian/other"):
             with self.subTest(alias=bad), self.assertRaises(proot_fresh_setup.FreshSetupError):
                 proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
                     home=str(self.home), state_dir=str(self.state), user="sbj", alias=bad)
@@ -311,7 +349,8 @@ class FreshProotSetupTests(unittest.TestCase):
                     "image_config": {"architecture": "arm64", "created": "2026-10-05T00:00:00Z"}}))
                 return SimpleNamespace(returncode=0)
             if "/usr/bin/dpkg-query" in args:
-                return SimpleNamespace(returncode=0, stdout=self._version_output())
+                alias = args[args.index("--user") + 2]
+                return SimpleNamespace(returncode=0, stdout=self._version_output(alias))
             return SimpleNamespace(returncode=0)
         with patch.object(proot_fresh_setup.shutil, "which", return_value="/prefix/bin/proot-distro"), \
              patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False):

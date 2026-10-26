@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 
 import proot_desktops
+import proot_profiles
 import re
 import shlex
 import shutil
@@ -28,9 +29,40 @@ class FreshSetupError(ValueError):
 
 
 def _alias(value: str) -> str:
-    if value != ALIAS and not re.fullmatch(r"ternuxx-replay-[a-z0-9][a-z0-9-]{0,31}", value):
-        raise FreshSetupError("fresh alias must be debian or an explicit ternuxx-replay-NAME")
+    if value not in {"debian", "ubuntu"} and not re.fullmatch(r"ternuxx-replay-[a-z0-9][a-z0-9-]{0,31}", value):
+        raise FreshSetupError("fresh alias must be debian, ubuntu, or an explicit ternuxx-replay-NAME")
     return value
+
+
+def _profile(repo_root: str | Path, alias: str, profile_id: str | None = None) -> tuple[dict, bytes, str]:
+    try:
+        selected = profile_id or proot_profiles.profile_for_alias(alias)
+        manifest, digest, raw = proot_profiles.load(repo_root, selected)
+    except proot_profiles.ProfileError as exc:
+        raise FreshSetupError(str(exc)) from exc
+    expected_alias = proot_profiles.PROFILE_ALIASES.get(alias)
+    if expected_alias is not None and expected_alias != selected:
+        raise FreshSetupError("canonical guest alias does not match the selected Ternuxx profile")
+    if not (alias == "debian" and selected == "debian-trixie") and not (
+            alias == "ubuntu" and selected == "ubuntu-noble") and not alias.startswith("ternuxx-replay-"):
+        raise FreshSetupError("Ternuxx replay alias is not valid for this profile")
+    if alias.startswith("ternuxx-replay-ubuntu-noble-") and selected != "ubuntu-noble":
+        raise FreshSetupError("Ubuntu replay alias must use the Ubuntu Noble profile")
+    if alias.startswith("ternuxx-replay-debian-trixie-") and selected != "debian-trixie":
+        raise FreshSetupError("Debian replay alias must use the Debian Trixie profile")
+    if (manifest.get("provider") != "proot-distro" or manifest.get("distro") not in {"debian", "ubuntu"}
+            or not isinstance(manifest.get("release_id"), str)
+            or not isinstance(manifest.get("codename"), str)):
+        raise FreshSetupError("Ternuxx distro profile metadata is unsupported")
+    return manifest, raw, selected
+
+
+def _operation_names(profile_id: str) -> tuple[str, str]:
+    if profile_id == "debian-trixie":
+        return "fresh-debian-trixie", "resume-fresh-debian-trixie"
+    if profile_id == "ubuntu-noble":
+        return "fresh-ubuntu-noble", "resume-fresh-ubuntu-noble"
+    raise FreshSetupError("Ternuxx fresh setup profile is unsupported")
 
 
 def _directory(path: Path, *, private: bool = False) -> os.stat_result:
@@ -246,12 +278,14 @@ def _packages(manifest: dict, selected: list[str] | None = None) -> list[str]:
 
 
 def _assert_resume_compatible(previous: dict, current: dict) -> None:
-    keys = ("schema_version", "alias", "guest_user", "sudo_mode", "desktop_environments", "image", "image_pin",
-            "arch_manifest_digest", "config_digest", "layer_digest", "rootfs_target",
-            "package_groups", "packages",
-            "existing_debian_rootfs_changed")
-    if previous.get("schema_version") != 2 or previous.get("operation") not in {
-            "fresh-debian-trixie", "resume-fresh-debian-trixie"}:
+    keys = ("schema_version", "alias", "profile_id", "distro", "release", "guest_user", "sudo_mode",
+            "desktop_environments", "image", "image_pin", "arch_manifest_digest", "config_digest",
+            "layer_digest", "rootfs_target", "package_groups", "packages", "existing_debian_rootfs_changed")
+    try:
+        fresh_operation, resume_operation = _operation_names(str(previous.get("profile_id")))
+    except FreshSetupError as exc:
+        raise FreshSetupError("previous setup plan is not a supported Ternuxx profile") from exc
+    if previous.get("schema_version") != 2 or previous.get("operation") not in {fresh_operation, resume_operation}:
         raise FreshSetupError("previous setup plan is not a Ternuxx fresh-install plan")
     if any(previous.get(key) != current.get(key) for key in keys):
         raise FreshSetupError("current setup profile changes packages or pinned image; failed install cannot resume")
@@ -259,7 +293,7 @@ def _assert_resume_compatible(previous: dict, current: dict) -> None:
     snapshot_keys = ("snapshot_id", "suites", "components", "valid_until")
     if (not isinstance(old_snapshot, dict) or not isinstance(new_snapshot, dict)
             or any(old_snapshot.get(key) != new_snapshot.get(key) for key in snapshot_keys)):
-        raise FreshSetupError("failed install uses a different Debian snapshot; refusing resume")
+        raise FreshSetupError("failed install uses a different distro snapshot; refusing resume")
     old_graphics, new_graphics = previous.get("graphics"), current.get("graphics")
     graphics_keys = ("kgsl_accessible_at_preview", "turnip_archive_sha256",
                      "turnip_install_planned", "rendering_verified")
@@ -279,18 +313,15 @@ def _assert_rootfs_idle_for_resume(state: Path, rootfs: Path) -> None:
 def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str,
             alias: str = ALIAS, resume_plan_id: str | None = None,
             groups: list[str] | None = None, sudo_mode: str = "password",
-            desktops: list[str] | None = None) -> dict:
+            desktops: list[str] | None = None, profile_id: str | None = None) -> dict:
     if not re.fullmatch(r"[a-z_][a-z0-9_-]{0,31}", user) or user == "root":
-        raise FreshSetupError("provide an ordinary Debian guest username")
+        raise FreshSetupError("provide an ordinary guest username")
     if sudo_mode not in {"password", "passwordless"}:
         raise FreshSetupError("select password or passwordless guest sudo mode")
-    repo = Path(repo_root)
-    manifest_path = repo / "config/proot/debian-trixie.json"
-    raw = manifest_path.read_bytes()
-    manifest = json.loads(raw)
-    if manifest.get("schema_version") != 1 or manifest.get("provider") != "proot-distro":
-        raise FreshSetupError("Debian setup profile schema is unsupported")
     alias = _alias(alias)
+    manifest, raw, profile_id = _profile(repo_root, alias, profile_id)
+    operation_name, resume_operation = _operation_names(profile_id)
+    provider = profile_id
     container, rootfs = _target_paths(prefix, alias)
     containers = container.parent
     state = _state_root(home, state_dir, create=True)
@@ -302,10 +333,10 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
             desktops = inherited.get("desktop_environments")
     chosen_groups = _selected_groups(groups)
     try:
-        chosen_desktops = proot_desktops.validate_selection("debian-trixie", desktops)
+        chosen_desktops = proot_desktops.validate_selection(provider, desktops)
     except proot_desktops.DesktopError as exc:
         raise FreshSetupError(str(exc)) from exc
-    packages = _workstation_packages(manifest, chosen_groups, chosen_desktops)
+    packages = _workstation_packages(manifest, chosen_groups, chosen_desktops, provider)
     ca_path, ca_sha256 = _native_ca_bundle(prefix)
     guest_ca_path = "/tmp/ternuxx-native-ca.pem"
     kgsl = _kgsl_accessible()
@@ -314,7 +345,8 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
             if name not in packages:
                 packages.append(name)
     plan = {
-        "schema_version": 2, "operation": "fresh-debian-trixie", "alias": alias,
+        "schema_version": 2, "operation": operation_name, "alias": alias,
+        "profile_id": profile_id, "distro": manifest["distro"], "release": manifest.get("release_name", manifest["release"]),
         "image": _pinned_image_reference(manifest["fresh_install"]), "image_pin": manifest["fresh_install"]["image_index_digest"],
         "arch_manifest_digest": manifest["fresh_install"]["arch_manifest_digest"],
         "config_digest": manifest["fresh_install"]["config_digest"],
@@ -329,7 +361,7 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
         "https_bootstrap": {"source": str(ca_path), "sha256": ca_sha256,
                             "guest_temporary_path": guest_ca_path,
                             "release_signature_required": True},
-        "package_versions": "pinned by the dated Debian snapshot archive",
+        "package_versions": "pinned by the dated distro archive snapshot",
         "existing_debian_rootfs_changed": False,
         "graphics": {
             "kgsl_accessible_at_preview": kgsl,
@@ -357,7 +389,7 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
             raise FreshSetupError("resume target or guest account differs from the failed setup")
         _assert_resume_compatible(previous, plan)
         _assert_rootfs_idle_for_resume(state, rootfs)
-        plan["operation"] = "resume-fresh-debian-trixie"
+        plan["operation"] = resume_operation
         plan["resume_from_plan_id"] = resume_plan_id
         plan["rootfs_identity"] = rootfs_identity
     elif resume_plan_id is not None:
@@ -526,7 +558,7 @@ def _pinned_image_reference(spec: dict) -> str:
     digest = spec.get("image_index_digest")
     if (not isinstance(image, str) or not re.fullmatch(r"[a-z0-9][a-z0-9./:_-]{0,255}", image)
             or not isinstance(digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", digest)):
-        raise FreshSetupError("Debian image reference or index digest is invalid")
+        raise FreshSetupError("distro image reference or index digest is invalid")
     return f"{image}@{digest}"
 
 
@@ -554,7 +586,7 @@ def _verify_base_image(prefix: str, manifest: dict, alias: str = ALIAS) -> None:
             or not isinstance(layers, list) or len(layers) != 1
             or layers[0].get("digest") != spec["layer_digest"]
             or layers[0].get("size") != spec["layer_size"]):
-        raise FreshSetupError("installed Debian base image does not match the pinned arm64 image content")
+        raise FreshSetupError("installed base image does not match the pinned arm64 image content")
 
 
 def _kgsl_accessible() -> bool:
@@ -576,13 +608,12 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         raise FreshSetupError("fresh Debian install requires explicit confirmation")
     if not re.fullmatch(r"[0-9a-f]{64}", plan_id):
         raise FreshSetupError("valid fresh setup preview ID required")
-    manifest_path = Path(repo_root) / "config/proot/debian-trixie.json"
-    raw = manifest_path.read_bytes()
-    manifest = json.loads(raw)
+    saved_plan_path = Path(home) / ".local/share/ternuxx/proot-setup/previews" / f"fresh-{plan_id}.json"
     state = _state_root(home, state_dir, create=False)
     previews = state / "previews"
-    plan_path = previews / f"fresh-{plan_id}.json"
-    plan = _read_private(plan_path)
+    plan = _read_private(previews / f"fresh-{plan_id}.json")
+    plan_profile = plan.get("profile_id")
+    manifest, raw, _selected_profile = _profile(repo_root, str(plan.get("alias", "")), plan_profile)
     planned_user = plan.get("guest_user")
     planned_alias = plan.get("alias")
     user = planned_user if user is None else user
@@ -592,7 +623,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         raise FreshSetupError("guest sudo mode differs from the reviewed plan")
     if sudo_mode == "password":
         if password is None:
-            raise FreshSetupError("fresh Debian setup requires a sudo password for the selected guest user")
+            raise FreshSetupError("fresh guest setup requires a sudo password for the selected account")
         _validate_guest_password(password)
     elif password is not None:
         raise FreshSetupError("do not provide a password with passwordless guest sudo mode")
@@ -601,8 +632,8 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
     alias = _alias(alias)
     identity = {key: value for key, value in plan.items() if key != "plan_id"}
     recalculated = hashlib.sha256(json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-    if (plan.get("schema_version") != 2 or plan.get("operation") not in {
-                "fresh-debian-trixie", "resume-fresh-debian-trixie"}
+    fresh_operation, resume_operation = _operation_names(plan_profile)
+    if (plan.get("schema_version") != 2 or plan.get("operation") not in {fresh_operation, resume_operation}
             or plan.get("plan_id") != plan_id or recalculated != plan_id
             or plan.get("guest_user") != user or plan.get("alias") != alias
             or plan.get("manifest_sha256") != hashlib.sha256(raw).hexdigest()
@@ -614,7 +645,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                                         "guest_temporary_path": guest_ca_path,
                                         "release_signature_required": True}:
         raise FreshSetupError("Native Termux CA bundle or HTTPS trust policy changed since setup preview")
-    if plan.get("operation") == "resume-fresh-debian-trixie":
+    if plan.get("operation") == resume_operation:
         previous_id = plan.get("resume_from_plan_id")
         if not isinstance(previous_id, str) or not re.fullmatch(r"[0-9a-f]{64}", previous_id):
             raise FreshSetupError("resume preview lacks its previous failed plan identity")
@@ -644,7 +675,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
     try:
         container, rootfs = _target_paths(prefix, alias)
         if container.exists():
-            if plan.get("operation") == "resume-fresh-debian-trixie":
+            if plan.get("operation") == resume_operation:
                 previous_id = plan["resume_from_plan_id"]
                 previous_journal = _read_private(state / f"fresh-{previous_id}.journal.json")
                 previous_plan = _read_private(previews / f"fresh-{previous_id}.json")
@@ -669,7 +700,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                     raise FreshSetupError("fresh destination is not a failed verified install from this exact preview")
                 owned = prior["rootfs_identity"]
                 _verify_owned_target(prefix, alias, owned)
-        elif plan.get("operation") == "resume-fresh-debian-trixie":
+        elif plan.get("operation") == resume_operation:
             raise FreshSetupError("failed replay target disappeared after resume preview")
         turnip_files = None
         if plan["graphics"]["turnip_install_planned"]:
@@ -681,7 +712,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
             result = runner([manager, "install", "--name", alias, "--architecture", manifest["fresh_install"]["architecture"], _pinned_image_reference(manifest["fresh_install"])],
                             check=False, timeout=1800)
             if result.returncode:
-                raise FreshSetupError("proot-distro failed to create the new Debian alias")
+                raise FreshSetupError("proot-distro failed to create the new guest alias")
         # Validate the exact OCI content that proot-distro installed before
         # changing APT sources, installing packages, or creating guest users.
         _verify_base_image(prefix, manifest, alias)
@@ -702,10 +733,12 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         if copied_ca.returncode:
             raise FreshSetupError("verified Native Termux CA bundle could not be staged in the new guest")
         snapshot = manifest["fresh_install"]["apt_snapshot"]
-        sources = (
-            "Types: deb\nURIs: " + snapshot["main_archive"] + "\nSuites: trixie trixie-updates\nComponents: main\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg\nCheck-Valid-Until: no\n\n"
-            "Types: deb\nURIs: " + snapshot["security_archive"] + "\nSuites: trixie-security\nComponents: main\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg\nCheck-Valid-Until: no\n"
-        )
+        suites = " ".join(snapshot["suites"])
+        components = " ".join(snapshot["components"])
+        keyring = snapshot.get("keyring", "/usr/share/keyrings/debian-archive-keyring.gpg")
+        sources = ("Types: deb\nURIs: " + snapshot["main_archive"] + "\nSuites: " + suites
+                   + "\nComponents: " + components + "\nSigned-By: " + keyring
+                   + "\nCheck-Valid-Until: no\n")
         configure_sources = "rm -f /etc/apt/sources.list && find /etc/apt/sources.list.d -maxdepth 1 -type f \\( -name '*.sources' -o -name '*.list' \\) -delete && printf %s " + shlex.quote(sources) + " > /etc/apt/sources.list.d/ternuxx-snapshot.sources"
         script = "\n".join([
             "set -eu", f"trap 'rm -f {guest_ca_quoted}' EXIT", "export DEBIAN_FRONTEND=noninteractive", configure_sources,
@@ -715,8 +748,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
             "printf '%s\\n' 'en_US.UTF-8 UTF-8' > /etc/locale.gen", "locale-gen",
             "if ! getent passwd " + guest_user + " >/dev/null; then useradd --create-home --shell /bin/bash " + guest_user + "; fi",
             f"usermod -aG sudo {guest_user}", "update-locale LANG=en_US.UTF-8",
-            # PRoot's login helper does not reliably populate Debian supplementary
-            # groups, so grant sudo to this validated account explicitly.
+            # PRoot login may not populate supplementary groups; validate sudoers explicitly.
             "printf '%s\\n' " + shlex.quote(user + (" ALL=(ALL:ALL) NOPASSWD: ALL" if sudo_mode == "passwordless" else " ALL=(ALL:ALL) ALL")) + " > /etc/sudoers.d/ternuxx-guest-user",
             "chmod 0440 /etc/sudoers.d/ternuxx-guest-user",
             "visudo -cf /etc/sudoers.d/ternuxx-guest-user",
@@ -727,7 +759,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         result = runner([manager, "login", "--isolated", "--user", "root", alias,
                          "--", "/bin/bash", "-lc", script], check=False, timeout=3600)
         if result.returncode:
-            raise FreshSetupError("Debian package setup failed; new alias retained for inspection")
+            raise FreshSetupError("guest package setup failed; new alias retained for inspection")
         if sudo_mode == "password":
             # Secret is sent only over stdin; never place it in argv, script, logs, plans, or receipts.
             result = runner([manager, "login", "--isolated", "--user", "root", alias,
@@ -735,11 +767,15 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                             text=True, capture_output=True, check=False, timeout=120)
             if result.returncode:
                 raise FreshSetupError("Debian guest password could not be configured")
-        release = (rootfs / "etc/os-release").read_text(encoding="utf-8")
+        release_path = rootfs / "etc/os-release"
+        release_info = release_path.lstat()
+        if not stat.S_ISREG(release_info.st_mode) or stat.S_ISLNK(release_info.st_mode) or release_info.st_size > 65536:
+            raise FreshSetupError("new guest release identity is unsafe")
+        release = release_path.read_text(encoding="utf-8")
         release_values = dict(line.split("=", 1) for line in release.splitlines() if "=" in line)
-        if (release_values.get("ID", "").strip('"') != "debian"
-                or release_values.get("VERSION_CODENAME", "").strip('"') != "trixie"):
-            raise FreshSetupError("new guest release did not match Debian Trixie")
+        if (release_values.get("ID", "").strip('"') != manifest["release_id"]
+                or release_values.get("VERSION_CODENAME", "").strip('"') != manifest["codename"]):
+            raise FreshSetupError("new guest release did not match the selected Ternuxx profile")
         if turnip_files:
             _verify_owned_target(prefix, alias, owned)
             _guest_turnip_install(package_set, turnip_files[0], turnip_files[1], manager, alias, runner, manifest)
@@ -773,16 +809,18 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         record = {
             "schema_version": 1, "plan_id": plan_id, "alias": alias, "guest_user": user,
             "sudo_mode": sudo_mode, "desktop_environments": plan["desktop_environments"],
-            "manifest_sha256": plan["manifest_sha256"], "release": "Debian Trixie",
+            "manifest_sha256": plan["manifest_sha256"], "profile_id": plan["profile_id"],
+            "distro": plan["distro"], "release": plan["release"],
             "package_versions_sha256": hashlib.sha256(out.encode() if isinstance(out, str) else b"").hexdigest(),
             "package_versions_recorded": True, "requested_packages_verified_installed": True,
             "package_versions_file": str(version_path),
-            "existing_debian_rootfs_changed": False,
+            "existing_debian_rootfs_changed": plan["existing_debian_rootfs_changed"],
             "turnip_installed": bool(turnip_files), "turnip_runtime_verified": False,
             "origin": "fresh-preview-confirmed-install",
         }
         record["rootfs_identity"] = owned
-        _private_write(state / ("fresh-provider.json" if alias == ALIAS else f"fresh-provider-{alias}.json"), record)
+        receipt_path = "fresh-provider.json" if alias == "debian" else f"fresh-provider-{alias}.json"
+        _private_write(state / receipt_path, record)
         _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "complete", "rootfs_identity": owned})
         return {"status": "installed", "record": record}
     except (OSError, subprocess.TimeoutExpired, FreshSetupError) as exc:

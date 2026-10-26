@@ -23,16 +23,22 @@ def summarize(result: object) -> list[str]:
     version = release.get("VERSION_ID", "unknown")
     codename = release.get("VERSION_CODENAME", "unknown")
     user = details.get("guest_user", "unknown")
-    rootfs = details.get("rootfs", "existing Debian rootfs")
+    distro = details.get("distro", "debian")
+    release_name = details.get("release")
+    if not isinstance(distro, str) or not re.fullmatch(r"[a-z][a-z0-9-]{0,31}", distro):
+        raise ValueError("guest distro name is invalid")
+    if not isinstance(release_name, str):
+        release_name = f"{distro.title()} {version} ({codename})"
+    rootfs = details.get("rootfs", details.get("rootfs_target", "existing " + distro.title() + " rootfs"))
     if not all(isinstance(value, str) and len(value) <= 1024
                and all(ord(char) >= 32 and ord(char) != 127 for char in value)
-               for value in (version, codename, user, rootfs)):
+               for value in (version, codename, user, rootfs, release_name)):
         raise ValueError("setup result contains invalid presentation values")
     if not re.fullmatch(r"[a-z_][a-z0-9_-]{0,31}", user):
         raise ValueError("guest account name is invalid")
     lines = [
-        "Existing Debian guest profile " + ("preview" if status == "preview" else "recorded"),
-        f"Guest: Debian {version} ({codename}) · {user}",
+        "Managed guest profile " + ("preview" if status == "preview" else "recorded"),
+        f"Guest: {release_name} · {user}",
         f"Target: {rootfs}",
     ]
     graphics = operation.get("observed_graphics_files", {})
@@ -113,7 +119,7 @@ def summarize(result: object) -> list[str]:
         else:
             if operation.get("refresh_existing_record"):
                 lines.append("Native adoption record: refresh; exact prior bytes will be backed up")
-            lines.append(f"Apply after review: tx install debian apply {plan_id} --yes")
+            lines.append(f"Apply after review: tx install {distro} apply --yes --plan-id {plan_id}")
     backup_id = record.get("rollback_backup_id")
     if status == "adopted" and backup_id is not None:
         if not isinstance(backup_id, str) or not re.fullmatch(r"[0-9a-f]{64}", backup_id):

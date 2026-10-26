@@ -147,5 +147,8 @@
     "layer_digest": "sha256:df9831efb49cab24dec437e8482f2a9ddbd9e239131fa3ffe095dc1492081e1d",
     "layer_size": 49761105,
     "image_created": "2026-10-05T00:00:00Z"
-  }
+  },
+  "release_id": "debian",
+  "codename": "trixie",
+  "release_name": "Debian Trixie"
 }
