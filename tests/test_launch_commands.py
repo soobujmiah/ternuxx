@@ -265,7 +265,9 @@ class LaunchCommandTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0)
         self.assertIn("tx gui", result.stdout)
         self.assertIn("tx guides", result.stdout)
-        self.assertIn("optional managed PRoot", result.stdout)
+        self.assertIn("tx install proot [DISTRO] [DE]", result.stdout)
+        self.assertIn("tx install gpu", result.stdout)
+        self.assertLess(result.stdout.index("./tx install"), result.stdout.index("Open and inspect:"))
         self.assertIn("Debian: db", result.stdout)
 
     def test_native_management_alias_and_proot_help(self):
@@ -278,7 +280,7 @@ class LaunchCommandTests(unittest.TestCase):
         self.assertIn("shortcuts sync preview", proot_help.stdout)
         self.assertIn("shortcuts rollback list", proot_help.stdout)
         self.assertIn("tx proot setup catalog", proot_help.stdout)
-        self.assertIn("offers desktop choices (comma-separated IDs; blank keeps XFCE)", proot_help.stdout)
+        self.assertIn("offers desktop and software choices (arrow keys/Space; XFCE default)", proot_help.stdout)
         self.assertIn("tx proot setup fresh-install --yes --plan-id ID", proot_help.stdout)
         self.assertIn("tx proot setup icd-migrate-preview --alias debian", proot_help.stdout)
         self.assertIn("hidden prompts", proot_help.stdout)
