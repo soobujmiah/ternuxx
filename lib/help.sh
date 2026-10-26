@@ -47,12 +47,13 @@ EOF
       cat <<'EOF'
 Managed PRoot guests use the Native Termux host. Run `tx proot setup catalog` to
 list profiles and their accepted desktop routes. The short flows are `tx install debian`
-and `tx install ubuntu`; each asks for the guest username, previews the pinned
-profile, defaults to XFCE, then asks before applying that exact plan. You do not
-need to copy a plan ID in the guided flow. Use explicit `preview`/`apply` only
-for review-only or automated setup.
+and `tx install ubuntu`; each asks for the guest username and, in an attached
+terminal, offers desktop choices (comma-separated IDs; blank keeps XFCE), then
+shows the pinned plan and asks before applying it. You do not need to copy a
+plan ID in the guided flow. Use explicit `preview`/`apply` only for review-only
+or automated setup.
 The lower-level equivalent is `tx proot setup fresh-preview --user NAME
---desktops xfce,lxqt`; Desktop IDs depend on the selected profile: Debian offers `xfce`, `lxqt`, `lxde`, `mate`, `plasma`, `gnome`, and `cinnamon`; Ubuntu currently offers `xfce`. Only selected desktops are installed (XFCE is the default).
+--desktops xfce,lxqt`; Desktop IDs depend on the selected profile: Debian offers `xfce`, `lxqt`, `lxde`, `mate`, `plasma`, `gnome`, and `cinnamon`; Ubuntu currently offers `xfce`. Only selected desktops are installed; XFCE is the default in non-interactive preview flows.
 XFCE, LXQt, LXDE, and MATE are live-checked on standalone :0 and nested :2;
 Plasma is accepted on standalone :0 only; GNOME and Cinnamon are install-catalog options without an accepted route. Review the exact
 image/package plan, then apply it with

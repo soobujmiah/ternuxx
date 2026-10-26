@@ -278,6 +278,7 @@ class LaunchCommandTests(unittest.TestCase):
         self.assertIn("shortcuts sync preview", proot_help.stdout)
         self.assertIn("shortcuts rollback list", proot_help.stdout)
         self.assertIn("tx proot setup catalog", proot_help.stdout)
+        self.assertIn("offers desktop choices (comma-separated IDs; blank keeps XFCE)", proot_help.stdout)
         self.assertIn("tx proot setup fresh-install --yes --plan-id ID", proot_help.stdout)
         self.assertIn("tx proot setup icd-migrate-preview --alias debian", proot_help.stdout)
         self.assertIn("hidden prompts", proot_help.stdout)
