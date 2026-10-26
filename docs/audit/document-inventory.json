@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "3543711375b3aff9b4b369fe4bdb0739cb1aefddda9b7186d733f49307662b1e",
+      "sha256": "32314a9370db4aad3c0c1861a8dcd7130c6c409436987624b7a5b6732eb404a1",
       "lines": 48,
       "read_status": "read",
-      "read_sha256": "3543711375b3aff9b4b369fe4bdb0739cb1aefddda9b7186d733f49307662b1e"
+      "read_sha256": "32314a9370db4aad3c0c1861a8dcd7130c6c409436987624b7a5b6732eb404a1"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "78140d6355c9a62ae4fcd53c93717a8a14b3ef45b03f9d36ddfb0a78fbe65052",
+      "sha256": "a532ebf54d4af9528a10817be0379727dca25515feb0a6bf1bc1cbc9f5c6dcf4",
       "lines": 177,
       "read_status": "read",
-      "read_sha256": "78140d6355c9a62ae4fcd53c93717a8a14b3ef45b03f9d36ddfb0a78fbe65052"
+      "read_sha256": "a532ebf54d4af9528a10817be0379727dca25515feb0a6bf1bc1cbc9f5c6dcf4"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3635,10 +3635,10 @@
     {
       "path": "docs/evidence/2026-10-26-fresh-checkout-reinstall-and-desktop-routes.md",
       "kind": "narrative",
-      "sha256": "3793da3be3c71d5c36f5bbcefcc7438f175d675841126a4b3d65c779d06d4ff8",
-      "lines": 21,
+      "sha256": "ee65cf5c32a2fedbe1a5a5df6d3bd82c1d8bf8bbba3f3c1b2a02458aa0aef8ae",
+      "lines": 23,
       "read_status": "read",
-      "read_sha256": "3793da3be3c71d5c36f5bbcefcc7438f175d675841126a4b3d65c779d06d4ff8"
+      "read_sha256": "ee65cf5c32a2fedbe1a5a5df6d3bd82c1d8bf8bbba3f3c1b2a02458aa0aef8ae"
     },
     {
       "path": "docs/evidence/2026-10-26-fresh-debian-guest-nested-route-acceptance.md",
