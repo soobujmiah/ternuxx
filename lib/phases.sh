@@ -967,7 +967,7 @@ PYPROFILE
       *) nt_fail "Unknown ${label} install option: $arg"; return 2 ;;
     esac
   done
-  if [ "$action" = guided ] && [ -t 0 ] && { [ -e "$PREFIX/var/lib/proot-distro/containers/$distro" ] || [ -L "$PREFIX/var/lib/proot-distro/containers/$distro" ]; }; then
+  if [ "$action" = guided ] && [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] && { [ -e "$PREFIX/var/lib/proot-distro/containers/$distro" ] || [ -L "$PREFIX/var/lib/proot-distro/containers/$distro" ]; }; then
     . "$repo_root/lib/install_wizard.sh"
     _nt_install_guest_addons "$distro" "$desktops" "$apps" "$desktops_set" "$apps_set" "$repo_root"
     return $?

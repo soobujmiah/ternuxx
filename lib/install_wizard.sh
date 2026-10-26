@@ -176,6 +176,7 @@ _nt_install_guest_addons() {
 }
 
 _nt_install_native_desktop() {
+  [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail 'Desktop shortcuts need an attached terminal; automation uses install preview/apply.'; return 2; }
   local desktop="${1/xfce4/xfce}" root="${_TN_LIB_DIR%/lib}" components=gui,developer,audio,sound-controls,graphics
   shift
   [ $# -eq 0 ] || { nt_fail 'Use tx install NATIVE_DE; guest desktops use tx install proot DISTRO DE.'; return 2; }
@@ -190,6 +191,7 @@ _nt_install_native_desktop() {
 }
 
 _nt_install_proot_short() {
+  [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail 'Guest shortcuts need an attached terminal; automation uses install DISTRO preview/apply.'; return 2; }
   local distro="${1:-}" desktop="${2:-}" root="${_TN_LIB_DIR%/lib}"
   [ $# -le 2 ] || { nt_fail 'Use tx install proot [debian|ubuntu] [DESKTOP].'; return 2; }
   if [ -z "$distro" ]; then

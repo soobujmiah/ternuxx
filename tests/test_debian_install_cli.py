@@ -167,11 +167,11 @@ _nt_wizard_native terminal,developer
             "HOME": "/tmp/ternuxx-no-guest-install-home",
         }
         result = subprocess.run(
-            ["bash", str(CLI), "install", "proot", "preview"],
+            ["bash", str(CLI), "install", "alpine", "preview"],
             env=env, capture_output=True, text=True, timeout=5,
         )
         self.assertEqual(result.returncode, 2)
-        self.assertIn("Supported managed distros", result.stderr)
+        self.assertIn("does not yet have a managed", result.stderr)
         self.assertNotIn("proot_setup_present", result.stderr)
 
 
