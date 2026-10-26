@@ -1,0 +1,7 @@
+event_id: commit-8ed215fea000-5c4165d3b4ebdeea
+repository: soobujmiah/ternuxx
+commit: 8ed215fea00085c58f77386046fc049f2f11d8c1
+kind: commit
+occurred_at: '2026-10-26T20:16:27Z'
+status: completed
+summary: Show guest preview waits and repair short username rendering
