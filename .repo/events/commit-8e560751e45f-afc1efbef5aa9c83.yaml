@@ -1,0 +1,7 @@
+event_id: commit-8e560751e45f-afc1efbef5aa9c83
+repository: soobujmiah/ternuxx
+commit: 8e560751e45ffd1b1faa66401b6db32d2c45d7e4
+kind: commit
+occurred_at: '2026-10-26T19:09:59Z'
+status: completed
+summary: 'fix(reinstall): provision guest accounts and pin Native GPU release setup'

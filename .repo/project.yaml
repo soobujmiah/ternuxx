@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternuxx
 repository: soobujmiah/ternuxx
-generated_at: '2026-10-26T17:50:48Z'
+generated_at: '2026-10-26T19:12:02Z'
 generated_by: tools/repo_knowledge collect
-version: b3592a6
+version: 8e56075
 head:
-  commit: b3592a693079d3cb8487dd19d61075feaa927ba5
+  commit: 8e560751e45ffd1b1faa66401b6db32d2c45d7e4
   branch: main
-  committed_at: '2026-10-26T17:48:40Z'
+  committed_at: '2026-10-26T19:09:59Z'
 phases:
   source: not_configured
   completed: []
@@ -15,26 +15,26 @@ phases:
   next: null
 build:
   status: unknown
-  run_id: '40372110675'
-  commit: b3592a693079d3cb8487dd19d61075feaa927ba5
+  run_id: '40384286106'
+  commit: 8e560751e45ffd1b1faa66401b6db32d2c45d7e4
   run_attempt: '1'
-  at: '2026-10-26T17:50:48Z'
+  at: '2026-10-26T19:12:02Z'
   timestamp_source: observed
   workflow_name: Repository Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/40372110675
+  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/40384286106
 test:
-  status: passed
-  run_id: '40372110675'
-  commit: b3592a693079d3cb8487dd19d61075feaa927ba5
+  status: failed
+  run_id: '40384286106'
+  commit: 8e560751e45ffd1b1faa66401b6db32d2c45d7e4
   run_attempt: '1'
-  at: '2026-10-26T17:50:48Z'
+  at: '2026-10-26T19:12:02Z'
   timestamp_source: observed
   workflow_name: Repository Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/40372110675
+  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/40384286106
   summary: null
 last_successful_build: null
 last_failed_build:
@@ -43,5 +43,5 @@ last_failed_build:
   run_id: '39159994935'
 sync:
   status: ok
-  last_synced_at: '2026-10-26T17:50:48Z'
+  last_synced_at: '2026-10-26T19:12:02Z'
   source: ci
