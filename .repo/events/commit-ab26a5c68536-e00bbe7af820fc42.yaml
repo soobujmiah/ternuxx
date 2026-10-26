@@ -1,0 +1,7 @@
+event_id: commit-ab26a5c68536-e00bbe7af820fc42
+repository: soobujmiah/ternuxx
+commit: ab26a5c68536d67bdbd5644a0c6b6be7f1f88343
+kind: commit
+occurred_at: '2026-10-26T13:14:35Z'
+status: completed
+summary: 'docs: refresh latest PRoot acceptance state'
