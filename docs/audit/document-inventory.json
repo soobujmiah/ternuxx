@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 589,
-  "read_count": 182,
+  "document_count": 590,
+  "read_count": 183,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "7a61c9b6fe1bfe20c66f20532976bcabec23ace0404d281010cf7fb995727df8",
+      "sha256": "6886d33cd544389995d61e19534d5592349b39b848614ee5f4b836e73de7ab29",
       "lines": 44,
       "read_status": "read",
-      "read_sha256": "7a61c9b6fe1bfe20c66f20532976bcabec23ace0404d281010cf7fb995727df8"
+      "read_sha256": "6886d33cd544389995d61e19534d5592349b39b848614ee5f4b836e73de7ab29"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "5488f65dd789c68a616c4e21fba52051712e3dca2540491ce675a35a35f21c95",
+      "sha256": "adb530b566951931b8ee0e43919d931770226d978e176d31e4de7f94b882415f",
       "lines": 173,
       "read_status": "read",
-      "read_sha256": "5488f65dd789c68a616c4e21fba52051712e3dca2540491ce675a35a35f21c95"
+      "read_sha256": "adb530b566951931b8ee0e43919d931770226d978e176d31e4de7f94b882415f"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3591,6 +3591,14 @@
       "lines": 30,
       "read_status": "read",
       "read_sha256": "ab77995c62f7d4bee3e203e65f1f2d2e4251b83615bce2ab7f379ed7ba06f80b"
+    },
+    {
+      "path": "docs/evidence/2026-10-26-debian-postcleanup-standalone-route-check.md",
+      "kind": "narrative",
+      "sha256": "f3b741a0ab92c57b44c517aa559167c153dea018d423d1e8499e7b98c6cb5d8b",
+      "lines": 25,
+      "read_status": "read",
+      "read_sha256": "f3b741a0ab92c57b44c517aa559167c153dea018d423d1e8499e7b98c6cb5d8b"
     },
     {
       "path": "docs/evidence/2026-10-26-debian-standalone-render-follow-up.md",
