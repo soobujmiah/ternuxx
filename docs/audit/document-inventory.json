@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 580,
-  "read_count": 169,
+  "read_count": 172,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "5d7866b4386bef1e48d89904f7188066288519c22bc65f3b4036cf0b77e4b16f",
+      "sha256": "673d73086b94666fb33d040ac08e22878afb6a00a675d94640a8451d0c283bd1",
       "lines": 37,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "673d73086b94666fb33d040ac08e22878afb6a00a675d94640a8451d0c283bd1"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -187,10 +187,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "3030c95848d8e83b38255eb63142024321dc0ab867b95c76566068608096764f",
+      "sha256": "ec5f927b05e7714fe936350c559558dacd3007ae3e75d46287da00ef634fd93e",
       "lines": 170,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "ec5f927b05e7714fe936350c559558dacd3007ae3e75d46287da00ef634fd93e"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -3619,10 +3619,10 @@
     {
       "path": "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",
       "kind": "narrative",
-      "sha256": "5af0863efab1d29fcf9966d0d2c05b49f70b8763dde538d8847d753e3bf178d0",
-      "lines": 43,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "4152d8ead0c21e47c3db0fc1b9519e83b67c2d6505db56bb1ac5848647da8341",
+      "lines": 53,
+      "read_status": "read",
+      "read_sha256": "4152d8ead0c21e47c3db0fc1b9519e83b67c2d6505db56bb1ac5848647da8341"
     },
     {
       "path": "docs/evidence/2026-10-26-p12-thermal-override-and-native-graphics.md",

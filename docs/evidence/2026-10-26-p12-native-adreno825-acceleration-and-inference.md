@@ -24,6 +24,16 @@ The local full test and CI status are recorded by the repository state workflow.
 
 Phase: `P12`
 
+## 2026-10-26 09:15 UTC fresh Native `:1` graphics verification
+
+Read-only status showed the saved, hash-checked `kgsl-freedreno` provider selected for the running Native XFCE session. I ran the shared bounded verifiers through the installed `tx` command without restarting the desktop:
+
+- `tx mng graphics verify native opengl :1`: rendered an X11-window workload on Adreno 825 (score 617), `render_verified=true`, `accelerated=true`.
+- `tx mng graphics verify native gles :1`: rendered 910 frames at 1280x720 for five seconds on Adreno 825, `render_verified=true`, `accelerated=true`.
+- `tx mng graphics verify native vulkan :1`: `vkcube` rendered 120 frames on the same Adreno 825 enumerated by `vulkaninfo`, `render_verified=true`.
+
+These results establish bounded Native OpenGL, GLES, and Vulkan rendering on `:1` for this session. They do not establish clean-install provider reproduction, sustained performance, Android foreground visibility, or inference performance. Native XFCE remained running; no PRoot display or guest was started or modified.
+
 ## Evidence
 
 P12 evidence: live Native Adreno 825 graphics and bounded CPU/Vulkan inference qualification, including the owner-authorized thermal-limit override and the remaining qualification boundaries.
