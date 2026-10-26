@@ -35,11 +35,13 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
         self.assertIn("start-desktop", BRIDGE)
 
     def test_gtk_managed_guest_picker_selects_distro_and_desktops(self):
-        for contract in ("proot_desktop_checks[7]", "gtk_check_button_new_with_label",
-                         "gtk_check_button_get_active", "Desktop environments (select one or more)",
-                         "gtk_drop_down_new_from_strings", "ubuntu", "--desktops"):
+        for contract in ("proot_desktop_checks", "gtk_check_button_new_with_label",
+                         "gtk_check_button_get_active", "Desktop environments (select one or more",
+                         "gtk_drop_down_new_from_strings", "proot-install-catalog", "proot.setup.catalog",
+                         "install-desktop-id", "profile->alias", "profile->desktops"):
             with self.subTest(contract=contract):
-                self.assertIn(contract, SOURCE)
+                self.assertIn(contract, SOURCE + BRIDGE)
+        self.assertNotIn('"Debian Trixie", "Ubuntu Noble"', SOURCE)
         self.assertNotIn("proot_desktop_entry", SOURCE)
 
     def test_review_instance_remains_available(self):
@@ -184,9 +186,10 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
 
     def test_gtk_proot_setup_launches_guided_installer_with_desktop_selection(self):
         self.assertIn("Install managed proot distro", SOURCE)
-        self.assertIn("proot_desktop_checks[7]", SOURCE)
+        self.assertIn("proot_desktop_checks", SOURCE)
         self.assertIn("gtk_check_button_get_active", SOURCE)
-        self.assertIn('"install", (gchar *)distro, "--desktops", desktops->str', SOURCE)
+        self.assertIn('"install", profile->alias, "--desktops", desktops->str', SOURCE)
+        self.assertIn("proot-install-catalog", SOURCE)
         self.assertIn("Existing guests are preserved", SOURCE)
 
     def test_gtk_replay_guest_retirement_and_restore_use_inline_exact_plan_review(self):

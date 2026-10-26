@@ -26,6 +26,29 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
         env.start()
         self.addCleanup(env.stop)
 
+    def test_managed_install_catalog_exports_profile_owned_desktop_choices(self):
+        catalog = {"profiles": [{"distro": "debian", "label": "Debian Trixie",
+            "desktops": [{"id": "xfce", "name": "XFCE", "routes": ["nested", "standalone"]},
+                         {"id": "plasma", "name": "KDE Plasma", "routes": ["standalone"]},
+                         {"id": "gnome", "name": "GNOME", "routes": []}]}]}
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": catalog}) as dispatch, \
+                redirect_stdout(StringIO()) as output:
+            self.assertEqual(bridge.main(["proot-install-catalog"]), 0)
+        dispatch.assert_called_once_with("proot.setup.catalog")
+        self.assertEqual(output.getvalue().splitlines(), [
+            "D\tdebian\tDebian Trixie",
+            "E\tdebian\txfce\tXFCE\tnested,standalone",
+            "E\tdebian\tplasma\tKDE Plasma\tstandalone",
+            "E\tdebian\tgnome\tGNOME\tunverified",
+        ])
+
+    def test_managed_install_catalog_rejects_untrusted_ids(self):
+        catalog = {"profiles": [{"distro": "../debian", "label": "Outside",
+                                  "desktops": []}]}
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": catalog}), \
+                redirect_stdout(StringIO()), redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["proot-install-catalog"]), 1)
+
     def test_boot_cron_bridge_previews_and_applies_only_exact_ready_plan(self):
         plan = {"plan_id": "a" * 64, "ready": True, "requires_confirmation": True,
                 "changes": [{"operation": "create", "path": ".termux/boot/ternuxx-cron"}]}

@@ -183,6 +183,29 @@ def main(argv: list[str]) -> int:
                 "id", "category_id", "name", "status", "availability", "description"))
                   + "\t" + clean(", ".join(operation_names)))
         return 0
+    if action == "proot-install-catalog" and len(argv) == 1:
+        result = call("proot.setup.catalog")
+        if not result.get("ok"):
+            print(management_presentation.format_report(result))
+            return 1
+        profiles = result.get("data", {}).get("profiles", [])
+        for profile in profiles:
+            alias = clean(profile.get("distro"))
+            label = clean(profile.get("label"))
+            if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,31}", alias) or not label:
+                print("Invalid managed distro catalog entry.", file=sys.stderr)
+                return 1
+            print("D\t" + alias + "\t" + label)
+            for desktop in profile.get("desktops", []):
+                desktop_id = clean(desktop.get("id"))
+                name = clean(desktop.get("name"))
+                routes = ",".join(clean(route) for route in desktop.get("routes", [])) or "unverified"
+                if (not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,31}", desktop_id)
+                        or not name):
+                    print("Invalid managed desktop catalog entry.", file=sys.stderr)
+                    return 1
+                print("E\t" + alias + "\t" + desktop_id + "\t" + name + "\t" + routes)
+        return 0
     if action == "ssh-autostart-status" and len(argv) == 1:
         result = call("ssh.service.autostart.status")
         if not result.get("ok"):

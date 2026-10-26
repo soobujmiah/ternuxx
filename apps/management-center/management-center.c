@@ -3,6 +3,8 @@
 #include <string.h>
 
 typedef struct { gchar *id, *category, *name, *status, *availability, *description, *operations; } Resource;
+typedef struct { gchar *id, *name, *routes; } InstallDesktop;
+typedef struct { gchar *alias, *label; GPtrArray *desktops; } InstallProfile;
 typedef struct { GtkWidget *window, *category_list, *resource_list, *details, *notice, *search, *action_scroll;
                  GtkWidget *desktop_choice, *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *boot_cron_button, *boot_helpers_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *reboot_test_prepare_button, *reboot_test_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
                  *monitor_interval, *monitor_unit, *monitor_focus, *monitor_launch,
@@ -12,14 +14,12 @@ typedef struct { GtkWidget *window, *category_list, *resource_list, *details, *n
                  *proot_replay_apply_button, *proot_replay_cancel_button,
                  *proot_app_button, *proot_shortcut_list_button, *proot_shortcut_add_button,
                  *proot_shortcut_remove_button, *proot_shortcut_sync_button, *proot_shortcut_rollback_list_button,
-                 *proot_shortcut_rollback_preview_button, *proot_session_stop_button, *proot_session_reconcile_button; GtkWidget *proot_desktop_checks[7]; GPtrArray *categories,
+                 *proot_shortcut_rollback_preview_button, *proot_session_stop_button, *proot_session_reconcile_button; GPtrArray *proot_desktop_checks, *install_profiles, *categories,
                  *resources; gchar *selected_category, *selected_resource_id, *replay_review_action,
                  *replay_review_alias, *replay_review_backup, *replay_review_plan; guint category_count; } Center;
 typedef struct { Center *center; gchar *action; gchar *resource_id; gchar *detail_id; gchar *plan_id; gchar *extra_id; } Request;
 typedef struct { Center *center; GPtrArray *ids; GPtrArray *labels; gchar *helper_id; } BootHelperChoice;
 static Center *app_center;
-static const gchar *PROOT_DESKTOP_IDS[] = {"xfce", "lxqt", "lxde", "mate", "plasma", "gnome", "cinnamon"};
-static const gchar *PROOT_DESKTOP_LABELS[] = {"XFCE (:0 and :2)", "LXQt (:0 and :2)", "LXDE (:0 and :2)", "MATE (:0 and :2)", "KDE Plasma (:0 only)", "GNOME (route unverified)", "Cinnamon (route unverified)"};
 static void run_bridge(Center *c, const gchar *action, const gchar *arg1, const gchar *arg2,
                        const gchar *arg3, const gchar *arg4, const gchar *arg5);
 static void run_bridge_full(Center *c, const gchar *action, const gchar *arg1, const gchar *arg2,
@@ -52,6 +52,7 @@ static void ask_proot_confirmation(Center *c, const gchar *action, const gchar *
 static void ask_cron_confirmation(Center *c, const gchar *plan_id, const gchar *summary);
 static void ask_cron_scheduler_confirmation(Center *c, gboolean start);
 static void confirmed_action(GObject *source, GAsyncResult *result, gpointer user_data);
+static void install_profile_changed(GObject *object, GParamSpec *pspec, gpointer user_data);
 static void ask_recovery_confirmation(Center *c, const gchar *action, const gchar *resource_id, const gchar *plan_id, const gchar *summary);
 static void ask_cpu_model_confirmation(Center *c, const gchar *action, const gchar *plan_id, const gchar *summary);
 static void show_npu_install_confirmation(Center *c, const gchar *plan_id, const gchar *summary);
@@ -199,6 +200,92 @@ static void show_replay_review(Center *c, const gchar *action, const gchar *alia
     gtk_label_set_text(GTK_LABEL(c->notice), "Review the exact replay guest plan; Cancel remains available.");
     g_free(summary);
 }
+static void install_desktop_free(gpointer data) {
+    InstallDesktop *desktop = data; if (!desktop) return;
+    g_free(desktop->id); g_free(desktop->name); g_free(desktop->routes); g_free(desktop);
+}
+static void install_profile_free(gpointer data) {
+    InstallProfile *profile = data; if (!profile) return;
+    g_free(profile->alias); g_free(profile->label);
+    if (profile->desktops) g_ptr_array_unref(profile->desktops);
+    g_free(profile);
+}
+static void install_profile_changed(GObject *object, GParamSpec *pspec, gpointer user_data) {
+    (void)object; (void)pspec; Center *c = user_data;
+    GtkWidget *note = gtk_widget_get_next_sibling(c->proot_distro);
+    if (!note) return;
+    GtkWidget *child = gtk_widget_get_next_sibling(note);
+    while (child) {
+        GtkWidget *next = gtk_widget_get_next_sibling(child);
+        gtk_box_remove(GTK_BOX(c->proot_desktop_box), child); child = next;
+    }
+    g_ptr_array_set_size(c->proot_desktop_checks, 0);
+    guint selected = gtk_drop_down_get_selected(GTK_DROP_DOWN(c->proot_distro));
+    if (!c->install_profiles || selected >= c->install_profiles->len) return;
+    InstallProfile *profile = g_ptr_array_index(c->install_profiles, selected);
+    for (guint i = 0; i < profile->desktops->len; i++) {
+        InstallDesktop *desktop = g_ptr_array_index(profile->desktops, i);
+        gchar *label = g_strcmp0(desktop->routes, "unverified") == 0
+            ? g_strdup_printf("%s (launch route unverified)", desktop->name)
+            : g_strdup_printf("%s (%s)", desktop->name, desktop->routes);
+        GtkWidget *check = gtk_check_button_new_with_label(label); g_free(label);
+        g_object_set_data_full(G_OBJECT(check), "install-desktop-id", g_strdup(desktop->id), g_free);
+        gtk_check_button_set_active(GTK_CHECK_BUTTON(check), i == 0);
+        gtk_box_append(GTK_BOX(c->proot_desktop_box), check);
+        g_ptr_array_add(c->proot_desktop_checks, check);
+    }
+    gtk_widget_set_sensitive(c->proot_setup_button, profile->desktops->len > 0);
+}
+static void load_install_catalog(Center *c, const gchar *output) {
+    GPtrArray *profiles = g_ptr_array_new_with_free_func(install_profile_free);
+    gchar **lines = g_strsplit(output ? output : "", "\n", -1);
+    gboolean valid = TRUE;
+    for (guint i = 0; lines[i] && valid; i++) {
+        gchar **f = g_strsplit(lines[i], "\t", 6);
+        if (g_strcmp0(f[0], "D") == 0 && f[1] && f[2]
+                && g_regex_match_simple("^[a-z0-9][a-z0-9-]{0,31}$", f[1], 0, 0)) {
+            InstallProfile *profile = g_new0(InstallProfile, 1);
+            profile->alias = g_strdup(f[1]); profile->label = g_strdup(f[2]);
+            profile->desktops = g_ptr_array_new_with_free_func(install_desktop_free);
+            g_ptr_array_add(profiles, profile);
+        } else if (g_strcmp0(f[0], "E") == 0 && f[1] && f[2] && f[3] && f[4]
+                && g_regex_match_simple("^[a-z0-9][a-z0-9-]{0,31}$", f[2], 0, 0)) {
+            InstallProfile *profile = NULL;
+            for (guint j = 0; j < profiles->len; j++) {
+                InstallProfile *candidate = g_ptr_array_index(profiles, j);
+                if (g_strcmp0(candidate->alias, f[1]) == 0) { profile = candidate; break; }
+            }
+            if (!profile) valid = FALSE;
+            else {
+                InstallDesktop *desktop = g_new0(InstallDesktop, 1);
+                desktop->id = g_strdup(f[2]); desktop->name = g_strdup(f[3]); desktop->routes = g_strdup(f[4]);
+                g_ptr_array_add(profile->desktops, desktop);
+            }
+        } else if (*lines[i]) valid = FALSE;
+        g_strfreev(f);
+    }
+    g_strfreev(lines);
+    if (!valid || !profiles->len) {
+        gtk_widget_set_sensitive(c->proot_distro, FALSE);
+        gtk_widget_set_sensitive(c->proot_setup_button, FALSE);
+        gtk_label_set_text(GTK_LABEL(c->notice), "Managed distro catalog failed validation; installation choices are disabled.");
+        g_ptr_array_unref(profiles); return;
+    }
+    if (c->install_profiles) g_ptr_array_unref(c->install_profiles);
+    c->install_profiles = profiles;
+    GtkStringList *model = gtk_string_list_new(NULL);
+    for (guint i = 0; i < profiles->len; i++) {
+        InstallProfile *profile = g_ptr_array_index(profiles, i);
+        gtk_string_list_append(model, profile->label);
+    }
+    gtk_drop_down_set_model(GTK_DROP_DOWN(c->proot_distro), G_LIST_MODEL(model));
+    g_object_unref(model);
+    gtk_drop_down_set_selected(GTK_DROP_DOWN(c->proot_distro), 0);
+    gtk_widget_set_sensitive(c->proot_distro, TRUE);
+    install_profile_changed(G_OBJECT(c->proot_distro), NULL, c);
+    gtk_label_set_text(GTK_LABEL(c->notice), "Managed distro and desktop choices loaded from the verified profile catalog.");
+}
+
 static void request_done(GObject *source, GAsyncResult *result, gpointer user_data) {
     Request *request = user_data; Center *c = request->center; GError *error = NULL;
     gchar *stdout_text = NULL, *stderr_text = NULL;
@@ -217,7 +304,14 @@ static void request_done(GObject *source, GAsyncResult *result, gpointer user_da
         g_clear_error(&error);
     } else {
         gboolean success = g_subprocess_get_successful(G_SUBPROCESS(source));
-        if ((g_strcmp0(request->action, "proot-replay-retire-preview") == 0
+        if (g_strcmp0(request->action, "proot-install-catalog") == 0) {
+            if (success && stdout_text) load_install_catalog(c, stdout_text);
+            else {
+                gtk_widget_set_sensitive(c->proot_distro, FALSE);
+                gtk_widget_set_sensitive(c->proot_setup_button, FALSE);
+                gtk_label_set_text(GTK_LABEL(c->notice), "Managed distro catalog is unavailable; installation choices are disabled.");
+            }
+        } else if ((g_strcmp0(request->action, "proot-replay-retire-preview") == 0
                     || g_strcmp0(request->action, "proot-replay-restore-preview") == 0)
                 && stdout_text && g_str_has_prefix(stdout_text, "P\t")) {
             gboolean restore = g_strcmp0(request->action, "proot-replay-restore-preview") == 0;
@@ -1144,16 +1238,20 @@ static void open_debian_setup(GtkButton *button, gpointer data) {
         g_free(tx); return;
     }
     guint distro_index = gtk_drop_down_get_selected(GTK_DROP_DOWN(c->proot_distro));
-    const gchar *distro = distro_index == 1 ? "ubuntu" : "debian";
+    if (!c->install_profiles || distro_index >= c->install_profiles->len) {
+        gtk_label_set_text(GTK_LABEL(c->notice), "Managed distro catalog is unavailable; refresh the management center.");
+        g_free(tx); return;
+    }
+    InstallProfile *profile = g_ptr_array_index(c->install_profiles, distro_index);
     GString *desktops = g_string_new(NULL);
-    for (guint i = 0; i < G_N_ELEMENTS(PROOT_DESKTOP_IDS); i++) {
-        if (!gtk_check_button_get_active(GTK_CHECK_BUTTON(c->proot_desktop_checks[i]))) continue;
-        if (distro_index == 1 && i != 0) {
-            gtk_label_set_text(GTK_LABEL(c->notice), "Ubuntu Noble currently offers XFCE only; choose XFCE or Debian for other desktop choices.");
-            g_string_free(desktops, TRUE); g_free(tx); return;
-        }
+    for (guint i = 0; i < profile->desktops->len; i++) {
+        if (i >= c->proot_desktop_checks->len) continue;
+        GtkWidget *check = g_ptr_array_index(c->proot_desktop_checks, i);
+        if (!gtk_check_button_get_active(GTK_CHECK_BUTTON(check))) continue;
+        const gchar *desktop_id = g_object_get_data(G_OBJECT(check), "install-desktop-id");
+        if (!desktop_id) continue;
         if (desktops->len) g_string_append_c(desktops, ',');
-        g_string_append(desktops, PROOT_DESKTOP_IDS[i]);
+        g_string_append(desktops, desktop_id);
     }
     if (!desktops->len) {
         gtk_label_set_text(GTK_LABEL(c->notice), "Select at least one desktop environment.");
@@ -1174,7 +1272,7 @@ static void open_debian_setup(GtkButton *button, gpointer data) {
     gtk_box_append(GTK_BOX(box), GTK_WIDGET(terminal));
     gtk_window_set_child(GTK_WINDOW(window), box);
     gtk_window_present(GTK_WINDOW(window));
-    gchar *argv[] = {tx, "install", (gchar *)distro, "--desktops", desktops->str, NULL};
+    gchar *argv[] = {tx, "install", profile->alias, "--desktops", desktops->str, NULL};
     vte_terminal_spawn_async(terminal, VTE_PTY_DEFAULT, NULL, argv, NULL,
         G_SPAWN_DEFAULT, NULL, NULL, NULL, -1, NULL, guest_setup_spawn_done, c);
     g_string_free(desktops, TRUE);
@@ -2161,10 +2259,11 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     c->proot_setup_help=gtk_label_new("Choose one or more desktop IDs, then start the guided installer here. Review and confirm its pinned target in the embedded terminal; Ternuxx applies available graphics/audio integration. Existing guests are preserved."); gtk_label_set_wrap(GTK_LABEL(c->proot_setup_help),TRUE); gtk_label_set_xalign(GTK_LABEL(c->proot_setup_help),0.0f); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_help);
     c->proot_desktop_box=gtk_box_new(GTK_ORIENTATION_VERTICAL,2); gtk_box_append(GTK_BOX(proot_actions),c->proot_desktop_box);
     GtkWidget *distro_note=gtk_label_new("Managed guest distribution"); gtk_widget_set_halign(distro_note,GTK_ALIGN_START); gtk_box_append(GTK_BOX(c->proot_desktop_box),distro_note);
-    const char *distro_names[] = {"Debian Trixie", "Ubuntu Noble", NULL}; c->proot_distro=gtk_drop_down_new_from_strings(distro_names); gtk_box_append(GTK_BOX(c->proot_desktop_box),c->proot_distro);
-    GtkWidget *desktop_note=gtk_label_new("Desktop environments (select one or more)"); gtk_widget_set_halign(desktop_note,GTK_ALIGN_START); gtk_box_append(GTK_BOX(c->proot_desktop_box),desktop_note);
-    for (guint i=0;i<G_N_ELEMENTS(PROOT_DESKTOP_IDS);i++) { c->proot_desktop_checks[i]=gtk_check_button_new_with_label(PROOT_DESKTOP_LABELS[i]); gtk_check_button_set_active(GTK_CHECK_BUTTON(c->proot_desktop_checks[i]),i==0); gtk_box_append(GTK_BOX(c->proot_desktop_box),c->proot_desktop_checks[i]); }
-    c->proot_setup_button=gtk_button_new_with_label("Install managed proot distro…"); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_button);
+    c->proot_distro=gtk_drop_down_new_from_strings(NULL); gtk_widget_set_sensitive(c->proot_distro,FALSE); gtk_box_append(GTK_BOX(c->proot_desktop_box),c->proot_distro);
+    g_signal_connect(c->proot_distro,"notify::selected",G_CALLBACK(install_profile_changed),c);
+    GtkWidget *desktop_note=gtk_label_new("Desktop environments (select one or more; routes shown per profile)"); gtk_widget_set_halign(desktop_note,GTK_ALIGN_START); gtk_box_append(GTK_BOX(c->proot_desktop_box),desktop_note);
+    c->install_profiles=g_ptr_array_new(); c->proot_desktop_checks=g_ptr_array_new();
+    c->proot_setup_button=gtk_button_new_with_label("Install managed proot distro…"); gtk_widget_set_sensitive(c->proot_setup_button,FALSE); gtk_box_append(GTK_BOX(proot_actions),c->proot_setup_button);
     c->proot_app_entry=gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_app_entry), "Debian app ID (for example: firefox)"); gtk_box_append(GTK_BOX(proot_actions),c->proot_app_entry);
     c->proot_app_button=gtk_button_new_with_label("Launch Debian app"); gtk_box_append(GTK_BOX(proot_actions),c->proot_app_button);
     c->proot_shortcut_entry=gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(c->proot_shortcut_entry), "Debian app ID for shortcut add/remove"); gtk_box_append(GTK_BOX(proot_actions),c->proot_shortcut_entry);
@@ -2203,6 +2302,7 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     g_signal_connect(c->terminal_service_button,"clicked",G_CALLBACK(terminal_service_clicked),c);
     g_signal_connect(c->terminal_open_button,"clicked",G_CALLBACK(open_debian_terminal),c);
     g_signal_connect(c->proot_setup_button,"clicked",G_CALLBACK(open_debian_setup),c);
+    run_bridge(c,"proot-install-catalog",NULL,NULL,NULL,NULL,NULL);
     g_signal_connect(c->proot_app_button,"clicked",G_CALLBACK(proot_app_clicked),c);
     g_signal_connect(c->proot_shortcut_list_button,"clicked",G_CALLBACK(proot_shortcut_list_clicked),c);
     g_signal_connect(c->proot_shortcut_add_button,"clicked",G_CALLBACK(proot_shortcut_clicked),c);
