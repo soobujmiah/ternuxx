@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 583,
+  "document_count": 584,
   "read_count": 172,
   "reading_complete": false,
   "broken_local_links": [],
@@ -547,8 +547,8 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "c4645876183a031383ab5c49fe3cb4099ba7c412b2f8ea57d509c829119a8d6f",
-      "lines": 153,
+      "sha256": "4fb77958bf0af8e196fd97b4076fe25a2d7f65ecb9c05acbcb97bbb7b9bfc312",
+      "lines": 157,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3575,6 +3575,14 @@
       "lines": 21,
       "read_status": "read",
       "read_sha256": "2fddf4d583c9cf5b9f244f79ac2feefb134572b0a48c416aac1a19feaf2fcfc9"
+    },
+    {
+      "path": "docs/evidence/2026-10-26-debian-standalone-render-follow-up.md",
+      "kind": "narrative",
+      "sha256": "bc15848ff05bbcf32d34df75cf90f2f193ace26e9a04c0f9043b74e877e74060",
+      "lines": 7,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-26-desktop-cleanup-and-pulse-recovery.md",
