@@ -1,0 +1,7 @@
+event_id: commit-e15cd7a8c9d6-fde737402220de3e
+repository: soobujmiah/ternuxx
+commit: e15cd7a8c9d6efc18548fdf8428279096bd2a843
+kind: commit
+occurred_at: '2026-10-26T10:56:16Z'
+status: completed
+summary: 'docs: refresh managed shortcut CI status'
