@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
 TMP_ROOT="${TMPDIR:-$PREFIX/tmp}"
-GUEST_USER="$(PYTHONPATH="$ROOT/lib" python3 -c 'import os,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro="debian", prefix=os.environ["PREFIX"]))')" || {
+GUEST_USER="$(python3 "$ROOT/lib/proot_account_setup.py" resolve --alias debian)" || {
   echo "Could not resolve one regular Debian account from the installed rootfs." >&2
   exit 1
 }

@@ -44,6 +44,21 @@ _nt_window_keys() {
   fi
 }
 
+_nt_window_section() {
+  printf '\033[%s;1H\033[2K\033[1;38;5;114m%.*s\033[0m' "$1" "$((_NT_WINDOW_COLS - 1))" "$2" >/dev/tty
+}
+
+_nt_window_progress() {
+  local label="$1" done='' pending='' n
+  if [[ "$label" =~ ^([1-7])/7 ]]; then
+    for ((n=1;n<=7;n++)); do
+      if [ "$n" -le "${BASH_REMATCH[1]}" ]; then done+='#'; else pending+='.'; fi
+    done
+    label="[$done$pending] $label"
+  fi
+  _nt_window_section 12 "$label"
+}
+
 _nt_window_snapshot() {
   _NT_WINDOW_DEVICE="$(getprop ro.product.model 2>/dev/null || echo unknown)"
   _NT_WINDOW_ANDROID="$(getprop ro.build.version.release 2>/dev/null || echo unknown)"
@@ -92,11 +107,11 @@ _nt_window_draw() {
   _nt_window_info 10 Runtime "Native Termux | ${PREFIX:-unknown}"
   _nt_window_line 11 "$_NT_WINDOW_RULE"
   if [ "${_NT_WINDOW_INSTALLING:-0}" = 1 ]; then
-    _nt_window_line 12 "${_NT_WINDOW_STAGE:-Installation}"
-    _nt_window_line 14 'Installation log'
+    _nt_window_progress "${_NT_WINDOW_STAGE:-Installation}"
+    _nt_window_section 14 'Installation log'
   else
     _nt_window_line 12 "$(_nt_window_keys "$_NT_WINDOW_COLS")"
-    _nt_window_line 14 'Choose your workstation'
+    _nt_window_section 14 'Choose your workstation'
   fi
   _nt_window_line 13 "$_NT_WINDOW_RULE"
   _nt_window_line 15 "$_NT_WINDOW_RULE"
@@ -116,7 +131,7 @@ _nt_window_selection() {
   _nt_window_brand
   _nt_window_line 12 "$(_nt_window_keys "$_NT_WINDOW_COLS")"
   _nt_window_line 13 "$_NT_WINDOW_RULE"
-  _nt_window_line 14 "$1"
+  _nt_window_section 14 "$1"
   _nt_window_line 15 "$_NT_WINDOW_RULE"
   _nt_window_footer
   printf '\033[%s;1H' "$_NT_WINDOW_LOG_FIRST" >/dev/tty
@@ -132,9 +147,9 @@ _nt_window_stage() {
   [ "$old_size" = "$_NT_WINDOW_ROWS:$_NT_WINDOW_COLS" ] || _nt_window_draw
   printf '\033[s' >/dev/tty
   _nt_window_brand
-  _nt_window_line 12 "$_NT_WINDOW_STAGE"
+  _nt_window_progress "$_NT_WINDOW_STAGE"
   _nt_window_line 13 "$_NT_WINDOW_RULE"
-  _nt_window_line 14 'Installation log'
+  _nt_window_section 14 'Installation log'
   _nt_window_line 15 "$_NT_WINDOW_RULE"
   printf '\033[u' >/dev/tty
   _nt_window_footer

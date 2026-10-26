@@ -338,3 +338,61 @@ If an old installer shows literal arrow escape text, cancel it yourself with Ctr
 then update the clean checkout and rerun `./tx install`. If your shell's echo/input
 remains broken after interruption, run `stty sane` in that terminal first. The new
 selector restores its saved terminal mode on normal exit, Esc and handled signals.
+
+
+## Existing guest account repair and login
+
+An existing rootfs is preserved. The wizard now inspects its ordinary login accounts
+before bulk installation. If none exists, it collects a new username/sudo mode and
+hidden password; required `sudo`/`passwd` packages join the reviewed add-on package
+plan. A separate exact account plan creates only that new account. If accounts
+already exist, select one with arrows; this records a rootfs-bound default without
+rewriting existing passwords or sudo configuration. A failed partial account operation
+keeps a journal and requires inspection, rather than silently adopting an incomplete
+setup. No guest rootfs is overwritten and account setup refuses a busy managed guest.
+
+```sh
+tx install proot debian xfce
+tx db                     # Debian login; tx debian is equivalent
+tx ub                     # Ubuntu login; tx ubuntu is equivalent
+tx pgui                   # default recorded Debian user / XFCE
+tx pgui --alias ubuntu
+tx pgui --user NAME        # explicit existing ordinary Debian account
+```
+
+Kali has no qualified adapter yet: `tx kali` reports that state and starts nothing.
+The account plan and its private credential descriptor are shared across guided
+reinstall and later guest additions. Root is never chosen as an automatic GUI login.
+
+## Pinned Native GPU release and repeated installation
+
+On the qualified SM8735/Adreno 825 route, `tx install gpu` offers the pinned
+experimental Native Mesa provider. The official installed Freedreno 26.2.5 probe on
+the owner's device rejected its GPU; silently choosing that driver would not fix
+llvmpipe. The experimental provider uses the
+[versioned Mesa release](https://github.com/soobujmiah/ternuxx/releases/tag/native-mesa-adreno825-2026.10.27),
+not an expiring Actions artifact at runtime. A fresh installation needs no GitHub
+login. The installer pins the release URL and ZIP SHA-256 in
+[`native-kgsl.json`](../config/graphics/native-kgsl.json); it never follows `latest`.
+
+Each install verifies archive/package/runtime-file hashes, extracts into private
+Ternuxx state and checks the Vulkan loader/device before selecting the provider.
+A repeated install verifies and reuses the cache, then rechecks the current library
+ABI/device. Hash drift, missing files or incompatible libraries stop selection.
+Current backend selection is bound to the preview and checked again before changing
+it. System Mesa packages stay installed; no package maintainer scripts are run by
+private extraction. No desktop is automatically restarted.
+
+After your installation, activate the saved backend in a new owned desktop session:
+
+```sh
+tx restart
+tx mng graphics verify native opengl :1
+```
+
+Restart is your explicit action; existing processes keep their previous environment
+until then. GPU selection clears inherited software-only overrides for that selected
+session; unselected system/CPU mode preserves the caller's environment. Actual app
+rendering, screen visibility and sound remain separate acceptance checks. Stable
+acquisition does not turn the experimental driver into an upstream stable release
+or establish a byte-reproducible source rebuild.

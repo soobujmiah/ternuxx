@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 596,
-  "read_count": 191,
+  "document_count": 597,
+  "read_count": 194,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "5e943eb8246635014521dbe17eefd555f0bf106db46695d8885dbb9efd97ef7c",
-      "lines": 123,
+      "sha256": "908d30f464d17ef562d1a465f941fda29eb548e96042178f2bb3963b57bc71e7",
+      "lines": 150,
       "read_status": "read",
-      "read_sha256": "5e943eb8246635014521dbe17eefd555f0bf106db46695d8885dbb9efd97ef7c"
+      "read_sha256": "908d30f464d17ef562d1a465f941fda29eb548e96042178f2bb3963b57bc71e7"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "e1e869d46ec37a7147e0ef86430b2786c41173f0775a5a4507742effcbfeefe2",
-      "lines": 138,
+      "sha256": "2ace2e8913e87b632e8c8d02e5546c433a2cf0d739bdd594d45f040db88d85f5",
+      "lines": 149,
       "read_status": "read",
-      "read_sha256": "e1e869d46ec37a7147e0ef86430b2786c41173f0775a5a4507742effcbfeefe2"
+      "read_sha256": "2ace2e8913e87b632e8c8d02e5546c433a2cf0d739bdd594d45f040db88d85f5"
     },
     {
       "path": "SECURITY.md",
@@ -107,10 +107,10 @@
     {
       "path": "config/graphics/native-kgsl.json",
       "kind": "structured",
-      "sha256": "894477a90e8f59d2a5a5d6187de796eac3ff226b246cca824fb41e910a007e36",
-      "lines": 76,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "71c5b89ec26fb9c4dda5d7f61817026cb5cedf79208624b637a0aa98b0a19caf",
+      "lines": 81,
+      "read_status": "read",
+      "read_sha256": "71c5b89ec26fb9c4dda5d7f61817026cb5cedf79208624b637a0aa98b0a19caf"
     },
     {
       "path": "config/proot/debian-trixie.json",
@@ -163,10 +163,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "8b04628b38d424eb8df0bfdbb566ff6313fb447c54c3ccf998282d41e9c880ab",
-      "lines": 340,
+      "sha256": "24f5524ea823c034223baf5eb55b41f8620b5e42674cfdd9b02cf303a2facee8",
+      "lines": 398,
       "read_status": "read",
-      "read_sha256": "8b04628b38d424eb8df0bfdbb566ff6313fb447c54c3ccf998282d41e9c880ab"
+      "read_sha256": "24f5524ea823c034223baf5eb55b41f8620b5e42674cfdd9b02cf303a2facee8"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -179,10 +179,10 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "1fb442b07d807d263cfcb483b065ff7fcc2d1372b00781455b3bb59c0780c2c0",
-      "lines": 65,
+      "sha256": "456a3842df1b2f44d5c48a55e96e884e871fcb379b62c82106aa0cbeaf3fc956",
+      "lines": 79,
       "read_status": "read",
-      "read_sha256": "1fb442b07d807d263cfcb483b065ff7fcc2d1372b00781455b3bb59c0780c2c0"
+      "read_sha256": "456a3842df1b2f44d5c48a55e96e884e871fcb379b62c82106aa0cbeaf3fc956"
     },
     {
       "path": "docs/OPTIMIZATION.md",
@@ -251,10 +251,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "f585b6f52577c5b8ab714c3418fe3056b2b2622c78331889d3bd9378ba4bac06",
-      "lines": 62,
+      "sha256": "ec6cbd0cf4f6388cf9c4822bb0743dd77707ba407d6f783c7f12c5a60744333e",
+      "lines": 69,
       "read_status": "read",
-      "read_sha256": "f585b6f52577c5b8ab714c3418fe3056b2b2622c78331889d3bd9378ba4bac06"
+      "read_sha256": "ec6cbd0cf4f6388cf9c4822bb0743dd77707ba407d6f783c7f12c5a60744333e"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -347,10 +347,10 @@
     {
       "path": "docs/architecture/NATIVE-GRAPHICS-AUDIO.md",
       "kind": "narrative",
-      "sha256": "78dfc304c8c89376ef1866047e8f2672ebfe8aead817595a515474c4e70f14e8",
+      "sha256": "38b067f0848dd04c060582792d7c86fa52273223a76a828075027da0140a2492",
       "lines": 27,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "38b067f0848dd04c060582792d7c86fa52273223a76a828075027da0140a2492"
     },
     {
       "path": "docs/architecture/PROOT-SESSIONS.md",
@@ -3775,6 +3775,14 @@
       "lines": 21,
       "read_status": "pending",
       "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-27-reinstall-repository-audit.md",
+      "kind": "narrative",
+      "sha256": "c0acf8d8e38158a8076be6cd8eb77ee820f4c46ad9ba8937f441e4a273877e6e",
+      "lines": 98,
+      "read_status": "read",
+      "read_sha256": "c0acf8d8e38158a8076be6cd8eb77ee820f4c46ad9ba8937f441e4a273877e6e"
     },
     {
       "path": "docs/evidence/P0-foundation.md",

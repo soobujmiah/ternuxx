@@ -92,7 +92,7 @@ class ProotGuiRoutingTests(unittest.TestCase):
 
     def test_standalone_supervisor_is_detached_from_terminal_lifecycle(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
-        self.assertIn('nohup setsid env TERNUXX_PULSE_COOKIE="$cookie" TERNUXX_DESKTOP_ID="$DESKTOP_ID"', script)
+        self.assertIn('nohup setsid env TERNUXX_PROOT_USER="$guest_user" TERNUXX_PULSE_COOKIE="$cookie" TERNUXX_DESKTOP_ID="$DESKTOP_ID"', script)
 
     def test_standalone_desktop_gets_private_system_bus_and_session_identity(self) -> None:
         wrapper = (ROOT / "lib/proot-xfce-wrapper.sh").read_text(encoding="utf-8")

@@ -229,7 +229,7 @@ nt_cmd_start() {
   local display_number="" desktop_id="xfce" desktop_command="" desktop_marker="" desktop_name="" desktop_json="" arg state_root supervisor owned_exec log_file tmp_root operation_id mesa_prefix=""
   # Do not pass a caller-specific loader directory (for example Codex's
   # bundled runtime) into Native Termux desktop processes.
-  local -a launch_env=()
+  local -a launch_env=() launch_unset=()
   local stale_display="" stale_display_number="" stale_x11_pid="" stale_artifact_state=""
   while [ $# -gt 0 ]; do
     arg="$1"; shift
@@ -359,6 +359,7 @@ PY_FAILED_SESSION_SAFE
       || ! _nt_native_zink_icd; then
       nt_fail "Saved Native Zink selection is missing, conflicting, or unsafe; no desktop process was started."; return 1
     fi
+    launch_unset=(-u LIBGL_ALWAYS_SOFTWARE -u GALLIUM_DRIVER -u VK_DRIVER_FILES)
     local zink_icd="$PREFIX/share/vulkan/icd.d/freedreno_icd.aarch64.json"
     launch_env+=("MESA_LOADER_DRIVER_OVERRIDE=zink" "GALLIUM_DRIVER=zink" "TU_DEBUG=noconform" \
       "MESA_VK_WSI_DEBUG=sw" "VK_ICD_FILENAMES=$zink_icd")
@@ -370,6 +371,7 @@ PY_FAILED_SESSION_SAFE
     }
   fi
   if [ -n "$mesa_prefix" ]; then
+    launch_unset=(-u LIBGL_ALWAYS_SOFTWARE -u GALLIUM_DRIVER -u VK_DRIVER_FILES)
     launch_env=("LD_LIBRARY_PATH=$mesa_prefix/lib:$PREFIX/lib"
       "LIBGL_DRIVERS_PATH=$mesa_prefix/lib/dri"
       "MESA_LOADER_DRIVER_OVERRIDE=kgsl"
@@ -391,7 +393,7 @@ PY_FAILED_SESSION_SAFE
   chmod 600 "$log_file" 2>/dev/null || true
   rm -f "$state_root/session.ready" 2>/dev/null || true
   nt_step "Starting Ternuxx-owned X11 and $desktop_name on :$display_number..."
-  nohup setsid env "${launch_env[@]}" "$supervisor" ":$display_number" "$state_root" "$tmp_root" \
+  nohup setsid env "${launch_unset[@]}" "${launch_env[@]}" "$supervisor" ":$display_number" "$state_root" "$tmp_root" \
     "$(command -v termux-x11)" "$(command -v dbus-launch)" \
     "$desktop_command" "$owned_exec" "$desktop_marker" native "$desktop_id" >> "$log_file" 2>&1 </dev/null &
 

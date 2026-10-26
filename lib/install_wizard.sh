@@ -212,6 +212,10 @@ _nt_install_guest_addons() {
   local distro="$1" desktops="$2" apps="$3" desktops_set="$4" apps_set="$5" root="$6" output status plan_id
   [ "$desktops_set" = 1 ] || desktops="$(_nt_choose_guest_desktops "$distro" "$root")" || return $?
   [ "$apps_set" = 1 ] || apps="$(_nt_choose_guest_apps "$distro" "$root")" || return $?
+  if [ "${_NT_GUEST_READY[$distro]:-0}" != 1 ]; then _nt_collect_guest_account "$distro" "$root" || return $?; fi
+  if [ "${_NT_GUEST_ACCOUNT_NEEDED[$distro]:-}" = create ]; then
+    apps="${apps:+$apps,}account-tools"
+  fi
   _nt_ai_guidance "$distro" "$apps"
   apps=",$apps,"; apps="${apps//,none,/,}"; apps="${apps#,}"; apps="${apps%,}"
   local -a args=(desktop-preview --repo-root "$root" --alias "$distro" --desktops "$desktops" --json)
@@ -226,10 +230,11 @@ print("Status:", d.get("status", "unknown"))
 print("Existing rootfs and accounts are preserved; no removals or upgrades.")
 ' "$distro" "$desktops" "$apps" <<<"$output" || return 1
   status="$(command python3 -c 'import json,sys; print(json.load(sys.stdin)["status"])' <<<"$output")" || return 1
-  [ "$status" != already_installed ] || { nt_ok 'Selected guest desktops/apps are already installed.'; return 0; }
+  [ "$status" != already_installed ] || { nt_ok 'Selected guest desktops/apps are already installed.'; _nt_apply_guest_account "$distro" "$root"; return $?; }
   plan_id="$(command python3 -c 'import json,sys; print(json.load(sys.stdin)["plan_id"])' <<<"$output")" || return 1
   _nt_confirm "Add the displayed desktops/apps to existing $distro (no rootfs replacement)?" || return $?
-  python3 "$root/lib/proot_setup.py" desktop-install --repo-root "$root" --yes --plan-id "$plan_id" --json
+  _nt_window_run python3 "$root/lib/proot_setup.py" desktop-install --repo-root "$root" --yes --plan-id "$plan_id" --json || return $?
+  _nt_apply_guest_account "$distro" "$root"
 }
 
 _nt_install_native_desktop() {
@@ -303,11 +308,28 @@ _nt_gpu_setup() {
     else
       nt_info "Native Zink unavailable: ${probe#*|}. No accelerated backend is advertised."
     fi
+    if [ -r /dev/kgsl-3d0 ] && [ "$(getprop ro.soc.model 2>/dev/null)" = SM8735 ]; then
+      nt_info 'Adreno 825 experimental Mesa: pinned public release, verified cache, private extraction and compatibility probe. Existing system Mesa is preserved.'
+      if [ -e "$TERNUXX_STATE_DIR/native-graphics-prefix" ] || [ -e "$TERNUXX_STATE_DIR/native-graphics-backend" ]; then
+        native_options+=('kgsl-freedreno|Pinned experimental Mesa / Adreno 825 (review and install)')
+      else
+        native_options=('kgsl-freedreno|Pinned experimental Mesa / Adreno 825 (review and install)' "${native_options[@]}")
+      fi
+    fi
     native_options+=('system|System Mesa defaults / CPU fallback; remove forced Native GPU preference')
     backend="$(_nt_pick 'Native backend (future CLI workloads / desktop starts)' single '' "${native_options[@]}")" || return $?
     if [ "$backend" != keep ]; then
       _nt_confirm "Select Native $backend for future workloads (no restart)?" || return $?
-      "$root/tx" mng graphics select native "$backend" || return $?
+      if [ "$backend" = kgsl-freedreno ]; then
+        local gpu_preview gpu_plan
+        gpu_preview="$(python3 "$root/lib/native_gpu_setup.py" preview)" || return $?
+        gpu_plan="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["plan_id"])' <<<"$gpu_preview")" || return 1
+        nt_info 'Pinned GPU plan: download pinned release if needed, verify archive/packages/files, probe Vulkan, select for future starts; system Mesa stays installed.'
+        _nt_confirm 'Apply this exact experimental Native GPU plan?' || return $?
+        _nt_window_run python3 "$root/lib/native_gpu_setup.py" apply --yes --plan-id "$gpu_plan" || return $?
+      else
+        "$root/tx" mng graphics select native "$backend" || return $?
+      fi
     fi
   fi
   if [[ "$target" = proot || "$target" = both ]]; then
@@ -338,11 +360,26 @@ _nt_install_gpu() {
 }
 
 # Session-memory-only choices. Passwords never enter env, argv, logs or saved plans.
-declare -gA _NT_GUEST_READY _NT_GUEST_USER _NT_GUEST_SUDO _NT_GUEST_DESKTOPS _NT_GUEST_APPS _NT_GUEST_PASSWORD
-_nt_collect_guest() {
+declare -gA _NT_GUEST_READY _NT_GUEST_USER _NT_GUEST_SUDO _NT_GUEST_DESKTOPS _NT_GUEST_APPS _NT_GUEST_PASSWORD _NT_GUEST_ACCOUNT_NEEDED
+_nt_collect_guest_account() {
   local distro="$1" root="$2" user='' sudo_mode=password password='' confirmation=''
   _nt_window_stage "Choose $distro account, desktop and software" 'Choices collected before workstation installation'
-  if [ ! -e "$PREFIX/var/lib/proot-distro/containers/$distro" ]; then
+  _NT_GUEST_ACCOUNT_NEEDED[$distro]=''
+  local existing=0 candidates='' choice
+  local -a account_options=()
+  if [ -e "$PREFIX/var/lib/proot-distro/containers/$distro" ]; then
+    existing=1
+    candidates="$(python3 "$root/lib/proot_account_setup.py" users --alias "$distro")" || return $?
+    while IFS= read -r choice; do [ -z "$choice" ] || account_options+=("$choice|$choice"); done < <(python3 -c 'import json,sys; print("\n".join(json.load(sys.stdin)))' <<<"$candidates")
+    if [ "${#account_options[@]}" -gt 0 ]; then
+      user="$(_nt_pick "Choose $distro login account" single '' "${account_options[@]}")" || return $?
+      _NT_GUEST_ACCOUNT_NEEDED[$distro]=select
+    else
+      nt_info "$distro has no ordinary login account. The reviewed installer will create one, preserving the rootfs."
+      _NT_GUEST_ACCOUNT_NEEDED[$distro]=create
+    fi
+  fi
+  if [ -z "$user" ]; then
     while :; do
       printf 'New %s guest username: ' "$distro" >/dev/tty
       IFS= read -r user </dev/tty || return 130
@@ -363,9 +400,34 @@ _nt_collect_guest() {
       done
     fi
   fi
-  _NT_GUEST_DESKTOPS[$distro]="$(_nt_choose_guest_desktops "$distro" "$root")" || return $?
-  _NT_GUEST_APPS[$distro]="$(_nt_choose_guest_apps "$distro" "$root")" || return $?
   _NT_GUEST_USER[$distro]="$user"; _NT_GUEST_SUDO[$distro]="$sudo_mode"
   _NT_GUEST_PASSWORD[$distro]="$password"; _NT_GUEST_READY[$distro]=1
   password=''; confirmation=''
+}
+
+
+_nt_collect_guest() {
+  local distro="$1" root="$2"
+  _nt_collect_guest_account "$distro" "$root" || return $?
+  _NT_GUEST_DESKTOPS[$distro]="$(_nt_choose_guest_desktops "$distro" "$root")" || return $?
+  _NT_GUEST_APPS[$distro]="$(_nt_choose_guest_apps "$distro" "$root")" || return $?
+}
+
+_nt_apply_guest_account() {
+  local distro="$1" root="$2" output plan_id credential_fd='' result
+  [ -n "${_NT_GUEST_ACCOUNT_NEEDED[$distro]:-}" ] || return 0
+  output="$(python3 "$root/lib/proot_account_setup.py" preview --alias "$distro" --user "${_NT_GUEST_USER[$distro]}" --sudo-mode "${_NT_GUEST_SUDO[$distro]}")" || return $?
+  plan_id="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["plan_id"])' <<<"$output")" || return 1
+  nt_info "Guest account plan: ${_NT_GUEST_ACCOUNT_NEEDED[$distro]} ${_NT_GUEST_USER[$distro]} in $distro; existing accounts/passwords stay unchanged."
+  _nt_confirm 'Apply this exact ordinary-account plan for guest login and GUI?' || return $?
+  local -a args=(apply --yes --plan-id "$plan_id")
+  if [ "${_NT_GUEST_ACCOUNT_NEEDED[$distro]}" = create ] && [ "${_NT_GUEST_SUDO[$distro]}" = password ]; then
+    exec {credential_fd}< <(printf '%s\n' "${_NT_GUEST_PASSWORD[$distro]}")
+    args+=(--password-fd "$credential_fd")
+  fi
+  _nt_window_run python3 "$root/lib/proot_account_setup.py" "${args[@]}"
+  result=$?
+  [ -z "$credential_fd" ] || exec {credential_fd}<&-
+  unset '_NT_GUEST_PASSWORD[$distro]'
+  return "$result"
 }

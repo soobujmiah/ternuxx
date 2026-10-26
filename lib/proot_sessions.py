@@ -330,7 +330,7 @@ def _contains_sequence(argv: list[str], expected: list[str]) -> bool:
 
 
 def _guest_alias(value: str) -> str:
-    if (not isinstance(value, str) or (value != "debian"
+    if (not isinstance(value, str) or (value not in {"debian", "ubuntu"}
             and not re.fullmatch(r"ternuxx-replay-[a-z0-9][a-z0-9-]{0,31}", value))):
         raise SessionError("guest alias must be debian or an explicit ternuxx-replay-NAME")
     return value
@@ -338,6 +338,9 @@ def _guest_alias(value: str) -> str:
 
 def discover_debian(*, prefix: str, which=None, alias: str = "debian") -> dict[str, object]:
     alias = _guest_alias(alias)
+    if alias == "ubuntu":
+        try: proot_diagnostics.verify_managed_guest_alias(alias, prefix)
+        except ValueError as exc: raise SessionError('guest alias Ubuntu requires a verified managed receipt') from exc
     if which is None:
         import shutil
         which = shutil.which
@@ -746,7 +749,7 @@ def preview_start(profile: str, *, prefix: str, alias: str = "debian") -> dict[s
     discovery = discover_debian(prefix=prefix, alias=alias)
     detail = show_profile(profile, prefix=prefix, alias=alias)
     if not detail["profile"]["available"]:
-        raise SessionError("PRoot profile preflight failed")
+        raise SessionError("PRoot profile preflight failed: " + str(detail["profile"].get("unavailable_reason") or "inspect the selected guest"))
     spec = PROFILES[profile]
     user = detail["profile"].get("user") if profile == "debian-interactive" else None
     return {"alias": _guest_alias(alias), "profile": profile, "profile_version": spec["version"], "mode": spec["mode"],
@@ -1111,17 +1114,18 @@ def spawn_login_interactive(state_dir: str | os.PathLike[str], *, prefix: str, c
 
 
 def login_interactive(state_dir: str | os.PathLike[str], *, prefix: str, confirmed: bool,
-                      plan_id: str) -> dict[str, object]:
+                      plan_id: str, alias: str = "debian") -> dict[str, object]:
     """Run the supported interactive Debian login on an owned controlling PTY."""
     if not os.isatty(0) or not os.isatty(1):
         raise SessionError("debian-interactive requires an attached terminal; use the headless profile otherwise")
+    extra = {"alias": alias} if alias != "debian" else {}
     spawned = spawn_login_interactive(state_dir, prefix=prefix, confirmed=confirmed,
-                                     plan_id=plan_id)
+                                     plan_id=plan_id, **extra)
     record = spawned["record"]
     master = spawned["master_fd"]
     child_pid = spawned["child_pid"]
     try:
-        print("Ternuxx Debian session " + record["session_id"] + " is attached. Type exit to leave.", file=sys.stderr)
+        print("Ternuxx " + alias.title() + " session " + record["session_id"] + " is attached. Type exit to leave.", file=sys.stderr)
         status = _relay_interactive_pty(master, child_pid)
         remaining = _members(child_pid)
         final_state = "stopped" if not remaining else "unknown"
@@ -1162,18 +1166,20 @@ def login_interactive(state_dir: str | os.PathLike[str], *, prefix: str, confirm
         raise
 
 def start_profile(state_dir: str | os.PathLike[str], *, prefix: str, profile: str,
-                  confirmed: bool, plan_id: str, timeout_seconds: int = 300) -> dict[str, object]:
+                  confirmed: bool, plan_id: str, timeout_seconds: int = 300, alias: str = "debian") -> dict[str, object]:
     if profile not in PROFILES:
         raise SessionError("PRoot profile is unsupported")
     if confirmed is not True or not isinstance(plan_id, str):
         raise SessionError("PRoot start requires an exact preview plan and explicit confirmation")
-    preview = preview_start(profile, prefix=prefix)
+    extra = {"alias": alias} if alias != "debian" else {}
+    if alias != "debian" and profile != "debian-interactive": raise SessionError("alternate aliases require the interactive profile")
+    preview = preview_start(profile, prefix=prefix, **extra)
     if plan_id != preview["plan_id"]:
         raise SessionError("PRoot start preview is stale or does not match the selected profile")
     if profile == "isolated-probe":
         return start_probe(state_dir, prefix=prefix, timeout_seconds=timeout_seconds,
                            expected_plan_id=plan_id)
-    return login_interactive(state_dir, prefix=prefix, confirmed=confirmed, plan_id=plan_id)
+    return login_interactive(state_dir, prefix=prefix, confirmed=confirmed, plan_id=plan_id, **extra)
 
 
 def _reconcile_observation(record: dict[str, object]) -> str:

@@ -68,6 +68,7 @@ def packages(distro: str, selected: list[str]) -> list[str]:
     items = catalog(distro)
     runtime = ["libgl1-mesa-dri", "libvulkan1", "mesa-vulkan-drivers", "mesa-utils", "vulkan-tools", "pulseaudio-utils"]
     if distro == "ubuntu": runtime += ["libegl-mesa0", "libgbm1", "libglx-mesa0"]
+    items["account-tools"] = ("Ordinary account setup prerequisites", ("sudo", "passwd"))
     items["cpu-runtime"] = ("CPU rendering and audio runtime (preserve GPU files)", tuple(runtime))
     items["graphics-runtime"] = ("Managed graphics/CPU rendering and sound runtime", tuple(runtime))
     if len(set(selected)) != len(selected) or any(key not in items for key in selected):

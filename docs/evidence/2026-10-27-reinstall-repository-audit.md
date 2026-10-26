@@ -1,0 +1,98 @@
+# Repository/reinstall audit — 2026-10-27 (Asia/Dhaka)
+
+## Scope and evidence classes
+
+This pass combines whole-tree mechanical inventory/syntax/document checks, the full
+repository test harness, and focused manual review of installer, guest identity,
+GUI routing, Native graphics, shared service authorization and session lifecycle.
+It is not a claim that every source line or every workload was manually qualified.
+Source/fixtures, owner report, historical device qualification and current read-only
+device observations are kept separate. The Native checkout was used directly; no
+SSH development shell was used. The separate Ternux repository was not modified.
+
+Initial tracked-tree snapshot: 2,607 files, 205 Python sources and 38 shell scripts/
+entry points; every inventoried Python file parsed and every shell script passed
+`bash -n`. New modules/tests are separately compiled and included in CI. The
+GTK/VTE source syntax check and document inventory/local-link audit are run before
+handoff. Generated repository status owns exact commit/CI facts.
+
+## Findings and repairs
+
+1. **Existing root-only guest skipped account setup.** Read-only Debian passwd
+   inspection found only the app-UID/nonlogin account in the ordinary UID range,
+   without a `/home/USER` login or managed receipt. The existing-rootfs add-on path
+   installed selected software but never provisioned an ordinary user. A new
+   preview/apply account engine binds rootfs identity and passwd digest, locks with
+   the add-on engine, checks guest idleness, and creates only a newly selected user.
+   Existing account selection records a default without rewriting passwords/sudo.
+   Passwords use a private FD/stdin, not arguments/environment/plans/receipts.
+   Failed partial account setup remains journaled for explicit inspection.
+2. **Debian account resolver ignored managed receipts.** Both distro account and
+   fresh-install receipts can now supply an identity-verified default, validated
+   against current passwd. Missing and ambiguous users have distinct actionable
+   messages. No automatic root fallback is introduced. Explicit `pgui --user` is
+   revalidated and passed through the standalone wrapper.
+3. **Official GPU driver is unsupported on this device.** Read-only installed
+   Mesa/Freedreno 26.2.5 `vulkaninfo --summary` returned
+   `VK_ERROR_INCOMPATIBLE_DRIVER`, chip ID `44030000`, GPU ID `6830`. No renderer
+   workload or desktop restart was performed. Forcing that same ICD is not a fix.
+   The historical, hash-pinned experimental Adreno 825 candidate now has reviewed
+   private extraction and a versioned public acquisition path. Every use verifies
+   hashes and loader/device compatibility, preserves system packages and guards
+   backend-selection drift. Explicit selected GPU environments remove inherited
+   software-only forcing; system/CPU mode retains caller choices.
+4. **Login/help was Debian-only.** `tx db`/`tx debian` and `tx ub`/`tx ubuntu` use
+   the shared owned PTY/session engine and bind the selected distro to the plan.
+   Canonical Ubuntu still requires a managed identity receipt. `tx kali` is an
+   explicit unsupported placeholder; no unqualified distro adapter is advertised.
+5. **Window organization.** Existing single-writer keyboard/log/resize handling is
+   retained; green section titles and a compact seven-stage bar improve hierarchy.
+   PTY tests continue to cover mode restoration, interrupted/delayed keys, paging,
+   resize/shrink and worker status propagation.
+
+## Release record
+
+The owner explicitly authorized publication of the verified GPU bundle after the
+original roadmap-only packaging scope. Versioned experimental tag:
+`native-mesa-adreno825-2026.10.27`. Runtime acquisition uses a fixed public release
+URL/SHA-256, never `latest`, GitHub authentication or an expiring Actions URL. It
+has no alternate-repository or integrity-bypass fallback. Reinstallation reuses a
+verified private cache; cache corruption or ABI/device incompatibility fails before
+changing the backend. Running desktops retain their original environment until the
+owner explicitly restarts them.
+
+The preparation tool verifies original upstream ZIP SHA-256
+`8493482210f9cc625f4fadb95e53cb417650c31f6e2b5a0d8725a2ef3c82ff5e`, the nested tar,
+and original package hashes. The release ZIP contains only the unchanged `mesa`
+and `mesa-vulkan-icd-freedreno` packages plus source license notices, pinned recipe
+and provenance; original OpenCL/dev/swrast packages are excluded. Matching full Mesa
+source archive SHA-256 is
+`5211bd235658a0585740fb2dfbe64e7e8ca3085ad8e423fc333b4d5e0de6fd93`.
+The release ZIP SHA-256 is
+`42475bf49bb0241717ce379d4efa50ae4b3b8e88676f46f672e37121249effe0`.
+
+Actual staged-release verification passed archive hash, both original package hashes,
+private temporary extraction and all four pinned runtime-file hashes. Static ELF
+inspection found all direct non-Android-system dependencies in the current Native
+prefix, including libLLVM. This does not prove dynamic ABI compatibility; the
+installer's Vulkan probe remains mandatory. No staged driver was loaded or selected
+on the owner's device during preparation. The release includes PROVENANCE.json,
+NOTICE.txt, SHA256SUMS and full corresponding source. It does not assert MIT-only
+licensing, upstream conformance, a byte-reproducible build or completed P12 transitive
+build-input attribution; `licenseConcluded` remains `NOASSERTION` in that record.
+
+## Validation and remaining gates
+
+New fixtures exercise real-manifest parsing, missing-account discovery, account-plan
+drift, private password delivery, default receipt selection with multiple users,
+pinned release extraction/cache/ABI rejection/integrity failure and alias propagation.
+Existing guest, management, graphics, desktop and installer suites are rerun; exact
+complete-suite results belong to generated CI status. Current SSH wildcard/password
+warnings are owner environment observations; the audit did not rewrite unmanaged
+SSH configuration or activate the dedicated Ternuxx service.
+
+Owner reinstall and visible Native/guest desktops, audible playback, application
+GPU rendering and broader distro qualification remain live gates. P12 source-owner/
+license-attribution and source-rebuild gaps remain open; this mirror does not mark
+them complete. General Ternuxx application release licensing/packaging remains a
+separate roadmap item.

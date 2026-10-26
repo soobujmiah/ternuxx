@@ -26,7 +26,7 @@ _nt_proot_gui() {
 nt_cmd_pgui() {
   if [ "$#" -eq 0 ]; then
     set -- start
-  elif [[ "$1" = --mode || "$1" = --desktop || "$1" = --alias ]]; then
+  elif [[ "$1" = --mode || "$1" = --desktop || "$1" = --alias || "$1" = --user ]]; then
     set -- start "$@"
   fi
   case "${1:-}" in
@@ -92,30 +92,31 @@ _nt_proot_verify() {
   python3 "$_TN_LIB_DIR/management_service.py" "${args[@]}"
 }
 
-nt_cmd_db() {
-  if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ]; then
-    cat <<'EOF'
-tx db — Open the installed Debian guest through the owned session service
-The guest must already be installed. Type LOGIN after reviewing the exact session preview.
-Use `tx proot setup fresh-preview --user USER` to preview a new Debian install.
-EOF
+_nt_guest_login() {
+  local distro="$1"; shift
+  if [ "${1:-}" = --help ] || [ "${1:-}" = -h ]; then
+    printf 'Open the installed %s guest through the shared owned session service.\nPreview then type LOGIN. No GUI or service starts.\n' "$distro"
     return 0
   fi
-  [ "$#" -eq 0 ] || { nt_fail "Use tx db with no arguments, or tx proot setup for guest management."; return 2; }
-  [ -t 0 ] && [ -t 1 ] || { nt_fail "Debian interactive login needs an attached terminal."; return 2; }
+  [ "$#" = 0 ] || { nt_fail "Guest login accepts no arguments; use tx proot setup for management."; return 2; }
+  [ -t 0 ] && [ -t 1 ] || { nt_fail "Guest login needs an attached terminal."; return 2; }
   nt_require_termux || return 1
   nt_require_command python3 || return 1
-  local service="$_TN_LIB_DIR/management_service.py" preview plan_id
-  preview="$(python3 "$service" --operation proot.start.preview --guest-profile debian-interactive --json)" || return 1
-  plan_id="$(printf '%s' "$preview" | python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("data",{}).get("plan_id", "") if d.get("ok") else "")')"
+  local service="$_TN_LIB_DIR/management_service.py" preview plan_id answer login_user
+  preview="$(python3 "$service" --operation proot.start.preview --guest-profile debian-interactive --alias "$distro" --json)" || { printf '%s\n' "$preview"; return 1; }
+  plan_id="$(python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("data",{}).get("plan_id", "") if d.get("ok") else "")' <<<"$preview")"
   [ -n "$plan_id" ] || { printf '%s\n' "$preview"; return 1; }
-  printf '%s\n' "$preview"
-  printf '%s' 'Type LOGIN to enter this exact Debian session: '
-  local answer
+  login_user="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["data"]["user"])' <<<"$preview")" || return 1
+  nt_info "Guest login: $distro | Account: $login_user | Foreground terminal; no GUI/service start."
+  printf 'Type LOGIN to enter this exact %s session: ' "$distro"
   IFS= read -r answer || return 1
-  [ "$answer" = LOGIN ] || { nt_warn "Cancelled; no guest session started."; return 2; }
-  python3 "$service" --operation proot.start --guest-profile debian-interactive --yes --plan-id "$plan_id" --json
+  [ "$answer" = LOGIN ] || { nt_warn 'Cancelled; no guest session started.'; return 2; }
+  python3 "$service" --operation proot.start --guest-profile debian-interactive --alias "$distro" --yes --plan-id "$plan_id" --json
 }
+
+nt_cmd_db() { _nt_guest_login debian "$@"; }
+nt_cmd_ub() { _nt_guest_login ubuntu "$@"; }
+nt_cmd_kali() { nt_fail 'Kali has no qualified Ternuxx provider yet; no guest was started. Available managed logins: tx db, tx ub.'; return 2; }
 
 nt_cmd_proot() {
   local subcommand="${1:-status}" session_id="" plan_id="" confirmed=0 option

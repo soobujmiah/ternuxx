@@ -216,7 +216,8 @@ class ProotDiagnosticsTests(unittest.TestCase):
                 proot_diagnostics.verify_managed_guest_alias(
                     "ubuntu", str(prefix), home=str(home), state_dir=str(state))
 
-    def test_resolves_ubuntu_user_from_the_install_receipt(self):
+    @mock.patch.object(proot_diagnostics, "ordinary_guest_users", return_value=["sobuj"])
+    def test_resolves_ubuntu_user_from_the_install_receipt(self, ordinary):
         with mock.patch.object(proot_diagnostics, "verify_managed_guest_alias",
                                return_value={"guest_user": "sobuj"}):
             self.assertEqual(proot_diagnostics.resolve_proot_guest_user(

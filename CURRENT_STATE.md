@@ -4,6 +4,33 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Reinstall/account/GPU audit follow-up — 2026-10-27
+
+The owner's PRoot GUI failure was reproduced as a read-only account-discovery fact:
+the existing Debian rootfs has no ordinary `/home/USER` login account, and no managed
+account receipt. The earlier add-on path preserved that root-only guest without
+creating one. Reinstall now collects/creates or selects an ordinary account through
+an exact rootfs/passwd-bound plan, persists a private identity-bound default, and
+preserves existing users/passwords. `pgui --user` propagates the validated user to
+the standalone wrapper; friendly errors replace the raw start traceback.
+
+The installed official Mesa/Freedreno 26.2.5 read-only Vulkan probe rejected the
+owner's GPU. The managed wizard now offers the pinned experimental Adreno 825 Mesa
+provider from an owner-authorized versioned release. ZIP, original package and four
+runtime-file hashes are verified; private extraction leaves system packages intact,
+and a loader/device check gates future-session selection. Repeat installs verify
+cache plus current compatibility. Source archive, all matching source license
+notices and build recipe/provenance accompany the release. This is stable acquisition
+of experimental bytes, not closure of the P12 transitive attribution/source-rebuild
+gate or current-device rendered-workload acceptance.
+
+Login aliases now route Debian (`db`/`debian`) and Ubuntu (`ub`/`ubuntu`) through the
+same owned-session service with the selected alias bound to the preview. Kali is
+explicitly unavailable. The installer adds green section headers and a compact
+seven-stage progress indicator. See the [repository-wide audit report](docs/evidence/2026-10-27-reinstall-repository-audit.md)
+for coverage and limits. No live guest/account, installed package, desktop/service
+or Android setting was changed by the assistant during this follow-up.
+
 ## Keyboard and installer branding follow-up — 2026-10-26
 
 The owner reported literal arrow escape text and a stuck existing-Debian add-on

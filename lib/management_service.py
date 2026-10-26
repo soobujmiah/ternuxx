@@ -115,15 +115,15 @@ OPERATIONS = {
     "proot.setup.fresh.preview": {"args": {"user", "sudo_mode", "desktops", "distro"}},
     "proot.setup.fresh.apply": {"args": {"user", "sudo_mode", "plan_id", "confirmed", "password", "distro"}},
     "proot.profiles.list": {"args": set()},
-    "proot.profiles.show": {"args": {"profile"}},
+    "proot.profiles.show": {"args": {"profile", "alias"}},
     "proot.sessions.list": {"args": set()},
     "proot.sessions.show": {"args": {"session_id"}},
     "proot.sessions.health": {"args": {"session_id"}},
     "proot.recovery.inspect": {"args": {"session_id"}},
     "proot.recovery.reconcile.preview": {"args": {"session_id"}},
     "proot.recovery.reconcile": {"args": {"session_id", "confirmed", "plan_id"}},
-    "proot.start.preview": {"args": {"profile"}},
-    "proot.start": {"args": {"profile", "confirmed", "plan_id", "timeout_seconds"}},
+    "proot.start.preview": {"args": {"profile", "alias"}},
+    "proot.start": {"args": {"profile", "confirmed", "plan_id", "timeout_seconds", "alias"}},
     "proot.stop.preview": {"args": {"session_id"}},
     "proot.stop": {"args": {"session_id", "confirmed", "plan_id"}},
     "proot.app.launch": {"args": {"app_id", "desktop_id", "display"}},
@@ -339,10 +339,12 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             or not isinstance(args.get("plan_id"), str)):
         return _error(request_id, "confirmation_required", "reconciliation requires an exact preview plan and confirmation")
     if operation in {"proot.profiles.show", "proot.start.preview"} and (
-            set(args) != {"profile"} or not isinstance(args.get("profile"), str)):
+            set(args) not in ({"profile"}, {"profile", "alias"}) or not isinstance(args.get("profile"), str)
+            or ("alias" in args and not _installable_guest_alias(args["alias"]))):
         return _error(request_id, "invalid_arguments", "a supported PRoot profile is required")
     if operation == "proot.start" and (
-            set(args) != {"profile", "confirmed", "plan_id", "timeout_seconds"}
+            set(args) not in ({"profile", "confirmed", "plan_id", "timeout_seconds"}, {"profile", "confirmed", "plan_id", "timeout_seconds", "alias"})
+            or ("alias" in args and not _installable_guest_alias(args["alias"]))
             or not isinstance(args.get("profile"), str) or args.get("confirmed") is not True
             or not isinstance(args.get("plan_id"), str) or type(args.get("timeout_seconds")) is not int
             or not 30 <= args["timeout_seconds"] <= 1800):
@@ -669,7 +671,7 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
         elif operation == "proot.profiles.list":
             data = proot_sessions.profile_inventory(prefix=process_env["PREFIX"])
         elif operation == "proot.profiles.show":
-            data = proot_sessions.show_profile(args["profile"], prefix=process_env["PREFIX"])
+            data = proot_sessions.show_profile(args["profile"], prefix=process_env["PREFIX"], **({"alias": args["alias"]} if "alias" in args else {}))
         elif operation == "proot.sessions.list":
             data = {"sessions": proot_sessions.list_sessions(
                 state_dir or os.path.join(home, ".local/share/ternuxx"))}
@@ -690,12 +692,12 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 state_dir or os.path.join(home, ".local/share/ternuxx"), args["session_id"],
                 confirmed=args["confirmed"], plan_id=args["plan_id"])
         elif operation == "proot.start.preview":
-            data = proot_sessions.preview_start(args["profile"], prefix=process_env["PREFIX"])
+            data = proot_sessions.preview_start(args["profile"], prefix=process_env["PREFIX"], **({"alias": args["alias"]} if "alias" in args else {}))
         elif operation == "proot.start":
             data = proot_sessions.start_profile(
                 state_dir or os.path.join(home, ".local/share/ternuxx"), prefix=process_env["PREFIX"],
                 profile=args["profile"], confirmed=args["confirmed"], plan_id=args["plan_id"],
-                timeout_seconds=args["timeout_seconds"])
+                timeout_seconds=args["timeout_seconds"], **({"alias": args["alias"]} if "alias" in args else {}))
         elif operation == "proot.stop.preview":
             data = proot_sessions.preview_stop(
                 state_dir or os.path.join(home, ".local/share/ternuxx"), args["session_id"])
@@ -2112,6 +2114,7 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
             return 1
         payload = {"profile": args.guest_profile}
+        if args.alias: payload["alias"] = args.alias
     elif args.operation == "proot.start":
         if not args.guest_profile or not args.yes or not args.plan_id or not 30 <= args.timeout_seconds <= 1800:
             response = _error(request_id, "confirmation_required", "guest start requires --guest-profile, --yes, exact --plan-id, and a bounded timeout")
@@ -2119,6 +2122,7 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         payload = {"profile": args.guest_profile, "confirmed": True, "plan_id": args.plan_id,
                    "timeout_seconds": args.timeout_seconds}
+        if args.alias: payload["alias"] = args.alias
     elif args.operation in {"proot.sessions.show", "proot.sessions.health", "proot.recovery.inspect",
                             "proot.recovery.reconcile.preview", "proot.stop.preview"}:
         if not args.session_id or args.yes or args.plan_id:

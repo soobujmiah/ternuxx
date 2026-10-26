@@ -68,6 +68,7 @@ declare -A _NT_LOADED
 # --- Command registry --------------------------------------------------
 _nt_resolve_slug() {
   case "$1" in
+    debian) echo db ;; ubuntu) echo ub ;;
     up) echo start ;; dn) echo stop ;; rs) echo restart ;; st) echo status ;;
     ck) echo check ;; inf) echo info ;; doc) echo doctor ;;
     mg|mng) echo management ;;
@@ -154,7 +155,7 @@ _nt_dispatch() {
     app)                       lib_map="management" ;;
     graphics)                   lib_map="desktop" ;;
     gui)                       lib_map="launch" ;;
-    proot|pgui|db)             lib_map="proot" ;;
+    proot|pgui|db|ub|kali)             lib_map="proot" ;;
     terminal)                   lib_map="terminal" ;;
     tui)                        lib_map="tui" ;;
     web)                        lib_map="management" ;;

@@ -23,11 +23,13 @@ Open and inspect:
   tx tui / tx web / tx gui         Terminal / browser / GTK management
   tx start [--desktop DE]          Native desktop
   tx pgui [DE]                     Debian XFCE; auto :0 or nested :2
+  tx pgui --alias ubuntu          Ubuntu GUI; --user NAME selects an existing account
   tx status / tx doctor            Current state / health checks
   tx audio status                  Sound status
 
 More commands:
-  Debian: db (interactive guest login), proot setup, pgui, terminal
+  Guests: tx db (Debian), tx ub (Ubuntu); proot setup, pgui, terminal
+  tx kali                         Reserved; provider not qualified yet
   tx app / tx mng                  Software and services
   tx ai                           CPU, Vulkan GPU and experimental HTP inference routes
   tx checkpoint / tx recovery      Recovery tools
@@ -38,8 +40,11 @@ Options: --json, --verbose, --quiet, --help
 Changes show a preview and require confirmation. Remote access is disabled by default.
 EOF
       ;;
-    proot|db|pgui|virgl)
+    kali)
+      printf '%s\n' 'tx kali is reserved for a future managed Kali provider; it is not available yet.' 'Use tx db / tx debian or tx ub / tx ubuntu for supported guest login.' ;;
+    proot|db|ub|debian|ubuntu|pgui|virgl)
       cat <<'EOF'
+Login aliases: tx db / tx debian; tx ub / tx ubuntu. Kali is not qualified yet.
 Managed PRoot guests use the Native Termux host. Run `tx proot setup catalog` to
 list profiles and their accepted desktop routes. The short flows are `tx install debian`
 and `tx install ubuntu`; each asks for the guest username and, in an attached

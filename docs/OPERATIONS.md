@@ -63,3 +63,17 @@ The generated Debian application launchers use `tx mng app launch --desktop-id A
 For standalone `tx pgui start`, Ternuxx waits up to 60 seconds for the selected desktop shell, window manager, panel, and desktop processes in the owned PRoot session group. `tx pgui status` reports the same process-readiness result. If the deadline expires, the session is left running and the missing processes are reported. This does not establish window-surface visibility, Android foreground presentation, audible playback, or accelerated rendering.
 
 Nested `tx pgui start --mode nested` uses Xephyr display `:2`. It refuses to start when that display is occupied or its ownership is ambiguous. Before refusing, it may reclaim only a positively stale PRoot `--link2symlink` lock chain whose PID is absent, whose socket refuses connections, and whose complete lock chain is confined to the installed Debian rootfs `.l2s` directory; it never signals a process. All other stale/unknown artifacts remain untouched. Startup geometry follows Native display dimensions. The owner has physically accepted portrait and landscape/fullscreen rotation on this device; screen resizing remains dependent on Termux:X11 and its window manager, and no independent capture was recorded.
+
+
+## Managed guest login shortcuts
+
+`tx db` and `tx debian` select the managed Debian guest. `tx ub` and `tx ubuntu`
+select the managed Ubuntu guest through the same preview-confirmed owned PTY
+session service. The selected alias is bound to the exact plan; an Ubuntu request
+cannot fall back to Debian. `tx kali` is reserved and explicitly unavailable.
+
+If `pgui` reports no ordinary guest account, rerun `tx install proot DISTRO`: it
+preserves the rootfs and offers reviewed account creation/default selection. When
+multiple accounts exist, an identity-bound account/fresh-install receipt supplies
+the default, or `tx pgui --user NAME` selects an existing ordinary account explicitly.
+No automatic root login is used. See [account setup](INSTALLATION.md#existing-guest-account-repair-and-login).

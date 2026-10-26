@@ -48,7 +48,7 @@ Public release additionally requires a selected license, provenance review, and 
 ## Owner-approved distribution and ecosystem follow-up
 
 The current scope ships checkout bootstrap and consolidated operating guidance.
-Release artifact packaging remains planned: reproducible versioned archives,
+General product release artifact packaging remains planned: reproducible versioned archives,
 checksums, provenance/SBOM, license resolution, compatibility matrix and CI/owner
 acceptance before public publication. No release artifact is published by bootstrap.
 The separate Ternux repository remains independent and unchanged.
@@ -60,3 +60,10 @@ of SSH/runit tools. Continue AI runtime/provider qualification against exact CPU
 Vulkan and experimental HTP workload evidence; installed drivers alone do not qualify
 acceleration. Track clean-device installer acceptance and cross-client handoff before
 claiming reproducible device installation.
+
+
+On 2026-10-27 the owner explicitly expanded scope to publish a verified experimental
+Native GPU bundle. That narrow third-party Mesa mirror has matching source, notices,
+recipe/provenance and checksums; it does not select a license for Ternuxx code or
+close the P12 transitive source/build-attribution gate. General application release
+packaging and clean-device acceptance remain separately tracked.

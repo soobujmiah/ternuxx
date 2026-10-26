@@ -46,6 +46,15 @@ class GraphicsManagementTests(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp.cleanup()
 
+    def test_selected_candidate_clears_software_forcing_but_system_mode_preserves_it(self):
+        source={"PREFIX":str(self.home/'native'),"GALLIUM_DRIVER":"llvmpipe","LIBGL_ALWAYS_SOFTWARE":"1","VK_DRIVER_FILES":"/stale/icd.json"}
+        baseline=graphics_manager.native_process_environment(home=str(self.home),state_dir=str(self.state),process_env=source)
+        self.assertEqual(baseline['GALLIUM_DRIVER'],'llvmpipe')
+        graphics_manager.configure_native('kgsl-freedreno',home=str(self.home),state_dir=str(self.state),repo_root=str(self.repo))
+        selected=graphics_manager.native_process_environment(home=str(self.home),state_dir=str(self.state),process_env=source)
+        self.assertEqual(selected['MESA_LOADER_DRIVER_OVERRIDE'],'kgsl')
+        for key in ('GALLIUM_DRIVER','LIBGL_ALWAYS_SOFTWARE','VK_DRIVER_FILES'):self.assertNotIn(key,selected)
+
     def make_termux_freedreno(self, prefix: Path) -> None:
         for relative in ("lib/dri/libdril_dri.so", "lib/libgallium-26.2.5.so", "lib/libvulkan_freedreno.so"):
             target = prefix / relative

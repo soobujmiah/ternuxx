@@ -19,12 +19,14 @@ shift || true
 MODE=auto
 DESKTOP_ID=""
 DISTRO_ID=debian
+EXPLICIT_USER=""
 PROFILE_ID=debian-trixie
 if [ "$ACTION" = start ]; then
   while [ "$#" -gt 0 ]; do
     case "$1" in
       --mode) [ "$#" -ge 2 ] || { echo "--mode needs auto|standalone|nested" >&2; exit 2; }; MODE="$2"; shift 2 ;;
       --desktop) [ "$#" -ge 2 ] || { echo "--desktop needs an installed desktop ID" >&2; exit 2; }; DESKTOP_ID="$2"; shift 2 ;;
+      --user) [ "$#" -ge 2 ] || { echo "--user needs an ordinary guest account" >&2; exit 2; }; EXPLICIT_USER="$2"; shift 2 ;;
       --alias) [ "$#" -ge 2 ] || { echo "--alias needs an installed Ternuxx guest alias" >&2; exit 2; }; DISTRO_ID="$2"; shift 2 ;;
       --help|-h) ACTION=help; shift ;;
       *) echo "Unknown pgui start option: $1" >&2; exit 2 ;;
@@ -41,7 +43,19 @@ alias,prefix=sys.argv[1:]
 proot_diagnostics.verify_managed_guest_alias(alias,prefix)
 PYALIAS
     fi
-    guest_user="$(PYTHONPATH="$ROOT/lib" python3 -c 'import os,sys,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro=sys.argv[1],prefix=os.environ["PREFIX"]))' "$DISTRO_ID")" 2>/dev/null || { echo "Could not resolve one ordinary account in the selected guest; no desktop was started." >&2; exit 1; }
+    guest_user="$(PYTHONPATH="$ROOT/lib" python3 - "$DISTRO_ID" "$EXPLICIT_USER" <<'PYUSER'
+import os,sys,proot_diagnostics as guests
+try:
+    alias, explicit = sys.argv[1:]
+    if explicit:
+        if guests.ordinary_guest_users(distro=alias,prefix=os.environ['PREFIX']).count(explicit)!=1:
+            raise ValueError('selected account is not one ordinary guest login')
+        print(explicit)
+    else: print(guests.resolve_proot_guest_user(distro=alias,prefix=os.environ['PREFIX']))
+except ValueError as exc:
+    print(str(exc),file=sys.stderr);raise SystemExit(1)
+PYUSER
+)" || { echo "No desktop started. Set up the account with tx install proot $DISTRO_ID, or select an existing one with tx pgui --user NAME." >&2; exit 1; }
     selection="$(PYTHONPATH="$ROOT/lib" python3 - "$PREFIX/var/lib/proot-distro/containers/$DISTRO_ID/rootfs" "$DESKTOP_ID" "$MODE" "$PROFILE_ID" <<'PYSEL'
 import sys
 import proot_desktops
@@ -76,7 +90,7 @@ PYSEL
 fi
 
 usage() { cat <<'USAGE'
-Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|plasma] [--alias debian|ubuntu|ternuxx-replay-NAME]|status|stop]
+Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|plasma] [--alias debian|ubuntu|ternuxx-replay-NAME] [--user NAME]|status|stop]
 Auto uses standalone :0 when Native GUI is stopped, otherwise nested Xephyr :2 inside Native :1.
 Standalone and Native desktop sessions cannot run together. Nested mode holds the lifecycle lock until closed.
 Choose an installed environment with `tx pgui ID` or `tx pgui start --desktop ID`; XFCE is the default when installed.
@@ -352,7 +366,7 @@ PY
     cookie="${TERNUXX_PULSE_COOKIE:-$(PYTHONPATH="$ROOT/lib" python3 -c 'import proot_diagnostics; print(proot_diagnostics._native_pulse_cookie_path() or "")' 2>/dev/null)}"
     [ -f "$cookie" ] && [ ! -L "$cookie" ] || { echo "Ternuxx Native PulseAudio cookie is unavailable; no PRoot GUI was started." >&2; exit 1; }
     touch "$STATE_DIR/desktop.log"; chmod 600 "$STATE_DIR/desktop.log"
-    nohup setsid env TERNUXX_PULSE_COOKIE="$cookie" TERNUXX_DESKTOP_ID="$DESKTOP_ID" TERNUXX_PROOT_ALIAS="$DISTRO_ID" "$SUPERVISOR" ":0" "$STATE_DIR" "$TMP_ROOT" \
+    nohup setsid env TERNUXX_PROOT_USER="$guest_user" TERNUXX_PULSE_COOKIE="$cookie" TERNUXX_DESKTOP_ID="$DESKTOP_ID" TERNUXX_PROOT_ALIAS="$DISTRO_ID" "$SUPERVISOR" ":0" "$STATE_DIR" "$TMP_ROOT" \
       "$PREFIX/bin/termux-x11" "$ROOT/lib/proot-dbus-session.sh" "$WRAPPER" "$OWNED_EXEC" \
       proot-display0 proot >>"$STATE_DIR/desktop.log" 2>&1 </dev/null &
     ready=0

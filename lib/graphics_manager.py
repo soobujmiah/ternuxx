@@ -146,6 +146,8 @@ def _native_env(*, home: str, state_dir: str, process_env: dict[str, str]) -> di
             env["LD_LIBRARY_PATH"] = os.pathsep.join(
                 path for index, path in enumerate(library_paths) if path and path not in library_paths[:index]
             )
+            for key in ("LIBGL_ALWAYS_SOFTWARE", "GALLIUM_DRIVER", "VK_DRIVER_FILES"):
+                env.pop(key, None)
             env.update({
                 "LIBGL_DRIVERS_PATH": prefix + "/lib/dri",
                 "MESA_LOADER_DRIVER_OVERRIDE": "kgsl",
@@ -175,6 +177,8 @@ def _native_env(*, home: str, state_dir: str, process_env: dict[str, str]) -> di
             ready, _reason = _termux_freedreno_ready(termux_prefix)
             if ready:
                 _library, icd = _termux_freedreno_paths(termux_prefix)
+                for key in ("LIBGL_ALWAYS_SOFTWARE", "VK_DRIVER_FILES"):
+                    env.pop(key, None)
                 env.update({"MESA_LOADER_DRIVER_OVERRIDE": "zink", "GALLIUM_DRIVER": "zink",
                             "TU_DEBUG": "noconform", "MESA_VK_WSI_DEBUG": "sw",
                             "VK_ICD_FILENAMES": icd})

@@ -9,7 +9,7 @@
 
 # Native host packages include Debian PRoot support, graphical diagnostics, and
 # X11 test utilities. Heavy applications and Mesa providers remain optional.
-declare -gA _NT_GUEST_READY _NT_GUEST_USER _NT_GUEST_SUDO _NT_GUEST_DESKTOPS _NT_GUEST_APPS _NT_GUEST_PASSWORD
+declare -gA _NT_GUEST_READY _NT_GUEST_USER _NT_GUEST_SUDO _NT_GUEST_DESKTOPS _NT_GUEST_APPS _NT_GUEST_PASSWORD _NT_GUEST_ACCOUNT_NEEDED
 . "$(dirname "${BASH_SOURCE[0]}")/install_catalog.sh"
 _NT_CORE_PACKAGES=(python)
 _NT_DESKTOP_PACKAGES=(
@@ -618,7 +618,7 @@ nt_cmd_install() {
     return $?
   fi
   case "${1:-}" in
-    alpine|archlinux|fedora|void)
+    alpine|archlinux|fedora|void|kali)
       nt_fail "Ternuxx does not yet have a managed ${1} setup profile."
       return 2 ;;
   esac

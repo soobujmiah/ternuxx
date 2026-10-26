@@ -49,14 +49,7 @@ def _read_proot_guest_passwd(*, distro: str, prefix: str) -> tuple[Path, list[st
     return root, lines
 
 
-def resolve_proot_guest_user(*, distro: str, prefix: str) -> str:
-    """Resolve the receipted user for managed guests, otherwise inspect passwd."""
-    if distro == "ubuntu":
-        receipt = verify_managed_guest_alias(distro, prefix)
-        user = receipt.get("guest_user")
-        if isinstance(user, str) and _GUEST_USER.fullmatch(user) and user != "root":
-            return user
-        raise GuestProfileError("managed Ubuntu receipt has no ordinary guest account")
+def ordinary_guest_users(*, distro: str, prefix: str) -> list[str]:
     _root, lines = _read_proot_guest_passwd(distro=distro, prefix=prefix)
     users = []
     for line in lines:
@@ -66,11 +59,42 @@ def resolve_proot_guest_user(*, distro: str, prefix: str) -> str:
         name, _password, uid_text, _gid, _gecos, home, shell = fields
         if (not _GUEST_USER.fullmatch(name) or name == "root" or not uid_text.isdecimal()
                 or len(uid_text) > 5 or not 1000 <= int(uid_text) < 60000
-                or home != f"/home/{name}" or not _valid_guest_shell(shell)):
+                or home != f"/home/{name}" or not _valid_guest_shell(shell)
+                or shell.rsplit('/', 1)[-1] in {'false', 'nologin'}):
             continue
         users.append(name)
+    return users
+
+
+def resolve_proot_guest_user(*, distro: str, prefix: str) -> str:
+    """Prefer an identity-bound managed account, then one ordinary passwd account."""
+    users = ordinary_guest_users(distro=distro, prefix=prefix)
+    home = str(Path.home())
+    state_dir = os.environ.get('TERNUXX_STATE_DIR', str(Path(home)/'.local/share/ternuxx'))
+    try:
+        state = proot_fresh_setup._state_root(home, state_dir, create=False)
+    except (OSError, ValueError):
+        state = None
+    if state is not None:
+        for filename in ('account-provider-'+distro+'.json', 'fresh-provider.json' if distro=='debian' else 'fresh-provider-'+distro+'.json'):
+            path = state / filename
+            if not path.exists() and not path.is_symlink():
+                continue
+            try:
+                receipt = proot_fresh_setup._read_private(path)
+                proot_fresh_setup._verify_owned_target(prefix, distro, receipt.get('rootfs_identity'))
+                user = receipt.get('guest_user')
+                if receipt.get('schema_version') != 1 or receipt.get('alias') != distro or users.count(user) != 1:
+                    raise ValueError('receipt account is missing or ambiguous')
+                return user
+            except (OSError, ValueError) as exc:
+                raise GuestProfileError('managed guest account receipt is stale or unsafe; rerun tx install proot '+distro) from exc
+    if len(users) == 0:
+        raise GuestProfileError('no ordinary guest account; run tx install proot '+distro+' to set one up')
     if len(users) != 1:
-        raise GuestProfileError("guest account is ambiguous; pass --user NAME")
+        raise GuestProfileError('guest account is ambiguous; select an account through tx install proot '+distro+' or pass --user NAME')
+    if distro == 'ubuntu':
+        verify_managed_guest_alias(distro, prefix)
     return users[0]
 
 
@@ -500,6 +524,14 @@ def verify_managed_guest_alias(distro: str, prefix: str = "/data/data/com.termux
     state_dir = state_dir or os.environ.get("TERNUXX_STATE_DIR", str(Path(home) / ".local/share/ternuxx"))
     try:
         state = proot_fresh_setup._state_root(home, state_dir, create=False)
+        account = state / 'account-provider-ubuntu.json'
+        if account.exists() or account.is_symlink():
+            receipt = proot_fresh_setup._read_private(account)
+            import proot_desktop_setup
+            _root, identity = proot_desktop_setup._rootfs(prefix, 'ubuntu')
+            if receipt.get('alias') != 'ubuntu' or receipt.get('rootfs_identity') != identity or ordinary_guest_users(distro='ubuntu',prefix=prefix).count(receipt.get('guest_user')) != 1:
+                raise ValueError('managed Ubuntu account identity changed')
+            return {**receipt, 'profile_id':'ubuntu-noble'}
         receipt = proot_fresh_setup._read_private(state / "fresh-provider-ubuntu.json")
         if (receipt.get("schema_version") != 1 or receipt.get("alias") != "ubuntu"
                 or receipt.get("release") != "Ubuntu 24.04 LTS (Noble)"

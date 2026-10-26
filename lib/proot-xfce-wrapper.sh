@@ -26,10 +26,18 @@ case "$desktop_id" in
   plasma) desktop_argv=(startplasma-x11) ;;
   *) echo "Unsupported managed guest desktop selection" >&2; exit 2 ;;
 esac
-guest_user="$(PYTHONPATH="$SCRIPT_LIB_DIR" python3 -c 'import os,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro=os.environ["TERNUXX_PROOT_ALIAS"],prefix=os.environ["PREFIX"]))')" || {
-  echo "Could not resolve one ordinary managed guest account; no desktop was started." >&2
-  exit 1
-}
+guest_user="$(PYTHONPATH="$SCRIPT_LIB_DIR" python3 - <<'PYUSER'
+import os,proot_diagnostics as guests
+alias=os.environ['TERNUXX_PROOT_ALIAS'];prefix=os.environ['PREFIX'];user=os.environ.get('TERNUXX_PROOT_USER')
+try:
+    if user:
+        if guests.ordinary_guest_users(distro=alias,prefix=prefix).count(user)!=1:raise ValueError('selected ordinary account is no longer valid')
+        print(user)
+    else:print(guests.resolve_proot_guest_user(distro=alias,prefix=prefix))
+except ValueError as exc:
+    print(str(exc),file=__import__('sys').stderr);raise SystemExit(1)
+PYUSER
+)" || { echo 'Guest account is unavailable; no desktop was started.' >&2; exit 1; }
 args=(login "$guest_alias" --shared-tmp --user "$guest_user"
   --env DISPLAY=:0
   --env TERNUXX_SESSION_ID=proot-display0

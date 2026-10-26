@@ -98,6 +98,17 @@ tx proot status
 
 In an attached Native terminal, run `tx install debian` and follow the keyboard selectors. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Ubuntu Noble currently offers XFCE. Its standalone `:0` and guest-to-Native `:1` graphics routes passed live checks; nested `:2` starts XFCE and passes Vulkan/audio endpoint checks but remains partial because Xephyr DRI3/GLX drawing is unavailable. Other distro names remain unsupported until their Ternuxx-managed profiles are implemented and qualified. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. The TUI can launch this guided installer from its terminal; Web and GTK provide distro selectors and open the guided installer in Native terminal sessions.
 
+Guest login shortcuts are `tx db` / `tx debian` and `tx ub` / `tx ubuntu`.
+Reinstall can set up an ordinary account in an existing root-only guest while
+preserving its rootfs. `tx pgui --user NAME` selects an existing account explicitly.
+Kali remains unavailable until its provider is qualified.
+
+For the qualified Adreno 825 route, the managed GPU wizard offers a checksum-pinned
+[experimental Mesa release](https://github.com/soobujmiah/ternuxx/releases/tag/native-mesa-adreno825-2026.10.27).
+Repeated installs verify/reuse private cache and recheck compatibility; a fresh
+install uses the public versioned asset without GitHub login. See the
+[GPU installation details](docs/INSTALLATION.md#pinned-native-gpu-release-and-repeated-installation).
+
 ## SSH and services
 
 `tx ssh inspect` reports Native SSH state. Ternuxx's managed service is designed for loopback port 8023 and uses preview-confirmed lifecycle changes. Unmanaged Native SSH configuration is outside Ternuxx service lifecycle control. Verify current configuration and listener evidence before enabling remote access; see [operations](docs/OPERATIONS.md) and [security](SECURITY.md).
