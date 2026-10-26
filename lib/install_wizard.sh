@@ -120,7 +120,7 @@ except (KeyError, TypeError, ValueError) as exc:
 _nt_install_wizard() {
   [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail 'Run tx install in an attached terminal; automation uses tx install preview.'; return 2; }
   nt_require_termux || return 1
-  local profile components=terminal,developer,proot,audio,graphics,gui,services desktops apps distros distro root answer
+  local profile components=terminal,developer,proot,audio,graphics,gui,services desktops apps distros="" distro root answer
   root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   _nt_install_system_info || return $?
   profile="$(_nt_pick 'Choose your workstation' single '' \

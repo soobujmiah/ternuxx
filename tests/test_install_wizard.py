@@ -218,6 +218,27 @@ _nt_install_wizard
         self.assertIn('PACKAGES=terminal,developer,proot', out)
         self.assertLess(out.index('PACKAGES='), out.index('GUEST=debian'))
 
+    def test_minimal_flow_works_with_real_cli_nounset_mode(self):
+        script = f'''set -u
+source "{ROOT}/lib/phases.sh"
+source "{ROOT}/lib/install_wizard.sh"
+nt_require_termux() {{ :; }}
+_nt_install_system_info() {{ :; }}
+_nt_pick() {{ echo minimal; }}
+_nt_wizard_prepare() {{ :; }}
+_nt_wizard_upgrade() {{ :; }}
+_nt_wizard_native() {{ printf 'COMPONENTS=%s\\n' "$1"; }}
+_nt_wizard_entrypoint() {{ :; }}
+bash() {{ echo BUILD_MANAGEMENT; }}
+_nt_gpu_setup() {{ :; }}
+_nt_install_wizard
+'''
+        rc, out = self.terminal(script, b'')
+        self.assertEqual(rc, 0, out)
+        self.assertIn('BUILD_MANAGEMENT', out)
+        self.assertIn('services', out)
+        self.assertIn('Selected setup stages completed', out)
+
     def test_new_components_are_deduplicated_and_no_office_suite_is_added(self):
         result = subprocess.run(['bash', '-c', f'''source "{ROOT}/lib/phases.sh"
 _nt_select_install_profile custom terminal,developer,gui,browser,pdf,music,images,terminal
