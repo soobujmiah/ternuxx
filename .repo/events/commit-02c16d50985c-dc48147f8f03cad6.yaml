@@ -1,0 +1,7 @@
+event_id: commit-02c16d50985c-dc48147f8f03cad6
+repository: soobujmiah/ternuxx
+commit: 02c16d50985c0fe54894057c4904e29ddf70ff26
+kind: commit
+occurred_at: '2026-10-26T07:44:21Z'
+status: completed
+summary: 'feat(proot): streamline distro install and guest routing'
