@@ -363,7 +363,8 @@ _nt_install_gpu() {
 declare -gA _NT_GUEST_READY _NT_GUEST_USER _NT_GUEST_SUDO _NT_GUEST_DESKTOPS _NT_GUEST_APPS _NT_GUEST_PASSWORD _NT_GUEST_ACCOUNT_NEEDED
 _nt_collect_guest_account() {
   local distro="$1" root="$2" user='' sudo_mode=password password='' confirmation=''
-  _nt_window_stage "Choose $distro account, desktop and software" 'Choices collected before workstation installation'
+  _NT_WINDOW_INSTALLING=0
+  _nt_window_selection "Choose $distro login account"
   _NT_GUEST_ACCOUNT_NEEDED[$distro]=''
   local existing=0 candidates='' choice
   local -a account_options=()
@@ -381,8 +382,7 @@ _nt_collect_guest_account() {
   fi
   if [ -z "$user" ]; then
     while :; do
-      printf 'New %s guest username: ' "$distro" >/dev/tty
-      IFS= read -r user </dev/tty || return 130
+      user="$(_nt_input "New $distro guest username (letters, digits, _ or -)")" || return $?
       [[ "$user" =~ ^[a-z_][a-z0-9_-]{0,31}$ && "$user" != root ]] && break
       nt_warn 'Use an ordinary Linux username (letters/digits/_/-).'
     done
@@ -390,11 +390,8 @@ _nt_collect_guest_account() {
       'password|Password-protected sudo (recommended)' 'passwordless|Guest-only passwordless sudo')" || return $?
     if [ "$sudo_mode" = password ]; then
       while :; do
-        printf 'Create guest sudo password (hidden): ' >/dev/tty
-        IFS= read -rs password </dev/tty || return 130
-        printf '\nConfirm guest sudo password (hidden): ' >/dev/tty
-        IFS= read -rs confirmation </dev/tty || return 130
-        printf '\n' >/dev/tty
+        password="$(_nt_input 'Create guest sudo password (hidden)' 1)" || return $?
+        confirmation="$(_nt_input 'Confirm guest sudo password (hidden)' 1)" || return $?
         if [ "$password" = "$confirmation" ] && [ ${#password} -ge 4 ] && [ ${#password} -le 1024 ]; then break; fi
         nt_warn 'Passwords must match and contain 4–1024 characters.'
       done

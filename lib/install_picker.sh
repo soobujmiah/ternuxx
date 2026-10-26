@@ -137,3 +137,68 @@ _nt_confirm() {
   answer="$(_nt_pick "$1" single '' 'no|Cancel / skip' 'yes|Continue with the displayed operation')" || return $?
   [ "$answer" = yes ]
 }
+
+# Text fields share the selector's terminal ownership and resize/animation loop.
+# stdout is the value only; hidden values are never drawn to the terminal.
+_nt_input() (
+  local title="$1" hidden="${2:-0}" value='' key='' tail='' saved_terminal status i shown redraw=1
+  exec 3<>/dev/tty || return 2
+  saved_terminal="$(stty -g <&3)" || return 2
+  _nt_input_cleanup() {
+    stty "$saved_terminal" <&3
+    printf '\033[0m\033[?25h' >&3
+    if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then _nt_window_content_clear; fi
+  }
+  trap _nt_input_cleanup EXIT
+  trap 'exit 130' INT
+  trap 'exit 143' TERM HUP
+  stty -echo -icanon -ixon min 1 time 0 <&3 || return 2
+  while :; do
+    if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
+      local old_size="${_NT_WINDOW_ROWS:-0}:${_NT_WINDOW_COLS:-0}:${_NT_WINDOW_TOO_SMALL:-0}"
+      _nt_window_size
+      [ "$old_size" = "$_NT_WINDOW_ROWS:$_NT_WINDOW_COLS:$_NT_WINDOW_TOO_SMALL" ] || { _nt_window_draw; redraw=1; }
+      if [ "$_NT_WINDOW_TOO_SMALL" != 1 ] && [ "$redraw" = 1 ]; then
+        _nt_window_selection "$title"
+        _nt_window_line "$((12 + _NT_WINDOW_SHIFT))" 'Type text | Backspace: edit | Enter: continue | Esc: cancel'
+        redraw=0
+      elif [ "$_NT_WINDOW_TOO_SMALL" != 1 ]; then
+        _nt_window_footer
+        printf '\033[s' >&3; _nt_window_brand; printf '\033[u' >&3
+      fi
+    elif [ "$redraw" = 1 ]; then
+      redraw=0
+      printf '\r\033[2K%s (Enter: continue, Esc: cancel)\n' "$title" >&3
+    fi
+    if [ "${_NT_WINDOW_TOO_SMALL:-0}" != 1 ]; then
+      if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
+        printf '\033[%s;1H\033[2K' "$_NT_WINDOW_LOG_FIRST" >&3
+      else
+        printf '\r\033[2K' >&3
+      fi
+      shown="$value"
+      if [ "$hidden" = 1 ]; then printf -v shown '%*s' "${#value}" ''; shown=${shown// /*}; fi
+      printf '\033[?25h> %.*s\033[K' "$((${_NT_WINDOW_COLS:-80} - 4))" "${shown: -$((${_NT_WINDOW_COLS:-80} - 4))}" >&3
+    fi
+    key=''; IFS= read -rn1 -t 1 key <&3; status=$?
+    if [ "$status" != 0 ]; then [ "$status" -gt 128 ] || return 130; continue; fi
+    case "$key" in
+      $'\033')
+        tail=''; IFS= read -rn1 -t 0.4 tail <&3 || return 130
+        # Consume CSI/SS3 keyboard sequences; arrows never become username text.
+        if [[ "$tail" = '[' || "$tail" = O ]]; then
+          for ((i=0;i<16;i++)); do
+            tail=''; IFS= read -rn1 -t 0.4 tail <&3 || break
+            [[ "$tail" = [A-Za-z~] ]] && break
+          done
+        fi ;;
+      *)
+        [ "${_NT_WINDOW_TOO_SMALL:-0}" != 1 ] || continue
+        case "$key" in
+          ''|$'\r') printf '%s\n' "$value"; return 0 ;;
+          $'\177'|$'\b') value="${value%?}" ;;
+          *) [[ "$key" < ' ' ]] || { [ "${#value}" -ge 1024 ] || value+="$key"; } ;;
+        esac ;;
+    esac
+  done
+)

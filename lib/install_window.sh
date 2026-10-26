@@ -8,7 +8,9 @@ _nt_window_size() {
   if [ "$_NT_WINDOW_ROWS" -lt 22 ] || [ "$_NT_WINDOW_COLS" -lt 32 ]; then _NT_WINDOW_TOO_SMALL=1; fi
   [ "$_NT_WINDOW_ROWS" -ge 22 ] || _NT_WINDOW_ROWS=22
   [ "$_NT_WINDOW_COLS" -ge 32 ] || _NT_WINDOW_COLS=32
-  _NT_WINDOW_LOG_FIRST=16
+  _NT_WINDOW_SHIFT=0
+  if [ "$_NT_WINDOW_ROWS" -ge 26 ] && [ "$_NT_WINDOW_COLS" -ge 50 ]; then _NT_WINDOW_SHIFT=2; fi
+  _NT_WINDOW_LOG_FIRST=$((16 + _NT_WINDOW_SHIFT))
   _NT_WINDOW_LOG_LAST=$((_NT_WINDOW_ROWS - 3))
 }
 
@@ -26,8 +28,20 @@ _nt_window_center() {
 
 _nt_window_brand() {
   local -a greens=(46 82 118 154 118 82)
-  _nt_window_center 1 TERNUXX "${greens[$((SECONDS % 6))]}"
-  _nt_window_center 2 'Workstation In Your Hand' 114
+  local color="${greens[$((SECONDS % 6))]}"
+  if [ "${_NT_WINDOW_SHIFT:-0}" = 2 ]; then
+    _nt_window_center 1 '╺┳╸ ┏━╸ ┏━┓ ┏┓╻ ╻ ╻ ╻ ╻ ╻ ╻' "$color"
+    _nt_window_center 2 ' ┃  ┣╸  ┣┳┛ ┃┗┫ ┃ ┃  ╳   ╳ ' "$color"
+    _nt_window_center 3 ' ╹  ┗━╸ ╹┗╸ ╹ ╹ ┗━┛ ╹ ╹ ╹ ╹' "$color"
+    _nt_window_center 4 'Workstation In Your Hand' 114
+  else
+    _nt_window_center 1 TERNUXX "$color"
+    _nt_window_center 2 'Workstation In Your Hand' 114
+  fi
+}
+
+_nt_window_divider() {
+  printf '\033[%s;1H\033[2K\033[38;5;29m%s\033[0m' "$1" "$_NT_WINDOW_RULE" >/dev/tty
 }
 
 _nt_window_info() {
@@ -56,7 +70,7 @@ _nt_window_progress() {
     done
     label="[$done$pending] $label"
   fi
-  _nt_window_section 12 "$label"
+  _nt_window_section "$((12 + _NT_WINDOW_SHIFT))" "$label"
 }
 
 _nt_window_snapshot() {
@@ -81,7 +95,7 @@ _nt_window_footer() {
   right="$(printf '%02d:%02d' "$((elapsed / 60))" "$((elapsed % 60))")"
   width=$((_NT_WINDOW_COLS - ${#right} - 3))
   printf '\033[s' >/dev/tty
-  _nt_window_line "$((_NT_WINDOW_ROWS - 2))" "$_NT_WINDOW_RULE"
+  _nt_window_divider "$((_NT_WINDOW_ROWS - 2))"
   _nt_window_line "$((_NT_WINDOW_ROWS - 1))" "$(printf '%-*.*s  %s' "$width" "$width" "$left" "$right")"
   _nt_window_center "$_NT_WINDOW_ROWS" 'Copyright (c) 2026 Sobuj Miah | Ternuxx'
   printf '\033[u' >/dev/tty
@@ -93,28 +107,29 @@ _nt_window_draw() {
     printf '\033[r\033[H\033[2JEnlarge terminal: 22 rows x 32 columns.\nSelection paused; Esc cancels.\nRunning commands continue.\n' >/dev/tty
     return 0
   fi
-  printf -v _NT_WINDOW_RULE '%*s' "$_NT_WINDOW_COLS" ''
-  _NT_WINDOW_RULE=${_NT_WINDOW_RULE// /-}
+  printf -v _NT_WINDOW_RULE '%*s' "$((_NT_WINDOW_COLS - 1))" ''
+  _NT_WINDOW_RULE="╶${_NT_WINDOW_RULE:2}"
+  _NT_WINDOW_RULE="${_NT_WINDOW_RULE// /─}╴"
   printf '\033[H\033[2J' >/dev/tty
   _nt_window_brand
-  _nt_window_line 3 "$_NT_WINDOW_RULE"
-  _nt_window_info 4 Device "$_NT_WINDOW_DEVICE | Android $_NT_WINDOW_ANDROID | $_NT_WINDOW_ABI"
-  _nt_window_info 5 CPU "$_NT_WINDOW_SOC | RAM $_NT_WINDOW_RAM"
-  _nt_window_info 6 GPU "$_NT_WINDOW_GPU"
-  _nt_window_info 7 Sound "$_NT_WINDOW_AUDIO"
-  _nt_window_info 8 Storage "$_NT_WINDOW_STORAGE | Native Termux"
-  _nt_window_info 9 Kernel "$_NT_WINDOW_KERNEL"
-  _nt_window_info 10 Runtime "Native Termux | ${PREFIX:-unknown}"
-  _nt_window_line 11 "$_NT_WINDOW_RULE"
+  _nt_window_divider "$((3 + _NT_WINDOW_SHIFT))"
+  _nt_window_info "$((4 + _NT_WINDOW_SHIFT))" Device "$_NT_WINDOW_DEVICE | Android $_NT_WINDOW_ANDROID | $_NT_WINDOW_ABI"
+  _nt_window_info "$((5 + _NT_WINDOW_SHIFT))" CPU "$_NT_WINDOW_SOC | RAM $_NT_WINDOW_RAM"
+  _nt_window_info "$((6 + _NT_WINDOW_SHIFT))" GPU "$_NT_WINDOW_GPU"
+  _nt_window_info "$((7 + _NT_WINDOW_SHIFT))" Sound "$_NT_WINDOW_AUDIO"
+  _nt_window_info "$((8 + _NT_WINDOW_SHIFT))" Storage "$_NT_WINDOW_STORAGE | Native Termux"
+  _nt_window_info "$((9 + _NT_WINDOW_SHIFT))" Kernel "$_NT_WINDOW_KERNEL"
+  _nt_window_info "$((10 + _NT_WINDOW_SHIFT))" Runtime "Native Termux | ${PREFIX:-unknown}"
+  _nt_window_divider "$((11 + _NT_WINDOW_SHIFT))"
   if [ "${_NT_WINDOW_INSTALLING:-0}" = 1 ]; then
     _nt_window_progress "${_NT_WINDOW_STAGE:-Installation}"
-    _nt_window_section 14 'Installation log'
+    _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" 'Installation log'
   else
-    _nt_window_line 12 "$(_nt_window_keys "$_NT_WINDOW_COLS")"
-    _nt_window_section 14 'Choose your workstation'
+    _nt_window_line "$((12 + _NT_WINDOW_SHIFT))" "$(_nt_window_keys "$_NT_WINDOW_COLS")"
+    _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" 'Choose your workstation'
   fi
-  _nt_window_line 13 "$_NT_WINDOW_RULE"
-  _nt_window_line 15 "$_NT_WINDOW_RULE"
+  _nt_window_divider "$((13 + _NT_WINDOW_SHIFT))"
+  _nt_window_divider "$((15 + _NT_WINDOW_SHIFT))"
   printf '\033[%s;%sr\033[%s;1H' "$_NT_WINDOW_LOG_FIRST" "$_NT_WINDOW_LOG_LAST" "$_NT_WINDOW_LOG_FIRST" >/dev/tty
   _nt_window_footer
 }
@@ -127,12 +142,13 @@ _nt_window_content_clear() {
 }
 
 _nt_window_selection() {
+  [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ] || return 0
   _nt_window_content_clear
   _nt_window_brand
-  _nt_window_line 12 "$(_nt_window_keys "$_NT_WINDOW_COLS")"
-  _nt_window_line 13 "$_NT_WINDOW_RULE"
-  _nt_window_section 14 "$1"
-  _nt_window_line 15 "$_NT_WINDOW_RULE"
+  _nt_window_line "$((12 + _NT_WINDOW_SHIFT))" "$(_nt_window_keys "$_NT_WINDOW_COLS")"
+  _nt_window_divider "$((13 + _NT_WINDOW_SHIFT))"
+  _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" "$1"
+  _nt_window_divider "$((15 + _NT_WINDOW_SHIFT))"
   _nt_window_footer
   printf '\033[%s;1H' "$_NT_WINDOW_LOG_FIRST" >/dev/tty
 }
@@ -148,9 +164,9 @@ _nt_window_stage() {
   printf '\033[s' >/dev/tty
   _nt_window_brand
   _nt_window_progress "$_NT_WINDOW_STAGE"
-  _nt_window_line 13 "$_NT_WINDOW_RULE"
-  _nt_window_section 14 'Installation log'
-  _nt_window_line 15 "$_NT_WINDOW_RULE"
+  _nt_window_divider "$((13 + _NT_WINDOW_SHIFT))"
+  _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" 'Installation log'
+  _nt_window_divider "$((15 + _NT_WINDOW_SHIFT))"
   printf '\033[u' >/dev/tty
   _nt_window_footer
 }

@@ -163,6 +163,56 @@ _nt_window_session scenario
             self.assertEqual(out.count('\x1b[?1049l'), 1)
             self.assertEqual(termios.tcgetattr(term.slave), term.original)
 
+    def test_root_only_guest_account_form_arrows_password_and_resize(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            prefix = Path(tmp) / 'prefix'
+            etc = prefix / 'var/lib/proot-distro/containers/debian/rootfs/etc'
+            etc.mkdir(parents=True)
+            (etc / 'passwd').write_text('root:x:0:0:root:/root:/bin/bash\n')
+            term = self.fixture(f'''source "{ROOT}/lib/phases.sh"
+source "{ROOT}/lib/install_wizard.sh"
+export PREFIX="{prefix}"
+_NT_WINDOW_ACTIVE=1; _NT_WINDOW_INSTALLING=0; _NT_WINDOW_STARTED=$SECONDS
+_nt_window_snapshot
+_nt_window_draw
+_nt_collect_guest_account debian "{ROOT}" || exit $?
+echo USER=${{_NT_GUEST_USER[debian]}} MODE=${{_NT_GUEST_SUDO[debian]}}
+[ "${{_NT_GUEST_PASSWORD[debian]}}" = fixture-secret ] || exit 9
+echo ACCOUNT_FORM_DONE
+''')
+            term.wait_for(b'Type text |')
+            self.assertFalse(termios.tcgetattr(term.slave)[3] & termios.ECHO)
+            term.send(b'\x1b[B\x1b[AaliceX\x7f\n')
+            term.wait_for(b'1/2 |')
+            term.send(b'\n')
+            term.wait_for(b'Create guest sudo password')
+            term.send(b'fixture-secret\n')
+            term.wait_for(b'Confirm guest sudo password')
+            # Keyboard resize retains the private input buffer and switches compact mode.
+            term.send(b'fixture-')
+            fcntl.ioctl(term.slave, termios.TIOCSWINSZ, struct.pack('HHHH', 24, 60, 0, 0))
+            os.killpg(term.process.pid, signal.SIGWINCH)
+            term.wait_for(b'TERNUXX')
+            term.send(b'secret\n')
+            term.wait_for(b'ACCOUNT_FORM_DONE')
+            out = term.finish()
+            self.assertEqual(term.process.returncode, 0, out)
+            self.assertIn('USER=alice MODE=password', out)
+            self.assertIn('ACCOUNT_FORM_DONE', out)
+            self.assertNotIn('fixture-secret', out)
+            self.assertNotIn('^[[', out)
+            self.assertNotIn('Installation log', out)
+            self.assertIn('╺┳╸ ┏━╸ ┏━┓', out)
+            self.assertEqual(termios.tcgetattr(term.slave), term.original)
+
+    def test_text_form_escape_restores_terminal(self):
+        term = self.fixture('_nt_input "Guest username"; exit $?')
+        term.wait_for(b'Guest username')
+        term.send(b'\x1b')
+        out = term.finish()
+        self.assertEqual(term.process.returncode, 130, out)
+        self.assertEqual(termios.tcgetattr(term.slave), term.original)
+
     def test_cancel_and_interrupt_restore_terminal(self):
         for key, expected in ((b'\x1b', 130), (b'\x03', 130)):
             with self.subTest(key=key):

@@ -96,3 +96,18 @@ GPU rendering and broader distro qualification remain live gates. P12 source-own
 license-attribution and source-rebuild gaps remain open; this mirror does not mark
 them complete. General Ternuxx application release licensing/packaging remains a
 separate roadmap item.
+
+## Owner-reported account screen follow-up
+
+The owner subsequently reported an apparently blank account screen with literal
+arrow-key echo. Read-only user enumeration still returns no ordinary account;
+that branch previously entered canonical shell username/password reads outside
+the selector's terminal/input loop. The replacement is an explicit text form,
+with a clearly visible field and typing instructions instead of arrow-menu hints.
+It filters cursor-key sequences, masks password input, supports Backspace and Esc,
+refreshes branding in the same writer and preserves input during terminal resize.
+Account collection resets the installation/log phase. A full PTY fixture drives
+root-only passwd discovery, username editing with arrows, sudo selection, both
+hidden password fields, resize from large to compact layout and termios recovery.
+Fixtures create no live guest or account. Large green animated logo and styled
+rules have source/PTY evidence; actual owner-device visual acceptance is pending.

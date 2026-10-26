@@ -4,6 +4,19 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Guest account input form repair — 2026-10-27
+
+The owner reported an apparently blank guest-account screen with echoed arrow
+sequences. The root-only guest path used canonical shell text reads rather than
+the keyboard selector. Username and hidden password entry now use a visible,
+non-echo form with explicit typing instructions, Backspace/Enter/Esc handling,
+escape-sequence filtering, resize preservation and terminal-state restoration.
+Choice collection no longer labels this screen as an installation log. Large
+terminals show a three-line TERNUXX logo with a green color pulse; smaller layouts
+keep the compact title. Dividers use restrained green box-drawing rules. PTY
+fixtures cover the complete root-only account form without creating an account
+or changing installed packages; owner-device visual acceptance remains pending.
+
 ## Reinstall/account/GPU audit follow-up — 2026-10-27
 
 The owner's PRoot GUI failure was reproduced as a read-only account-discovery fact:

@@ -151,7 +151,7 @@ _nt_window_session scenario
 '''
             rc, out = self.terminal(script, b'\n\n')
         self.assertEqual(rc, 0, out)
-        for text in ('TERNUXX', 'Workstation In Your Hand',
+        for text in ('╺┳╸ ┏━╸ ┏━┓', 'Workstation In Your Hand',
                      'FixturePhone', '/dev/kgsl-fixture', 'PulseAudio installed',
                      'Choose your workstation', 'Copyright (c) 2026 Sobuj Miah',
                      '1/7 | Fixture stage'):
