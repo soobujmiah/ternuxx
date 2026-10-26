@@ -4,6 +4,21 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Installer review/output state and header follow-up — 2026-10-27
+
+Phase entry no longer labels a pending review as installation output. Review,
+noninteractive plan queries and executing commands have distinct pane captions;
+phase entry always shows a status line, and guest profile loading is observed from
+the first query. Output painting explicitly returns to the scroll pane after
+changing its caption. The phase counter identifies workflow position, not a
+measured package-download percentage. Tall/wide terminals use a five-row heavy
+block logo and expanded bold tagline; compact layouts retain smaller branding.
+Dividers share the live green animation. Device facts form a centered block with
+aligned labels. A bounded read-only Android package query shows positively detected
+Boot/API/Styling/Widget/Float/Tasker/X11 apps; unavailable package visibility is
+reported as unknown. Current-device read-only detection found Boot, API, Styling
+and X11. No add-on or package was installed or started by the assistant.
+
 ## Preview wait and visible username repair — 2026-10-27
 
 A subsequent owner screenshot showed a blank-looking stage 5/7. Guest previews

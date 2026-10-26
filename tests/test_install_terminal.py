@@ -229,6 +229,30 @@ next=$(_nt_pick 'Next choice' single '' 'a|Alpha' 'b|Beta'); echo NEXT=$next
         self.assertEqual(term.process.returncode, 0, out)
         self.assertEqual(termios.tcgetattr(term.slave), term.original)
 
+    def test_phase_review_large_brand_centered_info_and_real_output_mode(self):
+        term = self.fixture(f'''source "{ROOT}/lib/install_window.sh"
+_NT_WINDOW_ACTIVE=1; _NT_WINDOW_INSTALLING=0; _NT_WINDOW_STARTED=$SECONDS
+_nt_window_snapshot
+_NT_WINDOW_ADDONS='Boot · API · Styling · X11'
+_nt_window_draw
+_nt_window_stage '5/7 | Managed guest review' 'Review debian before applying'
+printf 'REVIEW_BOUNDARY\\n'
+_nt_window_run bash -c 'echo FIXTURE_INSTALL_OUTPUT'
+echo FRAME_DONE
+''', rows=40, columns=90)
+        term.wait_for(b'FRAME_DONE')
+        out = term.finish()
+        before = out.split('REVIEW_BOUNDARY')[0]
+        self.assertIn('Review and confirmation', before)
+        self.assertNotIn('Installation output', before)
+        self.assertNotIn('Installation log', out)
+        self.assertIn('█████ █████ ████', out)
+        self.assertIn('W o r k s t a t i o n', out)
+        self.assertIn('Boot · API · Styling · X11', out)
+        self.assertIn('Installation output', out)
+        self.assertIn('FIXTURE_INSTALL_OUTPUT', out)
+        self.assertEqual(term.process.returncode, 0, out)
+
     def test_text_form_escape_restores_terminal(self):
         term = self.fixture('_nt_input "Guest username"; exit $?')
         term.wait_for(b'Guest username')

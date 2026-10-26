@@ -964,13 +964,8 @@ _nt_install_managed_guest() {
   local label action=guided consent=0 user="" plan_id="" sudo_mode=password desktops="xfce" desktops_set=0 apps="" apps_set=0 groups=base arg repo_root output answer
   repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   command -v python3 >/dev/null 2>&1 || { nt_fail "Python is required to load managed guest profiles."; return 1; }
-  label="$(PYTHONPATH="$repo_root/lib" command python3 - "$distro" "$repo_root" <<'PYPROFILE'
-import sys
-import proot_profiles
-alias, root = sys.argv[1:]
-profile = proot_profiles.install_profile(root, alias)
-print(profile["label"])
-PYPROFILE
+  . "$repo_root/lib/install_window.sh"
+  label="$(_nt_window_query "Load $distro managed profile" env PYTHONPATH="$repo_root/lib" python3 -c 'import sys,proot_profiles; print(proot_profiles.install_profile(sys.argv[2],sys.argv[1])["label"])' "$distro" "$repo_root"
   )" || { nt_fail "Unsupported managed distro: $distro."; return 2; }
   while [ $# -gt 0 ]; do
     arg="$1"; shift

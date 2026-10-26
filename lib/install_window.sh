@@ -8,8 +8,12 @@ _nt_window_size() {
   if [ "$_NT_WINDOW_ROWS" -lt 22 ] || [ "$_NT_WINDOW_COLS" -lt 32 ]; then _NT_WINDOW_TOO_SMALL=1; fi
   [ "$_NT_WINDOW_ROWS" -ge 22 ] || _NT_WINDOW_ROWS=22
   [ "$_NT_WINDOW_COLS" -ge 32 ] || _NT_WINDOW_COLS=32
-  _NT_WINDOW_SHIFT=0
-  if [ "$_NT_WINDOW_ROWS" -ge 26 ] && [ "$_NT_WINDOW_COLS" -ge 50 ]; then _NT_WINDOW_SHIFT=2; fi
+  _NT_WINDOW_BRAND_SHIFT=0
+  if [ "$_NT_WINDOW_ROWS" -ge 26 ] && [ "$_NT_WINDOW_COLS" -ge 50 ]; then _NT_WINDOW_BRAND_SHIFT=2; fi
+  if [ "$_NT_WINDOW_ROWS" -ge 30 ] && [ "$_NT_WINDOW_COLS" -ge 60 ]; then _NT_WINDOW_BRAND_SHIFT=4; fi
+  _NT_WINDOW_ADDON_ROWS=0
+  [ "$_NT_WINDOW_ROWS" -lt 24 ] || _NT_WINDOW_ADDON_ROWS=1
+  _NT_WINDOW_SHIFT=$((_NT_WINDOW_BRAND_SHIFT + _NT_WINDOW_ADDON_ROWS))
   _NT_WINDOW_LOG_FIRST=$((16 + _NT_WINDOW_SHIFT))
   _NT_WINDOW_LOG_LAST=$((_NT_WINDOW_ROWS - 3))
 }
@@ -29,7 +33,14 @@ _nt_window_center() {
 _nt_window_brand() {
   local -a greens=(46 82 118 154 118 82)
   local color="${greens[$((SECONDS % 6))]}"
-  if [ "${_NT_WINDOW_SHIFT:-0}" = 2 ]; then
+  if [ "${_NT_WINDOW_BRAND_SHIFT:-0}" = 4 ]; then
+    local row=1 line
+    for line in '█████ █████ ████  █   █ █   █ █   █ █   █' '  █   █     █   █ ██  █ █   █  █ █   █ █ ' '  █   ████  ████  █ █ █ █   █   █     █  ' '  █   █     █ █   █  ██ █   █  █ █   █ █ ' '  █   █████ █  ██ █   █  ███  █   █ █   █'; do
+      _nt_window_center "$row" "$line" "${greens[$(((SECONDS + row) % 6))]}"
+      row=$((row + 1))
+    done
+    _nt_window_center 6 'W o r k s t a t i o n  I n  Y o u r  H a n d' 114
+  elif [ "${_NT_WINDOW_BRAND_SHIFT:-0}" = 2 ]; then
     _nt_window_center 1 '╺┳╸ ┏━╸ ┏━┓ ┏┓╻ ╻ ╻ ╻ ╻ ╻ ╻' "$color"
     _nt_window_center 2 ' ┃  ┣╸  ┣┳┛ ┃┗┫ ┃ ┃  ╳   ╳ ' "${greens[$(((SECONDS + 1) % 6))]}"
     _nt_window_center 3 ' ╹  ┗━╸ ╹┗╸ ╹ ╹ ┗━┛ ╹ ╹ ╹ ╹' "${greens[$(((SECONDS + 2) % 6))]}"
@@ -41,13 +52,17 @@ _nt_window_brand() {
 }
 
 _nt_window_divider() {
-  printf '\033[%s;1H\033[2K\033[38;5;29m%s\033[0m' "$1" "$_NT_WINDOW_RULE" >/dev/tty
+  local -a greens=(29 35 41 47 41 35)
+  printf '\033[%s;1H\033[2K\033[38;5;%sm%s\033[0m' "$1" "${greens[$((SECONDS % 6))]}" "$_NT_WINDOW_RULE" >/dev/tty
 }
 
 _nt_window_info() {
   local label="$2" value="$3"
-  # Values use a shared column with breathing room after each label.
-  printf '\033[%s;1H\033[2K\033[38;5;114m%-9s\033[0m  %.*s' "$1" "$label" "$((_NT_WINDOW_COLS - 12))" "$value" >/dev/tty
+  local block_width=$((_NT_WINDOW_COLS - 5)) pad=2
+  [ "$block_width" -le 76 ] || block_width=76
+  pad=$(((_NT_WINDOW_COLS - block_width) / 2))
+  # Center the whole block while keeping its labels/value columns aligned.
+  printf '\033[%s;1H\033[2K %*s\033[38;5;114m%-9s\033[0m  %.*s' "$1" "$pad" '' "$label" "$((block_width - 12))" "$value" >/dev/tty
 }
 
 _nt_window_keys() {
@@ -86,6 +101,25 @@ _nt_window_snapshot() {
   if command -v pulseaudio >/dev/null 2>&1; then _NT_WINDOW_AUDIO='PulseAudio installed'; fi
   _NT_WINDOW_KERNEL="$(uname -r)"
   _NT_WINDOW_ABI="$(uname -m)"
+  _NT_WINDOW_ADDONS='Android visibility unknown'
+  local packages name package
+  if packages="$(timeout 3 /system/bin/pm list packages com.termux 2>/dev/null)" && [[ "$packages" = *package:* ]]; then
+    _NT_WINDOW_ADDONS=''
+    while IFS='|' read -r package name; do
+      if [[ $'\n'"$packages"$'\n' = *$'\n'"package:$package"$'\n'* ]]; then
+        _NT_WINDOW_ADDONS+="${_NT_WINDOW_ADDONS:+ · }$name"
+      fi
+    done <<'ADDONS'
+com.termux.boot|Boot
+com.termux.api|API
+com.termux.styling|Styling
+com.termux.widget|Widget
+com.termux.window|Float
+com.termux.tasker|Tasker
+com.termux.x11|X11
+ADDONS
+    _NT_WINDOW_ADDONS="${_NT_WINDOW_ADDONS:-None detected (Android visibility limited)}"
+  fi
 }
 
 _nt_window_footer() {
@@ -95,6 +129,10 @@ _nt_window_footer() {
   right="$(printf '%02d:%02d' "$((elapsed / 60))" "$((elapsed % 60))")"
   width=$((_NT_WINDOW_COLS - ${#right} - 3))
   printf '\033[s' >/dev/tty
+  _nt_window_divider "$((3 + _NT_WINDOW_BRAND_SHIFT))"
+  _nt_window_divider "$((11 + _NT_WINDOW_SHIFT))"
+  _nt_window_divider "$((13 + _NT_WINDOW_SHIFT))"
+  _nt_window_divider "$((15 + _NT_WINDOW_SHIFT))"
   _nt_window_divider "$((_NT_WINDOW_ROWS - 2))"
   _nt_window_line "$((_NT_WINDOW_ROWS - 1))" "$(printf '%-*.*s  %s' "$width" "$width" "$left" "$right")"
   _nt_window_center "$_NT_WINDOW_ROWS" 'Copyright (c) 2026 Sobuj Miah | Ternuxx'
@@ -112,18 +150,19 @@ _nt_window_draw() {
   _NT_WINDOW_RULE="${_NT_WINDOW_RULE// /─}╴"
   printf '\033[H\033[2J' >/dev/tty
   _nt_window_brand
-  _nt_window_divider "$((3 + _NT_WINDOW_SHIFT))"
-  _nt_window_info "$((4 + _NT_WINDOW_SHIFT))" Device "$_NT_WINDOW_DEVICE | Android $_NT_WINDOW_ANDROID | $_NT_WINDOW_ABI"
-  _nt_window_info "$((5 + _NT_WINDOW_SHIFT))" CPU "$_NT_WINDOW_SOC | RAM $_NT_WINDOW_RAM"
-  _nt_window_info "$((6 + _NT_WINDOW_SHIFT))" GPU "$_NT_WINDOW_GPU"
-  _nt_window_info "$((7 + _NT_WINDOW_SHIFT))" Sound "$_NT_WINDOW_AUDIO"
-  _nt_window_info "$((8 + _NT_WINDOW_SHIFT))" Storage "$_NT_WINDOW_STORAGE | Native Termux"
-  _nt_window_info "$((9 + _NT_WINDOW_SHIFT))" Kernel "$_NT_WINDOW_KERNEL"
-  _nt_window_info "$((10 + _NT_WINDOW_SHIFT))" Runtime "Native Termux | ${PREFIX:-unknown}"
+  _nt_window_divider "$((3 + _NT_WINDOW_BRAND_SHIFT))"
+  _nt_window_info "$((4 + _NT_WINDOW_BRAND_SHIFT))" Device "$_NT_WINDOW_DEVICE | Android $_NT_WINDOW_ANDROID | $_NT_WINDOW_ABI"
+  _nt_window_info "$((5 + _NT_WINDOW_BRAND_SHIFT))" CPU "$_NT_WINDOW_SOC | RAM $_NT_WINDOW_RAM"
+  _nt_window_info "$((6 + _NT_WINDOW_BRAND_SHIFT))" GPU "$_NT_WINDOW_GPU"
+  _nt_window_info "$((7 + _NT_WINDOW_BRAND_SHIFT))" Sound "$_NT_WINDOW_AUDIO"
+  _nt_window_info "$((8 + _NT_WINDOW_BRAND_SHIFT))" Storage "$_NT_WINDOW_STORAGE | Native Termux"
+  _nt_window_info "$((9 + _NT_WINDOW_BRAND_SHIFT))" Kernel "$_NT_WINDOW_KERNEL"
+  _nt_window_info "$((10 + _NT_WINDOW_BRAND_SHIFT))" Runtime "Native Termux | ${PREFIX:-unknown}"
+  if [ "$_NT_WINDOW_ADDON_ROWS" = 1 ]; then _nt_window_info "$((11 + _NT_WINDOW_BRAND_SHIFT))" Add-ons "${_NT_WINDOW_ADDONS:-Android visibility unknown}"; fi
   _nt_window_divider "$((11 + _NT_WINDOW_SHIFT))"
   if [ "${_NT_WINDOW_INSTALLING:-0}" = 1 ]; then
     _nt_window_progress "${_NT_WINDOW_STAGE:-Installation}"
-    _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" 'Installation log'
+    _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" "${_NT_WINDOW_PANE:-Review and confirmation}"
   else
     _nt_window_line "$((12 + _NT_WINDOW_SHIFT))" "$(_nt_window_keys "$_NT_WINDOW_COLS")"
     _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" 'Choose your workstation'
@@ -155,7 +194,7 @@ _nt_window_selection() {
 
 _nt_window_stage() {
   [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ] || return 0
-  _NT_WINDOW_INSTALLING=1
+  _NT_WINDOW_INSTALLING=1; _NT_WINDOW_PANE='Review and confirmation'
   _NT_WINDOW_STAGE="$1"; _NT_WINDOW_PENDING="${2:-Review and confirm}"
   local old_size="${_NT_WINDOW_ROWS:-0}:${_NT_WINDOW_COLS:-0}"
   _nt_window_size
@@ -165,16 +204,23 @@ _nt_window_stage() {
   _nt_window_brand
   _nt_window_progress "$_NT_WINDOW_STAGE"
   _nt_window_divider "$((13 + _NT_WINDOW_SHIFT))"
-  _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" 'Installation log'
+  _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" "$_NT_WINDOW_PANE"
   _nt_window_divider "$((15 + _NT_WINDOW_SHIFT))"
   printf '\033[u' >/dev/tty
   _nt_window_footer
+  _nt_window_content_clear
+  printf 'Reviewing phase: %s\n' "$_NT_WINDOW_STAGE" >/dev/tty
 }
 
 # While a package/build command runs, relay its output through one terminal writer.
 # The command keeps its stdin for legitimate prompts; partial lines are shown too.
 _nt_window_run() {
   if [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ]; then "$@"; return $?; fi
+  local _NT_WINDOW_PANE='Installation output'
+  [ "${_NT_WINDOW_QUERY:-0}" != 1 ] || _NT_WINDOW_PANE='Plan review output'
+  _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" "$_NT_WINDOW_PANE"
+  _nt_window_content_clear
+  printf 'Running: %s\nCommand output appears below; elapsed time updates in the footer.\n' "${_NT_WINDOW_PENDING:-Current operation}" >/dev/tty
   "$@" 2>&1 | (
     trap - EXIT
     trap 'exit 130' INT
@@ -262,6 +308,7 @@ _nt_window_query() (
   trap 'exit 130' INT
   trap 'exit 143' TERM HUP
   stty -echo </dev/tty || return 2
+  local _NT_WINDOW_QUERY=1
   _NT_WINDOW_PENDING="Working: $label | not a selection screen"
   _nt_window_content_clear
   printf 'Working: %s\nWaiting for command output; elapsed time updates below.\n' "$label" >/dev/tty

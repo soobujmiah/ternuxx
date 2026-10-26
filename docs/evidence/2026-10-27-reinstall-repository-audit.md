@@ -130,3 +130,21 @@ keys are discarded before the next selector. The PTY delayed-query fixture check
 this contract. No live APT, package installation, audio playback or guest mutation
 was run to reproduce the owner's install. Backend wait diagnosis remains pending
 owner retry with the operation label visible.
+
+## Review/output state and Android add-on header follow-up
+
+Source review found phase entry unconditionally labeling the pane as installation
+log, regardless of whether a reviewed command had begun. It also found that a new
+command caption moved the cursor away from the content pane before output began.
+The frame now distinguishes review/confirmation, plan-query output and command
+execution, explicitly resets the output cursor to the pane, and paints a status
+line at phase entry. Managed-profile loading is now observed before the earlier
+guest-plan queries, so a backend wait has a named entry point. This is not a claim
+that the screenshot proves a specific backend deadlock or package failure.
+
+PTY coverage checks review-before-command captions and a large responsive header.
+A bounded read-only `pm list packages com.termux` snapshot on the current Native
+device positively detected Boot, API, Styling and X11. No package/service/settings
+mutation was performed. Limited Android visibility remains unknown rather than
+being treated as absence. Header layout and animation still need owner visual
+acceptance in the actual installer.
