@@ -1,0 +1,7 @@
+event_id: commit-63788b8452ba-9f917dc581bb805c
+repository: soobujmiah/ternuxx
+commit: 63788b8452ba72912cc2b4c60cb1fade4b1393f8
+kind: commit
+occurred_at: '2026-10-26T13:46:20Z'
+status: completed
+summary: 'fix: capture extracted Mesa host package inputs'
