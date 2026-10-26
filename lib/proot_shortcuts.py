@@ -392,32 +392,53 @@ def _dynamic_entry(desktop_id: str, item: dict[str, str], *, cli: str) -> bytes:
 
 
 
-def _installed_desktops(prefix: str) -> list[str]:
-    try:
-        import proot_desktops
-        import proot_setup
-        root, _metadata = proot_setup._safe_rootfs(prefix)
-        installed = proot_desktops.installed_desktops(root)
-        return proot_desktops.launchable_desktops(installed)
-    except (OSError, ValueError):
-        return []
-
-
-def _desktop_session_entry(desktop_id: str, *, cli: str) -> bytes:
+def _installed_desktops(prefix: str) -> list[dict[str, str]]:
+    """Find route-accepted desktops in installed, Ternuxx-managed guest profiles."""
     import proot_desktops
-    selected = proot_desktops.desktop_id(desktop_id)
-    label = proot_desktops.DEBIAN_DESKTOPS[selected]["name"]
+    import proot_diagnostics
+    import proot_setup
+
+    candidates = (("debian", "debian-trixie"), ("ubuntu", "ubuntu-noble"))
+    result: list[dict[str, str]] = []
+    for alias, provider in candidates:
+        try:
+            if alias == "debian":
+                root, _metadata = proot_setup._safe_rootfs(prefix)
+            else:
+                proot_diagnostics.verify_managed_guest_alias(alias, prefix)
+                root = Path(prefix) / "var/lib/proot-distro/containers" / alias / "rootfs"
+                metadata = root.lstat()
+                if not stat.S_ISDIR(metadata.st_mode) or stat.S_ISLNK(metadata.st_mode):
+                    continue
+            installed = proot_desktops.installed_desktops(root, provider=provider)
+            for desktop in proot_desktops.launchable_desktops(installed, provider=provider):
+                result.append({"alias": alias, "provider": provider, "desktop_id": desktop})
+        except (OSError, ValueError):
+            continue
+    return result
+
+
+def _desktop_session_entry(desktop_id: str, *, cli: str, guest_alias: str = "debian",
+                           provider: str | None = None) -> bytes:
+    import proot_desktops
+    import proot_profiles
+    provider = provider or proot_profiles.profile_for_alias(guest_alias)
+    selected = proot_desktops.desktop_id(desktop_id, provider=provider)
+    label = proot_desktops.PROVIDERS[provider][selected]["name"]
     routes = proot_desktops.DESKTOP_ROUTES.get(selected, frozenset())
     if not routes:
-        raise ShortcutError("Debian desktop has no accepted live launch route")
+        raise ShortcutError("guest desktop has no accepted live launch route")
     route = "auto" if routes == frozenset({"standalone", "nested"}) else next(iter(routes))
-    command = f"{_desktop_quote(cli)} pgui start --mode {route} --desktop {_desktop_quote(selected)}"
+    alias_arg = "" if guest_alias == "debian" else f" --alias {_desktop_quote(guest_alias)}"
+    command = (f"{_desktop_quote(cli)} pgui start --mode {route} --desktop "
+               f"{_desktop_quote(selected)}{alias_arg}")
     lines = ["[Desktop Entry]", "Version=1.0", "Type=Application",
-        f"Name=Start {label} (PRoot)",
-        "Comment=Start this Ternuxx-managed Debian PRoot desktop",
+        f"Name=Start {label} ({guest_alias.title()} PRoot)",
+        f"Comment=Start this Ternuxx-managed {guest_alias.title()} PRoot desktop",
         f"Exec={command}", "Icon=preferences-desktop-display", "Terminal=true",
         "StartupNotify=false", "Categories=Utility;System;",
-        "X-Ternuxx-Generated=proot-desktop-v1", f"X-Ternuxx-Desktop-Environment={selected}"]
+        "X-Ternuxx-Generated=proot-desktop-v2", f"X-Ternuxx-Guest-Alias={guest_alias}",
+        f"X-Ternuxx-Desktop-Environment={selected}"]
     return ("\n".join(lines) + "\n").encode("utf-8")
 
 def _atomic_write(path: Path, data: bytes) -> None:
@@ -461,8 +482,12 @@ def _sync_desktop_applications_mutate(*, home: str, prefix: str, repo_root: str,
         filename = "ternuxx-proot-app-" + desktop_id
         desired[filename] = _dynamic_entry(desktop_id, item, cli=cli)
     desktop_sessions = _installed_desktops(prefix)
-    desktop_desired = {f"ternuxx-proot-desktop-{desktop_id}.desktop":
-                       _desktop_session_entry(desktop_id, cli=cli) for desktop_id in desktop_sessions}
+    desktop_desired = {
+        f"ternuxx-proot-desktop-{item['alias']}-{item['desktop_id']}.desktop":
+        _desktop_session_entry(item["desktop_id"], cli=cli, guest_alias=item["alias"],
+                               provider=item["provider"])
+        for item in desktop_sessions
+    }
     app_dir.mkdir(parents=True, exist_ok=True)
     desktop_app_dir.mkdir(parents=True, exist_ok=True)
     written, conflicts, removed = [], [], []
@@ -471,7 +496,7 @@ def _sync_desktop_applications_mutate(*, home: str, prefix: str, repo_root: str,
         existing = _file_bytes(target)
         if existing == payload:
             continue
-        if existing is not None and not any(marker in existing for marker in (b"X-Ternuxx-Generated=proot-app", b"X-Ternuxx-Generated=proot-app-v2", b"X-Ternuxx-Generated=proot-desktop-v1")):
+        if existing is not None and not any(marker in existing for marker in (b"X-Ternuxx-Generated=proot-app", b"X-Ternuxx-Generated=proot-app-v2", b"X-Ternuxx-Generated=proot-desktop-v1", b"X-Ternuxx-Generated=proot-desktop-v2")):
             conflicts.append(filename)
             continue
         _atomic_write(target, payload)
@@ -480,7 +505,7 @@ def _sync_desktop_applications_mutate(*, home: str, prefix: str, repo_root: str,
         if target.name in desired:
             continue
         raw = _file_bytes(target)
-        if raw is not None and any(marker in raw for marker in (b"X-Ternuxx-Generated=proot-app", b"X-Ternuxx-Generated=proot-app-v2", b"X-Ternuxx-Generated=proot-desktop-v1")):
+        if raw is not None and any(marker in raw for marker in (b"X-Ternuxx-Generated=proot-app", b"X-Ternuxx-Generated=proot-app-v2", b"X-Ternuxx-Generated=proot-desktop-v1", b"X-Ternuxx-Generated=proot-desktop-v2")):
             target.unlink()
             removed.append(target.name)
     for filename, payload in desktop_desired.items():
@@ -488,7 +513,9 @@ def _sync_desktop_applications_mutate(*, home: str, prefix: str, repo_root: str,
         existing = _file_bytes(target)
         if existing == payload:
             continue
-        if existing is not None and b"X-Ternuxx-Generated=proot-desktop-v1" not in existing:
+        if existing is not None and not any(marker in existing for marker in
+                                             (b"X-Ternuxx-Generated=proot-desktop-v1",
+                                              b"X-Ternuxx-Generated=proot-desktop-v2")):
             conflicts.append(filename)
             continue
         _atomic_write(target, payload)
@@ -497,7 +524,9 @@ def _sync_desktop_applications_mutate(*, home: str, prefix: str, repo_root: str,
         if target.name in desktop_desired:
             continue
         raw = _file_bytes(target)
-        if raw is not None and b"X-Ternuxx-Generated=proot-desktop-v1" in raw:
+        if raw is not None and any(marker in raw for marker in
+                                   (b"X-Ternuxx-Generated=proot-desktop-v1",
+                                    b"X-Ternuxx-Generated=proot-desktop-v2")):
             target.unlink()
             removed.append(target.name)
 
@@ -794,7 +823,11 @@ def _sync_record_changes(record: dict[str, Any], rollback_id: str) -> list[dict[
         if not isinstance(item, dict) or set(item) != fields:
             raise ShortcutError("shortcut rollback entry is malformed")
         rel = Path(item["path"]) if isinstance(item["path"], str) else Path("/")
-        session_launcher = bool(re.fullmatch(r"ternuxx-proot-desktop-(?:xfce|lxqt|lxde|mate|gnome|plasma|cinnamon)\.desktop", rel.name))
+        session_launcher = bool(
+            re.fullmatch(r"ternuxx-proot-desktop-(?:debian|ubuntu)-(?:xfce|lxqt|lxde|mate|gnome|plasma|cinnamon)\.desktop",
+                         rel.name)
+            or re.fullmatch(r"ternuxx-proot-desktop-(?:xfce|lxqt|lxde|mate|gnome|plasma|cinnamon)\.desktop",
+                            rel.name))
         if (rel.is_absolute() or not rel.parts or any(part in {"", ".", ".."} for part in rel.parts)
                 or not (rel.name.startswith("ternuxx-proot-app-") and rel.name.endswith(".desktop")
                         or session_launcher
@@ -1114,22 +1147,24 @@ def list_shortcuts(*, home: str, prefix: str, xdg_data_home: str | None = None,
     cli = str(Path(prefix) / "bin" / "tx")
     if not (Path(cli).is_file() and os.access(cli, os.X_OK)):
         cli = str(Path(repo_root) / "tx")
-    for desktop_id in _installed_desktops(prefix):
-        target = desktop_app_dir / f"ternuxx-proot-desktop-{desktop_id}.desktop"
+    for item in _installed_desktops(prefix):
+        desktop_id, alias, provider = item["desktop_id"], item["alias"], item["provider"]
+        target = desktop_app_dir / f"ternuxx-proot-desktop-{alias}-{desktop_id}.desktop"
         try:
             raw = _file_bytes(target)
         except ShortcutError:
             raw = b"unsafe"
-        expected = _desktop_session_entry(desktop_id, cli=cli)
+        expected = _desktop_session_entry(desktop_id, cli=cli, guest_alias=alias, provider=provider)
         owned = raw == expected
         routes = proot_desktops.DESKTOP_ROUTES.get(desktop_id, frozenset())
         launch_route = "auto" if routes == frozenset({"standalone", "nested"}) else next(iter(routes))
         route_label = ("nested-and-standalone" if routes == frozenset({"standalone", "nested"})
                        else f"{launch_route}-only")
-        desktop_sessions.append({"id": desktop_id,
-            "name": proot_desktops.DEBIAN_DESKTOPS[desktop_id]["name"],
+        desktop_sessions.append({"id": desktop_id, "guest_alias": alias,
+            "name": proot_desktops.PROVIDERS[provider][desktop_id]["name"],
             "route": route_label,
-            "launch_command": f"tx pgui start --mode {launch_route} --desktop {desktop_id}",
+            "launch_command": f"tx pgui start --mode {launch_route} --desktop {desktop_id}"
+                              + (f" --alias {alias}" if alias != "debian" else ""),
             "shortcut_id": target.name,
             "shortcut_state": "absent" if raw is None else "installed" if owned else "modified/conflict",
             "shortcut_owner": "ternuxx" if owned else "none/unknown",

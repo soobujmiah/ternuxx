@@ -6,7 +6,7 @@
 
 ## Product scope
 
-Ternuxx is a Native Termux Android workstation manager with an optional Debian PRoot workload provider. On 2026-10-24 the owner authorized full PRoot removal, then explicitly reauthorized PRoot support and Debian guest restoration. Keep Native as the host/control plane and route Debian tools only through the isolated guest provider. Do not modify the separate Ternux repository or launcher.
+Ternuxx is a Native Termux Android workstation manager with optional managed PRoot workload providers. Native remains the host/control plane. The current pinned, tested distro profiles are Debian Trixie and Ubuntu Noble; additional proot-distro families must use Ternuxx-owned distro-specific package/configuration adapters and stay unavailable until their install, desktop, graphics/audio, lifecycle, and recovery paths are implemented and qualified. On 2026-10-24 the owner reauthorized PRoot after an earlier retirement. Do not modify the separate Ternux repository or launcher.
 
 Keep interactive help and the existing CLI/TUI/Web/GTK paths easy to use for supported Native functions. `tx` is the public command. Use only `TERNUXX_STATE_DIR`, `$HOME/.local/share/ternuxx`, and `$PREFIX/lib/ternuxx` for product state/runtime modules. License remains unresolved unless an owner-approved LICENSE file exists.
 

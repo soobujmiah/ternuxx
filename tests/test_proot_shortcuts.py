@@ -456,7 +456,7 @@ class ProotShortcutTests(unittest.TestCase):
             **kwargs, confirmed=True, plan_id=plan["plan_id"])
         self.assertEqual(applied["status"], "complete")
         self.assertTrue((data / "applications/ternuxx-proot-app-org.example.Editor.desktop").is_file())
-        self.assertTrue((native_data / "applications/ternuxx-proot-desktop-xfce.desktop").is_file())
+        self.assertTrue((native_data / "applications/ternuxx-proot-desktop-debian-xfce.desktop").is_file())
         self.assertTrue((config / "menus/xfce-applications.menu").is_file())
         self.assertRegex(applied["rollback_id"], r"^[0-9a-f]{32}$")
         rollback_list = proot_shortcuts.list_desktop_application_sync_rollbacks(
@@ -470,7 +470,7 @@ class ProotShortcutTests(unittest.TestCase):
             confirmed=True, plan_id=rollback_preview["plan_id"])
         self.assertEqual(rolled_back["status"], "complete")
         self.assertFalse((data / "applications/ternuxx-proot-app-org.example.Editor.desktop").exists())
-        self.assertFalse((native_data / "applications/ternuxx-proot-desktop-xfce.desktop").exists())
+        self.assertFalse((native_data / "applications/ternuxx-proot-desktop-debian-xfce.desktop").exists())
         self.assertFalse((config / "menus/xfce-applications.menu").exists())
         self.assertEqual(proot_shortcuts.list_desktop_application_sync_rollbacks(
             home=str(self.home), state_dir=str(self.home / ".local/share/ternuxx"))["rollbacks"][0]["status"],
@@ -516,19 +516,71 @@ class ProotShortcutTests(unittest.TestCase):
         (rootfs / "etc/os-release").write_text("ID=debian\nVERSION_CODENAME=trixie\n")
         kwargs = {"home": str(self.home), "prefix": str(prefix), "repo_root": str(self.repo)}
         plan = proot_shortcuts.preview_desktop_application_sync(**kwargs)
-        self.assertEqual(plan["desktop_sessions"], ["xfce", "lxqt"])
+        self.assertEqual([item["desktop_id"] for item in plan["desktop_sessions"]], ["xfce", "lxqt"])
         targets = {item["path"] for item in plan["changes"]}
-        self.assertIn(".local/share/applications/ternuxx-proot-desktop-xfce.desktop", targets)
-        self.assertIn(".local/share/applications/ternuxx-proot-desktop-lxqt.desktop", targets)
+        self.assertIn(".local/share/applications/ternuxx-proot-desktop-debian-xfce.desktop", targets)
+        self.assertIn(".local/share/applications/ternuxx-proot-desktop-debian-lxqt.desktop", targets)
         xfce = proot_shortcuts._desktop_session_entry("xfce", cli=str(self.repo / "tx")).decode()
         self.assertIn('pgui start --mode auto --desktop "xfce"', xfce)
         self.assertIn("Terminal=true", xfce)
-        self.assertIn("X-Ternuxx-Generated=proot-desktop-v1", xfce)
+        self.assertIn("X-Ternuxx-Generated=proot-desktop-v2", xfce)
+        ubuntu = proot_shortcuts._desktop_session_entry(
+            "xfce", cli=str(self.repo / "tx"), guest_alias="ubuntu", provider="ubuntu-noble").decode()
+        self.assertIn('pgui start --mode auto --desktop "xfce" --alias "ubuntu"', ubuntu)
+        self.assertIn("X-Ternuxx-Guest-Alias=ubuntu", ubuntu)
         plasma = proot_shortcuts._desktop_session_entry("plasma", cli=str(self.repo / "tx")).decode()
         self.assertIn('pgui start --mode standalone --desktop "plasma"', plasma)
         for failed in ("gnome", "cinnamon"):
             with self.assertRaisesRegex(proot_shortcuts.ShortcutError, "no accepted live launch route"):
                 proot_shortcuts._desktop_session_entry(failed, cli=str(self.repo / "tx"))
+
+    def test_desktop_inventory_omits_ubuntu_when_its_install_receipt_is_invalid(self) -> None:
+        prefix = Path(self.temp.name) / "termux"
+        rootfs = prefix / "var/lib/proot-distro/containers/ubuntu/rootfs"
+        status = rootfs / "var/lib/dpkg/status"
+        status.parent.mkdir(parents=True)
+        status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
+                          "Package: xfce4-terminal\nStatus: install ok installed\n")
+        with patch("proot_diagnostics.verify_managed_guest_alias",
+                   side_effect=ValueError("receipt unavailable")):
+            self.assertEqual(proot_shortcuts._installed_desktops(str(prefix)), [])
+
+    def test_bulk_sync_creates_a_distinct_receipt_gated_ubuntu_xfce_shortcut(self) -> None:
+        prefix = Path(self.temp.name) / "termux"
+        rootfs = prefix / "var/lib/proot-distro/containers/ubuntu/rootfs"
+        status = rootfs / "var/lib/dpkg/status"
+        status.parent.mkdir(parents=True)
+        status.write_text("Package: xfce4\nStatus: install ok installed\n\n"
+                          "Package: xfce4-terminal\nStatus: install ok installed\n")
+        (rootfs / "etc").mkdir(parents=True)
+        (rootfs / "etc/os-release").write_text("ID=ubuntu\nVERSION_CODENAME=noble\n")
+        data = self.home / "xfce-data"
+        native_data = self.home / ".local/share/ternuxx/xfce/data"
+        kwargs = {"home": str(self.home), "prefix": str(prefix), "repo_root": str(self.repo),
+                  "xdg_data_home": str(data), "desktop_xdg_data_home": str(native_data)}
+        with patch("proot_diagnostics.verify_managed_guest_alias",
+                   return_value={"alias": "ubuntu", "profile_id": "ubuntu-noble"}):
+            plan = proot_shortcuts.preview_desktop_application_sync(**kwargs)
+            ubuntu_rows = [item for item in plan["desktop_sessions"] if item["alias"] == "ubuntu"]
+            self.assertEqual([(item["desktop_id"], item["alias"]) for item in ubuntu_rows],
+                             [("xfce", "ubuntu")])
+            target = ".local/share/ternuxx/xfce/data/applications/ternuxx-proot-desktop-ubuntu-xfce.desktop"
+            self.assertIn(target, {item["path"] for item in plan["changes"]})
+            result = proot_shortcuts.apply_desktop_application_sync(
+                **kwargs, confirmed=True, plan_id=plan["plan_id"])
+        self.assertEqual(result["status"], "complete")
+        launcher = native_data / "applications/ternuxx-proot-desktop-ubuntu-xfce.desktop"
+        self.assertIn("X-Ternuxx-Guest-Alias=ubuntu", launcher.read_text())
+        self.assertIn('--alias "ubuntu"', launcher.read_text())
+        with patch("proot_diagnostics.verify_managed_guest_alias",
+                   return_value={"alias": "ubuntu", "profile_id": "ubuntu-noble"}):
+            inventory = proot_shortcuts.list_shortcuts(
+                home=str(self.home), prefix=str(prefix),
+                desktop_xdg_data_home=str(native_data), repo_root=str(self.repo))
+        ubuntu_row = next(item for item in inventory["desktop_sessions"] if item["guest_alias"] == "ubuntu")
+        self.assertEqual(ubuntu_row["launch_command"],
+                         "tx pgui start --mode auto --desktop xfce --alias ubuntu")
+        self.assertEqual(ubuntu_row["shortcut_state"], "installed")
 
     def test_bulk_sync_preview_preserves_unmanaged_conflicts(self) -> None:
         prefix = Path(self.temp.name) / "termux"

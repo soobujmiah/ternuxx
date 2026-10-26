@@ -50,7 +50,7 @@ tx install preview --profile minimal-native --verbose
 tx install apply --profile minimal-native --yes --plan-id PLAN_ID
 ```
 
-Available Native presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, and `custom`. For direct managed guest setup, use `tx install debian` or `tx install ubuntu`. Debian Trixie is the live-qualified profile; Ubuntu Noble now has its own pinned profile and remains pending device qualification. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, `developer`, `mate`, and `plasma` with `--components`. The two route-verified alternate Native desktop groups (MATE and Plasma) resolve to the distro package for that session; XFCE remains the default and GNOME is not packaged in the Native Termux repository. The PRoot-provider preset installs only the provider package. Most users can run `tx install interactive`, confirm the Native package summary, and choose an optional managed guest; later, `tx install debian` or `tx install ubuntu` starts that guest flow directly. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
+Available Native presets are `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, and `custom`. For direct managed guest setup, use `tx install debian` or `tx install ubuntu`. Debian Trixie and Ubuntu Noble have pinned profiles. Ubuntu XFCE passed live standalone `:0` and guest-to-Native `:1` checks; nested `:2` remains partial because Xephyr lacks DRI3 for GLX drawing. `custom` always includes the Native management core; choose from `desktop`, `audio`, `proot`, `graphics`, `developer`, `mate`, and `plasma` with `--components`. The two route-verified alternate Native desktop groups (MATE and Plasma) resolve to the distro package for that session; XFCE remains the default and GNOME is not packaged in the Native Termux repository. The PRoot-provider preset installs only the provider package. Most users can run `tx install interactive`, confirm the Native package summary, and choose an optional managed guest; later, `tx install debian` or `tx install ubuntu` starts that guest flow directly. Only the full-native preset is selected by the legacy `tx install preview` command when no profile is named.
 
 Run read-only checks after installation:
 
@@ -84,7 +84,7 @@ For a non-default guest setup, check `tx proot status` first. You can select gue
 tx install debian --user NAME --sudo-mode passwordless --desktops xfce,lxqt
 ```
 
-Ubuntu Noble currently provides its pinned XFCE profile only; its live install and graphics route still need device qualification.
+Ubuntu Noble currently provides its pinned XFCE profile only. Live install, standalone `:0`, and guest-to-Native `:1` checks passed; nested `:2` starts XFCE and passes Vulkan/audio endpoint checks but remains partial because Xephyr DRI3/GLX drawing is unavailable. Other distribution profiles are not yet implemented.
 
 For automation or a separate review-only step, add `preview`; if the preview names the intended fresh target and reports no existing guest, apply its exact plan ID. Most users should use the guided command above. For example:
 

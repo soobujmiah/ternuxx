@@ -294,7 +294,7 @@ def _format_proot_shortcuts(data: dict[str, object]) -> str:
             lines.append(f"  {label}: {state}{suffix}")
     desktop_sessions = data.get("desktop_sessions")
     if isinstance(desktop_sessions, list) and desktop_sessions:
-        lines.append("Installed Debian desktop sessions:")
+        lines.append("Installed managed guest desktop sessions:")
         for item in desktop_sessions:
             if not isinstance(item, dict):
                 continue
@@ -303,8 +303,12 @@ def _format_proot_shortcuts(data: dict[str, object]) -> str:
             launch_command = item.get("launch_command")
             state = item.get("shortcut_state", "unknown")
             if isinstance(desktop_id, str):
-                label = f"{desktop_id} — {name}" if isinstance(name, str) and name else desktop_id
-                lines.append(f"  {label}: {state}; {launch_command or f'tx pgui start --desktop {desktop_id}'}")
+                guest_alias = item.get("guest_alias", "debian")
+                label = f"{guest_alias} · {desktop_id}"
+                if isinstance(name, str) and name:
+                    label += f" — {name}"
+                launch = launch_command or f"tx pgui start --desktop {desktop_id}"
+                lines.append(f"  {label}: {state}; {launch}")
     diagnostics = dynamic.get("diagnostics") if isinstance(dynamic, dict) else None
     if isinstance(diagnostics, list) and diagnostics:
         lines.append(f"Discovery diagnostics: {len(diagnostics)} (details omitted; use --json for structured output)")

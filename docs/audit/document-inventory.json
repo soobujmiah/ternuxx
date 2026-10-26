@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 577,
-  "read_count": 173,
+  "document_count": 580,
+  "read_count": 169,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -35,15 +35,15 @@
     {
       "path": "AI_ASSISTANT.md",
       "kind": "narrative",
-      "sha256": "ae9e775790d6403b1396ddfc47e01fc716345e5446efdd55bcfceb28ff0bbe11",
+      "sha256": "d2a32256a8540090fdb46e26a68604f12b1839e511609d8b2663982ea57f9741",
       "lines": 37,
-      "read_status": "read",
-      "read_sha256": "ae9e775790d6403b1396ddfc47e01fc716345e5446efdd55bcfceb28ff0bbe11"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "df14cdcab589de3c792798018af1e036c4363d4dade553a405ca66bb1f3f54e7",
+      "sha256": "5d7866b4386bef1e48d89904f7188066288519c22bc65f3b4036cf0b77e4b16f",
       "lines": 37,
       "read_status": "pending",
       "read_sha256": null
@@ -67,8 +67,8 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "5200b446a221c8f7cba78857e78ca5833557c33425f2ef54fea328d4a8ebffdb",
-      "lines": 102,
+      "sha256": "0cb634e30e396abe713152a0196968f5e22d89a6033f5d7775b912b96ff40ca1",
+      "lines": 103,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -115,18 +115,26 @@
     {
       "path": "config/proot/debian-trixie.json",
       "kind": "structured",
-      "sha256": "94209faa6ba1773ff0410256189f1d0064736bd3c44193f88815c5d7a1351b95",
-      "lines": 151,
+      "sha256": "4898fe51a260e7530603e54ec940965b4229003080b5ef44b0a813afe5df8a86",
+      "lines": 154,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "config/proot/ubuntu-noble.json",
+      "kind": "structured",
+      "sha256": "1bedbd61e0f459ddc6947f9cbd32a810c17c2f11d1831d81a56cdb7a60f1a66c",
+      "lines": 143,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/ARCHITECTURE.md",
       "kind": "narrative",
-      "sha256": "e25a7e14ef9e477857adc97d9f67d6d3f238a1324f20e18e694e604ebf5c5d16",
+      "sha256": "02c4c887d69dbd038f0e01098929d0c07920111f90c9d01f8c8e8a7342b08e54",
       "lines": 23,
-      "read_status": "read",
-      "read_sha256": "e25a7e14ef9e477857adc97d9f67d6d3f238a1324f20e18e694e604ebf5c5d16"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/DEPENDENCY-FALLBACK-MATRIX.md",
@@ -147,8 +155,8 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "8d585cc100baa4f5a725fac2c87b48ddeb00f6e0aa7ae1a14d7f7c5f8657d125",
-      "lines": 121,
+      "sha256": "754d27fdfece4ecf67666275f993a936ece8c92acb82a3e549bf77bbdaefa37c",
+      "lines": 124,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -235,7 +243,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "950027ddc48d687102dfc82f01a87f3f509222819f03540c1d9bad00acb9fd1f",
+      "sha256": "9b0b415e5a94f26e162f1d3e5af2a922e138711343d679991cd7780a60bca24b",
       "lines": 45,
       "read_status": "pending",
       "read_sha256": null
@@ -267,7 +275,7 @@
     {
       "path": "docs/architecture/CAPABILITY-MATRIX.md",
       "kind": "narrative",
-      "sha256": "39e8010191383957d8404ed7b8777fef1c933a2f0bf3314a33acafbee894c464",
+      "sha256": "91bba3cbb2e27fab7c0a4f6e0b0a92ba342aaa2329a7f2e70b4e8a87ebffc369",
       "lines": 21,
       "read_status": "pending",
       "read_sha256": null
@@ -363,10 +371,10 @@
     {
       "path": "docs/architecture/UNIFIED-WORKSTATION.md",
       "kind": "narrative",
-      "sha256": "c191b365db9ee629c1eff41eaf54d6eb2bbd82a9c8cd079f9e8cf6d5ba924a0e",
+      "sha256": "5ca781b01126bcea51a53a46e2c707a064ebe3be39f43eeb7191737e44cb7cfc",
       "lines": 251,
-      "read_status": "read",
-      "read_sha256": "c191b365db9ee629c1eff41eaf54d6eb2bbd82a9c8cd079f9e8cf6d5ba924a0e"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/architecture/decisions/ADR-0001-native-proot-providers.md",
@@ -539,8 +547,8 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "9b85ecec34060cfd0c213ddeda3a51875d4742282fcf4498a45f18aacda082d7",
-      "lines": 135,
+      "sha256": "8cc2dbbfd01faced9c57925da41f91a4fa50039588f5fb93087bbb22d553d5fe",
+      "lines": 143,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3579,16 +3587,24 @@
     {
       "path": "docs/evidence/2026-10-26-distro-named-managed-install.md",
       "kind": "narrative",
-      "sha256": "813d0ebbb303198e93fcf2553f70e4a4d4aa5d2078d9c9e2d4fbe2577f3fc113",
-      "lines": 21,
-      "read_status": "read",
-      "read_sha256": "813d0ebbb303198e93fcf2553f70e4a4d4aa5d2078d9c9e2d4fbe2577f3fc113"
+      "sha256": "342774bcdad7b5aa8b252ff6a8b43e835c24f02812b878ed0810bbea5733698e",
+      "lines": 44,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-26-fresh-debian-guest-nested-route-acceptance.md",
       "kind": "narrative",
       "sha256": "7722f96f154d41b1d381bb09876cc7058267e29f909f9b9842ec0451e3caea41",
       "lines": 42,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-26-managed-guest-desktop-shortcut-routing.md",
+      "kind": "narrative",
+      "sha256": "2f20062d68ebf733663ab5ac84e97a394f617a616aadeffd983d4dc718481f14",
+      "lines": 16,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -3639,6 +3655,14 @@
       "lines": 20,
       "read_status": "read",
       "read_sha256": "ac436733362831adfe8510d142243817371a5567dbaf3aff784260d0fc55b953"
+    },
+    {
+      "path": "docs/evidence/2026-10-26-ubuntu-noble-live-install-route.md",
+      "kind": "narrative",
+      "sha256": "51c302202097d5d91fa14194b0e9592c1cdfbc80fd62c18151597ad882235148",
+      "lines": 21,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/P0-foundation.md",

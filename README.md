@@ -53,7 +53,7 @@ Each client exposes its supported operations through the shared management servi
 
 ## Optional managed guest
 
-Install a fresh, pinned Debian Trixie guest or the currently unqualified Ubuntu Noble profile:
+Install a fresh, pinned Debian Trixie or Ubuntu Noble managed guest profile:
 
 ```sh
 tx install debian
@@ -61,7 +61,7 @@ tx install debian
 tx proot status
 ```
 
-In an attached Native terminal, run `tx install debian` and follow the prompts. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Ubuntu Noble currently offers XFCE and still needs live device qualification; other distro profiles will appear through the same `tx install <distro>` command when ready. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. The TUI can launch this guided installer from its terminal; Web and GTK provide distro selectors and open the guided installer in Native terminal sessions.
+In an attached Native terminal, run `tx install debian` and follow the prompts. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Ubuntu Noble currently offers XFCE. Its standalone `:0` and guest-to-Native `:1` graphics routes passed live checks; nested `:2` starts XFCE and passes Vulkan/audio endpoint checks but remains partial because Xephyr DRI3/GLX drawing is unavailable. Other distro names remain unsupported until their Ternuxx-managed profiles are implemented and qualified. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. The TUI can launch this guided installer from its terminal; Web and GTK provide distro selectors and open the guided installer in Native terminal sessions.
 
 ## SSH and services
 

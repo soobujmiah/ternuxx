@@ -51,8 +51,7 @@ profile, defaults to XFCE, then asks before applying that exact plan. You do not
 need to copy a plan ID in the guided flow. Use explicit `preview`/`apply` only
 for review-only or automated setup.
 The lower-level equivalent is `tx proot setup fresh-preview --user NAME
---desktops xfce,lxqt`; Debian desktop IDs are `xfce`, `lxqt`, `lxde`, `mate`,
-`plasma`, `gnome`, `cinnamon`; only selected desktops are installed (XFCE is the default).
+--desktops xfce,lxqt`; Desktop IDs depend on the selected profile: Debian offers `xfce`, `lxqt`, `lxde`, `mate`, `plasma`, `gnome`, and `cinnamon`; Ubuntu currently offers `xfce`. Only selected desktops are installed (XFCE is the default).
 XFCE, LXQt, LXDE, and MATE are live-checked on standalone :0 and nested :2;
 Plasma is accepted on standalone :0 only; GNOME and Cinnamon are install-catalog options without an accepted route. Review the exact
 image/package plan, then apply it with
@@ -61,9 +60,9 @@ Choose `--sudo-mode password` for hidden prompts, or `passwordless` for
 NOPASSWD sudo inside the guest. Never put passwords in
 command arguments. Fresh setup runs in an attached Native Termux terminal and
 preserves an existing guest.
-Receipt-verified Ternuxx Debian Trixie replay aliases can launch nested with
+Managed Ubuntu and receipt-verified Ternuxx replay aliases can select their own guest with
 `tx pgui start --mode nested --desktop xfce --alias ALIAS`; canonical `debian`
-is the default, and standalone :0 uses that canonical guest.
+is the default when no alias is supplied.
 `tx proot sessions list` inspects managed sessions;
 `tx proot sessions recovery-inspect SESSION_ID` and `reconcile-preview`
 inspect interrupted records. Apply reconciliation only when its exact preview
@@ -75,7 +74,7 @@ interactive Debian login; `tx pgui` starts the optional guest desktop.
 allowlisted Debian XFCE application through the shared guest service.
 `tx proot shortcuts list` inspects launcher state; `preview add|remove APP_ID`
 and `apply add|remove APP_ID --yes --plan-id ID` manage one Native launcher.
-`shortcuts sync preview|apply` synchronizes eligible guest applications, and
+`shortcuts sync preview|apply` synchronizes eligible Debian applications and managed-guest desktop launchers, and
 `shortcuts rollback list|preview|apply` reviews and restores a prior sync.
 For a guest with the exact recognized legacy Turnip ICD, use
 `tx proot setup icd-migrate-preview --alias debian`, review the file move and

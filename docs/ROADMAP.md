@@ -1,6 +1,6 @@
 # Roadmap
 
-Ternuxx uses Native Termux as its host/control plane and supports optional Debian PRoot workloads. On 2026-10-24 the owner authorized restoring Debian PRoot after its earlier retirement. P11 tracks the provider and guest restoration; P12 tracks CPU/GPU/NPU acceleration qualification.
+Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-managed PRoot workload providers. Debian Trixie and Ubuntu Noble currently have pinned profiles; support for additional upstream proot-distro images requires distro-specific package, graphics/audio, desktop, lifecycle, and recovery adapters plus live qualification. The owner reauthorized PRoot after an earlier retirement on 2026-10-24. P11 records the original Debian restoration; P12 tracks CPU/GPU/NPU acceleration qualification. The broader clean-room mandate continues across these phase boundaries.
 
 <!-- generated:phase-table:start -->
 | ID | Phase | Status | Completed / skipped |
@@ -32,7 +32,7 @@ Complete this item and update its evidence before moving to the next item or pha
 
 ## Current work
 
-Follow the active P12 next action above. Per-client implementation and remaining acceptance live in the [capability matrix](architecture/CAPABILITY-MATRIX.md); current runtime and release gates live in [CURRENT_STATE.md](../CURRENT_STATE.md) and [known limitations](testing/KNOWN-LIMITATIONS.md).
+Follow the active P12 next action above while continuing the owner-authorized clean-room mandate: extend managed distro providers beyond the current Debian/Ubuntu pair, and close cross-client, graphics/audio, recovery, and clean-install acceptance. Current provider maturity and per-client implementation are in the [capability matrix](architecture/CAPABILITY-MATRIX.md); current runtime and release gates live in [CURRENT_STATE.md](../CURRENT_STATE.md) and [known limitations](testing/KNOWN-LIMITATIONS.md).
 
 ## Completion criteria
 

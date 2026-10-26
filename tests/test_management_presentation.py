@@ -26,7 +26,7 @@ class ManagementPresentationTests(unittest.TestCase):
                 "desktop_id": "thunar.desktop", "name": "Files", "shortcut_state": "installed",
                 "localized_comments": {"en": "This is metadata that should not be shown"},
             }], "diagnostics": [{"reason": "Hidden entry"}]},
-            "desktop_sessions": [{"id": "lxqt", "name": "LXQt", "launch_command": "tx pgui start --mode auto --desktop lxqt"}],
+            "desktop_sessions": [{"id": "lxqt", "name": "LXQt", "guest_alias": "debian", "launch_command": "tx pgui start --mode auto --desktop lxqt"}],
         }})
         self.assertIn("Debian shortcuts - 1 fixed, 1 discovered app launchers", report)
         self.assertIn("files — File manager: absent", report)

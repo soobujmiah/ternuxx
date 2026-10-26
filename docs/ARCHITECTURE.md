@@ -1,8 +1,8 @@
 # Ternuxx architecture
 
-Ternuxx is an Android workstation manager with Native Termux as its host and control plane and optional Debian PRoot workloads. Its public command is `tx`; the installed shim dispatches into the checkout. Product state lives under `$TERNUXX_STATE_DIR` or the default `$HOME/.local/share/ternuxx`, and installed runtime modules live under `$PREFIX/lib/ternuxx`.
+Ternuxx is an Android workstation manager with Native Termux as its host and control plane and optional Ternuxx-managed PRoot workload providers. Debian Trixie and Ubuntu Noble currently have pinned profiles; additional distro families require their own package-manager, base-image, graphics/audio, desktop, lifecycle, and recovery adapters. Its public command is `tx`; the installed shim dispatches into the checkout. Product state lives under `$TERNUXX_STATE_DIR` or the default `$HOME/.local/share/ternuxx`, and installed runtime modules live under `$PREFIX/lib/ternuxx`.
 
-Native Termux owns desktop lifecycle, boot/recovery, SSH, service supervision, state, diagnostics, and host workloads. Debian PRoot is an optional guest provider with typed, target-specific lifecycle, setup, application, GUI, and shortcut operations. Guest operations do not replace or silently fall back to Native operations. Ternuxx does not invoke or modify the separate Ternux project or launcher.
+Native Termux owns desktop lifecycle, boot/recovery, SSH, service supervision, state, diagnostics, and host workloads. Managed PRoot profiles are optional guest providers with typed, target-specific lifecycle, setup, application, GUI, and shortcut operations. Guest operations do not replace or silently fall back to Native operations. Ternuxx does not invoke or modify the separate Ternux project or launcher.
 
 ## Shared management
 
@@ -16,7 +16,7 @@ Ternuxx controls only the Native services and processes it records. Desktop and 
 
 ## Graphics and audio
 
-Native graphics selection is stored in private Ternuxx state and applies to future Native desktop sessions. Debian graphics use the guest's own Mesa/Turnip stack and a bounded Native display/audio handoff. The two rendering contexts are qualified separately; installed libraries, device nodes, or a renderer string without a workload do not prove application acceleration. Native PulseAudio remains Native-owned.
+Native graphics selection is stored in private Ternuxx state and applies to future Native desktop sessions. Each managed guest uses its distro-compatible Mesa/Turnip stack and a bounded Native display/audio handoff; graphics claims are qualified per guest and display route. The two rendering contexts are qualified separately; installed libraries, device nodes, or a renderer string without a workload do not prove application acceleration. Native PulseAudio remains Native-owned.
 
 ## Scope migration
 
