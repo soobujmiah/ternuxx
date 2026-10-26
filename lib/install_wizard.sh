@@ -356,8 +356,8 @@ _nt_collect_guest() {
         printf '\nConfirm guest sudo password (hidden): ' >/dev/tty
         IFS= read -rs confirmation </dev/tty || return 130
         printf '\n' >/dev/tty
-        if [ "$password" = "$confirmation" ] && [ ${#password} -ge 4 ] && [ ${#password} -le 4096 ]; then break; fi
-        nt_warn 'Passwords must match and contain 4–4096 characters.'
+        if [ "$password" = "$confirmation" ] && [ ${#password} -ge 4 ] && [ ${#password} -le 1024 ]; then break; fi
+        nt_warn 'Passwords must match and contain 4–1024 characters.'
       done
     fi
   fi
