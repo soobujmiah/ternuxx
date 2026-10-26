@@ -1377,7 +1377,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
                ("sessions", "Inspect owned guest sessions"),
                ("probe", "Start bounded headless Debian probe"),
                ("login", "Read interactive Debian login instructions")]
-    choices.append(("install", "Install the optional managed Debian guest"))
+    choices.append(("install", "Install an optional managed Debian or Ubuntu guest"))
     if "proot.shortcuts.list" in operations:
         choices.append(("apps", "Browse and launch an allowlisted Debian app"))
     if {"proot.shortcuts.list", "proot.shortcuts.preview", "proot.shortcuts.apply"} <= operations:
@@ -1404,28 +1404,32 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
         if prefix != "/data/data/com.termux/files/usr" or not executable.is_file():
             return {"ok": False, "error": {"code": "native_tx_unavailable",
                     "message": "The fixed Native Termux tx command is unavailable."}}
-        available = proot_desktops.catalog("debian-trixie")
-        selection = _prompt(screen, "Debian desktop IDs, comma-separated (default xfce): ").strip()
+        distro = _choose(screen, "Choose a managed guest distro", [
+            ("debian", "Debian Trixie"), ("ubuntu", "Ubuntu Noble")])
+        profile = "debian-trixie" if distro == "debian" else "ubuntu-noble"
+        available = proot_desktops.catalog(profile)
+        selection = _prompt(screen, f"{distro.title()} desktop IDs ({', '.join(available)}; default xfce): ").strip()
         desktops = [item.strip() for item in selection.split(",") if item.strip()] if selection else ["xfce"]
         try:
-            validated = proot_desktops.validate_selection("debian-trixie", desktops)
+            validated = proot_desktops.validate_selection(profile, desktops)
         except ValueError as exc:
             return {"ok": False, "error": {"code": "invalid_desktop_selection", "message": str(exc)}}
         if any(item not in available for item in desktops):
             return {"ok": False, "error": {"code": "invalid_desktop_selection",
-                    "message": "Choose from the listed Debian desktop IDs."}}
+                    "message": f"Choose from the listed {distro.title()} desktop IDs."}}
         screen.erase(); screen.refresh()
         curses.def_prog_mode(); curses.endwin()
         try:
-            result = subprocess.run([str(executable), "install", "debian", "--desktops", ",".join(validated)], check=False)
+            result = subprocess.run([str(executable), "install", distro, "--desktops", ",".join(validated)], check=False)
         except OSError as exc:
             return {"ok": False, "error": {"code": "guest_install_launch_failed", "message": str(exc)}}
         finally:
             curses.reset_prog_mode(); screen.clear(); screen.refresh()
+        label = "Debian" if distro == "debian" else "Ubuntu"
         return {"ok": result.returncode == 0,
                 "data": {"guest_status": "setup_finished" if result.returncode == 0 else "setup_failed",
                          "exit_code": result.returncode,
-                         "message": "The guided Debian installer finished; existing guests remain preserved."}}
+                         "message": f"The guided {label} installer finished; existing guests remain preserved."}}
     if action == "login":
         status = _call("proot.status")
         if not status.get("ok"):
@@ -1435,7 +1439,7 @@ def _proot_workload_action(screen: "curses._CursesWindow", resource: dict[str, A
             return {"ok": True, "data": {"guest_status": "installed",
                 "next_step": "Debian is installed. Exit TUI and run `tx db` in an attached Native Termux terminal."}}
         return {"ok": True, "data": {"guest_status": "missing",
-            "next_step": "Choose Install the optional managed Debian guest to pick one or more desktop environments and start the guided installer here. It asks for the guest username, shows the pinned target, and asks before installing Ternuxx graphics/audio configuration. Existing guests are preserved."}}
+            "next_step": "Choose Install an optional managed Debian or Ubuntu guest, select its supported desktop environments, and start the guided installer here. It asks for the guest username, shows the pinned target, and asks before installing Ternuxx graphics/audio configuration. Existing guests are preserved."}}
     if action == "stop" and {"proot.stop.preview", "proot.stop"} <= operations:
         inventory = _call("proot.sessions.list")
         if not inventory.get("ok"):

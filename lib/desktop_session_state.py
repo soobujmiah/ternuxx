@@ -11,6 +11,7 @@ import sys
 import tempfile
 
 import native_desktops
+import proot_profiles
 
 MARKERS = {"supervisor": "desktop-supervisor.sh", "x11": "termux-x11", "desktop": "xfce4-session"}
 DESKTOP_MARKERS = {"native": "xfce4-session", "proot": "proot-display0"}
@@ -258,6 +259,12 @@ def inspect(home: Path, state_dir: Path, proc: Path, tmp_root: Path) -> dict:
             return {"state": "unknown", "reason": "process inventory unavailable"}
         provider = data.get("provider")
         desktop_id = data.get("desktop_id", "xfce")
+        guest_alias = data.get("guest_alias", "debian")
+        if provider == "proot":
+            try:
+                proot_profiles.profile_for_alias(guest_alias)
+            except (TypeError, ValueError) as exc:
+                raise StateError("recorded PRoot guest alias is invalid") from exc
         if provider == "native":
             native_item = native_desktops.NATIVE_DESKTOPS.get(desktop_id)
             expected_desktop = native_item["command"] if native_item else None

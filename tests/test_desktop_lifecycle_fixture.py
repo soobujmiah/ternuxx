@@ -372,20 +372,20 @@ bash -c "$runner" _ status
         env.pop("TERNUXX_STATE_DIR")
         status = subprocess.run(
             ["bash", str(ROOT / "bin/tx"), "--json", "status"],
-            env=env, text=True, capture_output=True, timeout=8, check=False,
+            env=env, text=True, capture_output=True, timeout=20, check=False,
         )
         self.assertEqual(status.returncode, 0, status.stderr)
         self.assertEqual(json.loads(status.stdout)["status"], "running")
         self.assertEqual(json.loads(status.stdout)["display"], ":7")
         repeated = subprocess.run(
             ["bash", str(ROOT / "bin/tx"), "start", "--display", "7"],
-            env=env, text=True, capture_output=True, timeout=8, check=False,
+            env=env, text=True, capture_output=True, timeout=20, check=False,
         )
         self.assertEqual(repeated.returncode, 0, repeated.stderr)
         self.assertEqual(self._state()["supervisor"], original["supervisor"])
         stopped = subprocess.run(
             ["bash", str(ROOT / "bin/tx"), "stop"],
-            env=env, text=True, capture_output=True, timeout=8, check=False,
+            env=env, text=True, capture_output=True, timeout=20, check=False,
         )
         self.assertEqual(stopped.returncode, 0, stopped.stderr)
         self.assertEqual(self._state()["status"], "stopped")

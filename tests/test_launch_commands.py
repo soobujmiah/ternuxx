@@ -265,7 +265,7 @@ class LaunchCommandTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0)
         self.assertIn("tx gui", result.stdout)
         self.assertIn("tx guides", result.stdout)
-        self.assertIn("optional Debian PRoot", result.stdout)
+        self.assertIn("optional managed PRoot", result.stdout)
         self.assertIn("Debian: db", result.stdout)
 
     def test_native_management_alias_and_proot_help(self):
@@ -286,6 +286,13 @@ class LaunchCommandTests(unittest.TestCase):
                                       capture_output=True, text=True, env=legacy_env, timeout=15)
         self.assertEqual(legacy_proot.returncode, 0, legacy_proot.stderr)
         self.assertIn("proot_distribution_inventory", legacy_proot.stdout)
+
+    def test_proot_verify_uses_the_management_service_guest_user_option(self):
+        script = (ROOT / "lib/proot.sh").read_text(encoding="utf-8")
+        service = (ROOT / "lib/management_service.py").read_text(encoding="utf-8")
+        self.assertIn("args+=(--guest-user-from rootfs)", script)
+        self.assertNotIn("--guest-user-source", script)
+        self.assertIn('parser.add_argument("--guest-user-from", "--user-source"', service)
 
     def test_distro_named_debian_install_requests_account_before_guest_preview(self):
         result = self.cli("install", "debian", "preview")

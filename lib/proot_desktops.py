@@ -65,7 +65,8 @@ def catalog(provider: str, *, route: str | None = None) -> tuple[str, ...]:
 
 def packages_for(provider: str, selected: list[str] | tuple[str, ...] | None = None) -> list[str]:
     choices = validate_selection(provider, selected)
-    return list(dict.fromkeys(package for item in choices for package in DEBIAN_DESKTOPS[item]["packages"]))
+    desktops = PROVIDERS[provider]
+    return list(dict.fromkeys(package for item in choices for package in desktops[item]["packages"]))
 
 
 def session_argv(provider: str, selected: str, *, route: str | None = None) -> tuple[str, ...]:

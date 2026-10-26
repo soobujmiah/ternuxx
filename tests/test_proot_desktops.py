@@ -46,8 +46,11 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         for selection in ([], ["xfce", "xfce"], ["xfce;id"], ["unknown"]):
             with self.subTest(selection=selection), self.assertRaises(proot_desktops.DesktopError):
                 proot_desktops.validate_selection("debian-trixie", selection)
+        self.assertEqual(proot_desktops.validate_selection("ubuntu-noble", ["xfce"]), ("xfce",))
+        self.assertEqual(proot_desktops.packages_for("ubuntu-noble", ["xfce"]), ["xfce4", "xfce4-terminal"])
+        self.assertEqual(proot_desktops.catalog("ubuntu-noble", route="nested"), ("xfce",))
         with self.assertRaises(proot_desktops.DesktopError):
-            proot_desktops.validate_selection("ubuntu", ["xfce"])
+            proot_desktops.validate_selection("ubuntu-noble", ["lxqt"])
         with self.assertRaises(proot_desktops.DesktopError):
             proot_desktops.session_command("debian-trixie", "$(id)")
 

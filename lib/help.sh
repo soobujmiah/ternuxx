@@ -33,8 +33,9 @@ Quick launch:
 Use `tx help NAME` for command options. Common aliases: up=start, dn=stop,
 rs=restart, st=status, ck=check, inf=info, doc=doctor, mg=mng.
 Options: --json, --verbose, --quiet, --help
-Install and recovery changes require an exact preview plan. Remote access is
-disabled by default.
+Install and recovery changes require an exact preview plan. The optional managed PRoot
+Debian or Ubuntu guests are available with `tx install debian` or `tx install ubuntu`.
+Remote access is disabled by default.
 `tx reboot prepare --test-id ID` collects conservative repository metadata and
 unknown service/boot evidence, previews a private NOT_READY record, then needs
 the exact typed confirmation or `--yes --plan-id ID`. `tx reboot verify` uses

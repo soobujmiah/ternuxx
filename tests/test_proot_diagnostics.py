@@ -183,6 +183,39 @@ class ProotDiagnosticsTests(unittest.TestCase):
             self.assertIsInstance(report["installed_distributions"], list)
             self.assertEqual(report["installed_distributions"], sorted(set(report["installed_distributions"])))
 
+    def test_ubuntu_guest_requires_matching_managed_receipt_and_rootfs_identity(self):
+        with tempfile.TemporaryDirectory(prefix="ternuxx-ubuntu-receipt-") as temporary:
+            base = Path(temporary)
+            home = base / "home"
+            home.mkdir()
+            state = home / ".local/share/ternuxx"
+            state.mkdir(parents=True, mode=0o700)
+            state.chmod(0o700)
+            setup_state = state / "proot-setup"
+            (setup_state / "previews").mkdir(parents=True, mode=0o700)
+            setup_state.chmod(0o700)
+            prefix = base / "prefix"
+            container = prefix / "var/lib/proot-distro/containers/ubuntu"
+            root = container / "rootfs"
+            (root / "etc").mkdir(parents=True)
+            identity = proot_fresh_setup._root_identity(container, root)
+            receipt = {"schema_version": 1, "alias": "ubuntu", "plan_id": "d" * 64,
+                       "rootfs_identity": identity, "package_versions_recorded": True,
+                       "requested_packages_verified_installed": True,
+                       "release": "Ubuntu 24.04 LTS (Noble)", "profile_id": "ternuxx-ubuntu-noble-workstation"}
+            receipt_path = setup_state / "fresh-provider-ubuntu.json"
+            receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+            receipt_path.chmod(0o600)
+            report = proot_diagnostics.verify_managed_guest_alias(
+                "ubuntu", str(prefix), home=str(home), state_dir=str(state))
+            self.assertEqual(report["alias"], "ubuntu")
+            self.assertEqual(report["profile_id"], "ubuntu-noble")
+            receipt["profile_id"] = "ternuxx-debian-trixie-workstation"
+            receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "exact, valid Ternuxx install receipt"):
+                proot_diagnostics.verify_managed_guest_alias(
+                    "ubuntu", str(prefix), home=str(home), state_dir=str(state))
+
     def test_receipt_verified_replay_guest_can_run_the_same_readonly_graphics_probe(self):
         alias = "ternuxx-replay-cleanroom-20261026"
         with tempfile.TemporaryDirectory(prefix="ternuxx-replay-probe-") as temporary:

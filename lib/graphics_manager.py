@@ -341,11 +341,15 @@ def verify(provider: str, api: str, *, home: str, state_dir: str, process_env: d
         tool = shutil.which("glmark2", path=env.get("PATH"))
         if not tool:
             return {"provider": provider, "api": api, "status": "unavailable", "reason": "glmark2 is not installed"}
-        workload = [tool, "--off-screen", "--size", "1280x720",
-                    "--frame-end", "finish", "--swap-mode", "immediate",
-                    "--benchmark", "build:duration=4.0",
-                    "--benchmark", "texture:duration=4.0",
-                    "--benchmark", "shading:duration=4.0"]
+        display = env.get("DISPLAY")
+        on_screen = isinstance(display, str) and re.fullmatch(r":(?:[0-9]|10)", display)
+        workload = [tool]
+        if not on_screen:
+            workload.extend(["--off-screen", "--size", "1280x720"])
+        workload.extend(["--frame-end", "finish", "--swap-mode", "immediate",
+                         "--benchmark", "build:duration=4.0",
+                         "--benchmark", "texture:duration=4.0",
+                         "--benchmark", "shading:duration=4.0"])
         code, output = _run(workload, env, 30)
         renderer = next((line.split(":", 1)[1].strip() for line in output.splitlines()
                          if line.strip().startswith("GL_RENDERER:")), None)
@@ -354,16 +358,23 @@ def verify(provider: str, api: str, *, home: str, state_dir: str, process_env: d
         if code == 0 and renderer:
             return {"provider": provider, "api": api, "status": "rendered", "render_verified": True,
                     "renderer": renderer, "accelerated": _renderer_accelerated(renderer),
-                    "score": score, "display": "off-screen", "exit_code": code,
+                    "score": score, "display": display if on_screen else "off-screen",
+                    "render_target": "x11-window" if on_screen else "off-screen",
+                    "exit_code": code,
                     "fallback_order": ["llvmpipe", "softpipe"], "fallback_attempts": []}
         attempts = []
+        fallback_workload = [tool, "--off-screen", "--size", "1280x720",
+                             "--frame-end", "finish", "--swap-mode", "immediate",
+                             "--benchmark", "build:duration=4.0",
+                             "--benchmark", "texture:duration=4.0",
+                             "--benchmark", "shading:duration=4.0"]
         for backend in ("llvmpipe", "softpipe"):
             software_env = dict(env)
             software_env.pop("MESA_LOADER_DRIVER_OVERRIDE", None)
             software_env.pop("VK_ICD_FILENAMES", None)
             software_env["LIBGL_ALWAYS_SOFTWARE"] = "true"
             software_env["GALLIUM_DRIVER"] = backend
-            fallback_code, fallback_output = _run(workload, software_env, 30)
+            fallback_code, fallback_output = _run(fallback_workload, software_env, 30)
             fallback_renderer = next((line.split(":", 1)[1].strip() for line in fallback_output.splitlines()
                                       if line.strip().startswith("GL_RENDERER:")), None)
             fallback_score = next((line.split(":", 1)[1].strip() for line in fallback_output.splitlines()
@@ -377,13 +388,19 @@ def verify(provider: str, api: str, *, home: str, state_dir: str, process_env: d
                 return {"provider": provider, "api": api, "status": "fallback-rendered",
                         "render_verified": True, "renderer": fallback_renderer,
                         "accelerated": False, "score": fallback_score, "display": "off-screen",
-                        "exit_code": fallback_code,
-                        "primary_attempt": {"status": "failed", "renderer": renderer, "exit_code": code},
+                        "render_target": "off-screen", "exit_code": fallback_code,
+                        "primary_attempt": {"status": "failed", "renderer": renderer,
+                                            "display": display if on_screen else "off-screen",
+                                            "render_target": "x11-window" if on_screen else "off-screen",
+                                            "exit_code": code},
                         "fallback_order": ["llvmpipe", "softpipe"], "fallback_attempts": attempts}
         return {"provider": provider, "api": api, "status": "failed", "render_verified": False,
                 "renderer": attempts[-1]["renderer"] if attempts else renderer,
-                "accelerated": None, "display": "off-screen", "exit_code": code,
-                "primary_attempt": {"status": "failed", "renderer": renderer, "exit_code": code},
+                "accelerated": None, "display": "off-screen", "render_target": "off-screen", "exit_code": code,
+                "primary_attempt": {"status": "failed", "renderer": renderer,
+                                    "display": display if on_screen else "off-screen",
+                                    "render_target": "x11-window" if on_screen else "off-screen",
+                                    "exit_code": code},
                 "fallback_order": ["llvmpipe", "softpipe"], "fallback_attempts": attempts}
     if api == "vulkan":
         tool = shutil.which("vulkaninfo", path=env.get("PATH"))

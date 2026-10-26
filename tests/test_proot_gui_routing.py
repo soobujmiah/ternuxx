@@ -18,7 +18,7 @@ class ProotGuiRoutingTests(unittest.TestCase):
             result = subprocess.run(["bash", str(ROOT / "scripts/proot-gui0.sh"), "status"],
                                     capture_output=True, text=True, env=env, timeout=10)
             self.assertEqual(result.returncode, 0)
-            self.assertIn("Standalone Debian GUI: stopped; target display :0", result.stdout)
+            self.assertIn("Standalone managed guest GUI: stopped; target display :0", result.stdout)
             self.assertIn("Nested display :2 socket is absent.", result.stdout)
 
     def test_live_status_and_start_copy_distinguish_session_liveness_from_desktop_readiness(self) -> None:
@@ -39,9 +39,9 @@ class ProotGuiRoutingTests(unittest.TestCase):
         self.assertIn('/usr/bin/Xephyr :2 -glamor_gles2 -screen "$native_geometry" -resizeable', script)
         self.assertIn('--env TERNUXX_REPO_ROOT="$ROOT"', script)
         self.assertIn('args=(login "$DISTRO_ID" --shared-tmp --user "$guest_user"', script)
-        self.assertIn('verify_managed_replay_alias(alias,prefix)', script)
-        self.assertIn('catalog("debian-trixie", route=route)', script)
-        self.assertIn('selected not in proot_desktops.catalog("debian-trixie", route=route)', script)
+        self.assertIn('verify_managed_guest_alias(alias,prefix)', script)
+        self.assertIn('catalog(sys.argv[4], route=route)', script)
+        self.assertIn('selected not in proot_desktops.catalog(profile, route=route)', script)
         self.assertIn('plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma KWIN_COMPOSE=N', script)
         self.assertNotIn('gnome) desktop_argv=', script)
         self.assertNotIn('cinnamon) desktop_argv=', script)
@@ -133,7 +133,7 @@ class ProotGuiRoutingTests(unittest.TestCase):
                 capture_output=True, text=True, env=env, timeout=10,
             )
             self.assertNotEqual(result.returncode, 0)
-            self.assertIn("exact receipt-verified Ternuxx Debian Trixie replay alias", result.stderr)
+            self.assertIn("exact Ternuxx setup receipt", result.stderr)
             self.assertFalse((home / ".local/share/ternuxx").exists())
 
     def test_invalid_mode_is_rejected_before_state_mutation(self) -> None:

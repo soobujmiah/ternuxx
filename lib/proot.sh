@@ -79,7 +79,7 @@ _nt_proot_verify() {
   local distro="$1" guest_user="$2" user_source="$3" display="$4" backend="$5"
   local args=(--operation proot.guest.verify --distro "$distro" --display "$display" --backend "$backend")
   if [ "$user_source" = "rootfs" ]; then
-    args+=(--guest-user-source rootfs)
+    args+=(--guest-user-from rootfs)
   else
     args+=(--guest-user "$guest_user")
   fi

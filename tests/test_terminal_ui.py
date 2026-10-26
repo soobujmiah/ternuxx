@@ -307,7 +307,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
                 mock.patch.object(terminal_ui, "_call", return_value=missing):
             result = terminal_ui._proot_workload_action(object(), resource)
         self.assertEqual(result["data"]["guest_status"], "missing")
-        self.assertIn("Install the optional managed Debian guest", result["data"]["next_step"])
+        self.assertIn("Install an optional managed Debian or Ubuntu guest", result["data"]["next_step"])
         self.assertIn("shows the pinned target", result["data"]["next_step"])
         self.assertIn("Existing guests are preserved", result["data"]["next_step"])
 
@@ -315,7 +315,7 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         resource = {"supported_operations": ["proot.status"]}
         screen = mock.Mock()
         completed = mock.Mock(returncode=0)
-        with mock.patch.object(terminal_ui, "_choose", return_value="install"), \
+        with mock.patch.object(terminal_ui, "_choose", side_effect=["install", "debian"]), \
                 mock.patch.object(terminal_ui, "_prompt", return_value="lxqt,xfce"), \
                 mock.patch.dict(terminal_ui.os.environ, {"PREFIX": "/data/data/com.termux/files/usr"}), \
                 mock.patch.object(terminal_ui.Path, "is_file", return_value=True), \
@@ -328,6 +328,23 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertEqual(result["data"]["guest_status"], "setup_finished")
         run.assert_called_once_with(["/data/data/com.termux/files/usr/bin/tx", "install", "debian", "--desktops", "xfce,lxqt"], check=False)
         screen.clear.assert_called_once()
+
+    def test_proot_management_can_launch_guided_ubuntu_installer_from_attached_tui(self) -> None:
+        resource = {"supported_operations": ["proot.status"]}
+        screen = mock.Mock()
+        completed = mock.Mock(returncode=0)
+        with mock.patch.object(terminal_ui, "_choose", side_effect=["install", "ubuntu"]), \
+                mock.patch.object(terminal_ui, "_prompt", return_value="xfce"), \
+                mock.patch.dict(terminal_ui.os.environ, {"PREFIX": "/data/data/com.termux/files/usr"}), \
+                mock.patch.object(terminal_ui.Path, "is_file", return_value=True), \
+                mock.patch.object(terminal_ui.curses, "def_prog_mode"), \
+                mock.patch.object(terminal_ui.curses, "endwin"), \
+                mock.patch.object(terminal_ui.curses, "reset_prog_mode"), \
+                mock.patch.object(terminal_ui.subprocess, "run", return_value=completed) as run:
+            result = terminal_ui._proot_workload_action(screen, resource)
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"]["guest_status"], "setup_finished")
+        run.assert_called_once_with(["/data/data/com.termux/files/usr/bin/tx", "install", "ubuntu", "--desktops", "xfce"], check=False)
 
     def test_proot_stop_uses_only_verified_running_sessions_and_exact_preview(self) -> None:
         resource = {"supported_operations": ["proot.sessions.list", "proot.stop.preview", "proot.stop"]}

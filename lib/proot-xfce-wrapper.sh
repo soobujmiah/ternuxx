@@ -8,9 +8,13 @@ fi
 SCRIPT_LIB_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 REPO_ROOT="$(cd -- "$SCRIPT_LIB_DIR/.." && pwd -P)"
 PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
+guest_alias="${TERNUXX_PROOT_ALIAS:-debian}"
+profile_id="$(TERNUXX_PROOT_ALIAS="$guest_alias" PYTHONPATH="$SCRIPT_LIB_DIR" python3 -c 'import os,proot_profiles; print(proot_profiles.profile_for_alias(os.environ["TERNUXX_PROOT_ALIAS"]))')" || {
+  echo "No verified Ternuxx desktop profile exists for the selected PRoot guest." >&2; exit 1;
+}
 CPUINFO_PATH="$HOME/.local/share/ternuxx/proot-display0/cpuinfo"
 python3 "$SCRIPT_LIB_DIR/proot_cpuinfo.py" "$CPUINFO_PATH" || {
-  echo "Could not prepare the optional CPU model-name view; Debian XFCE will use Native /proc/cpuinfo as-is." >&2
+  echo "Could not prepare the optional CPU model-name view; the guest will use Native /proc/cpuinfo as-is." >&2
   CPUINFO_PATH=""
 }
 desktop_id="${TERNUXX_DESKTOP_ID:-xfce}"
@@ -20,13 +24,13 @@ case "$desktop_id" in
   lxde) desktop_argv=(startlxde) ;;
   mate) desktop_argv=(mate-session) ;;
   plasma) desktop_argv=(startplasma-x11) ;;
-  *) echo "Unsupported Debian desktop selection" >&2; exit 2 ;;
+  *) echo "Unsupported managed guest desktop selection" >&2; exit 2 ;;
 esac
-guest_user="$(PYTHONPATH="$SCRIPT_LIB_DIR" python3 -c 'import os,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro="debian",prefix=os.environ["PREFIX"]))')" || {
-  echo "Could not resolve one ordinary Debian guest account; no desktop was started." >&2
+guest_user="$(PYTHONPATH="$SCRIPT_LIB_DIR" python3 -c 'import os,proot_diagnostics; print(proot_diagnostics.resolve_proot_guest_user(distro=os.environ["TERNUXX_PROOT_ALIAS"],prefix=os.environ["PREFIX"]))')" || {
+  echo "Could not resolve one ordinary managed guest account; no desktop was started." >&2
   exit 1
 }
-args=(login debian --shared-tmp --user "$guest_user"
+args=(login "$guest_alias" --shared-tmp --user "$guest_user"
   --env DISPLAY=:0
   --env TERNUXX_SESSION_ID=proot-display0
   --env TERNUXX_DESKTOP_ID="$desktop_id"
@@ -84,7 +88,7 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
       lxde) desktop_argv=(startlxde); export XDG_CURRENT_DESKTOP=LXDE XDG_SESSION_DESKTOP=LXDE DESKTOP_SESSION=lxde ;;
       mate) desktop_argv=(mate-session); export XDG_CURRENT_DESKTOP=MATE XDG_SESSION_DESKTOP=MATE DESKTOP_SESSION=mate ;;
       plasma) desktop_argv=(startplasma-x11); export XDG_CURRENT_DESKTOP=KDE XDG_SESSION_DESKTOP=KDE DESKTOP_SESSION=plasma ;;
-      *) echo "Unsupported Debian desktop selection" >&2; exit 2 ;;
+      *) echo "Unsupported managed guest desktop selection" >&2; exit 2 ;;
     esac
     export XDG_SESSION_TYPE=x11
     # PRoot has no systemd or Android system bus. Give desktop sessions a
@@ -126,7 +130,7 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
     printf "Ternuxx PRoot desktop command exited: desktop=%s status=%s\n" "$TERNUXX_DESKTOP_ID" "$result" >&2
     exit "$result"
   ')
-printf 'Ternuxx PRoot host launcher: desktop=%s display=:0 user=%s\n' "$desktop_id" "$guest_user" >&2
+printf 'Ternuxx PRoot host launcher: guest=%s desktop=%s display=:0 user=%s\n' "$guest_alias" "$desktop_id" "$guest_user" >&2
 exec env -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT \
   -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT \
   -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE \

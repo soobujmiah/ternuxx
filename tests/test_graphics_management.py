@@ -221,6 +221,21 @@ class GraphicsManagementTests(unittest.TestCase):
         self.assertFalse(result["render_verified"])
         self.assertFalse(result["accelerated"])
 
+    def test_opengl_verification_draws_to_the_running_native_x11_display(self) -> None:
+        self.state.mkdir(parents=True, mode=0o700, exist_ok=True)
+        (self.state / "session.json").write_text('{"display":":1"}', encoding="utf-8")
+        with patch.object(graphics_manager.shutil, "which", return_value="/fixture/glmark2"), \
+             patch.object(graphics_manager, "_run", return_value=(
+                 0, "GL_RENDERER: Adreno (TM) 825\nglmark2 Score: 456\n")) as runner:
+            result = graphics_manager.verify("native", "opengl", home=str(self.home), state_dir=str(self.state),
+                                             process_env={"PATH": "/fixture", "PREFIX": "/termux"},
+                                             prefix="/termux", repo_root=str(self.repo))
+        self.assertEqual(result["display"], ":1")
+        self.assertEqual(result["render_target"], "x11-window")
+        self.assertTrue(result["render_verified"])
+        self.assertNotIn("--off-screen", runner.call_args.args[0])
+        self.assertEqual(runner.call_args.args[1]["DISPLAY"], ":1")
+
     def test_opengl_failed_primary_tries_llvmpipe_and_reports_software(self) -> None:
         with patch.object(graphics_manager.shutil, "which", return_value="/fixture/glmark2"), \
              patch.object(graphics_manager, "_run", side_effect=[
