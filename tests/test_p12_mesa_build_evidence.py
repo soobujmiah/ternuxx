@@ -153,6 +153,8 @@ else:
 import base64, os, sys
 if sys.argv[1] == '--field':
  print('Package: fixture-ubuntu-dep\\nVersion: 4.2\\nArchitecture: amd64')
+elif sys.argv[1] == '--contents':
+ print('-rw-r--r-- root/root 31 2026-01-01 00:00 ./usr/lib/libhost.a')
 elif sys.argv[1] == '--fsys-tarfile':
  sys.stdout.buffer.write(base64.b64decode(os.environ['FAKE_UBUNTU_DATA_TAR']))
 else:
@@ -219,6 +221,13 @@ else:
         archive_report = json.loads((self.root / "evidence/aarch64/target/ubuntu-package-archive-inputs.json").read_text())
         self.assertEqual(archive_report["packages"][0]["status"], "captured")
         self.assertTrue(archive_report["packages"][0]["archive_hash_matches_index"])
+        self.assertEqual(archive_report["packages"][0]["contents_listing_exit_code"], 0)
+        self.assertEqual(archive_report["packages"][0]["dpkg_contents_basename_candidates"], [{
+            "path": "usr/lib/libhost.a", "type": "file",
+            "external_paths": [str(ubuntu_input), str(unowned_alias_input)],
+        }])
+        self.assertEqual(archive_report["packages"][0]["fsys_tarfile_exit_code"], 0)
+        self.assertEqual(archive_report["packages"][0]["fsys_tarfile_member_count"], 1)
         alias_record = next(item for item in provenance["external_build_inputs"]
                             if item["absolute_path"] == str(unowned_alias_input))
         self.assertEqual(alias_record["package"], "unresolved")
@@ -455,6 +464,20 @@ class MesaCaptureValidationTests(unittest.TestCase):
                                              "package_database": "/other/dpkg"})
         path.write_text(json.dumps(provenance), encoding="utf-8")
         with self.assertRaisesRegex(EvidenceError, "hides multiple package owners"):
+            validate_capture(self.root)
+
+    def test_rejects_captured_ubuntu_archive_without_payload_diagnostics(self) -> None:
+        path = self.root / "aarch64/host/generated-output-and-rust-provenance.json"
+        provenance = json.loads(path.read_text(encoding="utf-8"))
+        provenance["ubuntu_package_archives"] = [{
+            "requested_name": "fixture-ubuntu-dep", "status": "captured",
+            "contents_listing_exit_code": 1, "fsys_tarfile_exit_code": 0,
+            "fsys_tarfile_member_count": 1,
+            "dpkg_contents_basename_candidates": [],
+            "same_basename_external_members": [],
+        }]
+        path.write_text(json.dumps(provenance), encoding="utf-8")
+        with self.assertRaisesRegex(EvidenceError, "dpkg-deb contents listing did not complete"):
             validate_capture(self.root)
 
     def test_rejects_missing_rust_generated_output_provenance(self) -> None:

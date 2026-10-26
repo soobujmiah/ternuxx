@@ -316,22 +316,53 @@ for (release, architecture, package_tmpdir, common_cache), requested_names in so
                 captured["status"] = "captured" if captured["archive_hash_matches_index"] else "hash-mismatch"
                 matched_files = []
                 basename_candidates = []
+                contents_basename_candidates = []
+                wanted_by_basename = {}
+                if ubuntu_root and ubuntu_root.is_dir():
+                    for external_path in external_paths:
+                        try:
+                            external_path.relative_to(ubuntu_root)
+                        except ValueError:
+                            continue
+                        wanted_by_basename.setdefault(external_path.name, []).append(external_path)
+                if captured["status"] == "captured" and dpkg_deb_tool:
+                    listing = subprocess.run([dpkg_deb_tool, "--contents", str(archive_path)],
+                                             text=True, capture_output=True, check=False)
+                    captured["contents_listing_exit_code"] = listing.returncode
+                    captured["contents_listing_stderr_tail"] = listing.stderr[-1000:]
+                    for row in listing.stdout.splitlines():
+                        columns = row.split(None, 5)
+                        if len(columns) != 6:
+                            continue
+                        member_path = columns[5].split(" -> ", 1)[0]
+                        while member_path.startswith("./"):
+                            member_path = member_path[2:]
+                        member_path = member_path.lstrip("/")
+                        basename_paths = wanted_by_basename.get(Path(member_path).name, []) if ubuntu_root else []
+                        if basename_paths:
+                            contents_basename_candidates.append({
+                                "path": member_path,
+                                "type": ("directory" if columns[0].startswith("d") else
+                                         "symlink" if columns[0].startswith("l") else
+                                         "file" if columns[0].startswith("-") else "other"),
+                                "external_paths": sorted(str(path) for path in basename_paths),
+                            })
                 if captured["status"] == "captured" and dpkg_deb_tool and ubuntu_root and ubuntu_root.is_dir():
                     wanted = {}
-                    wanted_by_basename = {}
                     for external_path in external_paths:
                         try:
                             relative = external_path.relative_to(ubuntu_root).as_posix()
                         except ValueError:
                             continue
                         wanted[relative] = (external_path, hashlib.sha256(external_path.read_bytes()).hexdigest())
-                        wanted_by_basename.setdefault(external_path.name, []).append(external_path)
                     if wanted:
                         process = subprocess.Popen([dpkg_deb_tool, "--fsys-tarfile", str(archive_path)],
                                                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
+                        tar_member_count = 0
                         try:
                             with tarfile.open(fileobj=process.stdout, mode="r|") as package_tar:
                                 for member in package_tar:
+                                    tar_member_count += 1
                                     member_path = member.name
                                     while member_path.startswith("./"):
                                         member_path = member_path[2:]
@@ -378,9 +409,11 @@ for (release, architecture, package_tmpdir, common_cache), requested_names in so
                         finally:
                             if process.stdout:
                                 process.stdout.close()
-                            process.wait()
+                            captured["fsys_tarfile_exit_code"] = process.wait()
+                        captured["fsys_tarfile_member_count"] = tar_member_count
                 captured["matched_external_files"] = matched_files
                 captured["same_basename_external_members"] = basename_candidates
+                captured["dpkg_contents_basename_candidates"] = contents_basename_candidates
             else:
                 captured["status"] = "archive-missing-from-cache"
         else:
@@ -781,6 +814,16 @@ def validate_capture(evidence_dir: Path) -> None:
                     or not isinstance(archive.get("requested_name"), str)
                     or not isinstance(archive.get("status"), str)):
                 raise EvidenceError(f"{role} Ubuntu package archive inventory has an invalid record")
+            if archive["status"] == "captured":
+                if archive.get("contents_listing_exit_code") != 0:
+                    raise EvidenceError(f"{role} Ubuntu package dpkg-deb contents listing did not complete")
+                if archive.get("fsys_tarfile_exit_code") != 0:
+                    raise EvidenceError(f"{role} Ubuntu package tar stream did not complete")
+                if not isinstance(archive.get("fsys_tarfile_member_count"), int) or archive["fsys_tarfile_member_count"] < 1:
+                    raise EvidenceError(f"{role} Ubuntu package tar stream has no member inventory")
+                for key in ("dpkg_contents_basename_candidates", "same_basename_external_members"):
+                    if not isinstance(archive.get(key), list):
+                        raise EvidenceError(f"{role} Ubuntu package archive is missing {key}")
         for record in provenance["generated_text_outputs"] + provenance["rust_source_inputs"] + provenance["external_build_inputs"]:
             if not isinstance(record, dict) or not isinstance(record.get("path"), str) \
                     or not isinstance(record.get("sha256"), str) \

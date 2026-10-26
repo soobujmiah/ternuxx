@@ -3,11 +3,99 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 588,
+  "document_count": 599,
   "read_count": 181,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/aarch64/host/meson-install-plan.txt",
+      "kind": "narrative",
+      "sha256": "269aaa6560d2a3dce1b67a7d25a23928c76d942f5b13853801e7e1bc133e9462",
+      "lines": 3,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/aarch64/host/meson-log.txt",
+      "kind": "narrative",
+      "sha256": "5bb1e4b607653e190083f67a1019e88d83786af8ccd2fc8e87cdc3a35c8a55d1",
+      "lines": 4391,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/aarch64/host/ninja-commands.txt",
+      "kind": "narrative",
+      "sha256": "a1ef1a6e05c00142040d054cdb00ab3e5b0d16abc75b86f34973c16b700b779b",
+      "lines": 391,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/aarch64/host/ninja-targets.txt",
+      "kind": "narrative",
+      "sha256": "e9626daa5599e2de2be8cda413b88c063cef9a12b3955a39ff3f01e20471931a",
+      "lines": 447,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/aarch64/host/source-commit.txt",
+      "kind": "narrative",
+      "sha256": "749952e6eeb6284f21809ef9c2d39187a2bb7dc115270da7709123169b58ae5d",
+      "lines": 1,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/aarch64/target/meson-install-plan.txt",
+      "kind": "narrative",
+      "sha256": "6eeb418dd0fb823bb87d1c3666be03100ef14dc1ff5315ed0b93917fa7403cd7",
+      "lines": 30,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/aarch64/target/meson-log.txt",
+      "kind": "narrative",
+      "sha256": "acb8250be6a1d8cc20a0b19e0c4983600f9ce24cc6862953ceb5defac98d6d99",
+      "lines": 7407,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/aarch64/target/ninja-commands.txt",
+      "kind": "narrative",
+      "sha256": "9309e49cb67d9138fe121fa2dcdd4df82f58aac970990bd2263d96c55f7bda25",
+      "lines": 1759,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/aarch64/target/ninja-targets.txt",
+      "kind": "narrative",
+      "sha256": "61e1392737fca1d828e612d413985d13eff69eb2988fe2433a6e380b109a9aa7",
+      "lines": 1981,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/aarch64/target/source-commit.txt",
+      "kind": "narrative",
+      "sha256": "749952e6eeb6284f21809ef9c2d39187a2bb7dc115270da7709123169b58ae5d",
+      "lines": 1,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": ".codex-p12-run-40318021029/p12-mesa-build-evidence-40318021029/builder-image.txt",
+      "kind": "narrative",
+      "sha256": "10769837e4488188f0c11a37a8da15584c8d7aa5ea9bad2607ec7c6a9bc8f362",
+      "lines": 1,
+      "read_status": "pending",
+      "read_sha256": null
+    },
     {
       "path": ".github/workflows/p12-mesa-build-evidence.yml",
       "kind": "structured",
@@ -43,10 +131,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "0e1992555a8700165c737016ffeb5d67e5ec8a5ae3cc94105096b29598f59a60",
+      "sha256": "40812bac4289562a39f3a04daffef0b207c26b5f79992e3ae4e60eab002f2da0",
       "lines": 44,
       "read_status": "read",
-      "read_sha256": "0e1992555a8700165c737016ffeb5d67e5ec8a5ae3cc94105096b29598f59a60"
+      "read_sha256": "40812bac4289562a39f3a04daffef0b207c26b5f79992e3ae4e60eab002f2da0"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -547,10 +635,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "e13be0086dcb0fca7f17bae9e158f3d07a584423ee15e5c27714d21f1669c2da",
+      "sha256": "d756decca99817c86ce0183284ea4657251735ab4a06b77a5fe92b28a953de2f",
       "lines": 173,
       "read_status": "read",
-      "read_sha256": "e13be0086dcb0fca7f17bae9e158f3d07a584423ee15e5c27714d21f1669c2da"
+      "read_sha256": "d756decca99817c86ce0183284ea4657251735ab4a06b77a5fe92b28a953de2f"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3643,10 +3731,10 @@
     {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
       "kind": "narrative",
-      "sha256": "3f3fec9a1445bdd7c22ebe3b1a66eee96e8ae4c228c3ac0861a54fea998ab2dc",
-      "lines": 71,
+      "sha256": "6574845bf4d5a9965489063bef2ea47f70c55d86489e536a6b642adcf01bf8d7",
+      "lines": 75,
       "read_status": "read",
-      "read_sha256": "3f3fec9a1445bdd7c22ebe3b1a66eee96e8ae4c228c3ac0861a54fea998ab2dc"
+      "read_sha256": "6574845bf4d5a9965489063bef2ea47f70c55d86489e536a6b642adcf01bf8d7"
     },
     {
       "path": "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",

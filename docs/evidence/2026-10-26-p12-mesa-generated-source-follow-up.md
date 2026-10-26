@@ -66,6 +66,10 @@ The capture now records archive members sharing a basename with external build i
 
 Pinned workflow [40318021029](https://github.com/soobujmiah/ternuxx/actions/runs/40318021029) repeated the strict validation failure for the same 22 host inputs. Its artifact confirms eight requested Ubuntu archives have valid index/archive hash identities, but `same_basename_external_members` is empty for all eight. The available package payload inventory therefore does not support the initial path-mismatch hypothesis; the underlying extraction/package-set discrepancy remains unknown. Exact path and payload hash ownership requirements remain unchanged.
 
+## Direct archive-listing instrumentation
+
+The second capture found no external-input basename in any of the eight Ubuntu package payload streams. The official Ubuntu `libclang-21-dev` file list does include the expected `/usr/lib/llvm-21/lib/libclang*.a` paths ([package file list](https://packages.ubuntu.com/resolute/amd64/libclang-21-dev/filelist)), which narrows the discrepancy but does not identify the exact archived bytes used by the build. The next pinned capture now records `dpkg-deb --contents` basename candidates alongside the `--fsys-tarfile` member count and exit code, and validation rejects incomplete listing/stream diagnostics. The 14 focused evidence tests pass locally; this updated instrumentation has not yet run in GitHub Actions.
+
 ## Next work
 
 Instrument the pinned recipe's Ubuntu package extraction directly to find why requested archive contents do not appear in the extracted host-build tree; retain exact path and payload hash checks when mapping owners. Then review all host/target external owner candidates and captured dpkg-root inventory; resolve any target-prefix mapping gap. Audit the seven Wayland inputs, Rust-generated outputs, staged dependency archives, and shipped `license.rst` without changing `NOASSERTION` until evidence supports a conclusion. Continue the separate bounded CPU/Vulkan/HTP qualification gate with memory, timeout, and process guards active; the authorized thermal-observation override does not alter Android thermal policy.
