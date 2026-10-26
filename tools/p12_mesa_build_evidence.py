@@ -315,14 +315,17 @@ for (release, architecture, package_tmpdir, common_cache), requested_names in so
                 captured["control"] = actual_fields
                 captured["status"] = "captured" if captured["archive_hash_matches_index"] else "hash-mismatch"
                 matched_files = []
+                basename_candidates = []
                 if captured["status"] == "captured" and dpkg_deb_tool and ubuntu_root and ubuntu_root.is_dir():
                     wanted = {}
+                    wanted_by_basename = {}
                     for external_path in external_paths:
                         try:
                             relative = external_path.relative_to(ubuntu_root).as_posix()
                         except ValueError:
                             continue
                         wanted[relative] = (external_path, hashlib.sha256(external_path.read_bytes()).hexdigest())
+                        wanted_by_basename.setdefault(external_path.name, []).append(external_path)
                     if wanted:
                         process = subprocess.Popen([dpkg_deb_tool, "--fsys-tarfile", str(archive_path)],
                                                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -333,6 +336,16 @@ for (release, architecture, package_tmpdir, common_cache), requested_names in so
                                     while member_path.startswith("./"):
                                         member_path = member_path[2:]
                                     member_path = member_path.lstrip("/")
+                                    basename_paths = wanted_by_basename.get(Path(member_path).name, [])
+                                    if basename_paths:
+                                        basename_candidates.append({
+                                            "path": member_path,
+                                            "type": ("file" if member.isfile() else
+                                                     "symlink" if member.issym() else
+                                                     "hardlink" if member.islnk() else "other"),
+                                            "linkname": member.linkname if member.issym() or member.islnk() else None,
+                                            "external_paths": sorted(str(path) for path in basename_paths),
+                                        })
                                     if member_path not in wanted or not member.isfile():
                                         continue
                                     source = package_tar.extractfile(member)
@@ -367,6 +380,7 @@ for (release, architecture, package_tmpdir, common_cache), requested_names in so
                                 process.stdout.close()
                             process.wait()
                 captured["matched_external_files"] = matched_files
+                captured["same_basename_external_members"] = basename_candidates
             else:
                 captured["status"] = "archive-missing-from-cache"
         else:

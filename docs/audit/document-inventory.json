@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 585,
-  "read_count": 172,
+  "read_count": 175,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "bdc1aba31d762f27a2d716bed3a3b72f06d3a7a758f1523410bdec523bbed96d",
+      "sha256": "e26fe2947725e0492454c2725389f9815fce61e83e9371fe1a8e05db913ed336",
       "lines": 42,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "e26fe2947725e0492454c2725389f9815fce61e83e9371fe1a8e05db913ed336"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -547,10 +547,10 @@
     {
       "path": "docs/audit/CLEAN-ROOM-REBUILD-TRACKER.md",
       "kind": "narrative",
-      "sha256": "f08a8710303b576cfe1557ed13e880e728480c666bcb7193a48eeb760d37264c",
+      "sha256": "98fd2533b92d08c3efee4c7bc1adaf6dc29344de43c45e82d075d4c4d48e1b7e",
       "lines": 169,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "98fd2533b92d08c3efee4c7bc1adaf6dc29344de43c45e82d075d4c4d48e1b7e"
     },
     {
       "path": "docs/audit/PHASE-REVALIDATION.md",
@@ -3635,10 +3635,10 @@
     {
       "path": "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
       "kind": "narrative",
-      "sha256": "faa5255a783b656a6efbdf6c04fd6459ff4e5521af135b605d519eb8d7529cbc",
-      "lines": 61,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "c8afc0f05bb412d962cd259f20fe60a21e6099d1f52f59ca2c74bb2f518ca04f",
+      "lines": 67,
+      "read_status": "read",
+      "read_sha256": "c8afc0f05bb412d962cd259f20fe60a21e6099d1f52f59ca2c74bb2f518ca04f"
     },
     {
       "path": "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",

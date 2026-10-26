@@ -84,8 +84,11 @@ termux_step_post_make_install() {
         ubuntu_input.parent.mkdir(parents=True)
         ubuntu_payload = b"host dependency archive payload"
         ubuntu_input.write_bytes(ubuntu_payload)
+        unowned_alias_input = ubuntu_root / "usr/lib64/libhost.a"
+        unowned_alias_input.parent.mkdir(parents=True)
+        unowned_alias_input.write_bytes(b"different payload at an unowned path")
         (build / "build.ninja").write_text(
-            f"build generated.o: custom {external_input} {binary_input} {ubuntu_input}\n", encoding="utf-8")
+            f"build generated.o: custom {external_input} {binary_input} {ubuntu_input} {unowned_alias_input}\n", encoding="utf-8")
         package_tmpdir = self.root / "package-tmp"
         package_tmpdir.mkdir()
         common_cache = self.root / "common-cache"
@@ -216,6 +219,13 @@ else:
         archive_report = json.loads((self.root / "evidence/aarch64/target/ubuntu-package-archive-inputs.json").read_text())
         self.assertEqual(archive_report["packages"][0]["status"], "captured")
         self.assertTrue(archive_report["packages"][0]["archive_hash_matches_index"])
+        alias_record = next(item for item in provenance["external_build_inputs"]
+                            if item["absolute_path"] == str(unowned_alias_input))
+        self.assertEqual(alias_record["package"], "unresolved")
+        self.assertEqual(archive_report["packages"][0]["same_basename_external_members"], [{
+            "path": "usr/lib/libhost.a", "type": "file", "linkname": None,
+            "external_paths": [str(ubuntu_input), str(unowned_alias_input)],
+        }])
         binary = next(item for item in provenance["external_build_inputs"]
                       if item["absolute_path"] == str(binary_input))
         self.assertEqual(binary["header_license_status"], "BINARY_NOT_SCANNED")
