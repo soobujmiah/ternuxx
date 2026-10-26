@@ -68,8 +68,9 @@ termux_step_post_make_install() {
 
     def test_capture_executes_termux_meson_command_and_arguments_as_words(self) -> None:
         instrument_recipe(self.recipe)
-        build = self.root / "build"
-        build.mkdir()
+        hostbuild_dir = self.root / "host-build"
+        build = hostbuild_dir / "build"
+        build.mkdir(parents=True)
         generated_source = build / "rusticl_generated.rs"
         generated_source.write_text("// generated fixture\n", encoding="utf-8")
         termux_prefix = self.root / "termux-prefix"
@@ -78,7 +79,6 @@ termux_step_post_make_install() {
         external_input.write_text("<protocol/>\n", encoding="utf-8")
         binary_input = self.root / "libfixture.so"
         binary_input.write_bytes(b"\x7fELF\0Copyright fake binary bytes")
-        hostbuild_dir = self.root / "host-build"
         ubuntu_root = hostbuild_dir / "ubuntu_packages"
         ubuntu_input = ubuntu_root / "usr/lib/libhost.a"
         ubuntu_input.parent.mkdir(parents=True)
@@ -170,7 +170,7 @@ else:
             "TERMUX_ARCH": "aarch64",
             "TERMUX_PKG_SRCDIR": str(source_root),
             "TERMUX_PREFIX": str(termux_prefix),
-            "TERMUX_PKG_HOSTBUILD_DIR": str(hostbuild_dir),
+            "TERMUX_PKG_HOSTBUILD_DIR": "",
             "TERMUX_PKG_TMPDIR": str(package_tmpdir),
             "TERMUX_COMMON_CACHEDIR": str(common_cache),
             "FAKE_UBUNTU_DATA_TAR": base64.b64encode(ubuntu_tar.getvalue()).decode("ascii"),

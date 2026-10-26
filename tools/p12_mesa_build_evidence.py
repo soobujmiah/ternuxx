@@ -84,6 +84,14 @@ import tarfile
 build_dir, source_dir, evidence_dir = map(Path, sys.argv[1:])
 build_root = build_dir.resolve()
 source_root = source_dir.resolve()
+# TERMUX_PKG_HOSTBUILD_DIR is a shell-local recipe variable in some pinned
+# builder revisions, so the capture subprocess may not inherit it. The host
+# Meson build is directly beneath host-build/, next to ubuntu_packages/.
+hostbuild_dir = os.environ.get("TERMUX_PKG_HOSTBUILD_DIR")
+if not hostbuild_dir:
+    inferred_hostbuild = build_root.parent
+    if (inferred_hostbuild / "ubuntu_packages").is_dir():
+        hostbuild_dir = str(inferred_hostbuild)
 targets = json.loads((evidence_dir / "meson-targets.json").read_text(encoding="utf-8"))
 text_suffixes = {".c", ".cc", ".cpp", ".h", ".hpp", ".inc", ".py", ".rs", ".xml"}
 generated = set()
@@ -211,7 +219,7 @@ def package_database_roots():
             admin = root / "var/lib/dpkg"
             if admin.is_dir() and all(existing[0] != admin for existing in result):
                 result.append((admin, root))
-    hostbuild = os.environ.get("TERMUX_PKG_HOSTBUILD_DIR")
+    hostbuild = hostbuild_dir
     if hostbuild:
         root = Path(hostbuild).resolve() / "ubuntu_packages"
         admin = root / "var/lib/dpkg"
@@ -248,8 +256,7 @@ if request_file.is_file():
                                             "common_cache": common_cache})
 ubuntu_package_archives = []
 ubuntu_archive_owners = {}
-ubuntu_root = (Path(os.environ["TERMUX_PKG_HOSTBUILD_DIR"]).resolve() / "ubuntu_packages"
-               if os.environ.get("TERMUX_PKG_HOSTBUILD_DIR") else None)
+ubuntu_root = (Path(hostbuild_dir).resolve() / "ubuntu_packages" if hostbuild_dir else None)
 dpkg_deb_tool = shutil.which("dpkg-deb")
 requests_by_context = {}
 for request in ubuntu_package_requests:
@@ -429,9 +436,9 @@ package_roots = package_database_roots()
 package_database_inventory = []
 database_root_candidates = [(name, os.environ.get(name))
                             for name in ("TERMUX_PREFIX", "PREFIX", "TERNUXX_INFERRED_TERMUX_PREFIX")]
-if os.environ.get("TERMUX_PKG_HOSTBUILD_DIR"):
+if hostbuild_dir:
     database_root_candidates.append(("hostbuild_ubuntu_packages",
-                                     str(Path(os.environ["TERMUX_PKG_HOSTBUILD_DIR"]).resolve() / "ubuntu_packages")))
+                                     str(Path(hostbuild_dir).resolve() / "ubuntu_packages")))
 database_root_candidates.append(("system", "/"))
 for source, raw_root in database_root_candidates:
     if not raw_root:
