@@ -16,17 +16,32 @@ git clone https://github.com/soobujmiah/ternuxx.git "$HOME/ternuxx"
 cd "$HOME/ternuxx"
 ```
 
-Install the `tx` entrypoint with the preview-first installer. It places a thin shim at `$PREFIX/bin/tx` and dispatches into this checkout:
+Start the managed installer directly from this checkout:
 
 ```sh
-python3 scripts/cli_entrypoint.py preview
-python3 scripts/cli_entrypoint.py apply --yes --plan-id PLAN_ID
-tx help
+./tx install
 ```
 
-Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT` before using the installed shim. In the attached Native terminal, run `tx install interactive` to choose a workstation profile, see its package summary, and confirm installation in the same session. Ternuxx then offers the optional managed Debian or Ubuntu guest. Later, `tx install debian` starts that guided guest setup directly, lets you choose one or more desktop environments (blank keeps XFCE), and asks before applying the pinned target. Both normal flows keep the exact plan internal, so you do not need to copy an ID. `tx install ubuntu` starts the same guided flow for Ubuntu Noble.
+It shows device/system information and offers three profiles: **Minimal** (CLI, TUI,
+Web UI and terminal/build tools), **Native Full** (Minimal plus GUI management,
+audio, graphics tools, selectable desktops/apps), and **Native Full + PRoot**
+(the same Native selection plus one or more managed distributions). Use **Up/Down**,
+**Space** and **Enter**; **Esc** cancels. `./tx install interactive` is an alias.
 
-The guided Native installer refuses removals, upgrades, unapproved repositories, and a changed transaction. It installs the selected Native packages; the matching Termux:X11 Android app is installed separately. For exact package automation and detailed APT review, `tx install preview --verbose` followed by `tx install apply --yes --plan-id PLAN_ID` remains available. See the [installation guide](docs/INSTALLATION.md) for advanced profiles and custom components.
+The wizard confirms repository preparation (`pkg update`, official X11 and Python
+bootstrap), previews a separately confirmed system upgrade, and applies the exact
+reviewed Native package selection. It also installs the checkout-backed `tx` shim.
+Native Full builds the GTK management center. GPU backend selection is probed and
+confirmed separately; installed drivers are not proof of acceleration. The matching
+Termux:X11 Android app is installed/opened separately.
+
+Native DEs are XFCE, MATE and Plasma; managed guests are Debian Trixie and Ubuntu
+Noble. Select multiple DEs, apps or distros with Space. Guest usernames and hidden
+passwords remain text inputs. A Writer-only Native package is unavailable; the
+wizard does not substitute the monolithic LibreOffice suite.
+
+Automation retains `./tx install preview --profile NAME` and exact-plan apply;
+see the [installation guide](docs/INSTALLATION.md).
 
 ```sh
 tx doctor
@@ -61,7 +76,7 @@ tx install debian
 tx proot status
 ```
 
-In an attached Native terminal, run `tx install debian` and follow the prompts. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Ubuntu Noble currently offers XFCE. Its standalone `:0` and guest-to-Native `:1` graphics routes passed live checks; nested `:2` starts XFCE and passes Vulkan/audio endpoint checks but remains partial because Xephyr DRI3/GLX drawing is unavailable. Other distro names remain unsupported until their Ternuxx-managed profiles are implemented and qualified. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. The TUI can launch this guided installer from its terminal; Web and GTK provide distro selectors and open the guided installer in Native terminal sessions.
+In an attached Native terminal, run `tx install debian` and follow the keyboard selectors. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Ubuntu Noble currently offers XFCE. Its standalone `:0` and guest-to-Native `:1` graphics routes passed live checks; nested `:2` starts XFCE and passes Vulkan/audio endpoint checks but remains partial because Xephyr DRI3/GLX drawing is unavailable. Other distro names remain unsupported until their Ternuxx-managed profiles are implemented and qualified. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. The TUI can launch this guided installer from its terminal; Web and GTK provide distro selectors and open the guided installer in Native terminal sessions.
 
 ## SSH and services
 

@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 592,
-  "read_count": 185,
+  "document_count": 593,
+  "read_count": 187,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -37,16 +37,16 @@
       "kind": "narrative",
       "sha256": "d2a32256a8540090fdb46e26a68604f12b1839e511609d8b2663982ea57f9741",
       "lines": 37,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "d2a32256a8540090fdb46e26a68604f12b1839e511609d8b2663982ea57f9741"
     },
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "32314a9370db4aad3c0c1861a8dcd7130c6c409436987624b7a5b6732eb404a1",
-      "lines": 48,
+      "sha256": "9b049ce2a049594adb5015d7f106a216162a33c2f18670e1443b011a6436bfa6",
+      "lines": 66,
       "read_status": "read",
-      "read_sha256": "32314a9370db4aad3c0c1861a8dcd7130c6c409436987624b7a5b6732eb404a1"
+      "read_sha256": "9b049ce2a049594adb5015d7f106a216162a33c2f18670e1443b011a6436bfa6"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "b8053ae20c209266433ef61a4024c485083a8914d023733b7f943de4d4ebc267",
-      "lines": 103,
+      "sha256": "c5354cf9f6be0c024f9cd3c92597b7672d3c6423922bb7185ba2a2f85ff3ec20",
+      "lines": 118,
       "read_status": "read",
-      "read_sha256": "b8053ae20c209266433ef61a4024c485083a8914d023733b7f943de4d4ebc267"
+      "read_sha256": "c5354cf9f6be0c024f9cd3c92597b7672d3c6423922bb7185ba2a2f85ff3ec20"
     },
     {
       "path": "SECURITY.md",
@@ -155,10 +155,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "75573fb46e7d84d82031170f13063a8041335635e03e11dd22fc15bff8c11faf",
-      "lines": 124,
+      "sha256": "3ccf90a0b95c3e1cec6661f1550800206becb42b25c92fcc34e0c2eea3cd51d1",
+      "lines": 176,
       "read_status": "read",
-      "read_sha256": "75573fb46e7d84d82031170f13063a8041335635e03e11dd22fc15bff8c11faf"
+      "read_sha256": "3ccf90a0b95c3e1cec6661f1550800206becb42b25c92fcc34e0c2eea3cd51d1"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -3735,6 +3735,14 @@
       "lines": 20,
       "read_status": "read",
       "read_sha256": "ac436733362831adfe8510d142243817371a5567dbaf3aff784260d0fc55b953"
+    },
+    {
+      "path": "docs/evidence/2026-10-26-three-profile-managed-installer.md",
+      "kind": "narrative",
+      "sha256": "08120e9b420965787ef3bcfe46f75256a7806f4371df702b45a2e42ce8b25415",
+      "lines": 47,
+      "read_status": "read",
+      "read_sha256": "08120e9b420965787ef3bcfe46f75256a7806f4371df702b45a2e42ce8b25415"
     },
     {
       "path": "docs/evidence/2026-10-26-ubuntu-noble-live-install-route.md",

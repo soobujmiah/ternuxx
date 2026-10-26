@@ -57,23 +57,23 @@ nt_cmd_install debian --user sobuj
                 ["bash", "-c", script, "bash", str(ROOT / "lib" / "phases.sh")],
                 stdin=slave, stdout=slave, stderr=slave,
                 env={**os.environ, "CALL_LOG": str(log), "PLAN_ID": plan_id,
-                     "TERNUXX_JSON": "0", "TERMUX_VERSION": "fixture"},
+                     "TERNUXX_JSON": "0", "TERMUX_VERSION": "fixture", "TERM": "xterm"},
                 close_fds=True, start_new_session=True,
                 preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0),
             )
             os.close(slave)
             output = bytearray()
             try:
-                while b"Install which desktop environments?" not in output:
+                while b"Debian Trixie desktops (one or more)" not in output:
                     ready, _, _ = select.select([master], [], [], 8)
                     self.assertTrue(ready, "guided install did not ask for desktop choices")
                     output.extend(os.read(master, 8192))
-                os.write(master, b"lxqt,mate\n")
+                os.write(master, b" \x1b[B \x1b[B\x1b[B \n")
                 while b"Install this exact Debian Trixie plan" not in output:
                     ready, _, _ = select.select([master], [], [], 8)
                     self.assertTrue(ready, "guided install did not reach plan confirmation")
                     output.extend(os.read(master, 8192))
-                os.write(master, b"y\n")
+                os.write(master, b"\x1b[B\n")
                 while process.poll() is None:
                     ready, _, _ = select.select([master], [], [], 8)
                     if ready:
@@ -116,25 +116,26 @@ _nt_reviewed_preview_matches() { test "$1" = "$PLAN_ID"; }
 _nt_install_capacity_preflight() { return 0; }
 _nt_apply_install_transaction() { printf 'apply\n' >> "$CALL_LOG"; }
 _nt_offer_managed_guest() { printf 'guest-offer\n' >> "$CALL_LOG"; }
-nt_cmd_install interactive
+source "$(dirname "$1")/install_wizard.sh"
+_nt_wizard_native terminal,developer
 '''
             master, slave = pty.openpty()
             process = subprocess.Popen(
                 ["bash", "-c", script, "bash", str(ROOT / "lib" / "phases.sh")],
                 stdin=slave, stdout=slave, stderr=slave,
                 env={**os.environ, "CALL_LOG": str(log), "PLAN_ID": "d" * 64,
-                     "TERNUXX_JSON": "0", "TERMUX_VERSION": "fixture"},
+                     "TERNUXX_JSON": "0", "TERMUX_VERSION": "fixture", "TERM": "xterm"},
                 close_fds=True, start_new_session=True,
                 preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0),
             )
             os.close(slave)
             output = bytearray()
             try:
-                while b"Install this Native workstation profile now?" not in output:
+                while b"Install the displayed Native package selection?" not in output:
                     ready, _, _ = select.select([master], [], [], 8)
                     self.assertTrue(ready, "guided Native install did not reach confirmation")
                     output.extend(os.read(master, 8192))
-                os.write(master, b"y\n")
+                os.write(master, b"\x1b[B\n")
                 while process.poll() is None:
                     ready, _, _ = select.select([master], [], [], 8)
                     if ready:
@@ -149,8 +150,8 @@ nt_cmd_install interactive
                     process.wait()
             self.assertEqual(process.returncode, 0, output.decode(errors="replace"))
             rendered = output.decode(errors="replace")
-            self.assertIn("Native preview: minimal-native", rendered)
-            self.assertNotIn("--plan-id", rendered)
+            self.assertIn("Install the displayed Native package selection?", rendered)
+            self.assertNotIn("Type a plan ID", rendered)
             self.assertEqual(log.read_text().splitlines(), ["record:preview", "record:applying", "apply", "record:applied", "guest-offer"])
 
     def test_unknown_generic_guest_route_is_rejected_before_package_probes(self):

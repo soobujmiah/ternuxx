@@ -58,6 +58,8 @@ if requested:
         print("requested desktop is not verified on the " + route + " route; available: " + (", ".join(available) or "none"), file=sys.stderr)
         raise SystemExit(2)
     choice = requested
+elif "xfce" in available:
+    choice = "xfce"
 elif len(available) == 1:
     choice = available[0]
 elif not available:
@@ -77,7 +79,7 @@ usage() { cat <<'USAGE'
 Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|plasma] [--alias debian|ubuntu|ternuxx-replay-NAME]|status|stop]
 Auto uses standalone :0 when Native GUI is stopped, otherwise nested Xephyr :2 inside Native :1.
 Standalone and Native desktop sessions cannot run together. Nested mode holds the lifecycle lock until closed.
-Choose an installed environment with `tx pgui start --desktop ID`; when several are installed, selection is required.
+Choose an installed environment with `tx pgui ID` or `tx pgui start --desktop ID`; XFCE is the default when installed.
 The canonical Debian guest is the default. Ubuntu requires a Ternuxx install receipt; receipt-verified replay aliases can use standalone :0 or nested :2 with `--alias`.
 Use tx pgui graphics verify to inspect the selected guest GUI's GLES, GLX, and Vulkan devices.
 USAGE

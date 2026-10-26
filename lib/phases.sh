@@ -20,6 +20,9 @@ _NT_AUDIO_PACKAGES=(pulseaudio)
 _NT_PROOT_PACKAGES=(proot-distro)
 _NT_GRAPHICS_PACKAGES=(glmark2 mesa-demos mesa-vulkan-icd-freedreno vulkan-tools xorg-server-xvfb xdotool)
 _NT_DEVELOPER_PACKAGES=(clang cmake gdb make pkg-config)
+_NT_TERMINAL_PACKAGES=(git openssh curl wget rsync nano vim tmux htop tree unzip zip ripgrep less)
+_NT_GUI_PACKAGES=(termux-x11-nightly dbus gtk4 libvte)
+_NT_NESTED_PACKAGES=(xorg-server-xephyr)
 _NT_BASE_PACKAGES=(
   termux-x11-nightly
   dbus
@@ -138,6 +141,17 @@ _nt_select_install_profile() {
       IFS=',' read -r -a groups <<< "$components"
       for group in "${groups[@]}"; do
         case "$group" in
+          terminal) selected+=("${_NT_TERMINAL_PACKAGES[@]}") ;;
+          sound-controls) selected+=(pavucontrol) ;;
+          gui) selected+=("${_NT_GUI_PACKAGES[@]}") ;;
+          nested) selected+=("${_NT_NESTED_PACKAGES[@]}") ;;
+          browser) selected+=(firefox) ;;
+          music) selected+=(audacious) ;;
+          images) selected+=(ristretto) ;;
+          pdf) selected+=(evince) ;;
+          editor) selected+=(mousepad) ;;
+          archive) selected+=(xarchiver) ;;
+          video) selected+=(vlc) ;;
           desktop) selected+=("${_NT_DESKTOP_PACKAGES[@]}") ;;
           audio) selected+=("${_NT_AUDIO_PACKAGES[@]}") ;;
           proot) selected+=("${_NT_PROOT_PACKAGES[@]}") ;;
@@ -145,7 +159,7 @@ _nt_select_install_profile() {
           developer) selected+=("${_NT_DEVELOPER_PACKAGES[@]}") ;;
           mate) selected+=("${_NT_MATE_PACKAGES[@]}") ;;
           plasma) selected+=("${_NT_PLASMA_PACKAGES[@]}") ;;
-          *) nt_fail "Unknown component group '$group'. Choose desktop,audio,proot,graphics,developer,mate,plasma."; return 2 ;;
+          *) nt_fail "Unknown component group '$group'. Choose desktop,audio,proot,graphics,developer,mate,plasma,terminal,gui,sound-controls,nested,browser,music,images,pdf,editor,archive,video."; return 2 ;;
         esac
       done ;;
     *) nt_fail "Unknown install profile '$profile'. Choose minimal-native, full-native, graphical, developer, native-proot-provider, native-debian, or custom."; return 2 ;;
@@ -160,7 +174,7 @@ _nt_select_install_profile() {
   _NT_ACTIVE_PROFILE="$profile"
   _NT_ACTIVE_COMPONENTS="$components"
   local -a omitted=()
-  for group in desktop audio proot graphics developer mate plasma; do
+  for group in desktop audio proot graphics developer mate plasma terminal gui sound-controls nested browser music images pdf editor archive video; do
     case "$profile" in
       full-native) [[ "$group" == developer ]] && omitted+=("$group") ;;
       graphical) [[ "$group" == proot || "$group" == developer ]] && omitted+=("$group") ;;
@@ -199,31 +213,6 @@ _nt_apply_combined_guest() {
   }
   _NT_COMBINED_GUEST_RESULT="$output"
   nt_ok "The fresh Debian guest setup completed and returned its verification record."
-}
-
-_nt_choose_install_profile() {
-  local choice components
-  [ -t 0 ] || { nt_fail "Interactive install needs a terminal; use tx install preview --profile NAME for automatic selection."; return 2; }
-  printf '%s\n' \
-    'Choose a Native workstation profile:' \
-    '  1) Minimal Native Workstation (CLI management core)' \
-    '  2) Full Native Workstation (XFCE, audio, diagnostics, PRoot provider)' \
-    '  3) Graphical Workstation (XFCE, audio, graphics diagnostics)' \
-    '  4) Developer Workstation (CLI core + compiler/debug tools)' \
-    '  5) Native + PRoot provider (provider only)' \
-    '  6) Custom component groups'
-  read -r -p 'Selection [1-6]: ' choice || return 2
-  case "$choice" in
-    1) _nt_select_install_profile minimal-native ;;
-    2) _nt_select_install_profile full-native ;;
-    3) _nt_select_install_profile graphical ;;
-    4) _nt_select_install_profile developer ;;
-    5) _nt_select_install_profile native-proot-provider ;;
-    6)
-      read -r -p 'Groups (desktop,audio,proot,graphics,developer,mate,plasma): ' components || return 2
-      _nt_select_install_profile custom "$components" ;;
-    *) nt_fail "Choose a profile number from 1 to 6."; return 2 ;;
-  esac
 }
 
 _nt_package_installed() {
@@ -292,7 +281,7 @@ _nt_make_install_plan() {
       continue
     fi
     case "$package" in
-      dbus|pulseaudio|python|proot-distro|vulkan-tools|mesa-vulkan-icd-freedreno|clang|cmake|gdb|make|pkg-config) expected_repo="termux-main" ;;
+      dbus|pulseaudio|python|proot-distro|vulkan-tools|mesa-vulkan-icd-freedreno|clang|cmake|gdb|make|pkg-config|git|openssh|curl|wget|rsync|nano|vim|tmux|htop|tree|unzip|zip|ripgrep|less|vlc) expected_repo="termux-main" ;;
       *) expected_repo="termux-x11" ;;
     esac
     candidate="$(_nt_package_candidate_from_official_repo "$package" "$expected_repo")" || {
@@ -576,18 +565,22 @@ PYRECORD
 }
 
 _nt_offer_managed_guest() {
+  [ "${TERNUXX_WIZARD_ACTIVE:-0}" != 1 ] || return 0
   [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || return 0
-  local distro_options answer profile_lib="${_TN_LIB_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)}" profile_root
-  profile_root="$(cd -- "$profile_lib/.." && pwd -P)" || return 0
-  distro_options="$(PYTHONPATH="$profile_lib" python3 -c 'import sys; from proot_profiles import installable_aliases; print(" / ".join(installable_aliases(sys.argv[1])))' "$profile_root")" || return 0
-  [ -n "$distro_options" ] || return 0
-  printf 'Set up an optional Ternuxx-managed proot guest now? [%s / n] ' "$distro_options" >/dev/tty
-  IFS= read -r answer </dev/tty || return 0
-  case " $distro_options " in *" $answer "*) _nt_install_managed_guest "$answer"; return $? ;; esac
-  return 0
+  . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_picker.sh"
+  local answer distro
+  answer="$(_nt_pick 'Optional managed guests' multi none 'none|Skip guest setup' 'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
+  for distro in ${answer//,/ }; do
+    [ "$distro" = none ] || _nt_install_managed_guest "$distro" || return $?
+  done
 }
 
 nt_cmd_install() {
+  if [ $# -eq 0 ] || { [ $# -eq 1 ] && [[ "$1" = interactive || "$1" = --interactive ]]; }; then
+    . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
+    _nt_install_wizard
+    return $?
+  fi
   # `bin/tx` consumes --verbose as a global flag before dispatch, so carry its
   # value into this command as well as accepting the direct helper argument.
   local apply=0 consent=0 update=0 interactive=0 guided=0 profile="full-native" profile_set=0 components="" verbose="${TERNUXX_VERBOSE:-0}" arg plan_id="" guest_plan_id="" guest_user=""
@@ -635,11 +628,8 @@ nt_cmd_install() {
     [ "$profile_set" = "0" ] && [ -z "$components" ] && [ -z "$guest_user" ] && [ -z "$guest_plan_id" ] && [ "$update" = "0" ] && [ "$apply" = "0" ] || {
       nt_fail "Interactive selection is preview-only; do not combine it with a profile, components, update, or apply."; return 2;
     }
-    _nt_choose_install_profile || return $?
-    profile="$_NT_ACTIVE_PROFILE"
-    guest_user="$_NT_INSTALL_GUEST_USER"
-    guided=1
-    [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail "Interactive installation cannot run in JSON mode."; return 2; }
+    nt_fail 'Use tx install or tx install interactive without additional options for guided setup.'
+    return 2
   else
     _nt_select_install_profile "$profile" "$components" || return $?
   fi
@@ -976,13 +966,21 @@ PYPROFILE
   nt_require_command python3 || return 1
   if [ "$action" = guided ] && { [ ! -t 0 ] || [ "${TERNUXX_JSON:-0}" = 1 ]; }; then action=preview; fi
   if [ "$action" = guided ] && [ "$desktops_set" = 0 ]; then
-    local choices
-    choices="$(_nt_managed_desktop_choices "$distro" "$repo_root")" || { nt_fail "Could not load the $label desktop choices."; return 1; }
-    nt_info "Desktop choices for $label (ID: name [routes]):"
-    while IFS= read -r answer; do [ -n "$answer" ] && nt_info "  $answer"; done <<<"$choices"
-    printf 'Install which desktop environments? Enter comma-separated IDs; blank keeps XFCE [xfce]: ' >/dev/tty
-    IFS= read -r answer </dev/tty || return 2
-    [ -z "$answer" ] || desktops="$answer"
+    . "$repo_root/lib/install_picker.sh"
+    local choices choice
+    local -a desktop_items=()
+    choices="$(PYTHONPATH="$repo_root/lib" command python3 - "$distro" "$repo_root" <<'PYCHOICES'
+import sys, proot_profiles, proot_desktops
+profile = proot_profiles.install_profile(sys.argv[2], sys.argv[1])["profile_id"]
+for key, item in proot_desktops.PROVIDERS[profile].items():
+    routes = sorted(proot_desktops.DESKTOP_ROUTES.get(key, ()))
+    if routes:
+        print(key + "|" + item["name"] + " (" + ", ".join(routes) + ")")
+PYCHOICES
+)" || return 1
+    while IFS= read -r choice; do [ -z "$choice" ] || desktop_items+=("$choice"); done <<<"$choices"
+    desktops="$(_nt_pick "$label desktops (one or more)" multi xfce "${desktop_items[@]}")" || return $?
+
   fi
   if [ "$action" = preview ]; then
     [ -z "$plan_id" ] || { nt_fail "A preview does not accept --plan-id."; return 2; }
@@ -1010,9 +1008,8 @@ PYPROFILE
       nt_info "This $label setup preview cannot be applied as shown. No guest changes were made."
       return 0
     }
-    printf 'Install this exact %s plan for %s with %s? [y/N] ' "$label" "$user" "${desktops//,/ + }" >/dev/tty
-    IFS= read -r answer </dev/tty || return 2
-    case "$answer" in y|Y|yes|YES|Yes) ;; *) nt_info "Cancelled; no guest changes were made."; return 0 ;; esac
+    . "$repo_root/lib/install_picker.sh"
+    _nt_confirm "Install this exact $label plan for $user with ${desktops//,/ + }?" || { nt_info "Cancelled; no guest changes were made."; return 0; }
     plan_id="$preview_id"; consent=1; action=apply
   fi
   [ "$consent" = 1 ] || { nt_fail "Apply requires --yes after reviewing the exact preview."; return 2; }

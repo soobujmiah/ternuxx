@@ -112,7 +112,7 @@ printf 'ALT_SKIP %s\n' "$_NT_ACTIVE_SKIPPED_COMPONENTS"
         custom = result.stdout.split("CUSTOM ", 1)[1].splitlines()[0].split()
         self.assertEqual(len(custom), len(set(custom)))
         self.assertIn("ALT python mate plasma-desktop\n", result.stdout)
-        self.assertIn("ALT_SKIP desktop,audio,proot,graphics,developer,guest\n", result.stdout)
+        self.assertIn("ALT_SKIP desktop,audio,proot,graphics,developer,terminal,gui,sound-controls,nested,browser,music,images,pdf,editor,archive,video,guest\n", result.stdout)
 
     def test_native_debian_combined_preview_contains_both_exact_plans(self):
         script = """source "$1"

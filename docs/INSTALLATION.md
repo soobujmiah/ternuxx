@@ -19,17 +19,54 @@ git clone https://github.com/soobujmiah/ternuxx.git "$HOME/ternuxx"
 cd "$HOME/ternuxx"
 ```
 
-Install the `tx` entrypoint with its preview-first installer. This installs a thin command shim under `$PREFIX/bin/tx` that dispatches into the checkout:
+Run the checkout's managed installer (Python is bootstrapped if missing):
 
 ```sh
-python3 scripts/cli_entrypoint.py preview
-python3 scripts/cli_entrypoint.py apply --yes --plan-id PLAN_ID
-tx help
+./tx install
+# Compatibility spelling:
+./tx install interactive
 ```
 
-Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT` before using the shim. For normal setup, run `tx install interactive` in the attached Native terminal. Choose a profile, review the short package summary, and answer `y` to install that exact transaction in the same session. Ternuxx then offers optional managed Debian or Ubuntu setup. The normal path does not ask you to copy a plan ID.
+The opening screen reports device model, Android/ABI/kernel, Native runtime,
+RAM and prefix storage. Three keyboard-driven profiles follow:
 
-The guided transaction refuses removals, upgrades, recommendations, changed plans, and packages outside the official Termux repositories. It installs the selected Native packages; the Termux:X11 Android app is still installed separately. After setup, on Adreno/KGSL devices, `tx mng graphics select native termux-zink` can select stock Termux Mesa's Zink path for future desktop starts only after the installed ICD successfully enumerates a supported Vulkan device. This selection is not an acceleration claim: start a fresh Ternuxx desktop and run `tx mng graphics verify native opengl` and `tx mng graphics verify native vulkan`; only a rendered workload reporting the Adreno device counts as verified. `tx mng graphics select native system` returns future starts to the default Termux stack.
+- **Minimal:** Python CLI/TUI/Web management plus Git, SSH, transfer/archive tools,
+  editors, tmux, process monitoring, search and clang/CMake/GDB/Make build tools.
+- **Native Full:** Minimal plus the GTK management center, audio controls, graphics
+  tools and one or more Native XFCE/MATE/Plasma desktops. Optional apps are Firefox,
+  Audacious, Ristretto, Evince, Mousepad, Xarchiver and VLC.
+- **Native Full + PRoot:** the same Native choices plus the PRoot provider/Xephyr
+  and one or more managed Debian Trixie/Ubuntu Noble guests. Each guest presents
+  its supported desktop selector and its own pinned preview and confirmation.
+
+Use Up/Down to move, Space to toggle selections and Enter to continue. Single-choice
+screens accept the highlighted row with Enter. Esc cancels and restores the terminal.
+Lists scroll on small terminals. No profile number, distro ID or DE ID must be typed.
+Usernames and hidden guest passwords still require text entry. On confirmation
+screens, Cancel is highlighted by default; move to Continue and press Enter.
+
+Preparation is explicitly confirmed: refresh signed indexes with `pkg update`, enable
+`x11-repo` if missing, refresh again and bootstrap Python if missing. A full system
+upgrade (`pkg upgrade` equivalent) has a separate APT simulation, confirmation,
+exact version pins and transaction journal. Non-official upgrade transactions and
+removals are refused. A changed upgrade simulation requires a fresh wizard run.
+Skipping/cancelling a required stage stops the wizard; earlier completed transactions
+remain installed. This is not an all-or-nothing rollback.
+
+The Native selection then uses the existing exact-plan preview/apply engine (no
+unrelated upgrades/removals). The wizard installs the checkout-backed `tx` shim
+through its own preview-bound installer and builds the Native GTK center only for
+Full profiles. Keep the checkout at `$HOME/ternuxx`, or set `TERNUXX_CHECKOUT`.
+
+Native Termux currently has a monolithic `libreoffice` package and no separate
+`libreoffice-writer`; Writer-only cannot be installed by this Native catalog. The
+wizard reports this limitation and never substitutes the full suite. The matching
+Termux:X11 Android app remains a separate installation/open step.
+
+On Adreno/KGSL, the Full flow offers a separately confirmed, probe-gated
+`termux-zink` backend selection for future starts. An unavailable Vulkan backend
+fails that stage rather than claiming acceleration. Workload acceleration remains
+a separate live acceptance check. No desktop or guest GUI starts during installation.
 
 For automation and detailed APT review, preview every requested package and the complete dependency closure:
 
@@ -76,7 +113,7 @@ tx install debian
 # or: tx install ubuntu
 ```
 
-Ternuxx asks for the guest username and, in an attached terminal, offers the profile's desktop catalog for one-or-more selection; press Enter to keep the XFCE default. Each choice shows its accepted display routes. It then shows the exact pinned target and asks whether to install it. Confirming applies that same plan; declining leaves the guest unchanged. Ternuxx applies guest configuration with available graphics/audio integration. Password mode prompts in the attached terminal; guest-only `passwordless` sudo is also available. Existing rootfs data is preserved. Separate `preview` and `apply --yes --plan-id ID` forms are available for explicit review and automation. The TUI launches the guided command in its attached terminal. Web offers direct setup after the optional managed-guest scope is granted. GTK opens the guided command in an embedded terminal. Each interface supports catalogued desktop selection; GNOME and Cinnamon currently lack a verified launch route, and Plasma is verified only on standalone :0.
+Ternuxx asks for the guest username and, in an attached terminal, offers the profile's desktops with accepted routes for one-or-more keyboard selection; press Enter to keep the XFCE default. Each choice shows its accepted display routes. It then shows the exact pinned target and asks whether to install it. Confirming applies that same plan; declining leaves the guest unchanged. Ternuxx applies guest configuration with available graphics/audio integration. Password mode prompts in the attached terminal; guest-only `passwordless` sudo is also available. Existing rootfs data is preserved. Separate `preview` and `apply --yes --plan-id ID` forms are available for explicit review and automation. The TUI launches the guided command in its attached terminal. Web offers direct setup after the optional managed-guest scope is granted. GTK opens the guided command in an embedded terminal. Each interface supports catalogued desktop selection; GNOME and Cinnamon currently lack a verified launch route, and Plasma is verified only on standalone :0.
 
 For a non-default guest setup, check `tx proot status` first. You can select guest-only passwordless sudo and (on Debian) multiple desktop environments in the same guided command; Ternuxx still shows the plan and asks before applying it:
 
@@ -122,3 +159,18 @@ tx ssh inspect
 First-time setup uses `tx ssh deploy` to preview the exact dedicated config and Native Runit service, then applies with `tx ssh deploy --yes --plan-id PLAN_ID`. It binds only to `127.0.0.1:8023`, disables password and keyboard-interactive authentication, and uses `$HOME/.ssh/ternuxx-keys/authorized_keys`. Create a client key with `tx ssh client-key-preview --key-name NAME` and its exact apply command; enroll its `.pub` file with `tx ssh enroll-preview --public-key-stdin < "$HOME/.ssh/ternuxx-keys/NAME.pub"`, review the affected service, then apply the returned plan. `tx ssh inspect` verifies configuration, Runit and the loopback SSH banner; verify login separately with an actual client connection. Other Native SSH configurations remain outside Ternuxx control; its service and authorized keys are dedicated.
 
 For recovery, backup, remote-access, graphics, AI, or audio setup, follow the specific guide linked from the [documentation index](README.md).
+
+## Guest desktop shortcuts
+
+```sh
+tx pgui               # Debian XFCE when installed; automatic display route
+tx pgui xfce4         # alias for xfce
+tx pgui mate          # selected installed DE
+tx pgui start --alias ubuntu --desktop xfce
+```
+
+Auto uses standalone `:0` when the Native desktop is stopped, or nested Xephyr
+`:2` inside the verified running Native desktop on `:1`. Existing lifecycle locks
+and display-ownership checks remain authoritative. Plasma remains standalone-only;
+unsupported nested routes are refused. These shortcuts do not install desktops or
+stop the Native desktop. Nested rendering limitations remain documented separately.

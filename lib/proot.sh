@@ -26,9 +26,14 @@ _nt_proot_gui() {
 nt_cmd_pgui() {
   if [ "$#" -eq 0 ]; then
     set -- start
-  elif [ "$1" = --mode ]; then
+  elif [[ "$1" = --mode || "$1" = --desktop || "$1" = --alias ]]; then
     set -- start "$@"
   fi
+  case "${1:-}" in
+    xfce|xfce4|lxqt|lxde|mate|plasma|gnome|cinnamon)
+      local desktop="${1/xfce4/xfce}"; shift
+      set -- start --desktop "$desktop" "$@" ;;
+  esac
   _nt_proot_gui "$@"
 }
 

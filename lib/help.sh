@@ -71,7 +71,7 @@ inspect interrupted records. Apply reconciliation only when its exact preview
 proves the original process exited. `tx proot stop-preview SESSION_ID` prepares
 an exact stop plan; apply it with
 `tx proot stop SESSION_ID --yes --plan-id ID`. `tx db` opens an owned
-interactive Debian login; `tx pgui` starts the optional guest desktop.
+interactive Debian login; `tx pgui` starts Debian XFCE by default; `tx pgui DE` selects an installed desktop.
 `tx mng app launch --desktop-id APP.desktop --display :N` launches an
 allowlisted Debian XFCE application through the shared guest service.
 `tx proot shortcuts list` inspects launcher state; `preview add|remove APP_ID`
@@ -130,7 +130,10 @@ tx install ubuntu [--user NAME] — Guided Ubuntu Noble guest setup
 tx install debian preview --user NAME — Review-only; no guest changes
 tx proot setup catalog — List installable guest profiles and desktop routes
 tx install ubuntu preview --user NAME — Review-only; no guest changes
+tx install — Device info, then Minimal / Native Full / Native Full + PRoot
 tx install interactive — Choose, preview, and confirm a Native workstation profile in one session
+Use arrow keys + Space + Enter for profile, DE, app, distro and confirmation choices.
+Minimal includes CLI/TUI/Web and terminal/build tools; Full adds GUI management/audio/graphics.
 tx install preview [--profile NAME] [--components GROUPS] — Review exact package transaction
 tx install update preview — Review Native Ternuxx core updates
 tx install apply [--profile NAME] --yes --plan-id ID — Apply the exact saved plan
@@ -139,7 +142,8 @@ The guided Native flow previews the transaction and asks before installing; afte
 it, you can also set up the optional managed Debian or Ubuntu guest. `tx install debian` or `tx install ubuntu`
 shows its pinned target and confirms the same plan in one terminal flow. Plan-ID
 commands are for explicit review and automation.
-Custom groups: desktop,audio,proot,graphics,developer,mate,plasma. All profiles use the same
+Custom groups: desktop,audio,proot,graphics,developer,mate,plasma,terminal,gui,
+sound-controls,nested,browser,music,images,pdf,editor,archive,video. All profiles use the same
 repository and dependency checks. The PRoot-provider profile installs the runtime only.
 If APT fails, some packages may have changed; create a fresh preview before retrying.
 EOF

@@ -4,6 +4,24 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Managed installer revision — 2026-10-26
+
+The owner-requested three-profile keyboard wizard is implemented at `./tx install`
+(`interactive` remains an alias): device/system summary, Minimal terminal/build
+workstation, Native Full with DE/app selection, and Native Full + multiple managed
+Debian/Ubuntu guests. Arrow/Space/Enter replace typed profile, DE and distro choices.
+Preparation, full system upgrade, Native packages, CLI shim, graphics selection and
+guest plans have separate confirmation boundaries. Native Full builds the GTK center;
+Python/X11 bootstrap stays inside the managed wizard. `tx pgui DE` accepts a desktop
+short name, and the existing auto routing keeps standalone :0 / Native :1 + Xephyr :2.
+XFCE is preferred by default even with multiple installed guest desktops.
+
+Writer-only Native installation remains unavailable because the official repository
+provides a monolithic LibreOffice package. This revision does not install it silently.
+Repository/fixture checks are separate from the owner's pending reinstall and rendered
+GUI/GPU acceptance. No live package transaction or desktop lifecycle action was run
+by the agent while implementing this revision.
+
 ## Live runtime
 
 Fresh-clone reinstall and route recheck (2026-10-26): main clone ea1a07d is the canonical checkout; the prior checkout was preserved. The owned tx shim was preview-bound reinstalled. The full-native package profile was already installed, so no package transaction ran. A follow-up simulation against the 19 profile roots proposed 108 removals plus mesa-vulkan-icd-swrast; leaving shared dbus/audio/provider/Python roots out still proposed 21 removals including Plasma packages. No package transaction ran, so full Ternuxx package uninstall/reinstall remains open. Fresh-tree tests passed 1,228/1,228 in 224.994 seconds and CLI help passed. Native :1 OpenGL-window, GLES shader, and Vulkan draws all rendered on Adreno 825; Debian replay standalone :0 passed Adreno Zink/Turnip GLX and Vulkan draws plus DRI3/audio endpoint checks. Nested Debian :2 remains partial: Adreno Vulkan and audio endpoint pass, Xephyr DRI3 is unavailable and GLX drawing fails. Native :1/audio/managed SSH are restored; :0/:2 and managed PRoot sessions are stopped. See [fresh checkout and route evidence](docs/evidence/2026-10-26-fresh-checkout-reinstall-and-desktop-routes.md).
