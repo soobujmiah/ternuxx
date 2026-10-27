@@ -1,0 +1,7 @@
+event_id: commit-45147723429c-616ed424ace09936
+repository: soobujmiah/ternuxx
+commit: 45147723429c2e8c6942e533bceb84ced59f945b
+kind: commit
+occurred_at: '2026-10-27T19:55:44Z'
+status: completed
+summary: 'fix(proot): seed VLC and XFCE desktop preferences'
