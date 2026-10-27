@@ -724,6 +724,8 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         raise FreshSetupError("another fresh Debian setup operation is active") from exc
     owned = None
     attempted = False
+    event_log = None
+    failure_stage = "rootfs-install"
     try:
         container, rootfs = _target_paths(prefix, alias)
         if container.exists():
@@ -767,6 +769,9 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                 raise FreshSetupError("proot-distro failed to create the new guest alias")
         # Validate the exact OCI content that proot-distro installed before
         # changing APT sources, installing packages, or creating guest users.
+        failure_stage = "base-image-verification"
+        _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "verifying",
+                                 "stage": failure_stage, "rootfs_identity": owned})
         _verify_base_image(prefix, manifest, alias)
         if owned is None:
             owned = _root_identity(container, rootfs)
@@ -808,17 +813,42 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         if sudo_mode == "passwordless":
             script += "\nrunuser -u " + guest_user + " -- sudo -n true"
         _verify_owned_target(prefix, alias, owned)
-        result = runner([manager, "login", "--isolated", "--user", "root", alias,
-                         "--", "/bin/bash", "-lc", script], check=False, timeout=3600)
+        event_log = state / f"fresh-{plan_id}.events.log"
+        failure_stage = "guest-apt-account-setup"
+        _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "configuring",
+                                 "stage": failure_stage, "event_log": str(event_log),
+                                 "rootfs_identity": owned})
+        command = [manager, "login", "--isolated", "--user", "root", alias,
+                   "--", "/bin/bash", "-lc", script]
+        if runner is subprocess.run:
+            import install_events
+            env = {key: value for key, value in os.environ.items()
+                   if key not in {"DBUS_SESSION_BUS_ADDRESS", "DBUS_SESSION_BUS_PID", "DBUS_STARTER_ADDRESS",
+                                  "DBUS_STARTER_BUS_TYPE", "LD_LIBRARY_PATH", "LD_PRELOAD", "DISPLAY"}
+                   and not key.startswith("ANDROID_")}
+            result = install_events.run(command, timeout=3600, idle_timeout=300,
+                                        env=env, log_path=event_log)
+        else:
+            result = runner(command, check=False, timeout=3600)
         if result.returncode:
-            raise FreshSetupError("guest package setup failed; new alias retained for inspection")
+            raise FreshSetupError(
+                f"guest package setup failed (exit {result.returncode}; account configuration is included); "
+                f"inspect the private event log at {event_log}; new alias retained for inspection")
         if sudo_mode == "password":
+            failure_stage = "guest-password-configuration"
+            _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "configuring",
+                                     "stage": failure_stage, "event_log": str(event_log),
+                                     "rootfs_identity": owned})
             # Secret is sent only over stdin; never place it in argv, script, logs, plans, or receipts.
             result = runner([manager, "login", "--isolated", "--user", "root", alias,
                              "--", "/usr/sbin/chpasswd"], input=f"{user}:{password}\n",
                             text=True, capture_output=True, check=False, timeout=120)
             if result.returncode:
                 raise FreshSetupError("Debian guest password could not be configured")
+        failure_stage = "post-install-verification"
+        _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "verifying",
+                                 "stage": failure_stage, "event_log": str(event_log) if event_log else None,
+                                 "rootfs_identity": owned})
         release_values = _read_guest_release_identity(rootfs)
         if (release_values.get("ID", "").strip('"') != manifest["release_id"]
                 or release_values.get("VERSION_CODENAME", "").strip('"') != manifest["codename"]):
@@ -871,10 +901,14 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         _private_write(state / receipt_path, record)
         _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "complete", "rootfs_identity": owned})
         return {"status": "installed", "record": record}
-    except (OSError, subprocess.TimeoutExpired, FreshSetupError) as exc:
+    except (OSError, subprocess.TimeoutExpired, ValueError) as exc:
         if attempted:
-            _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "failed",
-                                     "rootfs_identity": owned, "detail": str(exc)[:240]})
+            failed = {"plan_id": plan_id, "alias": alias, "state": "failed",
+                      "stage": failure_stage, "rootfs_identity": owned,
+                      "detail": str(exc)[:240]}
+            if event_log is not None:
+                failed["event_log"] = str(event_log)
+            _private_write(journal, failed)
         raise
     finally:
         try:

@@ -48,9 +48,12 @@ estimate. Integrity failure does not switch repositories/payloads. Fresh setup
 retains its Native CA bootstrap and now uses the same HTTPS user-agent/time bounds;
 the new Native archive transport currently targets existing-rootfs add-ons.
 
-Private categorized event logs retain redacted errors. Guest apply has no-output
-and overall deadlines; failed journals include stage, event-log path, timeout kind
-and last output. The plan report is a read-only viewer without checkboxes/selection
+Private categorized event logs retain redacted errors. Guest add-on and fresh setup
+logs are mode 0600 and bounded; fresh-install failures now retain the stage, command
+exit code, and log path, while the success path records package-version evidence
+only after release/account/package verification. Guest apply has no-output and
+overall deadlines; failed journals include stage, event-log path, timeout kind and
+last output where available. The plan report is a read-only viewer without checkboxes/selection
 counts; Space cannot select dependencies. Live complete install/user/desktop
 acceptance remains owner-pending; source/fixture results do not claim completion.
 
