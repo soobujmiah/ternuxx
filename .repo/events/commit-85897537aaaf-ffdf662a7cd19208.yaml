@@ -1,0 +1,7 @@
+event_id: commit-85897537aaaf-ffdf662a7cd19208
+repository: soobujmiah/ternuxx
+commit: 85897537aaafbdff8506cdbb06d19ca44fe7f137
+kind: commit
+occurred_at: '2026-10-27T11:09:51Z'
+status: completed
+summary: 'fix(proot): include dbus launcher for managed desktops'
