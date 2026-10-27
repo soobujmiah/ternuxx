@@ -10,6 +10,7 @@ from pathlib import Path
 
 import proot_desktops
 import proot_profiles
+import proot_policy
 import proot_packages
 import re
 import shlex
@@ -379,6 +380,11 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
         for name in manifest.get("graphics", {}).get("hold_packages", []):
             if name not in packages:
                 packages.append(name)
+    package_policy = proot_policy.policy_for(profile_id)
+    try:
+        proot_policy.reject_forbidden([(name, "requested") for name in packages], package_policy)
+    except ValueError as exc:
+        raise FreshSetupError(str(exc)) from exc
     plan = {
         "schema_version": 2, "operation": operation_name, "alias": alias,
         "profile_id": profile_id, "distro": manifest["distro"], "release": manifest.get("release_name", manifest["release"]),
@@ -390,6 +396,7 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
         "rootfs_target": str(rootfs), "rootfs_archive_bytes": manifest["fresh_install"]["layer_size"], "guest_user": user,
         "sudo_mode": sudo_mode,
         "package_groups": chosen_groups,
+        "package_policy": package_policy,
         "desktop_environments": list(chosen_desktops),
         "packages": packages,
         "apt_snapshot": manifest["fresh_install"]["apt_snapshot"],
@@ -592,7 +599,8 @@ def _guest_turnip_install(packages: list[str], driver: Path, icd: Path,
         f"install -m 0644 /tmp/ternuxx-turnip-driver.so {quoted_driver}",
         f"printf %s {shlex.quote(icd_text)} > {quoted_icd}",
         "rm -f /tmp/ternuxx-turnip-driver.so /tmp/ternuxx-turnip-icd.json",
-        "apt-mark hold " + " ".join(shlex.quote(p) for p in manifest_holds(packages)),
+        *(["apt-mark hold " + " ".join(shlex.quote(p) for p in manifest_holds(packages, manifest))]
+          if manifest_holds(packages, manifest) else []),
     ])
     result = runner([manager, "login", "--isolated", "--user", "root", alias,
                      "--", "/bin/bash", "-lc", script], check=False, timeout=300)
@@ -600,9 +608,17 @@ def _guest_turnip_install(packages: list[str], driver: Path, icd: Path,
         raise FreshSetupError("Turnip files or Mesa package holds could not be installed")
 
 
-def manifest_holds(packages: list[str]) -> list[str]:
-    holds = ["libegl-mesa0", "libgbm1", "libgl1-mesa-dri", "libglx-mesa0", "mesa-vulkan-drivers"]
-    return [item for item in holds if item in packages]
+def manifest_holds(packages: list[str], manifest: dict | None = None) -> list[str]:
+    selected_manifest = manifest or {}
+    graphics = selected_manifest.get("graphics", {})
+    holds = graphics.get("hold_packages", [])
+    if not isinstance(holds, list) or any(not isinstance(item, str) for item in holds):
+        raise FreshSetupError("profile graphics package holds are invalid")
+    try:
+        policy_holds = proot_policy.policy_for(selected_manifest["profile_id"])["always_hold"]
+    except (KeyError, ValueError) as exc:
+        raise FreshSetupError("profile package policy is unavailable") from exc
+    return list(dict.fromkeys([*policy_holds, *(item for item in holds if item in packages)]))
 
 
 def _pinned_image_reference(spec: dict) -> str:
@@ -666,6 +682,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
     plan = _read_private(previews / f"fresh-{plan_id}.json")
     plan_profile = plan.get("profile_id")
     manifest, raw, _selected_profile = _profile(repo_root, str(plan.get("alias", "")), plan_profile)
+    package_policy = proot_policy.policy_for(plan_profile)
     planned_user = plan.get("guest_user")
     planned_alias = plan.get("alias")
     user = planned_user if user is None else user
@@ -689,6 +706,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
             or plan.get("plan_id") != plan_id or recalculated != plan_id
             or plan.get("guest_user") != user or plan.get("alias") != alias
             or plan.get("manifest_sha256") != hashlib.sha256(raw).hexdigest()
+            or plan.get("package_policy") != proot_policy.policy_for(plan_profile)
             or plan.get("rootfs_target") != str(Path(prefix) / "var/lib/proot-distro/containers" / alias / "rootfs")):
         raise FreshSetupError("fresh setup preview differs from the reviewed plan or current profile")
     ca_path, ca_sha256 = _native_ca_bundle(prefix)
@@ -797,9 +815,11 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                    + "\nComponents: " + components + "\nSigned-By: " + keyring
                    + "\nCheck-Valid-Until: no\n")
         configure_sources = "rm -f /etc/apt/sources.list && find /etc/apt/sources.list.d -maxdepth 1 -type f \\( -name '*.sources' -o -name '*.list' \\) -delete && printf %s " + shlex.quote(sources) + " > /etc/apt/sources.list.d/ternuxx-snapshot.sources"
+        policy_hold = proot_policy.hold_command(package_policy["always_hold"])
         script = "\n".join([
             "set -eu", f"trap 'rm -f {guest_ca_quoted}' EXIT", "export DEBIAN_FRONTEND=noninteractive", configure_sources,
             f"apt-get -o Acquire::https::CaInfo={guest_ca_quoted} -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 -o Acquire::Check-Valid-Until=false update",
+            *([policy_hold] if policy_hold else []),
             f"apt-get -o Acquire::https::CaInfo={guest_ca_quoted} -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 install -y --no-install-recommends {package_args}",
             f"rm -f {guest_ca_quoted}",
             "printf '%s\\n' 'en_US.UTF-8 UTF-8' > /etc/locale.gen", "locale-gen",
@@ -897,6 +917,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         record = {
             "schema_version": 1, "plan_id": plan_id, "alias": alias, "guest_user": user,
             "sudo_mode": sudo_mode, "desktop_environments": plan["desktop_environments"],
+            "package_policy": package_policy,
             "manifest_sha256": plan["manifest_sha256"],
             "profile_id": proot_profiles.PROFILE_IDS[plan["profile_id"]],
             "distro": plan["distro"], "release": plan["release"],

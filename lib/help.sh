@@ -55,9 +55,8 @@ shows the pinned plan and asks before applying it. You do not need to copy a
 plan ID in the guided flow. Use explicit `preview`/`apply` only for review-only
 or automated setup.
 The lower-level equivalent is `tx proot setup fresh-preview --user NAME
---desktops xfce,lxqt`; Desktop IDs depend on the selected profile: Debian offers `xfce`, `lxqt`, `lxde`, `mate`, `plasma`, `gnome`, and `cinnamon`; Ubuntu currently offers `xfce`. Only selected desktops are installed; XFCE is the default in non-interactive preview flows.
-XFCE, LXQt, LXDE, and MATE are live-checked on standalone :0 and nested :2;
-Plasma is accepted on standalone :0 only; GNOME and Cinnamon are install-catalog options without an accepted route. Review the exact
+--desktops xfce,lxqt`; Desktop IDs depend on the selected profile: Debian offers `xfce`, `lxqt`, `lxde`, `mate`, and `plasma`; Ubuntu currently offers `xfce`. Only selected desktops are installed; XFCE is the default in non-interactive preview flows.
+The Debian catalog accepts XFCE, LXQt, LXDE, and MATE on standalone :0 and nested :2; Plasma is standalone :0 only. GNOME and Cinnamon are not selectable because no complete Ternuxx launch route is available. Review the exact
 image/package plan, then apply it with
 `tx proot setup fresh-install --yes --plan-id ID`.
 Choose `--sudo-mode password` for hidden prompts, or `passwordless` for

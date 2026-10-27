@@ -30,7 +30,7 @@ nt_cmd_pgui() {
     set -- start "$@"
   fi
   case "${1:-}" in
-    xfce|xfce4|lxqt|lxde|mate|plasma|gnome|cinnamon)
+    xfce|xfce4|lxqt|lxde|mate|plasma)
       local desktop="${1/xfce4/xfce}"; shift
       set -- start --desktop "$desktop" "$@" ;;
   esac

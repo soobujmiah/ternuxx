@@ -16,6 +16,7 @@ import proot_fresh_setup
 import proot_guest_retirement
 import proot_packages
 import proot_profiles
+import proot_policy
 import proot_software
 
 
@@ -165,6 +166,8 @@ def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
         raise DesktopSetupError(str(exc)) from exc
     packages = list(dict.fromkeys([*(proot_desktops.packages_for(provider, desktops) if desktops else []),
                                    *proot_software.packages(alias, apps or [])]))
+    manifest, manifest_digest, _raw = proot_profiles.load(Path(__file__).resolve().parents[1], provider)
+    package_policy = proot_policy.policy_for(provider)
     if not packages:
         raise DesktopSetupError("select a desktop, app or graphics runtime to add")
     before = _package_inventory(root)
@@ -179,6 +182,10 @@ def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
     if status_hash != after_hash:
         raise DesktopSetupError("guest dpkg status changed during the read-only preview")
     transaction_packages = transaction["new_packages"]
+    try:
+        proot_policy.reject_forbidden(transaction_packages, package_policy)
+    except ValueError as exc:
+        raise DesktopSetupError(str(exc)) from exc
     transaction_versions = {name: version for name, version in transaction_packages}
     versions = {package: transaction_versions.get(package, before.get(package))
                 for package in packages}
@@ -189,6 +196,7 @@ def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
         "schema_version": 1, "operation": "debian-desktop-install" if alias == "debian" else "ubuntu-desktop-install",
         "alias": alias, "apps": apps or [], "rootfs_identity": identity,
         "desktop_environments": list(desktops), "requested_packages": packages,
+        "profile_manifest_sha256": manifest_digest, "package_policy": package_policy,
         "requested_versions": [[package, versions[package]] for package in packages],
         "transaction_packages": transaction_packages,
         "transaction_summary": {key: transaction[key] for key in
@@ -197,8 +205,7 @@ def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
         "installed_package_count": len(before), "guest_packages_changed": False,
     }
     if "graphics-runtime" in (apps or []):
-        manifest, digest, _ = proot_profiles.load(Path(__file__).resolve().parents[1], provider)
-        body["graphics_runtime"] = {"manifest_sha256": digest,
+        body["graphics_runtime"] = {"manifest_sha256": manifest_digest,
                                     "kgsl_accessible": proot_fresh_setup._kgsl_accessible(),
                                     "turnip_archive_sha256": manifest["graphics"]["turnip_archive"]["sha256"]}
     if transaction_packages and native_transport:
@@ -403,6 +410,15 @@ def apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
         proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "applying",
                                                    "desktop_environments": saved["desktop_environments"]})
         before = _package_inventory(root)
+        policy_hold = proot_policy.hold_command(saved["package_policy"]["always_hold"])
+        if policy_hold:
+            policy_result = runner([str(Path(prefix) / "bin/proot-distro"), "run", alias, "--isolated", "--",
+                                    "/bin/bash", "-lc", policy_hold], capture_output=True, text=True,
+                                   check=False, timeout=120)
+            if policy_result.returncode:
+                proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "failed",
+                                                           "stage": "profile-package-policy"})
+                raise DesktopSetupError("profile package-manager safety policy could not be applied")
         exact_versions = dict([*saved["requested_versions"], *saved["transaction_packages"]])
         exact_requests = [f"{package}={version}" for package, version in exact_versions.items()]
         event_log=state/f'desktop-{plan_id}.events.log'
@@ -461,6 +477,7 @@ def apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
             raise DesktopSetupError("guest VLC/XFCE defaults could not be configured") from exc
         receipt = {"schema_version": 1, "plan_id": plan_id, "alias": alias,
                    "rootfs_identity": identity, "desktop_environments": saved["desktop_environments"],
+                   "package_policy": saved["package_policy"],
                    "desktop_preferences": desktop_preferences,
                    "requested_packages": saved["requested_packages"],
                    "transaction_packages": saved["transaction_packages"],

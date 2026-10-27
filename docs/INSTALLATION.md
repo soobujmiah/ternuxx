@@ -1,6 +1,6 @@
 # Native Termux installation
 
-Ternuxx runs in Native Termux. Debian PRoot is optional and has a separate pinned guest setup flow. A Native package install never creates or replaces a Debian root filesystem.
+Ternuxx runs in Native Termux. Debian Trixie and Ubuntu Noble PRoot are optional, separately pinned guest profiles. A Native package install never creates or replaces a guest root filesystem.
 
 ## Requirements
 
@@ -196,7 +196,7 @@ tx install debian
 # or: tx install ubuntu
 ```
 
-Ternuxx asks for the guest username and, in an attached terminal, offers the profile's desktops with accepted routes for one-or-more keyboard selection; press Enter to keep the XFCE default. Each choice shows its accepted display routes. It then shows the exact pinned target and asks whether to install it. Confirming applies that same plan; declining leaves the guest unchanged. Ternuxx applies guest configuration with available graphics/audio integration. Debian/Ubuntu XFCE setup seeds VLC's XCB X11 video output so video renders inside the desktop. When the current Native XFCE wallpaper image is available under the Termux home directory, setup copies it into the guest; an existing guest wallpaper is preserved and carried into both standalone and nested sessions. Password mode prompts in the attached terminal; guest-only `passwordless` sudo is also available. Existing rootfs data is preserved. Separate `preview` and `apply --yes --plan-id ID` forms are available for explicit review and automation. The TUI launches the guided command in its attached terminal. Web offers direct setup after the optional managed-guest scope is granted. GTK opens the guided command in an embedded terminal. Each interface supports catalogued desktop selection; GNOME and Cinnamon currently lack a verified launch route, and Plasma is verified only on standalone :0.
+Ternuxx asks for the guest username and, in an attached terminal, offers the profile's desktops with accepted routes for one-or-more keyboard selection; press Enter to keep the XFCE default. Each choice shows its accepted display routes. It then shows the exact pinned target and asks whether to install it. Confirming applies that same plan; declining leaves the guest unchanged. Ternuxx applies guest configuration with available graphics/audio integration. Debian/Ubuntu XFCE setup seeds VLC's XCB X11 video output so video renders inside the desktop. When the current Native XFCE wallpaper image is available under the Termux home directory, setup copies it into the guest; an existing guest wallpaper is preserved and carried into both standalone and nested sessions. Password mode prompts in the attached terminal; guest-only `passwordless` sudo is also available. Existing rootfs data is preserved. Separate `preview` and `apply --yes --plan-id ID` forms are available for explicit review and automation. The TUI launches the guided command in its attached terminal. Web offers direct setup after the optional managed-guest scope is granted. GTK opens the guided command in an embedded terminal. Each interface offers only desktops with an accepted launch route. Plasma is standalone-only; GNOME and Cinnamon are not exposed until a complete launch route is qualified.
 
 For a non-default guest setup, check `tx proot status` first. You can select guest-only passwordless sudo and (on Debian) multiple desktop environments in the same guided command; Ternuxx still shows the plan and asks before applying it:
 
@@ -204,7 +204,7 @@ For a non-default guest setup, check `tx proot status` first. You can select gue
 tx install debian --user NAME --sudo-mode passwordless --desktops xfce,lxqt
 ```
 
-Ubuntu Noble currently provides its pinned XFCE profile only. Live install, standalone `:0`, and guest-to-Native `:1` checks passed; nested `:2` starts XFCE and passes Vulkan/audio endpoint checks but remains partial because Xephyr DRI3/GLX drawing is unavailable. Other distribution profiles are not yet implemented.
+Ubuntu Noble currently provides its pinned XFCE profile only. Its package policy keeps `snapd` held in fresh installs and every reviewed desktop/app addition; the browser catalog uses Epiphany so Firefox cannot pull in Snap. Live install, standalone `:0`, and guest-to-Native `:1` checks passed; nested `:2` starts XFCE and passes Vulkan/audio endpoint checks but remains partial because Xephyr DRI3/GLX drawing is unavailable. Other distribution profiles are not yet implemented.
 
 For automation or a separate review-only step, add `preview`; if the preview names the intended fresh target and reports no existing guest, apply its exact plan ID. Most users should use the guided command above. For example:
 
@@ -223,7 +223,7 @@ Guest login starts directly in the terminal. If the guest has multiple ordinary
 accounts, Ternuxx presents an account chooser; `tx db --user NAME` selects one
 without prompting. `tx pgui` uses the same account selection before launching
 the desktop. With Native desktop `:1` running, PRoot GUI uses nested display `:2`;
-otherwise it uses standalone display `:0`. The Native desktop group includes `xdotool` and `xorg-xprop`; the managed PRoot desktop installs the X11 tools used to keep application windows inside the current display. Oversized resizable windows are maximized; dialogs and fixed-size windows are repositioned so their title bars remain reachable. The manager rechecks geometry after rotation. Nested Xephyr follows Native display dimensions through RandR. The managed guest base includes `xdotool`, `x11-utils`, and `x11-xserver-utils`; `xserver-xephyr` supplies nested PRoot GUI. Existing guest desktop setup also adds the CPU runtime tools when a desktop is selected.
+otherwise it uses standalone display `:0`. The Native desktop group includes `xdotool` and `xorg-xprop`; the managed Debian and Ubuntu desktop profiles include the same X11 window tools. One DE-independent session watcher keeps app windows inside the current display across every accepted Native, standalone PRoot, and nested PRoot desktop route. Oversized resizable windows are maximized; dialogs and fixed-size windows are repositioned so their title bars remain reachable. The manager rechecks geometry after rotation. Nested Xephyr follows Native display dimensions through RandR. The managed guest base includes `xdotool`, `x11-utils`, and `x11-xserver-utils`; `xserver-xephyr` supplies nested PRoot GUI. Existing guest desktop setup also adds the CPU runtime tools when a desktop is selected.
 
 The fresh setup flow refuses to replace an existing guest. Debian desktop and graphics acceptance are separate from Native desktop verification; see the [capability matrix](architecture/CAPABILITY-MATRIX.md) and [known limitations](testing/KNOWN-LIMITATIONS.md).
 
@@ -263,6 +263,12 @@ Auto uses standalone `:0` when the Native desktop is stopped, or nested Xephyr
 and display-ownership checks remain authoritative. Plasma remains standalone-only;
 unsupported nested routes are refused. These shortcuts do not install desktops or
 stop the Native desktop. Nested rendering limitations remain documented separately.
+
+## Provider and desktop coverage
+
+The shared window-fitting watcher is started by every managed GUI route, independent of the selected desktop environment. Current Native choices are XFCE, MATE, and KDE Plasma. The Debian Trixie catalog offers XFCE, LXQt, LXDE, and MATE on standalone/nested routes, plus KDE Plasma on standalone only. Ubuntu Noble currently offers XFCE. These guest profiles include the X11 tools required by the watcher; portrait/landscape behavior still needs device-side visual acceptance for each route.
+
+Ternuxx currently exposes only pinned Debian Trixie and Ubuntu Noble guest profiles. It does not automatically enable every image supported by upstream `proot-distro`: Alpine, Arch, Fedora, Void, and other image families need their own package manager, graphics/audio, desktop, lifecycle, and recovery adapters and live qualification before they appear in Ternuxx install choices. Shared Native display/audio handoff and per-profile desktop defaults are applied by the managed launch/setup path; distro-specific package rules stay scoped to their profile. Ubuntu uses Epiphany instead of Snap-backed Firefox and holds `snapd`; Debian keeps Firefox ESR.
 
 ## PRoot clean profile and later additions
 

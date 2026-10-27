@@ -18,7 +18,9 @@ package and refuses unrelated removals. Native definitions live in
 existing package engines bind every selected package and dependency to a reviewed
 exact plan. Managed guest desktops include `xdotool`, `x11-utils`, and
 `x11-xserver-utils` for window fitting, display inspection, and orientation-aware
-nested Xephyr resizing. `xserver-xephyr` supplies the nested PRoot X server. A missing candidate
+nested Xephyr resizing. The watcher is desktop-environment independent across the
+Native, standalone PRoot, and nested PRoot routes accepted by the current profiles.
+`xserver-xephyr` supplies the nested PRoot X server. A missing candidate
 stops preview rather than adding another package source, except the explicitly selected
 Blender option which enables the signed TUR source with consent.
 
@@ -39,7 +41,9 @@ They do not claim an installed agent. Native Claude is not offered. Blender is a
 optional TUR package and is not included in default workstation selections.
 Native Writer-only remains unavailable; AbiWord is a separate alternative and is
 never silently substituted. Guest browser defaults remain Debian Firefox ESR and
-Ubuntu Epiphany (no Snap).
+Ubuntu Epiphany (no Snap); Ubuntu also keeps `snapd` on hold through fresh and
+add-on install flows. This distro-specific package rule is part of the reviewed
+profile policy, not a Native package setting.
 
 Package availability is not workload qualification. Graphics-heavy programs need
 separate CPU/GPU/display acceptance; installing network tools does not start a

@@ -4,7 +4,7 @@
 
 # Ternuxx
 
-Ternuxx turns Native Termux into a phone workstation managed with `tx`. Native Termux remains the host and control plane. Debian PRoot is an optional, separately previewed guest; installing the Native workstation does not create a Debian root filesystem.
+Ternuxx turns Native Termux into a phone workstation managed with `tx`. Native Termux remains the host and control plane. Pinned Debian Trixie and Ubuntu Noble PRoot guests are optional, separately previewed providers; installing the Native workstation does not create a guest root filesystem.
 
 ## Install
 

@@ -944,7 +944,7 @@ def main() -> int:
     parser.add_argument("--backup-id", default="")
     parser.add_argument("--apps", help="comma-separated optional guest app IDs for add-on preview")
     parser.add_argument("--groups", help="comma-separated fresh Debian package groups; base is required")
-    parser.add_argument("--desktops", help="comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate,plasma,gnome,cinnamon")
+    parser.add_argument("--desktops", help="comma-separated Debian desktop IDs: xfce,lxqt,lxde,mate,plasma")
     parser.add_argument("--password-fd", type=int, help="private inherited FD for a pre-collected guest credential; never a password argument")
     parser.add_argument("--sudo-mode", choices=("password", "passwordless"), default="password",
                         help="guest account sudo authentication; passwordless is scoped to the PRoot guest")

@@ -15,8 +15,6 @@ DEBIAN_DESKTOPS = {
     "lxde": {"name": "LXDE", "packages": ("lxde-core",), "session": "startlxde"},
     "mate": {"name": "MATE", "packages": ("mate-desktop-environment-core",), "session": "mate-session"},
     "plasma": {"name": "KDE Plasma", "packages": ("kde-plasma-desktop", "kwin-x11"), "session": "startplasma-x11"},
-    "gnome": {"name": "GNOME", "packages": ("gnome-core",), "session": "gnome-session"},
-    "cinnamon": {"name": "Cinnamon", "packages": ("cinnamon-desktop-environment",), "session": "cinnamon-session"},
 }
 DEFAULT_DESKTOPS = ("xfce",)
 UBUNTU_DESKTOPS = {
@@ -40,11 +38,8 @@ DESKTOP_ROUTES = {
     "lxqt": frozenset({"standalone", "nested"}),
     "lxde": frozenset({"standalone", "nested"}),
     "mate": frozenset({"standalone", "nested"}),
-    # Plasma is accepted on standalone :0 only. GNOME and Cinnamon remain
-    # install-catalog entries, without an accepted live route in this profile.
+    # Plasma is accepted on standalone :0 only.
     "plasma": frozenset({"standalone"}),
-    "gnome": frozenset(),
-    "cinnamon": frozenset(),
 }
 
 
@@ -90,8 +85,6 @@ def session_argv(provider: str, selected: str, *, route: str | None = None) -> t
     desktops = PROVIDERS.get(provider, {})
     if selected not in catalog(provider, route=route):
         raise DesktopError("unsupported PRoot desktop selection for this route")
-    if provider == "debian-trixie" and selected == "gnome":
-        return ("gnome-session", "--session=gnome")
     return (str(desktops[selected]["session"]),)
 
 

@@ -37,6 +37,20 @@ orientation changes. Native fresh desktop plans include `xdotool` and
 Source and static syntax checks are complete; on-device portrait/landscape visual
 acceptance remains open and active sessions were not restarted.
 
+## Cross-profile PRoot policy and desktop route coverage — 2026-10-28
+
+The window-fitting watcher and X11 tool dependencies apply across every accepted
+Native, standalone PRoot, and nested PRoot desktop route; the watcher does not
+depend on XFCE-specific APIs. The PRoot install catalog is intentionally limited
+to pinned Debian Trixie and Ubuntu Noble profiles. Debian GNOME/Cinnamon entries
+without accepted launch routes were removed from install choices. Ubuntu's
+reviewed package policy now holds `snapd` during fresh setup and before every
+preview-bound desktop/app addition, verifies the hold, and rejects transactions
+that would add the unsupported package. Ubuntu continues to offer Epiphany instead
+of Snap-backed Firefox; Debian retains Firefox ESR. Other upstream proot-distro
+images remain unavailable until complete distro adapters and live qualification
+exist. Native/PRoot orientation visual acceptance remains open.
+
 ## PRoot desktop defaults and concise launch output — 2026-10-28
 
 Fresh/add-on guest setup now seeds VLC's XCB X11 video output and carries the

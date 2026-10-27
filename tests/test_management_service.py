@@ -42,10 +42,9 @@ class ManagementServiceTests(unittest.TestCase):
         ubuntu = next(item for item in profiles if item["distro"] == "ubuntu")
         self.assertEqual(debian["package_manager"], "apt")
         self.assertEqual({item["id"] for item in debian["desktops"]},
-                         {"xfce", "lxqt", "lxde", "mate", "plasma", "gnome", "cinnamon"})
+                         {"xfce", "lxqt", "lxde", "mate", "plasma"})
         self.assertEqual({item["id"] for item in ubuntu["desktops"]}, {"xfce"})
         self.assertEqual(next(item for item in debian["desktops"] if item["id"] == "plasma")["routes"], ["standalone"])
-        self.assertEqual(next(item for item in debian["desktops"] if item["id"] == "gnome")["routes"], [])
 
     def test_fresh_guest_setup_service_routes_one_exact_preview_and_apply(self) -> None:
         preview_data = {"status": "preview", "plan_id": "a" * 64,

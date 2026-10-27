@@ -55,6 +55,9 @@ def build(root):
             op=data.get('operation',{});tx=data.get('transaction',{})
             lines.append('Desktops: '+', '.join(op.get('desktop_environments',[])))
             lines.append('Apps: '+', '.join(op.get('apps',op.get('package_groups',[]))))
+            policy=op.get('package_policy',{})
+            held=policy.get('always_hold',[]) if isinstance(policy,dict) else []
+            if held:lines.append('Distro safety holds: '+', '.join(held))
             lines.append('Account: '+str(op.get('guest_user','existing account plan listed separately')))
             if 'transaction_summary' in op:
                 for key,label in (('download','download'),('disk','additional disk')):

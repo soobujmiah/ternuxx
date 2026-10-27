@@ -40,16 +40,12 @@ class ProotDesktopCatalogTests(unittest.TestCase):
                          ["dbus-x11", "lxqt", "openbox", "lxde-core"])
         self.assertEqual(proot_desktops.session_command("debian-trixie", "mate"), "mate-session")
         self.assertEqual(proot_desktops.catalog("debian-trixie"),
-                         ("xfce", "lxqt", "lxde", "mate", "plasma", "gnome", "cinnamon"))
-        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["gnome"]), ["dbus-x11", "gnome-core"])
-        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["cinnamon"]),
-                         ["dbus-x11", "cinnamon-desktop-environment"])
+                         ("xfce", "lxqt", "lxde", "mate", "plasma"))
         self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["plasma"], route="standalone"),
                          ("plasma",))
         for failed in ("gnome", "cinnamon"):
             with self.subTest(desktop=failed), self.assertRaises(proot_desktops.DesktopError):
-                proot_desktops.validate_selection("debian-trixie", [failed], route="standalone")
-            self.assertEqual(proot_desktops.DESKTOP_ROUTES[failed], frozenset())
+                proot_desktops.validate_selection("debian-trixie", [failed])
         self.assertEqual(proot_desktops.DESKTOP_ROUTES["plasma"], frozenset({"standalone"}))
 
     def test_invalid_or_unsupported_selections_fail_closed(self):
