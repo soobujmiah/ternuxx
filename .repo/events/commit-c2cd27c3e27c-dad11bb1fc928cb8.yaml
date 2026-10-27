@@ -1,0 +1,7 @@
+event_id: commit-c2cd27c3e27c-dad11bb1fc928cb8
+repository: soobujmiah/ternuxx
+commit: c2cd27c3e27c50db4f30741191710b84ff5a9820
+kind: commit
+occurred_at: '2026-10-27T20:13:46Z'
+status: completed
+summary: 'fix(gui): preserve desktop lifecycle ownership'
