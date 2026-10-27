@@ -1,0 +1,7 @@
+event_id: commit-a2550df35d18-a8e819bc7792ddcb
+repository: soobujmiah/ternuxx
+commit: a2550df35d18415876a23f398ef0af5cc333719f
+kind: commit
+occurred_at: '2026-10-27T21:52:51Z'
+status: completed
+summary: 'docs(test): record native Blender GUI and GPU smoke'
