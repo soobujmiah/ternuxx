@@ -25,8 +25,12 @@ I then sent `xfce4-session-logout --logout --fast` through the verified guest
 session bus: the helper exited 0, PRoot status became stopped, and the session
 record ended stopped with `xfce session exited with status 0`. This verifies XFCE
 logout teardown, but not that the Android Activity was foreground or that the
-shortcut dialog itself rendered. The fixture suite also checks that a natural
-XFCE session exit makes the supervisor stop its exact X11 group.
+shortcut dialog itself rendered. After that PRoot check, Native `tx start` was
+repeated and the same session-bus logout helper exited 0 for the verified Native
+`xfce4-session`. `tx status` then showed the supervisor, Termux:X11 and XFCE absent;
+`tx pgui status` still showed the standalone guest stopped. This confirms the same
+logout teardown behavior on both routes. The fixture suite also checks that a
+natural XFCE session exit makes the supervisor stop its exact X11 group.
 
 ## Termux:X11 Activity launch and installed server compatibility — 2026-10-28
 
