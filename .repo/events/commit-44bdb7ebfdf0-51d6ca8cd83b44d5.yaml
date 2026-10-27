@@ -1,0 +1,7 @@
+event_id: commit-44bdb7ebfdf0-51d6ca8cd83b44d5
+repository: soobujmiah/ternuxx
+commit: 44bdb7ebfdf019e3b5ca15718151aa26e3c76a69
+kind: commit
+occurred_at: '2026-10-27T18:17:28Z'
+status: completed
+summary: 'fix: include Xephyr in guest graphics runtime'
