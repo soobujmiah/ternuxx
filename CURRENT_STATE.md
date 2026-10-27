@@ -2,7 +2,28 @@
 
 # Current Ternuxx state
 
-**Reviewed:** 2026-10-27. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
+**Reviewed:** 2026-10-28. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
+
+## Termux:X11 Activity launch and installed server compatibility — 2026-10-28
+
+The owner reported that `tx start` claimed the Native desktop was running while the
+Termux:X11 app showed no desktop. `tx gui` did not request the Android Activity; it
+only opened the GTK management center. The launch flow now requests the Termux:X11
+Activity after `tx start`, when an already-running desktop is verified, and through
+`tx gui`. Standalone PRoot `:0` also requests the Activity after desktop readiness
+and when brought forward; nested Xephyr `:2` stays inside the existing Native `:1`
+window and does not open a separate Activity. Failed Activity requests include the
+official Termux:X11 release page. Activity acceptance still does not prove visible
+rendering.
+
+A trial based on current upstream docs added the X11 `-tag` option. The installed
+Native `termux-x11` rejected it (`Unrecognized option: -tag`); both the Native
+`:1` and standalone PRoot `:0` startup logs recorded `Termux:X11 exited before its
+display socket became ready`. That option was removed to preserve compatibility
+with the installed package. The owner retried `tx stop`, which preserved the session/log records while stopping
+the exact recorded process group. The current session records are `failed` with no
+X11 socket/process remaining. No assistant cleanup was performed. Re-run after CI
+passes to verify server startup and Activity foregrounding on this exact installed version.
 
 ## Native media packages and nested GUI lock follow-up — 2026-10-28
 
@@ -26,7 +47,7 @@ the matching desktop is already healthy, including during an active nested GUI.
 nested :2 session while leaving Native :1 running. `tx stop` requests shutdown only
 from a lock owner tagged by the current cooperative PRoot launcher, which runs the
 guest inside its own process group; it waits for lock release before stopping Native
-:1. Legacy/unknown owners are left untouched. Android GUI visibility remains unknown.
+:1. Legacy/unknown owners are left untouched. Android GUI visibility remains unknown until the window is visually confirmed.
 
 ## Desktop lifecycle stale-lock recovery — 2026-10-27
 

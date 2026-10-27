@@ -174,6 +174,7 @@ nt_cmd_management() {
             return 1
           }
           [ -x "$app" ] || { nt_fail "GTK management client is not installed; run 'tx mng center install'."; return 1; }
+          _nt_request_termux_x11_activity || nt_warn "Could not foreground the Native Termux:X11 window; open Termux:X11 manually."
           _nt_use audio || return 1
           nt_audio_ensure || true
           DISPLAY="$selected_display" "$app"

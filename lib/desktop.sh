@@ -114,16 +114,20 @@ _nt_display_available() {
 }
 
 _nt_request_termux_x11_activity() {
+  if [ "${TERNUXX_NO_ACTIVITY_LAUNCH:-0}" = 1 ]; then
+    nt_info "Termux:X11 Activity launch is disabled by TERNUXX_NO_ACTIVITY_LAUNCH."
+    return 0
+  fi
   local termux_am="${PREFIX:-/data/data/com.termux/files/usr}/bin/am"
   if [ ! -x "$termux_am" ]; then
-    nt_warn "Termux activity launcher is unavailable; desktop processes are running. Open Termux:X11 manually."
+    nt_warn "Termux:X11 could not be opened; desktop processes are running. Install the app from https://github.com/termux/termux-x11/releases, then run 'tx gui'."
     return 1
   fi
   if "$termux_am" start --user 0 -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1; then
-    nt_info "Requested the Termux:X11 activity; actual GUI visibility remains unknown."
+    nt_info "Requested the Termux:X11 Activity; Android GUI visibility still needs visual confirmation."
     return 0
   fi
-  nt_warn "Termux did not accept the Termux:X11 activity request; desktop processes are running. Open Termux:X11 manually."
+  nt_warn "Termux:X11 did not accept the window request; desktop processes are running. Check/install the app at https://github.com/termux/termux-x11/releases, then run 'tx gui'."
   return 1
 }
 
@@ -290,8 +294,9 @@ nt_cmd_start() {
     fi
     nt_ok "Ternuxx desktop is already running and its recorded process and display identities are verified."
     nt_info "Display: $active_display"
+    _nt_request_termux_x11_activity || true
     if [ "$TERNUXX_JSON" = "1" ]; then
-      nt_json_object "start" "running" "display" "$active_display" "activity_request" "disabled_by_default" "gui_visible" "unknown" "audio_owner" "ternuxx-native"
+      nt_json_object "start" "running" "display" "$active_display" "activity_request" "automatic" "gui_visible" "unknown" "audio_owner" "ternuxx-native"
     fi
     return 0
   fi
@@ -309,11 +314,12 @@ nt_cmd_start() {
       _nt_use audio && nt_audio_ensure || true
       nt_ok "Ternuxx desktop is already running and its recorded process and display identities are verified."
       nt_info "Display: $active_display"
+      _nt_request_termux_x11_activity || true
       local active_desktop
       active_desktop="$(_nt_state_value desktop_id 2>/dev/null || printf xfce)"
       if [ "$active_desktop" != "$desktop_id" ]; then nt_fail "Native $active_desktop is running; stop it before selecting $desktop_id."; return 1; fi
       if [ "$TERNUXX_JSON" = "1" ]; then
-        nt_json_object "start" "running" "display" "$active_display" "activity_request" "disabled_by_default" "gui_visible" "unknown" "audio_owner" "ternuxx-native"
+        nt_json_object "start" "running" "display" "$active_display" "activity_request" "automatic" "gui_visible" "unknown" "audio_owner" "ternuxx-native"
       fi
       return 0 ;;
     stale)
@@ -452,11 +458,11 @@ PY_FAILED_SESSION_SAFE
 
   _nt_journal_update "$operation_id" complete "desktop reported running on :$display_number" || { nt_fail "Desktop is running but journal completion failed; Doctor will report recovery required"; return 1; }
   nt_ok "Ternuxx desktop session is running on :$display_number."
-  nt_info "Termux:X11 Activity launch is disabled by default; open the app manually if needed."
-  nt_info "GUI visibility remains unknown until the Termux:X11 window is actually visible."
+  _nt_request_termux_x11_activity || true
+  nt_info "GUI visibility remains unverified until the desktop is visible in Termux:X11."
   nt_info "Native PulseAudio is managed independently; tx stop leaves it running for active clients."
   if [ "$TERNUXX_JSON" = "1" ]; then
-    nt_json_object "start" "running" "display" ":$display_number" "activity_request" "disabled_by_default" "gui_visible" "unknown" "audio_owner" "ternuxx-native"
+    nt_json_object "start" "running" "display" ":$display_number" "activity_request" "automatic" "gui_visible" "unknown" "audio_owner" "ternuxx-native"
   fi
 }
 

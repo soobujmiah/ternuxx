@@ -47,7 +47,9 @@ class DesktopLifecycleFixtureTests(unittest.TestCase):
         self._write_executable(
             "termux-x11",
             """#!/usr/bin/env python3
-import os, signal, socket, sys, time
+import json, os, signal, socket, sys, time
+with open(os.environ["X11_ARGS_FILE"], "w", encoding="utf-8") as stream:
+    json.dump(sys.argv[1:], stream)
 display = sys.argv[1].lstrip(':')
 path = os.path.join(os.environ['TMPDIR'], '.X11-unix', 'X' + display)
 lock_path = os.path.join(os.environ['TMPDIR'], '.X' + display + '-lock')
@@ -95,7 +97,9 @@ while True:
                 "PREFIX": "/data/data/com.termux/files/usr",
                 "TERNUXX_STATE_DIR": str(self.state),
                 "TERNUXX_LIB_DIR": str(self.lib_dir),
+                "TERNUXX_NO_ACTIVITY_LAUNCH": "1",
                 "FAKE_ENV_FILE": str(self.base / "desktop-loader-path"),
+                "X11_ARGS_FILE": str(self.base / "x11-args.json"),
                 "PATH": f"{self.bin_dir}{os.pathsep}{os.environ['PATH']}",
             }
         )
@@ -158,6 +162,7 @@ while True:
             )
             launcher.chmod(0o755)
         env = self.env.copy()
+        env.pop("TERNUXX_NO_ACTIVITY_LAUNCH", None)
         env.update({
             "PREFIX": str(prefix),
             "ACTIVITY_ARGS_FILE": str(self.base / "activity-args.json"),
@@ -171,11 +176,11 @@ while True:
             env=env, text=True, capture_output=True, timeout=5, check=False,
         )
 
-    def test_x11_activity_request_uses_fixed_component_and_keeps_visibility_unknown(self) -> None:
+    def test_x11_activity_request_uses_legacy_compatible_component_and_keeps_visibility_unknown(self) -> None:
         result = self._run_activity_request(launcher_available=True)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertIn("Requested the Termux:X11 activity", result.stderr)
-        self.assertIn("actual GUI visibility remains unknown", result.stderr)
+        self.assertIn("Requested the Termux:X11 Activity", result.stderr)
+        self.assertIn("Android GUI visibility still needs visual confirmation", result.stderr)
         self.assertEqual(
             json.loads((self.base / "activity-args.json").read_text(encoding="utf-8")),
             ["start", "--user", "0", "-n", "com.termux.x11/com.termux.x11.MainActivity"],
@@ -184,14 +189,14 @@ while True:
     def test_x11_activity_rejection_reports_manual_open_fallback(self) -> None:
         result = self._run_activity_request(launcher_available=True, launcher_exit=1)
         self.assertEqual(result.returncode, 1)
-        self.assertIn("did not accept the Termux:X11 activity request", result.stderr)
-        self.assertIn("Open Termux:X11 manually", result.stderr)
+        self.assertIn("did not accept the window request", result.stderr)
+        self.assertIn("https://github.com/termux/termux-x11/releases", result.stderr)
 
     def test_missing_x11_activity_launcher_reports_manual_open_fallback(self) -> None:
         result = self._run_activity_request(launcher_available=False)
         self.assertEqual(result.returncode, 1)
-        self.assertIn("activity launcher is unavailable", result.stderr)
-        self.assertIn("Open Termux:X11 manually", result.stderr)
+        self.assertIn("Termux:X11 could not be opened", result.stderr)
+        self.assertIn("https://github.com/termux/termux-x11/releases", result.stderr)
         self.assertFalse((self.base / "activity-args.json").exists())
 
     def test_stale_running_record_is_read_as_stale_then_reconciled_before_start(self) -> None:
@@ -258,7 +263,7 @@ while True:
         self.assertIn("holds the session lock", result.stderr)
         self.assertFalse((self.state / "session.json").exists())
 
-    def test_start_repeat_and_status_do_not_request_android_activity(self) -> None:
+    def test_start_repeat_requests_android_activity_without_changing_desktop_identity(self) -> None:
         marker = self.base / "activity-requested"
         env = self.env.copy()
         env["ACTIVITY_MARKER"] = str(marker)
@@ -274,7 +279,7 @@ bash -c "$runner" _ status
                                 text=True, capture_output=True, timeout=12, check=False)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("Ternuxx-managed; inspect with tx audio status", result.stdout)
-        self.assertFalse(marker.exists())
+        self.assertTrue(marker.exists())
         session = self._state()
         self.assertEqual(session["status"], "running")
         supervisor_pid = int(session["supervisor"]["pid"])
@@ -285,6 +290,7 @@ bash -c "$runner" _ status
         result = self._run("start")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(self._state()["display"], ":1")
+        self.assertEqual(json.loads((self.base / "x11-args.json").read_text(encoding="utf-8")), [":1"])
         loader_path = (self.base / "desktop-loader-path").read_text(encoding="utf-8")
         self.assertEqual(loader_path, f"{self.env['PREFIX']}/lib")
         self.assertFalse((self.tmp / ".X0-lock").exists())

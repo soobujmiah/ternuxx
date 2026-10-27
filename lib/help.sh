@@ -75,8 +75,8 @@ an exact stop plan; apply it with
 `tx proot stop SESSION_ID --yes --plan-id ID`. `tx db [--user NAME]` opens an owned
 interactive Debian login and asks for an account only when multiple ordinary accounts exist;
 `tx pgui [--user NAME]` starts Debian XFCE by default and prompts for an account when needed;
-`tx pgui DE` selects an installed desktop. `tx pgui stop` closes managed standalone `:0` and nested `:2` sessions; Native `:1` remains running. `tx stop` closes a cooperative nested guest first, then stops Native `:1`.
-`tx gui` starts the Native desktop when stopped, then opens the GTK center.
+`tx pgui DE` selects an installed desktop. Standalone `:0` opens Termux:X11 after readiness; nested Xephyr `:2` appears inside Native `:1` without opening another window. `tx pgui stop` closes managed standalone `:0` and nested `:2` sessions; Native `:1` remains running. `tx stop` closes a cooperative nested guest first, then stops Native `:1`.
+`tx gui` starts the Native desktop when stopped, opens its Termux:X11 window automatically, then opens the GTK center.
 `tx mng app launch --desktop-id APP.desktop --display :N` launches an
 allowlisted Debian XFCE application through the shared guest service.
 `tx proot shortcuts list` inspects launcher state; `preview add|remove APP_ID`
@@ -106,8 +106,8 @@ EOF
       ;;
     start) cat <<'EOF'
 tx start — Start the Native Termux:X11/XFCE desktop
-The command starts only the verified Native desktop process group and records
-private session state. It does not open the Android X11 Activity automatically.
+The command starts only the verified Native desktop process group, records
+private session state, and opens its Termux:X11 window automatically.
 Run `tx status` to inspect the saved session and `tx stop` to stop it.
 EOF
       ;;

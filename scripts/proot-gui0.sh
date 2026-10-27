@@ -86,7 +86,7 @@ fi
 usage() { cat <<'USAGE'
 Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|plasma] [--alias debian|ubuntu|ternuxx-replay-NAME] [--user NAME]|status|stop]
 Auto uses standalone :0 when Native GUI is stopped, otherwise nested Xephyr :2 inside Native :1.
-Standalone and Native desktop sessions cannot run together. Nested mode holds the lifecycle lock until closed; tx pgui stop closes the managed nested GUI while leaving Native :1 running.
+Standalone and Native desktop sessions cannot run together. Standalone :0 opens Termux:X11 after readiness; nested :2 uses the existing Native window and does not open another. Nested mode holds the lifecycle lock until closed; tx pgui stop closes the managed nested GUI while leaving Native :1 running.
 Choose an installed environment with `tx pgui ID` or `tx pgui start --desktop ID`; XFCE is the default when installed.
 The canonical Debian guest is the default. Ubuntu requires a Ternuxx install receipt; receipt-verified replay aliases can use standalone :0 or nested :2 with `--alias`.
 Use tx pgui graphics verify to inspect the selected guest GUI's GLES, GLX, and Vulkan devices.
@@ -97,6 +97,19 @@ inspect() { python3 "$STATE_HELPER" inspect "$HOME" "$STATE_DIR" /proc "$TMP_ROO
 acquire_lifecycle_lock() { python3 "$LIFECYCLE_LOCK_HELPER" acquire "$1" "$HOME" /proc "$TMP_ROOT" "$$" "$2"; }
 release_lifecycle_lock() { python3 "$LIFECYCLE_LOCK_HELPER" release "$1" /proc "$$" >/dev/null 2>&1 || true; }
 json_state() { python3 -c 'import json,sys; print(json.load(sys.stdin).get("state","unknown"))' <<<"$1" 2>/dev/null || printf '%s\n' "${2:-unknown}"; }
+open_standalone_x11() {
+  local termux_am="$PREFIX/bin/am"
+  if [ ! -x "$termux_am" ]; then
+    echo "Termux:X11 could not be opened. Install it from https://github.com/termux/termux-x11/releases, then run 'tx pgui'." >&2
+    return 1
+  fi
+  if "$termux_am" start --user 0 -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1; then
+    echo "Requested the standalone PRoot Termux:X11 Activity; visual visibility still needs confirmation."
+    return 0
+  fi
+  echo "Termux:X11 did not accept the standalone PRoot window request. Check/install https://github.com/termux/termux-x11/releases, then run 'tx pgui'." >&2
+  return 1
+}
 state_value() { python3 - "$STATE_FILE" "$1" <<'PY'
 import json,sys
 try:
@@ -317,7 +330,7 @@ GUEST
         GALLIUM_DRIVER=zink MESA_LOADER_DRIVER_OVERRIDE=zink TU_DEBUG=sysmem,noconform MESA_VK_WSI_DEBUG=sw
         MESA_DISK_CACHE_SINGLE_FILE=1 MESA_SHADER_CACHE_MAX_SIZE=2048M QT_X11_NO_MITSHM=1 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
         /bin/bash -c "$guest_script")
-      printf "Starting %s %s nested in Native :1 through Xephyr :2 at Native display geometry. Use Termux:X11 fullscreen/orientation controls; the Xephyr host window is resizable. Press Ctrl-C in this terminal to close only the nested desktop.\n" "$DISTRO_ID" "$DESKTOP_ID"
+      printf "Starting %s %s nested in Native :1 through Xephyr :2 at Native display geometry. It appears inside the existing Native Termux:X11 window; no second X11 window is opened. Use Termux:X11 fullscreen/orientation controls; the Xephyr host window is resizable. Press Ctrl-C in this terminal to close only the nested desktop.\n" "$DISTRO_ID" "$DESKTOP_ID"
       python3 "$ROOT/lib/session_exec.py" env -u DBUS_SYSTEM_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS -u DBUS_SESSION_BUS_PID -u DBUS_STARTER_ADDRESS -u DBUS_STARTER_BUS_TYPE -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE -u LD_LIBRARY_PATH -u LD_PRELOAD "$PREFIX/bin/proot-distro" "${args[@]}" &
       nested_pid=$!
       nested_shutdown() {
@@ -347,6 +360,7 @@ GUEST
     current_state="$(json_state "$current" unknown)"
     if [ "$current_state" = running ]; then
       echo "Ternuxx standalone PRoot GUI is already running on :0."
+      open_standalone_x11 || true
       exit 0
     fi
     case "$current_state" in
@@ -411,6 +425,7 @@ PY
     fi
     echo "Graphics: $DISTRO_ID Zink/Turnip is configured per guest process; inspect the running GUI with 'tx pgui graphics verify'."
     echo "Audio: uses the authenticated Ternuxx Native PulseAudio client endpoint; the server remains Native-owned."
+    open_standalone_x11 || true
     ;;
 
   stop)

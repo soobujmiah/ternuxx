@@ -110,7 +110,7 @@ They enter directly without repeated confirmation. If multiple ordinary guest
 accounts exist, Ternuxx asks which one to use; `tx db --user NAME` selects one
 explicitly. Reinstall can set up an ordinary account in an existing root-only
 guest while preserving its rootfs. `tx pgui --user NAME` selects an existing account explicitly.
-`tx gui` starts the Native desktop if it is stopped, then opens the GTK management center.
+`tx gui` starts the Native desktop if it is stopped, automatically opens the Termux:X11 window, then opens the GTK management center.
 Kali remains unavailable until its provider is qualified.
 
 For the qualified Adreno 825 route, the managed GPU wizard offers a checksum-pinned

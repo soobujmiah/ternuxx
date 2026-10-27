@@ -99,6 +99,19 @@ class ProotGuiRoutingTests(unittest.TestCase):
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
         self.assertIn('nohup setsid env TERNUXX_PROOT_USER="$guest_user" TERNUXX_PULSE_COOKIE="$cookie" TERNUXX_DESKTOP_ID="$DESKTOP_ID"', script)
 
+    def test_standalone_route_opens_its_x11_activity(self) -> None:
+        script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
+        supervisor = (ROOT / "lib/desktop-supervisor.sh").read_text(encoding="utf-8")
+        self.assertIn('start --user 0 -n com.termux.x11/com.termux.x11.MainActivity', script)
+        self.assertIn('"$OWNED_EXEC_BIN" "$X11_BIN" "$DISPLAY_VALUE"', supervisor)
+        self.assertNotIn('-tag', supervisor)
+        self.assertNotIn('-d ternuxx-proot', script)
+        self.assertIn('https://github.com/termux/termux-x11/releases', script)
+
+    def test_nested_route_uses_existing_native_window_without_opening_another(self) -> None:
+        script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
+        self.assertIn('It appears inside the existing Native Termux:X11 window; no second X11 window is opened.', script)
+
     def test_standalone_desktop_gets_private_system_bus_and_session_identity(self) -> None:
         wrapper = (ROOT / "lib/proot-xfce-wrapper.sh").read_text(encoding="utf-8")
         self.assertIn('dbus-daemon --session --address="$system_bus_address" --nofork', wrapper)

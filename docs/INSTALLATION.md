@@ -235,7 +235,7 @@ tx web
 tx gui
 ```
 
-`tx gui` starts the Native desktop when it is stopped, then opens the GTK center. The Web UI binds to loopback and requires its authenticated setup flow. The TUI, Web UI, and GTK center expose only the operations implemented for each client through the shared management service. Check current support in the [capability matrix](architecture/CAPABILITY-MATRIX.md).
+`tx gui` starts the Native desktop when it is stopped, opens its Termux:X11 window automatically, then opens the GTK center. The Web UI binds to loopback and requires its authenticated setup flow. The TUI, Web UI, and GTK center expose only the operations implemented for each client through the shared management service. Check current support in the [capability matrix](architecture/CAPABILITY-MATRIX.md).
 
 ## SSH and recovery
 
