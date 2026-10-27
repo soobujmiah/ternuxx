@@ -104,7 +104,7 @@ open_standalone_x11() {
     return 1
   fi
   if "$termux_am" start --user 0 -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1; then
-    echo "Requested the standalone PRoot Termux:X11 Activity; visual visibility still needs confirmation."
+    echo "Termux:X11 launch requested."
     return 0
   fi
   echo "Termux:X11 did not accept the standalone PRoot window request. Check/install https://github.com/termux/termux-x11/releases, then run 'tx pgui'." >&2
@@ -132,7 +132,7 @@ case "$ACTION" in
       echo "Standalone managed guest GUI: stopped; target display :0"
     else
       report="$(inspect)" || { echo "PRoot GUI ownership is unknown or unsafe; state preserved." >&2; exit 1; }
-      python3 -c 'import json,sys; d=json.load(sys.stdin); state=d.get("state"); display=d.get("display",":0"); detail=d.get("reason","unknown"); readiness=d.get("desktop_readiness",{}); missing=readiness.get("missing_processes",[]); rstate=readiness.get("state","unknown"); print(("Standalone managed guest GUI: %s on %s; selected desktop shell/WM/panel check %s%s" % ("running" if rstate=="ready" else "process group live",display,rstate,("; missing "+", ".join(missing)) if missing else "")) if state=="running" else "Standalone managed guest GUI: state={state} display={display} detail={detail}".format(state=state,display=display,detail=detail))' <<<"$report"
+      python3 -c 'import json,sys; d=json.load(sys.stdin); state=d.get("state"); display=d.get("display",":0"); detail=d.get("reason","unknown"); readiness=d.get("desktop_readiness",{}); missing=readiness.get("missing_processes",[]); rstate=readiness.get("state","unknown"); summary="Standalone managed guest GUI: running on %s; passed shell, window-manager, panel and desktop process checks%s. Android visibility remains unverified." % (display,("; missing "+", ".join(missing)) if missing else "") if state=="running" and rstate=="ready" else "Standalone managed guest GUI: state={state} display={display} detail={detail}".format(state=state,display=display,detail=detail); print(summary)' <<<"$report"
     fi
     if [ -S "$TMP_ROOT/.X11-unix/X2" ]; then
       echo "Nested display :2 socket exists; socket presence alone does not establish session ownership."
@@ -359,7 +359,9 @@ GUEST
     current="$(inspect 2>/dev/null || true)"
     current_state="$(json_state "$current" unknown)"
     if [ "$current_state" = running ]; then
-      echo "Ternuxx standalone PRoot GUI is already running on :0."
+      running_alias="$(state_value guest_alias 2>/dev/null || printf '%s' "$DISTRO_ID")"
+      running_desktop="$(state_value desktop_id 2>/dev/null || printf '%s' "$DESKTOP_ID")"
+      printf '%s %s already running on :0.\n' "$running_alias" "$running_desktop"
       open_standalone_x11 || true
       exit 0
     fi
@@ -376,7 +378,7 @@ PY
         [ ! -e "$archive" ] || { echo "Failed-session archive already exists; preserving state." >&2; exit 1; }
         mv -- "$STATE_FILE" "$archive"
         chmod 600 "$archive"
-        echo "Archived the verified failed startup record; no recorded process or display artifact remains."
+        echo "Recovered the previous failed startup state."
         ;;
       stale)
         old_x11="$(state_value x11.pid)"
@@ -417,14 +419,12 @@ PY
       sleep 1
     done
     if [ "$desktop_ready" -eq 1 ]; then
-      printf "Ternuxx-owned %s %s session passed shell, window-manager, panel and desktop process checks on standalone display :0. Android visibility remains unverified.\n" "$DISTRO_ID" "$DESKTOP_ID"
+      printf '%s %s ready on :0.\n' "$DISTRO_ID" "$DESKTOP_ID"
     else
       missing="$(python3 -c 'import json,sys; print(", ".join(json.load(sys.stdin).get("desktop_readiness",{}).get("missing_processes",[])))' <<<"$report" 2>/dev/null || true)"
       echo "The managed session group is live, but $DESKTOP_ID desktop readiness is incomplete${missing:+; missing $missing}. The session was left running; inspect with 'tx pgui status' and do not infer a usable desktop." >&2
       exit 1
     fi
-    echo "Graphics: $DISTRO_ID Zink/Turnip is configured per guest process; inspect the running GUI with 'tx pgui graphics verify'."
-    echo "Audio: uses the authenticated Ternuxx Native PulseAudio client endpoint; the server remains Native-owned."
     open_standalone_x11 || true
     ;;
 

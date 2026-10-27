@@ -25,6 +25,17 @@ the exact recorded process group. The current session records are `failed` with 
 X11 socket/process remaining. No assistant cleanup was performed. Re-run after CI
 passes to verify server startup and Activity foregrounding on this exact installed version.
 
+## PRoot desktop defaults and concise launch output — 2026-10-28
+
+Fresh/add-on guest setup now seeds VLC's XCB X11 video output and carries the
+selected XFCE wallpaper into standalone and nested per-session configuration.
+Existing guest wallpaper takes precedence; otherwise setup copies the current
+Native XFCE wallpaper only when its image is available inside the Termux home.
+The same defaults are repaired when an account is provisioned and on XFCE start.
+Normal `tx pgui` output reports the selected desktop and display plus the X11
+launch request; graphics/audio setup details remain available through dedicated
+checks instead of repeating on every successful launch.
+
 ## Native media packages and nested GUI lock follow-up — 2026-10-28
 
 Native optional software now includes Blender 4.5 through the signed TUR

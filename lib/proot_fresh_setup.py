@@ -862,6 +862,17 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                 raise FreshSetupError("installed Turnip driver does not match the pinned artifact")
         _verify_owned_target(prefix, alias, owned)
         _verify_owned_target(prefix, alias, owned)
+        failure_stage = "desktop-preferences"
+        _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "verifying",
+                                 "stage": failure_stage, "event_log": str(event_log) if event_log else None,
+                                 "rootfs_identity": owned})
+        try:
+            import proot_desktop_preferences
+            desktop_preferences = proot_desktop_preferences.configure_rootfs(
+                rootfs, native_home=Path(home), user=user,
+                enable_xfce="xfce" in plan["desktop_environments"])
+        except (OSError, ValueError) as exc:
+            raise FreshSetupError("guest VLC/XFCE defaults could not be configured") from exc
         try:
             out = proot_packages.version_inventory_text(
                 rootfs, str(manifest.get("package_database", "dpkg-status")),
@@ -894,6 +905,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
             "package_versions_file": str(version_path),
             "existing_debian_rootfs_changed": plan["existing_debian_rootfs_changed"],
             "turnip_installed": bool(turnip_files), "turnip_runtime_verified": False,
+            "desktop_preferences": desktop_preferences,
             "origin": "fresh-preview-confirmed-install",
         }
         record["rootfs_identity"] = owned

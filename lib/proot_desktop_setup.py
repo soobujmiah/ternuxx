@@ -451,8 +451,17 @@ def apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
         if not set(saved["desktop_environments"]).issubset(proot_desktops.installed_desktops(root, provider=proot_profiles.profile_for_alias(alias))):
             proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "failed"})
             raise DesktopSetupError("APT completed but requested desktops are not fully installed")
+        try:
+            import proot_desktop_preferences
+            desktop_preferences = proot_desktop_preferences.configure_rootfs(
+                root, native_home=Path(home), enable_xfce="xfce" in saved["desktop_environments"])
+        except (OSError, ValueError) as exc:
+            proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "failed",
+                                                       "stage": "desktop-preferences"})
+            raise DesktopSetupError("guest VLC/XFCE defaults could not be configured") from exc
         receipt = {"schema_version": 1, "plan_id": plan_id, "alias": alias,
                    "rootfs_identity": identity, "desktop_environments": saved["desktop_environments"],
+                   "desktop_preferences": desktop_preferences,
                    "requested_packages": saved["requested_packages"],
                    "transaction_packages": saved["transaction_packages"],
                    "installed_package_count": len(after), "status": "complete",
@@ -461,6 +470,7 @@ def apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
         proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "complete"})
         return {"status": "complete", "plan_id": plan_id,
                 "desktop_environments": saved["desktop_environments"],
+                "desktop_preferences": desktop_preferences,
                 "installed_package_count": len(after),
                 "transaction_package_count": len(saved["transaction_packages"])}
     finally:

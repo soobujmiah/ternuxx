@@ -106,10 +106,18 @@ def apply(*, prefix, home, state_dir, plan_id, confirmed, password=None, runner=
             raise ValueError('guest rootfs changed during account setup')
         checked=plan(prefix=prefix,home=home,state_dir=state_dir,alias=saved['alias'],user=user,sudo_mode=saved['sudo_mode'])
         if checked['action'] != 'select': raise ValueError('new account could not be verified')
+        import proot_desktop_preferences
+        installed_desktops = desktop.proot_desktops.installed_desktops(
+            root, provider=desktop.proot_profiles.profile_for_alias(saved['alias']))
+        try:
+            desktop_preferences = proot_desktop_preferences.configure_rootfs(
+                root, native_home=Path(home), user=user, enable_xfce='xfce' in installed_desktops)
+        except (OSError, ValueError) as exc:
+            raise ValueError('guest VLC/XFCE defaults could not be configured') from exc
         fresh._private_write(state / ('account-provider-'+saved['alias']+'.json'),
                             dict(schema_version=1,alias=saved['alias'],guest_user=user,rootfs_identity=identity,plan_id=plan_id))
         fresh._private_write(journal,{'state':'complete','plan_id':plan_id})
-        return {'status':'account_ready','user':user,'alias':saved['alias']}
+        return {'status':'account_ready','user':user,'alias':saved['alias'],'desktop_preferences':desktop_preferences}
     finally:
         os.close(fd)
 

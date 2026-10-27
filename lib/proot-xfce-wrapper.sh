@@ -76,6 +76,9 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
     chmod 700 "$state" "$state/config" "$state/cache" "$state/data" "$state/runtime"
     export XDG_CONFIG_HOME="$state/config" XDG_CACHE_HOME="$state/cache"
     export XDG_DATA_HOME="$state/data" XDG_RUNTIME_DIR="$state/runtime"
+    if [ "$TERNUXX_DESKTOP_ID" = xfce ] && [ -f "${TERNUXX_REPO_ROOT:-}/lib/proot_desktop_preferences.py" ]; then
+      python3 "$TERNUXX_REPO_ROOT/lib/proot_desktop_preferences.py" --runtime-home "$HOME" --config-home "$XDG_CONFIG_HOME" >/dev/null 2>&1 || echo "Could not apply the saved VLC/XFCE defaults; continuing desktop startup." >&2
+    fi
     if [ "$TERNUXX_DESKTOP_ID" = lxqt ]; then
       [ -n "${TERNUXX_REPO_ROOT:-}" ] && [ -f "$TERNUXX_REPO_ROOT/lib/proot-lxqt-session.sh" ] || { echo "Ternuxx LXQt session defaults are unavailable." >&2; exit 1; }
       . "$TERNUXX_REPO_ROOT/lib/proot-lxqt-session.sh"
