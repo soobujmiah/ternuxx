@@ -56,8 +56,19 @@ _nt_pick() (
       height=$((_NT_WINDOW_LOG_LAST - _NT_WINDOW_LOG_FIRST))
       [ "$height" -gt 0 ] || height=1
     fi
-    local summary_count=${#_NT_PICK_SUMMARY[@]}
-    height=$((height - summary_count))
+    local -a wrapped_summary=() display_items=("${items[@]}")
+    local summary_line wrapped_line summary_height=0
+    if [ "$mode" = view ]; then
+      display_items=()
+      for item in "${items[@]}"; do
+        while IFS= read -r wrapped_line; do display_items+=("line|$wrapped_line"); done < <(printf '%s\n' "${item#*|}" | fold -s -w "$((columns - 4))")
+      done
+    fi
+    for summary_line in "${_NT_PICK_SUMMARY[@]}"; do
+      while IFS= read -r wrapped_line; do wrapped_summary+=("$wrapped_line"); done < <(printf '%s\n' "$summary_line" | fold -s -w "$((columns - 2))")
+    done
+    summary_height=${#wrapped_summary[@]}
+    height=$((height - summary_height))
     [ "$height" -gt 0 ] || height=1
     [ "$index" -ge "$offset" ] || offset="$index"
     [ "$index" -lt "$((offset + height))" ] || offset=$((index - height + 1))
@@ -72,22 +83,25 @@ _nt_pick() (
         printf '%.*s\r\n' "$((columns - 1))" "$hint" >&3
         printf '%.*s\r\n%.*s\r\n%.*s\r\n' "$((columns - 1))" '-------------------------------------------------------------------------------' "$((columns - 1))" "$title" "$((columns - 1))" '-------------------------------------------------------------------------------' >&3
       fi
-      for item in "${_NT_PICK_SUMMARY[@]}"; do
+      for item in "${wrapped_summary[@]}"; do
         printf '\033[38;5;114m%.*s\033[0m\r\n' "$((columns - 1))" "$item" >&3
       done
-      for ((i=offset; i<${#items[@]} && i<offset+height; i++)); do
-        mark=' '; [ "${selected[$i]}" = 0 ] || mark=x
+      for ((i=offset; i<${#display_items[@]} && i<offset+height; i++)); do
+        mark=' '; [ "${selected[$i]:-0}" = 0 ] || mark=x
         if [ "$i" = "$index" ]; then printf '\033[1;38;5;46m> ' >&3; else printf '  ' >&3; fi
         if [ "$mode" = view ]; then
-          printf '%.*s\033[0m\r\n' "$((columns - 3))" "${items[$i]#*|}" >&3
+          printf '%.*s\033[0m\r\n' "$((columns - 3))" "${display_items[$i]#*|}" >&3
         else
-          printf '[%s] %.*s\033[0m\r\n' "$mark" "$((columns - 7))" "${items[$i]#*|}" >&3
+          printf '[%s] %.*s\033[0m\r\n' "$mark" "$((columns - 7))" "${display_items[$i]#*|}" >&3
         fi
       done
       count=0
       for i in "${selected[@]}"; do count=$((count + i)); done
       local position="$((index + 1))/${#items[@]} | $count selected | Home/End, PgUp/PgDn"
-      [ "$mode" != view ] || position="Line $((index + 1))/${#items[@]} | Read-only | Home/End, PgUp/PgDn"
+      if [ "$mode" = single ] && [ "${#_NT_PICK_SUMMARY[@]}" -gt 0 ]; then
+        position="Choice $((index + 1)) of ${#items[@]} | Up/Down choose | Enter confirm | Esc cancel"
+      fi
+      [ "$mode" != view ] || position="Line $((index + 1))/${#display_items[@]} | Read-only | Home/End, PgUp/PgDn"
       printf '\033[2K\033[38;5;114m%.*s\033[0m' "$((columns - 1))" "$position" >&3
     elif [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
       _nt_window_footer
@@ -117,12 +131,12 @@ _nt_pick() (
           [[ "$tail" = [A-Za-z~] ]] && break
         done
         case "$sequence" in
-          A|[0-9]*A) index=$(((index + ${#items[@]} - 1) % ${#items[@]})) ;;
-          B|[0-9]*B) index=$(((index + 1) % ${#items[@]})) ;;
+          A|[0-9]*A) index=$(((index + ${#display_items[@]} - 1) % ${#display_items[@]})) ;;
+          B|[0-9]*B) index=$(((index + 1) % ${#display_items[@]})) ;;
           H|1~|7~) index=0 ;;
-          F|4~|8~) index=$((${#items[@]} - 1)) ;;
+          F|4~|8~) index=$((${#display_items[@]} - 1)) ;;
           5~) index=$((index - height)); [ "$index" -ge 0 ] || index=0 ;;
-          6~) index=$((index + height)); [ "$index" -lt "${#items[@]}" ] || index=$((${#items[@]} - 1)) ;;
+          6~) index=$((index + height)); [ "$index" -lt "${#display_items[@]}" ] || index=$((${#display_items[@]} - 1)) ;;
         esac ;;
       ' ')
         [ "$mode" != view ] || continue

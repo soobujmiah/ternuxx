@@ -2,7 +2,7 @@
 # Missing candidates fail the existing exact-plan resolver; no alternate repo is added.
 _NT_NATIVE_APP_CATALOG=(
   'browser|Internet: Firefox browser|firefox|termux-x11'
-  'music|Media: Audacious music player|audacious|termux-x11'
+  'music|Media: Audacious music player|audacious audacious-plugins|termux-x11'
   'images|Graphics: Ristretto image viewer|ristretto|termux-x11'
   'pdf|Office: Evince PDF viewer|evince|termux-x11'
   'editor|Editors: Mousepad|mousepad|termux-x11'

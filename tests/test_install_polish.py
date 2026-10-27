@@ -27,9 +27,9 @@ class PolishTests(unittest.TestCase):
 
     def test_native_catalog_resolves_new_apps_and_correct_official_sources(self):
         with tempfile.TemporaryDirectory() as tmp:
-            result = self.shell('''_nt_select_install_profile custom gimp,krita,inkscape,ncdu,ai-codex,ai-hermes,nodejs || exit $?
+            result = self.shell('''_nt_select_install_profile custom gimp,krita,inkscape,ncdu,ai-codex,ai-hermes,nodejs,music || exit $?
 printf 'PACKAGES=%s\\n' "${_NT_BASE_PACKAGES[*]}"
-for package in mpv gnuplot octave nodejs-lts gimp krita; do
+for package in mpv gnuplot octave nodejs-lts gimp krita audacious audacious-plugins; do
  printf '%s=%s\\n' "$package" "$(_nt_native_app_repository "$package")"
 done
 _nt_native_app_lookup 'not-an-app; touch unsafe' && exit 90
@@ -37,7 +37,7 @@ exit 0
 ''', Path(tmp))
             self.assertEqual(result.returncode, 0, result.stderr)
             packages = result.stdout.splitlines()[0].split('=', 1)[1].split()
-            for package in ('gimp', 'krita', 'inkscape', 'ncdu', 'nodejs-lts', 'gnupg'):
+            for package in ('gimp', 'krita', 'inkscape', 'ncdu', 'nodejs-lts', 'gnupg', 'audacious', 'audacious-plugins'):
                 self.assertIn(package, packages)
             self.assertEqual(len(packages), len(set(packages)))
             for package in ('mpv', 'gnuplot', 'octave', 'nodejs-lts'):

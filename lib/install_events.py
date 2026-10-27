@@ -79,3 +79,72 @@ def run(argv,*,timeout,env,idle_timeout=180,log_path=None):
                 try:os.killpg(proc.pid,signal.SIGKILL)
                 except ProcessLookupError:pass
                 proc.wait()
+
+
+_STREAM_LOG_LIMIT = 16 * 1024 * 1024
+
+
+def _private_log(path, *, truncate=False):
+    flags = os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC
+    flags |= os.O_TRUNC if truncate else os.O_APPEND
+    fd = os.open(path, flags, 0o600)
+    info = os.fstat(fd)
+    if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid():
+        os.close(fd)
+        raise ValueError("installer output log is not a regular file owned by this user")
+    os.fchmod(fd, 0o600)
+    return fd
+
+
+def relay_log(path):
+    """Sanitize command output, stream it to the UI, and retain a bounded private copy."""
+    fd = _private_log(path)
+    size = os.fstat(fd).st_size
+    truncated = size >= _STREAM_LOG_LIMIT
+    try:
+        for raw in sys.stdin:
+            line = clean(raw.rstrip("\r\n")) + "\n"
+            rendered = line.encode()
+            sys.stdout.write(line)
+            sys.stdout.flush()
+            if not truncated:
+                room = _STREAM_LOG_LIMIT - size
+                if len(rendered) <= room:
+                    os.write(fd, rendered)
+                    size += len(rendered)
+                else:
+                    if room > 0:
+                        os.write(fd, rendered[:room])
+                        size += room
+                    marker = "\n[INFO] Live installer log reached its 16 MiB limit; output continues in the terminal.\n".encode()
+                    if len(marker) <= _STREAM_LOG_LIMIT - size:
+                        os.write(fd, marker)
+                    truncated = True
+    finally:
+        os.close(fd)
+
+
+def initialize_log(path):
+    fd = _private_log(path, truncate=True)
+    os.close(fd)
+
+
+def append_log(path, message):
+    fd = _private_log(path)
+    try:
+        current = os.fstat(fd).st_size
+        if current < _STREAM_LOG_LIMIT:
+            os.write(fd, (clean(message) + "\n").encode()[:_STREAM_LOG_LIMIT - current])
+    finally:
+        os.close(fd)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) == 3 and sys.argv[1] == "init":
+        initialize_log(sys.argv[2])
+    elif len(sys.argv) == 4 and sys.argv[1] == "append":
+        append_log(sys.argv[2], sys.argv[3])
+    elif len(sys.argv) == 3 and sys.argv[1] == "relay":
+        relay_log(sys.argv[2])
+    else:
+        raise SystemExit("usage: install_events.py init|relay PATH | append PATH MESSAGE")

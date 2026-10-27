@@ -61,12 +61,21 @@ _nt_master_guest_preview() {
 
 _nt_master_review() {
   local folder="$1" plan="$2" choice line result=0
-  local -a _NT_PICK_SUMMARY=()
+  local -a _NT_PICK_SUMMARY=() details=()
   while IFS= read -r line; do _NT_PICK_SUMMARY+=("$line"); done < <(python3 "${root:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}/lib/install_master_plan.py" summary "$folder" "$plan")
   [ "${#_NT_PICK_SUMMARY[@]}" -gt 0 ] || return 2
-  choice="$(_NT_WINDOW_ACTIVE=0 _nt_pick 'Ready to install — review selections and estimated space' single '' \
-    'approve|Install everything shown; accept estimated/unknown sizes' \
-    'cancel|Cancel without workstation installation')" || result=$?
+  while :; do
+    choice="$(_NT_WINDOW_ACTIVE=0 _nt_pick 'Review plan — choose an action' single '' \
+      'approve|Install everything listed (accept unresolved size estimates)' \
+      'details|View full package and size report' \
+      'cancel|Cancel — do not install')" || result=$?
+    [ "$result" = 0 ] || break
+    [ "$choice" = details ] || break
+    details=()
+    while IFS= read -r line; do details+=("line|$line"); done <"$folder/report.txt"
+    [ "${#details[@]}" -gt 0 ] || return 2
+    _nt_pick 'Detailed plan report — Enter/Esc returns to review' view '' "${details[@]}" >/dev/null || return $?
+  done
   if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
     printf '\033[?1049h' >/dev/tty
     _nt_window_draw
@@ -139,7 +148,12 @@ PY
   declare -g _NT_INSTALL_MASTER_ID="$plan"
   _nt_master_review "$folder" "$plan" || return $?
   python3 "$root/lib/install_master_plan.py" capacity "$folder" "$plan" || return $?
-  _nt_window_stage 'Apply | Native packages + reviewed system upgrades' 'Approved combined plan; live APT output'
+  local distro_count=0
+  for distro in ${_NT_MASTER_DISTROS//,/ }; do distro_count=$((distro_count + 1)); done
+  _NT_WINDOW_APPLY_TOTAL=$((2 + distro_count))
+  [ "$_NT_MASTER_BACKEND" = keep ] || _NT_WINDOW_APPLY_TOTAL=$((_NT_WINDOW_APPLY_TOTAL + 1))
+  _NT_WINDOW_APPLY_INDEX=0; _NT_WINDOW_APPLY_STARTED=$SECONDS
+  _nt_window_stage 'Apply | Native packages + reviewed system upgrades' 'Native package transaction'
   native_id="$(_nt_master_id "$folder/native.part.json")" || return 1
   if [ -n "$native_id" ]; then
     TERNUXX_WIZARD_ACTIVE=1 _nt_window_run nt_cmd_install apply --profile custom --components "$components" --yes --plan-id "$native_id" || return $?
@@ -155,7 +169,7 @@ PY
   _nt_window_run bash "$root/scripts/install-management-center.sh" || return $?
   for distro in ${distros//,/ }; do
     _nt_master_verify "$root" "$folder" "$plan" || return $?
-    _nt_window_stage "Apply | $distro reviewed guest packages and account" 'Approved combined plan; live guest APT output'
+    _nt_window_stage "Apply | $distro reviewed guest packages and account" 'Reviewed guest package transaction'
     _nt_master_apply_guest "$root" "$folder" "$distro" || return $?
   done
   _nt_master_verify "$root" "$folder" "$plan" || return $?

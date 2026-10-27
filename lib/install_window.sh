@@ -8,9 +8,9 @@ _nt_window_size() {
   if [ "$_NT_WINDOW_ROWS" -lt 22 ] || [ "$_NT_WINDOW_COLS" -lt 32 ]; then _NT_WINDOW_TOO_SMALL=1; fi
   [ "$_NT_WINDOW_ROWS" -ge 22 ] || _NT_WINDOW_ROWS=22
   [ "$_NT_WINDOW_COLS" -ge 32 ] || _NT_WINDOW_COLS=32
-  _NT_WINDOW_BRAND_SHIFT=0
-  if [ "$_NT_WINDOW_ROWS" -ge 26 ] && [ "$_NT_WINDOW_COLS" -ge 50 ]; then _NT_WINDOW_BRAND_SHIFT=2; fi
-  if [ "$_NT_WINDOW_ROWS" -ge 30 ] && [ "$_NT_WINDOW_COLS" -ge 60 ]; then _NT_WINDOW_BRAND_SHIFT=4; fi
+  _NT_WINDOW_BRAND_SHIFT=1
+  if [ "$_NT_WINDOW_ROWS" -ge 26 ] && [ "$_NT_WINDOW_COLS" -ge 50 ]; then _NT_WINDOW_BRAND_SHIFT=4; fi
+  if [ "$_NT_WINDOW_ROWS" -ge 30 ] && [ "$_NT_WINDOW_COLS" -ge 60 ]; then _NT_WINDOW_BRAND_SHIFT=6; fi
   _NT_WINDOW_ADDON_ROWS=0
   [ "$_NT_WINDOW_ROWS" -lt 24 ] || _NT_WINDOW_ADDON_ROWS=1
   _NT_WINDOW_SHIFT=$((_NT_WINDOW_BRAND_SHIFT + _NT_WINDOW_ADDON_ROWS))
@@ -33,21 +33,21 @@ _nt_window_center() {
 _nt_window_brand() {
   local -a greens=(46 82 118 154 118 82)
   local color="${greens[$((SECONDS % 6))]}"
-  if [ "${_NT_WINDOW_BRAND_SHIFT:-0}" = 4 ]; then
+  if [ "${_NT_WINDOW_BRAND_SHIFT:-0}" = 6 ]; then
     local row=1 line
     for line in '█████ █████ ████  █   █ █   █ █   █ █   █' '  █   █     █   █ ██  █ █   █  █ █   █ █ ' '  █   ████  ████  █ █ █ █   █   █     █  ' '  █   █     █ █   █  ██ █   █  █ █   █ █ ' '  █   █████ █  ██ █   █  ███  █   █ █   █'; do
       _nt_window_center "$row" "$line" "${greens[$(((SECONDS + row) % 6))]}"
       row=$((row + 1))
     done
-    _nt_window_center 6 'W o r k s t a t i o n  I n  Y o u r  H a n d' 114
-  elif [ "${_NT_WINDOW_BRAND_SHIFT:-0}" = 2 ]; then
+    _nt_window_center 7 'W o r k s t a t i o n  I n  Y o u r  H a n d' 114
+  elif [ "${_NT_WINDOW_BRAND_SHIFT:-0}" = 4 ]; then
     _nt_window_center 1 '╺┳╸ ┏━╸ ┏━┓ ┏┓╻ ╻ ╻ ╻ ╻ ╻ ╻' "$color"
     _nt_window_center 2 ' ┃  ┣╸  ┣┳┛ ┃┗┫ ┃ ┃  ╳   ╳ ' "${greens[$(((SECONDS + 1) % 6))]}"
     _nt_window_center 3 ' ╹  ┗━╸ ╹┗╸ ╹ ╹ ┗━┛ ╹ ╹ ╹ ╹' "${greens[$(((SECONDS + 2) % 6))]}"
-    _nt_window_center 4 'Workstation In Your Hand' 114
+    _nt_window_center 5 'Workstation In Your Hand' 114
   else
     _nt_window_center 1 TERNUXX "$color"
-    _nt_window_center 2 'Workstation In Your Hand' 114
+    _nt_window_center 3 'Workstation In Your Hand' 114
   fi
 }
 
@@ -83,11 +83,11 @@ _nt_window_section() {
 
 _nt_window_progress() {
   local label="$1" done='' pending='' n
-  if [[ "$label" =~ ^([1-7])/7 ]]; then
-    for ((n=1;n<=7;n++)); do
-      if [ "$n" -le "${BASH_REMATCH[1]}" ]; then done+='#'; else pending+='.'; fi
-    done
-    label="[$done$pending] $label"
+  if [ "${_NT_WINDOW_APPLY_TOTAL:-0}" -gt 0 ]; then
+    local percent=$((100 * ${_NT_WINDOW_APPLY_INDEX:-0} / _NT_WINDOW_APPLY_TOTAL))
+    local filled=$((12 * percent / 100))
+    for ((n=0;n<12;n++)); do if [ "$n" -lt "$filled" ]; then done+='#'; else pending+='.'; fi; done
+    label="[$done$pending] ${percent}% | $label"
   fi
   _nt_window_section "$((12 + _NT_WINDOW_SHIFT))" "$label"
 }
@@ -106,14 +106,21 @@ _nt_window_snapshot() {
   _NT_WINDOW_KERNEL="$(uname -r)"
   _NT_WINDOW_ABI="$(uname -m)"
   _NT_WINDOW_ADDONS='Android visibility unknown'
-  local packages name package
-  if packages="$(timeout 3 /system/bin/pm list packages com.termux 2>/dev/null)" && [[ "$packages" = *package:* ]]; then
-    _NT_WINDOW_ADDONS=''
-    while IFS='|' read -r package name; do
-      if [[ $'\n'"$packages"$'\n' = *$'\n'"package:$package"$'\n'* ]]; then
-        _NT_WINDOW_ADDONS+="${_NT_WINDOW_ADDONS:+ · }$name"
-      fi
-    done <<'ADDONS'
+  local packages name package path addon_query_ok=1
+  _NT_WINDOW_ADDONS=''
+  while IFS='|' read -r package name; do
+    path="$(timeout 2 /system/bin/cmd package path "$package" </dev/null 2>/dev/null)"
+    if [[ "$path" != package:* ]]; then
+      path="$(timeout 2 /system/bin/pm path "$package" </dev/null 2>/dev/null)"
+    fi
+    if [[ "$path" = package:* ]]; then
+      _NT_WINDOW_ADDONS+="${_NT_WINDOW_ADDONS:+ · }$name"
+    elif [[ "$path" = *'Unknown package'* || "$path" = *'not found'* || -z "$path" ]]; then
+      :
+    else
+      addon_query_ok=0
+    fi
+  done <<'ADDONS'
 com.termux.boot|Boot
 com.termux.api|API
 com.termux.styling|Styling
@@ -122,7 +129,9 @@ com.termux.window|Float
 com.termux.tasker|Tasker
 com.termux.x11|X11
 ADDONS
-    _NT_WINDOW_ADDONS="${_NT_WINDOW_ADDONS:-None detected (Android visibility limited)}"
+  if [ -z "$_NT_WINDOW_ADDONS" ]; then
+    if [ "$addon_query_ok" = 1 ]; then _NT_WINDOW_ADDONS='No companion apps detected'
+    else _NT_WINDOW_ADDONS='Android visibility limited'; fi
   fi
 }
 
@@ -130,7 +139,17 @@ _nt_window_footer() {
   [ "${_NT_WINDOW_TOO_SMALL:-0}" != 1 ] || return 0
   local elapsed=$((SECONDS - _NT_WINDOW_STARTED)) left right width
   left="${_NT_WINDOW_PENDING:-Collecting installation choices}"
-  right="$(printf '%02d:%02d' "$((elapsed / 60))" "$((elapsed % 60))")"
+  local eta="estimating"
+  if [ "${_NT_WINDOW_APPLY_INDEX:-0}" -gt 0 ] && [ "${_NT_WINDOW_APPLY_TOTAL:-0}" -gt "${_NT_WINDOW_APPLY_INDEX:-0}" ]; then
+    local apply_elapsed=$((SECONDS - _NT_WINDOW_APPLY_STARTED))
+    local remaining=$((apply_elapsed * (_NT_WINDOW_APPLY_TOTAL - _NT_WINDOW_APPLY_INDEX) / _NT_WINDOW_APPLY_INDEX))
+    eta="~$(printf '%02d:%02d' "$((remaining / 60))" "$((remaining % 60))") rough"
+  fi
+  if [ "$_NT_WINDOW_COLS" -lt 60 ]; then
+    right="ETA $eta | $(printf '%02d:%02d' "$((elapsed / 60))" "$((elapsed % 60))") elapsed"
+  else
+    right="Elapsed $(printf '%02d:%02d' "$((elapsed / 60))" "$((elapsed % 60))") | ETA $eta"
+  fi
   width=$((_NT_WINDOW_COLS - ${#right} - 3))
   printf '\033[s' >/dev/tty
   _nt_window_divider "$((3 + _NT_WINDOW_BRAND_SHIFT))"
@@ -200,6 +219,10 @@ _nt_window_stage() {
   [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ] || return 0
   _NT_WINDOW_INSTALLING=1; _NT_WINDOW_PANE='Review and confirmation'
   _NT_WINDOW_STAGE="$1"; _NT_WINDOW_PENDING="${2:-Review and confirm}"
+  if [[ "$1" = Apply\ \|* ]]; then
+    _NT_WINDOW_APPLY_INDEX=$((${_NT_WINDOW_APPLY_INDEX:-0} + 1))
+    _NT_WINDOW_APPLY_STARTED=${_NT_WINDOW_APPLY_STARTED:-$SECONDS}
+  fi
   local old_size="${_NT_WINDOW_ROWS:-0}:${_NT_WINDOW_COLS:-0}"
   _nt_window_size
   if [ "$_NT_WINDOW_TOO_SMALL" = 1 ]; then _nt_window_draw; return 0; fi
@@ -226,7 +249,11 @@ _nt_window_run() {
   _nt_window_section "$((14 + _NT_WINDOW_SHIFT))" "$_NT_WINDOW_PANE"
   _nt_window_content_clear
   printf 'Running: %s\nCommand output appears below; elapsed time updates in the footer.\n' "${_NT_WINDOW_PENDING:-Current operation}" >/dev/tty
-  "$@" 2>&1 | (
+  local _NT_WINDOW_LOG_FILE="${_NT_WINDOW_LOG_FILE:-${TERNUXX_STATE_DIR:-$HOME/.local/share/ternuxx}/install-live.log}"
+  umask 077
+  local _NT_WINDOW_LIB_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+  python3 "$_NT_WINDOW_LIB_DIR/install_events.py" append "$_NT_WINDOW_LOG_FILE" "===== $(date -u +%Y-%m-%dT%H:%M:%SZ) | ${_NT_WINDOW_STAGE:-Installation} | ${_NT_WINDOW_PENDING:-Current operation} =====" || return 2
+  "$@" 2>&1 | python3 "$_NT_WINDOW_LIB_DIR/install_events.py" relay "$_NT_WINDOW_LOG_FILE" | (
     trap - EXIT
     trap 'exit 130' INT
     trap 'exit 143' TERM HUP
@@ -269,7 +296,8 @@ _nt_window_run() {
   )
   local -a outcomes=("${PIPESTATUS[@]}")
   [ "${outcomes[0]}" = 0 ] || return "${outcomes[0]}"
-  return "${outcomes[1]}"
+  [ "${outcomes[1]}" = 0 ] || return "${outcomes[1]}"
+  return "${outcomes[2]}"
 }
 
 _nt_window_session() (
@@ -285,6 +313,9 @@ _nt_window_session() (
   fi
   _nt_install_lock || return $?
   _NT_WINDOW_ACTIVE=1; _NT_WINDOW_INSTALLING=0; _NT_WINDOW_STARTED=$SECONDS
+  _NT_WINDOW_LOG_FILE="$TERNUXX_STATE_DIR/install-live.log"
+  local _NT_WINDOW_LIB_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+  python3 "$_NT_WINDOW_LIB_DIR/install_events.py" init "$_NT_WINDOW_LOG_FILE" || return 2
   _nt_window_snapshot
   printf '\033[?1049h' >/dev/tty
   _nt_window_draw
@@ -303,7 +334,7 @@ _nt_window_session() (
   _nt_install_diagnostic "$result" || true
   _nt_window_cleanup
   trap - EXIT
-  printf 'TERNUXX installation finished (exit %s). Diagnostic: %s/install-last-result.txt\n' "$result" "$TERNUXX_STATE_DIR"
+  printf 'TERNUXX installation finished (exit %s). Diagnostic: %s/install-last-result.txt; live output: %s\n' "$result" "$TERNUXX_STATE_DIR" "$_NT_WINDOW_LOG_FILE"
   return "$result"
 )
 

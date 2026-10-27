@@ -60,6 +60,8 @@ class MasterTests(unittest.TestCase):
         self.assertIn('debian: fixture | xfce',text)
         self.assertIn('CPU fallback + supported GPU',text)
         self.assertIn('extra disk',text)
+        self.assertIn('Unresolved size estimates (reasons below):', text)
+        self.assertIn('GTK compilation temporary space', text)
         self.assertNotIn('b'*64,text)
         self.assertNotIn('gpu_baseline',text)
 

@@ -44,7 +44,9 @@ _nt_install_diagnostic() {
     printf 'combined_plan_id=%s\n' "${_NT_INSTALL_MASTER_ID:-not-approved}"
     printf 'combined_plan_directory=%s\n' "${_NT_INSTALL_MASTER_FOLDER:-not-created}"
     printf 'architecture=%s\n' "$(uname -m)"
-    printf 'Secrets, account passwords, environment and raw command output are excluded.\n'
+    printf 'Secrets, account passwords and environment are excluded from this summary.\n'
+    printf 'live_output_log=%s\n' "$_NT_WINDOW_LOG_FILE"
+    printf 'The private output log contains sanitized package-manager output.\n'
     printf 'Retry through tx install; remaining packages get a fresh exact plan. Existing guests are preserved.\n'
   } >"$temporary"
   chmod 600 "$temporary"

@@ -58,12 +58,20 @@ Only one renderer is active for a workload, but CPU fallback remains installed.
 Signed metadata refresh is planning work; missing Python/X11 planner prerequisites
 still require clearly labeled bootstrap consent.
 
-One concise final summary shows selected Native components, guest account/desktops/
-apps, known download/extra disk/peak estimates and free storage. Select Install or
-Cancel once. Unresolved rootfs/dependency, graphics and build-scratch sizes are
-explicitly marked unknown and included in that approval. No further questions or
+The final review wraps its selection summary to the terminal width and labels the
+Install, full-report, and Cancel actions. The full read-only package/size report can
+be opened before approval and returned from with Enter/Esc. The summary lists each
+unresolved size reason; unresolved values stay unknown rather than being presented
+as zero. Select Install once to approve the displayed plan. No further questions or
 completion keypress follow. Technical subplan hashes and exact package versions
-remain in the private report for diagnostics, rather than a mandatory viewer.
+remain in the private report for diagnostics.
+
+During apply, the fixed window shows the current phase and an overall phase bar. The
+footer shows elapsed time and a rough remaining-time estimate after at least one
+apply phase completes; phase durations vary, so this is an estimate. Command output
+is also retained in mode-0600 `install-live.log` under the private Ternuxx state
+directory, with terminal control bytes and common URL/query credentials redacted.
+The path is included in `install-last-result.txt` for later review.
 Known storage insufficiency blocks apply; estimates are not a free-space guarantee.
 No workstation/guest packages, launcher or management build apply before approval.
 
@@ -261,7 +269,9 @@ qualification of an AI inference model/backend. Workload acceleration and audibl
 playback still require separate checks.
 
 After choosing guest DEs, select optional apps with arrow keys/Space: browser,
-Audacious, Writer-only, Ristretto, Evince, Mousepad, Xarchiver and VLC. The clean
+Audacious (including its output plugins), Writer-only, Ristretto, Evince, Mousepad,
+Xarchiver and VLC. The shared graphics runtime includes `x11-utils` for reading the
+Native X11 display geometry used by nested Xephyr. The clean
 choice adds no optional apps. Debian uses Firefox ESR; Ubuntu uses Epiphany because
 Noble Firefox delegates to Snap. Writer requests `libreoffice-writer`, not the full
 suite or Calc/Impress. Required shared Writer dependencies are resolved by APT.

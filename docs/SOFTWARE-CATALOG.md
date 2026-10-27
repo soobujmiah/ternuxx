@@ -6,8 +6,9 @@ Ternuxx manages Native Termux packages and optional pinned Debian/Ubuntu guest p
 
 `tx install` offers keyboard-selected optional apps. Up/Down and Space select;
 Home/End and PageUp/PageDown navigate long lists. `none` excludes other choices.
-Native definitions live in `lib/install_catalog.sh`; guest definitions live in
-`lib/proot_software.py`. The existing package engines bind every selected package
+The Native Audacious choice installs both `audacious` and `audacious-plugins` so its
+output backend is present. Native definitions live in `lib/install_catalog.sh`; guest
+definitions live in `lib/proot_software.py`. The existing package engines bind every selected package
 and dependency to a reviewed exact plan. A missing candidate stops preview rather
 than adding another package source.
 

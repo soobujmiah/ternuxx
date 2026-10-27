@@ -118,7 +118,10 @@ def summary(root, plan_id):
         print(distro+': '+account+' | '+', '.join(op.get('desktop_environments',[]))+' | '+', '.join(op.get('apps',op.get('package_groups',[]))))
     print(f"Download >= {record['download_bytes_known']/1048576:.1f} MiB | extra disk >= {record['disk_bytes_known']/1048576:.1f} MiB")
     print(f"Known peak >= {(record['download_bytes_known']+record['disk_bytes_known'])/1048576:.1f} MiB | free {shutil.disk_usage(os.environ['PREFIX']).free/1073741824:.1f} GiB")
-    if record['unknown_estimates']:print('Additional sizes unknown: rootfs/dependencies where unresolved, graphics, build scratch.')
+    if record['unknown_estimates']:
+        print('Unresolved size estimates (reasons below):')
+        for item in record['unknown_estimates']:
+            print('  - '+item)
     print('One approval starts all steps; no further questions. Technical details saved privately.')
 
 

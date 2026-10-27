@@ -14,10 +14,11 @@ class GuestSoftwareTests(unittest.TestCase):
     def test_expanded_catalog_binds_graphics_tools_and_ai_prerequisites(self):
         for distro in ('debian', 'ubuntu'):
             selected = ['blender', 'gimp', 'inkscape', 'krita', 'ncdu', 'ai-codex', 'ai-hermes', 'ai-claude']
-            packages = proot_software.packages(distro, selected)
+            packages = proot_software.packages(distro, selected + ['graphics-runtime'])
             for package in ('blender', 'gimp', 'inkscape', 'krita', 'ncdu', 'nodejs', 'npm', 'libatomic1'):
                 self.assertIn(package, packages)
             self.assertNotIn('claude-code', packages)
+            self.assertIn('x11-utils', packages)
             self.assertEqual(len(packages), len(set(packages)))
             # Agent choices declare prerequisites and recipes, not a hidden curl installer.
             self.assertIn('recipe', proot_software.catalog(distro)['ai-codex'][0])

@@ -2,7 +2,7 @@
 
 # Current Ternuxx state
 
-**Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
+**Reviewed:** 2026-10-27. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
 ## Desktop lifecycle stale-lock recovery — 2026-10-27
 
@@ -26,6 +26,37 @@ for block centering. Successful or failed runs return without a completion keypr
 The latest local installer diagnostic observed during this change recorded exit 0;
 that does not qualify desktop visibility, acceleration or the owner's reported failure.
 No device package/account/service mutation was performed for this source change.
+
+## Installer review and desktop/audio follow-up — 2026-10-27
+
+The owner-reported installer frame clipped long review lines and showed a vague
+unknown-size note. The review now wraps to the terminal width, lists each unresolved
+size reason, and offers the full read-only plan report before the final approval.
+The single-choice row now describes its action/key controls. The apply frame shows
+an overall phase bar, elapsed time and a rough ETA once phase timing is available;
+raw stage output is retained in a private, sanitized `install-live.log` and its path
+is included in the final diagnostic. Branding spacing and Android add-on detection
+were updated to probe allowlisted companion package paths rather than a cross-user
+package list.
+
+The owner's nested GUI log failed because the Debian runtime group did not guarantee
+`x11-utils`, which supplies `xdpyinfo`; that dependency is now included in the
+managed CPU/graphics runtime selection. The Native Audacious log explicitly reported
+that no output plugin was found, so the Native music selection now includes
+`audacious-plugins`. VLC remains installed in the owner's report, but playback and
+GUI launch are not yet verified. The reported `tx gui` refusal followed `tx stop`;
+local read-only status also shows the desktop stopped, so refusing management-center
+launch in that state is expected. A later `tx start` check is required before claiming
+GUI readiness. No desktop or service was started/stopped for this source edit, and
+no package transaction was applied while awaiting CI/local review.
+
+Focused regression checks for installer plans/output logging, package grouping,
+geometry parsing, and terminal streaming passed (48 tests). The complete local
+Termux suite ran 1,308 tests but had 10 PRoot fixture errors and 2 PRoot fixture
+assertion failures: mocked APT fixtures omitted `dbus-x11`, and temporary rootfs
+receipts failed identity validation. These checks do not exercise the changed code;
+clean-run GitHub CI remains the integration gate. Fixture/PTY passes do not establish
+device GUI visibility or audible output.
 
 ## Guest HTTPS timeout and read-only report repair — 2026-10-27
 
