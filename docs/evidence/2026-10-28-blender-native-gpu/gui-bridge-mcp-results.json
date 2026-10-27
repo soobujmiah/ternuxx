@@ -1,0 +1,722 @@
+{
+  "server": "blender-native-gpu",
+  "server_exit_codes": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "initial_status": {
+    "responses": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2024-11-05",
+          "capabilities": {
+            "tools": {}
+          },
+          "serverInfo": {
+            "name": "blender-native-gpu",
+            "version": "0.1.0-native"
+          }
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "tools": [
+            {
+              "name": "gpu_check",
+              "description": "Verify the existing Native Termux Blender GPU path and report whether explicit llvmpipe fallback is available; no display is started.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  }
+                }
+              }
+            },
+            {
+              "name": "render_script",
+              "description": "Run an absolute-path Blender bpy script. backend defaults to gpu and requires accelerated Native Adreno OpenGL; explicitly set backend=software to force llvmpipe fallback. Never switches backends automatically.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "script": {
+                    "type": "string",
+                    "description": "absolute path to the .py script"
+                  },
+                  "blend": {
+                    "type": "string",
+                    "description": "optional .blend to open first"
+                  },
+                  "script_args": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "arguments passed after -- to the script"
+                  },
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  },
+                  "timeout_seconds": {
+                    "type": "integer",
+                    "description": "default 1800"
+                  },
+                  "backend": {
+                    "type": "string",
+                    "enum": [
+                      "gpu",
+                      "software"
+                    ],
+                    "default": "gpu",
+                    "description": "GPU is the default and required mode; software fallback must be explicitly selected."
+                  }
+                },
+                "required": [
+                  "script"
+                ]
+              }
+            },
+            {
+              "name": "render_blend",
+              "description": "Render an existing .blend. backend defaults to gpu and requires accelerated Native Adreno OpenGL; explicitly set backend=software to force llvmpipe fallback. Never switches backends automatically.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "blend": {
+                    "type": "string",
+                    "description": "absolute path to the .blend"
+                  },
+                  "output": {
+                    "type": "string",
+                    "description": "absolute output prefix passed to blender -o"
+                  },
+                  "frame_start": {
+                    "type": "integer"
+                  },
+                  "frame_end": {
+                    "type": "integer"
+                  },
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  },
+                  "timeout_seconds": {
+                    "type": "integer",
+                    "description": "default 1800"
+                  },
+                  "backend": {
+                    "type": "string",
+                    "enum": [
+                      "gpu",
+                      "software"
+                    ],
+                    "default": "gpu",
+                    "description": "GPU is the default and required mode; software fallback must be explicitly selected."
+                  }
+                },
+                "required": [
+                  "blend",
+                  "output"
+                ]
+              }
+            },
+            {
+              "name": "gui_status",
+              "description": "Report whether the visible Blender GUI bridge is active and which scripts are queued.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {}
+              }
+            },
+            {
+              "name": "gui_submit_script",
+              "description": "Queue Blender Python for execution in the already-open visible GUI. This runs with Blender's full process authority, not in a sandbox; keep scripts task-scoped and inspect results.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "description": "Blender Python source to execute in the visible GUI"
+                  }
+                },
+                "required": [
+                  "source"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 3,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"active\": true,\n  \"busy\": false,\n  \"pid\": 31438,\n  \"blender\": \"5.2.2 LTS\",\n  \"display\": \":1.0\",\n  \"queue\": \"/data/data/com.termux/files/home/.cache/blender-agent-bridge/queue\",\n  \"waiting\": 0,\n  \"last_result\": {\n    \"file\": \"9ab3e90c8b254d31a763de6553ad6606.py\",\n    \"result\": \"OK\",\n    \"completed_utc\": \"2026-10-27T21:48:08+00:00\"\n  },\n  \"updated_utc\": \"2026-10-27T21:48:08+00:00\",\n  \"bridge_active\": true,\n  \"waiting_scripts\": []\n}"
+            }
+          ],
+          "isError": false
+        }
+      }
+    ],
+    "stderr": ""
+  },
+  "create_job": {
+    "responses": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2024-11-05",
+          "capabilities": {
+            "tools": {}
+          },
+          "serverInfo": {
+            "name": "blender-native-gpu",
+            "version": "0.1.0-native"
+          }
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "tools": [
+            {
+              "name": "gpu_check",
+              "description": "Verify the existing Native Termux Blender GPU path and report whether explicit llvmpipe fallback is available; no display is started.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  }
+                }
+              }
+            },
+            {
+              "name": "render_script",
+              "description": "Run an absolute-path Blender bpy script. backend defaults to gpu and requires accelerated Native Adreno OpenGL; explicitly set backend=software to force llvmpipe fallback. Never switches backends automatically.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "script": {
+                    "type": "string",
+                    "description": "absolute path to the .py script"
+                  },
+                  "blend": {
+                    "type": "string",
+                    "description": "optional .blend to open first"
+                  },
+                  "script_args": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "arguments passed after -- to the script"
+                  },
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  },
+                  "timeout_seconds": {
+                    "type": "integer",
+                    "description": "default 1800"
+                  },
+                  "backend": {
+                    "type": "string",
+                    "enum": [
+                      "gpu",
+                      "software"
+                    ],
+                    "default": "gpu",
+                    "description": "GPU is the default and required mode; software fallback must be explicitly selected."
+                  }
+                },
+                "required": [
+                  "script"
+                ]
+              }
+            },
+            {
+              "name": "render_blend",
+              "description": "Render an existing .blend. backend defaults to gpu and requires accelerated Native Adreno OpenGL; explicitly set backend=software to force llvmpipe fallback. Never switches backends automatically.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "blend": {
+                    "type": "string",
+                    "description": "absolute path to the .blend"
+                  },
+                  "output": {
+                    "type": "string",
+                    "description": "absolute output prefix passed to blender -o"
+                  },
+                  "frame_start": {
+                    "type": "integer"
+                  },
+                  "frame_end": {
+                    "type": "integer"
+                  },
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  },
+                  "timeout_seconds": {
+                    "type": "integer",
+                    "description": "default 1800"
+                  },
+                  "backend": {
+                    "type": "string",
+                    "enum": [
+                      "gpu",
+                      "software"
+                    ],
+                    "default": "gpu",
+                    "description": "GPU is the default and required mode; software fallback must be explicitly selected."
+                  }
+                },
+                "required": [
+                  "blend",
+                  "output"
+                ]
+              }
+            },
+            {
+              "name": "gui_status",
+              "description": "Report whether the visible Blender GUI bridge is active and which scripts are queued.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {}
+              }
+            },
+            {
+              "name": "gui_submit_script",
+              "description": "Queue Blender Python for execution in the already-open visible GUI. This runs with Blender's full process authority, not in a sandbox; keep scripts task-scoped and inspect results.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "description": "Blender Python source to execute in the visible GUI"
+                  }
+                },
+                "required": [
+                  "source"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 4,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"queued\": true,\n  \"job_id\": \"05e85146c80a413794551ec95a480920\",\n  \"queue_file\": \"/data/data/com.termux/files/home/.cache/blender-agent-bridge/queue/05e85146c80a413794551ec95a480920.py\",\n  \"bridge_active\": true,\n  \"note\": \"Executes in the open Blender GUI with that process's full Python/file authority; this is not a sandbox.\"\n}"
+            }
+          ],
+          "isError": false
+        }
+      }
+    ],
+    "stderr": ""
+  },
+  "create_observed": {
+    "submit_response": {
+      "queued": true,
+      "job_id": "05e85146c80a413794551ec95a480920",
+      "queue_file": "/data/data/com.termux/files/home/.cache/blender-agent-bridge/queue/05e85146c80a413794551ec95a480920.py",
+      "bridge_active": true,
+      "note": "Executes in the open Blender GUI with that process's full Python/file authority; this is not a sandbox."
+    },
+    "status": {
+      "active": true,
+      "busy": false,
+      "pid": 31438,
+      "blender": "5.2.2 LTS",
+      "display": ":1.0",
+      "queue": "/data/data/com.termux/files/home/.cache/blender-agent-bridge/queue",
+      "waiting": 0,
+      "last_result": {
+        "file": "05e85146c80a413794551ec95a480920.py",
+        "result": "OK",
+        "completed_utc": "2026-10-27T21:49:19+00:00"
+      },
+      "updated_utc": "2026-10-27T21:49:19+00:00"
+    }
+  },
+  "viewport_capture": "gui-bridge-visible.png (752x1155, after temporary cube appeared)",
+  "cleanup_job": {
+    "responses": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2024-11-05",
+          "capabilities": {
+            "tools": {}
+          },
+          "serverInfo": {
+            "name": "blender-native-gpu",
+            "version": "0.1.0-native"
+          }
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "tools": [
+            {
+              "name": "gpu_check",
+              "description": "Verify the existing Native Termux Blender GPU path and report whether explicit llvmpipe fallback is available; no display is started.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  }
+                }
+              }
+            },
+            {
+              "name": "render_script",
+              "description": "Run an absolute-path Blender bpy script. backend defaults to gpu and requires accelerated Native Adreno OpenGL; explicitly set backend=software to force llvmpipe fallback. Never switches backends automatically.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "script": {
+                    "type": "string",
+                    "description": "absolute path to the .py script"
+                  },
+                  "blend": {
+                    "type": "string",
+                    "description": "optional .blend to open first"
+                  },
+                  "script_args": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "arguments passed after -- to the script"
+                  },
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  },
+                  "timeout_seconds": {
+                    "type": "integer",
+                    "description": "default 1800"
+                  },
+                  "backend": {
+                    "type": "string",
+                    "enum": [
+                      "gpu",
+                      "software"
+                    ],
+                    "default": "gpu",
+                    "description": "GPU is the default and required mode; software fallback must be explicitly selected."
+                  }
+                },
+                "required": [
+                  "script"
+                ]
+              }
+            },
+            {
+              "name": "render_blend",
+              "description": "Render an existing .blend. backend defaults to gpu and requires accelerated Native Adreno OpenGL; explicitly set backend=software to force llvmpipe fallback. Never switches backends automatically.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "blend": {
+                    "type": "string",
+                    "description": "absolute path to the .blend"
+                  },
+                  "output": {
+                    "type": "string",
+                    "description": "absolute output prefix passed to blender -o"
+                  },
+                  "frame_start": {
+                    "type": "integer"
+                  },
+                  "frame_end": {
+                    "type": "integer"
+                  },
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  },
+                  "timeout_seconds": {
+                    "type": "integer",
+                    "description": "default 1800"
+                  },
+                  "backend": {
+                    "type": "string",
+                    "enum": [
+                      "gpu",
+                      "software"
+                    ],
+                    "default": "gpu",
+                    "description": "GPU is the default and required mode; software fallback must be explicitly selected."
+                  }
+                },
+                "required": [
+                  "blend",
+                  "output"
+                ]
+              }
+            },
+            {
+              "name": "gui_status",
+              "description": "Report whether the visible Blender GUI bridge is active and which scripts are queued.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {}
+              }
+            },
+            {
+              "name": "gui_submit_script",
+              "description": "Queue Blender Python for execution in the already-open visible GUI. This runs with Blender's full process authority, not in a sandbox; keep scripts task-scoped and inspect results.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "description": "Blender Python source to execute in the visible GUI"
+                  }
+                },
+                "required": [
+                  "source"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 5,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"queued\": true,\n  \"job_id\": \"154ff4e6054d48b7b0a7fb1a8f06d800\",\n  \"queue_file\": \"/data/data/com.termux/files/home/.cache/blender-agent-bridge/queue/154ff4e6054d48b7b0a7fb1a8f06d800.py\",\n  \"bridge_active\": true,\n  \"note\": \"Executes in the open Blender GUI with that process's full Python/file authority; this is not a sandbox.\"\n}"
+            }
+          ],
+          "isError": false
+        }
+      }
+    ],
+    "stderr": ""
+  },
+  "cleanup_observed": {
+    "submit_response": {
+      "queued": true,
+      "job_id": "154ff4e6054d48b7b0a7fb1a8f06d800",
+      "queue_file": "/data/data/com.termux/files/home/.cache/blender-agent-bridge/queue/154ff4e6054d48b7b0a7fb1a8f06d800.py",
+      "bridge_active": true,
+      "note": "Executes in the open Blender GUI with that process's full Python/file authority; this is not a sandbox."
+    },
+    "status": {
+      "active": true,
+      "busy": false,
+      "pid": 31438,
+      "blender": "5.2.2 LTS",
+      "display": ":1.0",
+      "queue": "/data/data/com.termux/files/home/.cache/blender-agent-bridge/queue",
+      "waiting": 0,
+      "last_result": {
+        "file": "154ff4e6054d48b7b0a7fb1a8f06d800.py",
+        "result": "OK",
+        "completed_utc": "2026-10-27T21:49:20+00:00"
+      },
+      "updated_utc": "2026-10-27T21:49:20+00:00"
+    }
+  },
+  "final_status": {
+    "responses": [
+      {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "result": {
+          "protocolVersion": "2024-11-05",
+          "capabilities": {
+            "tools": {}
+          },
+          "serverInfo": {
+            "name": "blender-native-gpu",
+            "version": "0.1.0-native"
+          }
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "result": {
+          "tools": [
+            {
+              "name": "gpu_check",
+              "description": "Verify the existing Native Termux Blender GPU path and report whether explicit llvmpipe fallback is available; no display is started.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  }
+                }
+              }
+            },
+            {
+              "name": "render_script",
+              "description": "Run an absolute-path Blender bpy script. backend defaults to gpu and requires accelerated Native Adreno OpenGL; explicitly set backend=software to force llvmpipe fallback. Never switches backends automatically.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "script": {
+                    "type": "string",
+                    "description": "absolute path to the .py script"
+                  },
+                  "blend": {
+                    "type": "string",
+                    "description": "optional .blend to open first"
+                  },
+                  "script_args": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "arguments passed after -- to the script"
+                  },
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  },
+                  "timeout_seconds": {
+                    "type": "integer",
+                    "description": "default 1800"
+                  },
+                  "backend": {
+                    "type": "string",
+                    "enum": [
+                      "gpu",
+                      "software"
+                    ],
+                    "default": "gpu",
+                    "description": "GPU is the default and required mode; software fallback must be explicitly selected."
+                  }
+                },
+                "required": [
+                  "script"
+                ]
+              }
+            },
+            {
+              "name": "render_blend",
+              "description": "Render an existing .blend. backend defaults to gpu and requires accelerated Native Adreno OpenGL; explicitly set backend=software to force llvmpipe fallback. Never switches backends automatically.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "blend": {
+                    "type": "string",
+                    "description": "absolute path to the .blend"
+                  },
+                  "output": {
+                    "type": "string",
+                    "description": "absolute output prefix passed to blender -o"
+                  },
+                  "frame_start": {
+                    "type": "integer"
+                  },
+                  "frame_end": {
+                    "type": "integer"
+                  },
+                  "display": {
+                    "type": "string",
+                    "description": "Existing Native X11 display, default :1"
+                  },
+                  "timeout_seconds": {
+                    "type": "integer",
+                    "description": "default 1800"
+                  },
+                  "backend": {
+                    "type": "string",
+                    "enum": [
+                      "gpu",
+                      "software"
+                    ],
+                    "default": "gpu",
+                    "description": "GPU is the default and required mode; software fallback must be explicitly selected."
+                  }
+                },
+                "required": [
+                  "blend",
+                  "output"
+                ]
+              }
+            },
+            {
+              "name": "gui_status",
+              "description": "Report whether the visible Blender GUI bridge is active and which scripts are queued.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {}
+              }
+            },
+            {
+              "name": "gui_submit_script",
+              "description": "Queue Blender Python for execution in the already-open visible GUI. This runs with Blender's full process authority, not in a sandbox; keep scripts task-scoped and inspect results.",
+              "inputSchema": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "type": "string",
+                    "description": "Blender Python source to execute in the visible GUI"
+                  }
+                },
+                "required": [
+                  "source"
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
+        "jsonrpc": "2.0",
+        "id": 6,
+        "result": {
+          "content": [
+            {
+              "type": "text",
+              "text": "{\n  \"active\": true,\n  \"busy\": false,\n  \"pid\": 31438,\n  \"blender\": \"5.2.2 LTS\",\n  \"display\": \":1.0\",\n  \"queue\": \"/data/data/com.termux/files/home/.cache/blender-agent-bridge/queue\",\n  \"waiting\": 0,\n  \"last_result\": {\n    \"file\": \"154ff4e6054d48b7b0a7fb1a8f06d800.py\",\n    \"result\": \"OK\",\n    \"completed_utc\": \"2026-10-27T21:49:20+00:00\"\n  },\n  \"updated_utc\": \"2026-10-27T21:49:20+00:00\",\n  \"bridge_active\": true,\n  \"waiting_scripts\": []\n}"
+            }
+          ],
+          "isError": false
+        }
+      }
+    ],
+    "stderr": ""
+  },
+  "script_hashes": {
+    "gui-smoke.py": "108225c1e853db38484c5d187b8674f43a845893573480631a6c054ceb31c7f0",
+    "gui-cleanup.py": "1541f20e65a3ff6f6be1796a70b1fd377ddf98a87ecd85101022c1932893f462"
+  }
+}

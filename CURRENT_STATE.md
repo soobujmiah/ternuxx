@@ -4,6 +4,17 @@
 
 **Reviewed:** 2026-10-28. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Blender Native GUI authoring and GPU MCP — 2026-10-28
+
+The open Native Blender 5.2.2 GUI on `:1` now has a startup `bpy` bridge and
+Codex MCP tools to queue agent-written scene scripts into the visible viewport.
+A temporary cube create/remove round trip passed in the existing GUI; the display
+was returned to 3D View. The Native GPU and explicit llvmpipe paths each rendered
+one 64×64 EEVEE smoke frame. `/sdcard/Blender` is writable for project output.
+These are single-device smoke checks on the experimental KGSL/Freedreno provider,
+not a sustained production qualification. Full procedure, raw responses, hashes
+and limits are in the [Blender MCP report](docs/testing/reports/2026-10-28-blender-native-gpu-mcp.md).
+
 ## Stopped desktop inspection when the X11 socket directory is absent — 2026-10-28
 
 I asked Codex to repair `tx start` and check `tx pgui` after both reported unknown

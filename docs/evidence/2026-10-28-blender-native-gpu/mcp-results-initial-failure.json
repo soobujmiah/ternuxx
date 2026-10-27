@@ -1,0 +1,66 @@
+{
+  "command": [
+    "/data/data/com.termux/files/usr/bin/env",
+    "-u",
+    "LD_LIBRARY_PATH",
+    "/data/data/com.termux/files/usr/bin/python3",
+    "/data/data/com.termux/files/home/skb/integrations/codex/restore/native_blender_gpu_mcp.py"
+  ],
+  "exit_code": 0,
+  "responses": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "protocolVersion": "2024-11-05",
+        "capabilities": {
+          "tools": {}
+        },
+        "serverInfo": {
+          "name": "blender-native-gpu",
+          "version": "0.1.0-native"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"display\": \":1\",\n  \"display_note\": \"using existing Native display :1; no display lifecycle change\",\n  \"backend\": \"KGSL/Freedreno\",\n  \"opengl_renderer\": \"Adreno (TM) 825\",\n  \"accelerated\": true,\n  \"gpu_path_ok\": true,\n  \"software_fallback_available\": true,\n  \"software_renderer\": \"llvmpipe (LLVM 21.1.8, 128 bits)\",\n  \"blender\": \"Blender 5.2.2 LTS\",\n  \"diagnosis\": \"Adreno GPU ready\"\n}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"command\": \"DISPLAY=:1 backend=gpu /data/data/com.termux/files/usr/bin/blender-5.2 -b --factory-startup --python /data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/smoke.py -- /data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/gpu.png\",\n  \"env\": {\n    \"DISPLAY\": \":1\",\n    \"MESA_LOADER_DRIVER_OVERRIDE\": \"kgsl\",\n    \"LIBGL_ALWAYS_SOFTWARE\": null,\n    \"GALLIUM_DRIVER\": null,\n    \"LIBGL_DRIVERS_PATH\": \"/data/data/com.termux/files/home/.local/share/ternuxx/graphics/providers/native-mesa-0219ff84/extracted/data/data/com.termux/files/usr/lib/dri\",\n    \"VK_ICD_FILENAMES\": \"/data/data/com.termux/files/home/.local/share/ternuxx/graphics/providers/native-mesa-0219ff84/freedreno-isolated.json\"\n  },\n  \"exit_code\": 0,\n  \"wall_seconds\": 0.88,\n  \"frames_written\": 0,\n  \"outputs\": [],\n  \"mean_frame_seconds\": null,\n  \"notes\": [\n    \"using existing Native display :1; no display lifecycle change\"\n  ],\n  \"diagnosis\": \"blender exited 0 but wrote no frame: check that the script sets an output path and actually calls a render operator\",\n  \"stdout_tail\": \"Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-10-25 10:42:30)\\n\\nBlender quit\",\n  \"stderr_tail\": \"Traceback (most recent call last):\\n  File \\\"/data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/smoke.py\\\", line 9, in <module>\\n    scene.render.engine = \\\"BLENDER_EEVEE_NEXT\\\"\\n    ^^^^^^^^^^^^^^^^^^^\\nTypeError: bpy_struct: item.attr = val: enum \\\"BLENDER_EEVEE_NEXT\\\" not found in ('BLENDER_EEVEE', 'BLENDER_WORKBENCH', 'CYCLES')\",\n  \"backend_requested\": \"gpu\",\n  \"backend_note\": \"Adreno GPU required\"\n}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"command\": \"DISPLAY=:1 backend=software /data/data/com.termux/files/usr/bin/blender-5.2 -b --factory-startup --python /data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/smoke.py -- /data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/software.png\",\n  \"env\": {\n    \"DISPLAY\": \":1\",\n    \"MESA_LOADER_DRIVER_OVERRIDE\": null,\n    \"LIBGL_ALWAYS_SOFTWARE\": \"1\",\n    \"GALLIUM_DRIVER\": \"llvmpipe\",\n    \"LIBGL_DRIVERS_PATH\": null,\n    \"VK_ICD_FILENAMES\": null\n  },\n  \"exit_code\": 0,\n  \"wall_seconds\": 0.88,\n  \"frames_written\": 0,\n  \"outputs\": [],\n  \"mean_frame_seconds\": null,\n  \"notes\": [\n    \"using existing Native display :1; no display lifecycle change\"\n  ],\n  \"diagnosis\": \"blender exited 0 but wrote no frame: check that the script sets an output path and actually calls a render operator\",\n  \"stdout_tail\": \"Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-10-25 10:42:30)\\n\\nBlender quit\",\n  \"stderr_tail\": \"Traceback (most recent call last):\\n  File \\\"/data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/smoke.py\\\", line 9, in <module>\\n    scene.render.engine = \\\"BLENDER_EEVEE_NEXT\\\"\\n    ^^^^^^^^^^^^^^^^^^^\\nTypeError: bpy_struct: item.attr = val: enum \\\"BLENDER_EEVEE_NEXT\\\" not found in ('BLENDER_EEVEE', 'BLENDER_WORKBENCH', 'CYCLES')\",\n  \"backend_requested\": \"software\",\n  \"backend_note\": \"explicit software fallback\"\n}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  ],
+  "stderr": ""
+}

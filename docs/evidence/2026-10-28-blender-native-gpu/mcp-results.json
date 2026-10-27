@@ -1,0 +1,66 @@
+{
+  "command": [
+    "/data/data/com.termux/files/usr/bin/env",
+    "-u",
+    "LD_LIBRARY_PATH",
+    "/data/data/com.termux/files/usr/bin/python3",
+    "/data/data/com.termux/files/home/skb/integrations/codex/restore/native_blender_gpu_mcp.py"
+  ],
+  "exit_code": 0,
+  "responses": [
+    {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "protocolVersion": "2024-11-05",
+        "capabilities": {
+          "tools": {}
+        },
+        "serverInfo": {
+          "name": "blender-native-gpu",
+          "version": "0.1.0-native"
+        }
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"display\": \":1\",\n  \"display_note\": \"using existing Native display :1; no display lifecycle change\",\n  \"backend\": \"KGSL/Freedreno\",\n  \"opengl_renderer\": \"Adreno (TM) 825\",\n  \"accelerated\": true,\n  \"gpu_path_ok\": true,\n  \"software_fallback_available\": true,\n  \"software_renderer\": \"llvmpipe (LLVM 21.1.8, 128 bits)\",\n  \"blender\": \"Blender 5.2.2 LTS\",\n  \"diagnosis\": \"Adreno GPU ready\"\n}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"command\": \"DISPLAY=:1 backend=gpu /data/data/com.termux/files/usr/bin/blender-5.2 -b --factory-startup --python /data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/smoke.py -- /data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/gpu.png\",\n  \"env\": {\n    \"DISPLAY\": \":1\",\n    \"MESA_LOADER_DRIVER_OVERRIDE\": \"kgsl\",\n    \"LIBGL_ALWAYS_SOFTWARE\": null,\n    \"GALLIUM_DRIVER\": null,\n    \"LIBGL_DRIVERS_PATH\": \"/data/data/com.termux/files/home/.local/share/ternuxx/graphics/providers/native-mesa-0219ff84/extracted/data/data/com.termux/files/usr/lib/dri\",\n    \"VK_ICD_FILENAMES\": \"/data/data/com.termux/files/home/.local/share/ternuxx/graphics/providers/native-mesa-0219ff84/freedreno-isolated.json\"\n  },\n  \"exit_code\": 0,\n  \"wall_seconds\": 13.08,\n  \"frames_written\": 1,\n  \"outputs\": [\n    \"/data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/gpu.png\"\n  ],\n  \"mean_frame_seconds\": null,\n  \"notes\": [\n    \"using existing Native display :1; no display lifecycle change\"\n  ],\n  \"diagnosis\": \"ok\",\n  \"stdout_tail\": \"00:12.570  render           | Saved: '/data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/gpu.png'\\nSMOKE_OUTPUT: /data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/gpu.png\\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-10-25 10:42:30)\\nWarning: Could not find a matching GPU name. Things may not behave as expected.\\nDetected OpenGL configuration:\\nVendor: freedreno\\nRenderer: Adreno (TM) 825\\n\\nBlender quit\",\n  \"stderr_tail\": \"os_same_file_description couldn't determine if two DRM fds reference the same file description. (Operation not permitted)\\nLet's just assume that file descriptors for the same file probablyshare the file description instead. This may cause problems whenthat isn't the case.\",\n  \"backend_requested\": \"gpu\",\n  \"backend_note\": \"Adreno GPU required\"\n}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\n  \"command\": \"DISPLAY=:1 backend=software /data/data/com.termux/files/usr/bin/blender-5.2 -b --factory-startup --python /data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/smoke.py -- /data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/software.png\",\n  \"env\": {\n    \"DISPLAY\": \":1\",\n    \"MESA_LOADER_DRIVER_OVERRIDE\": null,\n    \"LIBGL_ALWAYS_SOFTWARE\": \"1\",\n    \"GALLIUM_DRIVER\": \"llvmpipe\",\n    \"LIBGL_DRIVERS_PATH\": null,\n    \"VK_ICD_FILENAMES\": null\n  },\n  \"exit_code\": 0,\n  \"wall_seconds\": 88.48,\n  \"frames_written\": 1,\n  \"outputs\": [\n    \"/data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/software.png\"\n  ],\n  \"mean_frame_seconds\": null,\n  \"notes\": [\n    \"using existing Native display :1; no display lifecycle change\"\n  ],\n  \"diagnosis\": \"ok\",\n  \"stdout_tail\": \"01:27.961  render           | Saved: '/data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/software.png'\\nSMOKE_OUTPUT: /data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-native-gpu/software.png\\nBlender 5.2.2 LTS (hash d13f752e3b9c built 2026-10-25 10:42:30)\\n\\nBlender quit\",\n  \"stderr_tail\": \"\",\n  \"backend_requested\": \"software\",\n  \"backend_note\": \"explicit software fallback\"\n}"
+          }
+        ],
+        "isError": false
+      }
+    }
+  ],
+  "stderr": ""
+}
