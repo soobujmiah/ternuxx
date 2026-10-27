@@ -1,0 +1,49 @@
+{
+  "backend": "zink-turnip",
+  "blender": "5.2.2 LTS",
+  "renderer": "zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))",
+  "file": "/sdcard/Blender/bangla-short-films/mithyar-mic-2026-10-14/mithyar_mic.blend",
+  "scene": "Mithyar Mic | Character Workshop",
+  "workspace": "Layout",
+  "viewport": "RENDERED",
+  "camera": "SHOT_WIDE",
+  "overlays": false,
+  "warmup": {
+    "iterations": 5,
+    "elapsed_s": 0.9099364579888061,
+    "ms_per_redraw": 181.9872915977612,
+    "operator_result": [
+      "FINISHED"
+    ]
+  },
+  "batches": [
+    {
+      "iterations": 10,
+      "elapsed_s": 0.7847417179727927,
+      "ms_per_redraw": 78.47417179727927,
+      "operator_result": [
+        "FINISHED"
+      ]
+    },
+    {
+      "iterations": 10,
+      "elapsed_s": 0.4688068220275454,
+      "ms_per_redraw": 46.88068220275454,
+      "operator_result": [
+        "FINISHED"
+      ]
+    },
+    {
+      "iterations": 10,
+      "elapsed_s": 0.2854605719912797,
+      "ms_per_redraw": 28.546057199127972,
+      "operator_result": [
+        "FINISHED"
+      ]
+    }
+  ],
+  "screenshot_result": [
+    "FINISHED"
+  ],
+  "screenshot": "/data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/zink-rendered-clean.png"
+}

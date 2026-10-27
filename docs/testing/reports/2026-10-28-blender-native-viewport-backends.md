@@ -1,0 +1,41 @@
+# Native Blender viewport backend comparison — 2026-10-28
+
+## Result
+
+The same `mithyar_mic.blend` file was opened in Blender 5.2.2 LTS under both Native GPU paths. In the **Rendered** camera viewport, Zink/Turnip showed the full scene and cast; direct KGSL showed severe display artifacts, missing character bodies and black blocks. The owner reports Zink is usable for preview with some remaining rendering issues. The screenshots support using Zink/Turnip for visible Blender work on this scene; the direct KGSL result is not visually acceptable here.
+
+The bounded redraw timings alone do not explain the visual defect. In Solid mode, direct KGSL was faster. In Rendered mode after warm-up, direct KGSL also had lower redraw time, but the image was corrupted. The task is therefore correctness first: keep the currently open Zink/Turnip GUI for preview, and do not use the direct KGSL viewport for scene review until its artifacts are resolved. No persistent graphics backend selection was changed.
+
+## Controlled setup
+
+- Ternuxx source revision before this report: `a2550df35d18415876a23f398ef0af5cc333719f`.
+- Device: Redmi Turbo 4 Pro; Adreno 825; Native Termux; X11 display `:1.0`.
+- Project: `/sdcard/Blender/bangla-short-films/mithyar-mic-2026-10-14/mithyar_mic.blend`.
+- Scene: `Mithyar Mic | Character Workshop`; 153 objects; camera `SHOT_WIDE`.
+- Both runs used Blender 5.2.2 LTS, Mesa `26.3.0-devel (git-98f3d6229d)`, same project, camera, `RENDERED` viewport mode and overlays off. The blend stayed clean (`bpy.data.is_dirty == false`); viewport settings were temporary and not saved.
+- Direct route: Native KGSL/Freedreno OpenGL (`Adreno (TM) 825`). Zink route: the already-extracted isolated Native Mesa candidate and Freedreno ICD (`zink Vulkan 1.4 (Adreno (TM) 825 (MESA_TURNIP))`). Both were confirmed accelerated.
+- For redraw timing, each GUI waited 15 seconds after startup, discarded 5 warm-up redraws, then measured 3 batches of 10 `DRAW_WIN_SWAP` iterations. A separate Solid-mode run used 30 warm-ups plus 3 batches of 60.
+- The Native GUI currently left open is Zink/Turnip, with the project in camera `RENDERED` preview. Its bridge is active. The Native X11 desktop stayed running throughout.
+
+## Measured redraws
+
+| Viewport mode | Native route | Batch times (ms per redraw) | Median |
+|---|---|---:|---:|
+| Solid | Direct KGSL | 16.73, 17.54, 17.93 | 17.54 ms |
+| Solid | Zink/Turnip | 42.32, 40.69, 42.37 | 42.32 ms |
+| Rendered | Direct KGSL | 24.76, 22.97, 20.78 | 22.97 ms |
+| Rendered | Zink/Turnip | 78.47, 46.88, 28.55 | 46.88 ms |
+
+Zink's Rendered redraw time fell across the three batches as its preview warmed. These are Blender window redraw timings, not mouse-input latency or a sustained frame-rate qualification. In the Rendered screenshots, visual correctness differed substantially even though the direct route had the lower median redraw time.
+
+## Screenshot evidence
+
+- [Direct KGSL — Rendered camera view](../../evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/kgsl-rendered-clean.png), SHA-256 `f4dc32638b4944cd92c0272ed3f8e733da22ca3dda052e7deeab4b3bd34be299`.
+- [Zink/Turnip — Rendered camera view](../../evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/zink-rendered-clean.png), SHA-256 `ad9d4a73dd36a78e0103aefa497340dd65e8c5bc649fb01514ba06552005be95`.
+- [Direct KGSL redraw JSON](../../evidence/2026-10-28-blender-60s-ternux-benchmark/gui-rendered-redraw-kgsl-direct.json), SHA-256 `c482263783925dc777816b2bbb4b6c931a3b6b66bb6805c49692c0dcd328d634`.
+- [Zink/Turnip redraw JSON](../../evidence/2026-10-28-blender-60s-ternux-benchmark/gui-rendered-redraw-zink-turnip.json), SHA-256 `55dfc0b1f426931a43dd9fc4118e814a898aff8395b6524bb99f96eea75a0bd7`.
+- [Solid-mode redraw JSON: KGSL](../../evidence/2026-10-28-blender-60s-ternux-benchmark/gui-redraw-kgsl-direct.json), [Zink](../../evidence/2026-10-28-blender-60s-ternux-benchmark/gui-redraw-zink.json).
+
+## Comparison limits and follow-up
+
+The historical PRoot experience used Blender 4.3.2 with Zink/Turnip, while this A/B kept Blender 5.2.2 fixed. It does not isolate Blender 4.3.2 versus 5.2.2, and it does not establish whether the remaining Zink preview defects occur in final frame renders. The rendered screenshots are viewport previews, not final production renders. Next, render the same deterministic still through both accelerated routes and compare image correctness before choosing the rendering backend for the 60-second run.

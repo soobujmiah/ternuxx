@@ -1,0 +1,44 @@
+{
+  "backend": "zink-turnip",
+  "blender": "5.2.2 LTS",
+  "renderer": "zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))",
+  "vendor": "Mesa",
+  "file": "/sdcard/Blender/bangla-short-films/mithyar-mic-2026-10-14/mithyar_mic.blend",
+  "scene": "Mithyar Mic | Character Workshop",
+  "objects": 153,
+  "solid_viewports": 10,
+  "warmup": {
+    "iterations": 30,
+    "elapsed_s": 1.2324970309855416,
+    "ms_per_redraw": 41.08323436618472,
+    "operator_result": [
+      "FINISHED"
+    ]
+  },
+  "batches": [
+    {
+      "iterations": 60,
+      "elapsed_s": 2.539448644965887,
+      "ms_per_redraw": 42.32414408276478,
+      "operator_result": [
+        "FINISHED"
+      ]
+    },
+    {
+      "iterations": 60,
+      "elapsed_s": 2.441464425995946,
+      "ms_per_redraw": 40.6910737665991,
+      "operator_result": [
+        "FINISHED"
+      ]
+    },
+    {
+      "iterations": 60,
+      "elapsed_s": 2.5420291659538634,
+      "ms_per_redraw": 42.36715276589772,
+      "operator_result": [
+        "FINISHED"
+      ]
+    }
+  ]
+}

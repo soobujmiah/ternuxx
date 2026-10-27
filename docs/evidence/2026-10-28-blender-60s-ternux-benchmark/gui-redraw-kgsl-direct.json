@@ -1,0 +1,45 @@
+{
+  "backend": "kgsl-direct",
+  "blender": "5.2.2 LTS",
+  "renderer": "Adreno (TM) 825",
+  "vendor": "freedreno",
+  "gl_version": "4.6 (Core Profile) Mesa 26.3.0-devel (git-98f3d6229d)",
+  "file": "/sdcard/Blender/bangla-short-films/mithyar-mic-2026-10-14/mithyar_mic.blend",
+  "scene": "Mithyar Mic | Character Workshop",
+  "objects": 153,
+  "solid_viewports": 10,
+  "warmup": {
+    "iterations": 30,
+    "elapsed_s": 0.7070619790465571,
+    "ms_per_redraw": 23.568732634885237,
+    "operator_result": [
+      "FINISHED"
+    ]
+  },
+  "batches": [
+    {
+      "iterations": 60,
+      "elapsed_s": 1.0036309370188974,
+      "ms_per_redraw": 16.72718228364829,
+      "operator_result": [
+        "FINISHED"
+      ]
+    },
+    {
+      "iterations": 60,
+      "elapsed_s": 1.0523757280316204,
+      "ms_per_redraw": 17.539595467193674,
+      "operator_result": [
+        "FINISHED"
+      ]
+    },
+    {
+      "iterations": 60,
+      "elapsed_s": 1.0756203120108694,
+      "ms_per_redraw": 17.927005200181156,
+      "operator_result": [
+        "FINISHED"
+      ]
+    }
+  ]
+}

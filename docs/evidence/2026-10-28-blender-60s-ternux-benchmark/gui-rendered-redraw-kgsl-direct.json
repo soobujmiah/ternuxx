@@ -1,0 +1,44 @@
+{
+  "backend": "kgsl-direct",
+  "blender": "5.2.2 LTS",
+  "renderer": "Adreno (TM) 825",
+  "file": "/sdcard/Blender/bangla-short-films/mithyar-mic-2026-10-14/mithyar_mic.blend",
+  "scene": "Mithyar Mic | Character Workshop",
+  "viewport": "RENDERED",
+  "camera": "SHOT_WIDE",
+  "overlays": false,
+  "warmup": {
+    "iterations": 5,
+    "elapsed_s": 0.15113265597028658,
+    "ms_per_redraw": 30.226531194057316,
+    "operator_result": [
+      "FINISHED"
+    ]
+  },
+  "batches": [
+    {
+      "iterations": 10,
+      "elapsed_s": 0.24758031300734729,
+      "ms_per_redraw": 24.75803130073473,
+      "operator_result": [
+        "FINISHED"
+      ]
+    },
+    {
+      "iterations": 10,
+      "elapsed_s": 0.22970645903842524,
+      "ms_per_redraw": 22.970645903842524,
+      "operator_result": [
+        "FINISHED"
+      ]
+    },
+    {
+      "iterations": 10,
+      "elapsed_s": 0.20775968802627176,
+      "ms_per_redraw": 20.775968802627176,
+      "operator_result": [
+        "FINISHED"
+      ]
+    }
+  ]
+}
