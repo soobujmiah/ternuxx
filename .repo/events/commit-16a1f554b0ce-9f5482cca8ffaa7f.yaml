@@ -1,0 +1,7 @@
+event_id: commit-16a1f554b0ce-9f5482cca8ffaa7f
+repository: soobujmiah/ternuxx
+commit: 16a1f554b0ce6e3e5cb2803167b784eed176fc96
+kind: commit
+occurred_at: '2026-10-27T22:48:05Z'
+status: completed
+summary: 'docs: record standalone PRoot Blender viewport check'
