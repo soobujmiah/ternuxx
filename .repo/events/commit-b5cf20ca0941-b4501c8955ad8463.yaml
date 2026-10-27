@@ -1,0 +1,7 @@
+event_id: commit-b5cf20ca0941-b4501c8955ad8463
+repository: soobujmiah/ternuxx
+commit: b5cf20ca0941595bb29e8905d0840d9b242270ef
+kind: commit
+occurred_at: '2026-10-27T17:31:23Z'
+status: completed
+summary: 'test(proot): isolate package and guest fixtures'
