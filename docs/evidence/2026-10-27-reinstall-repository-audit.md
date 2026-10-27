@@ -186,3 +186,48 @@ changes still fail. This prevents expected systemd/service user creation from
 invalidating a reviewed new-user action, without silently adopting a new account
 plan. Legacy standalone account previews retain their strict whole-passwd digest.
 A fixture accepts a package-style system user and rejects an added ordinary login.
+
+## Failed guest HTTPS run / plan report viewer repair
+
+Read-only owner-device evidence: the failed combined run lasted 19,249 seconds and
+ended at guest packages/account stage. The matching guest journal says
+`TimeoutExpired`. Its plan requested 813 new packages, approximately 385 MB download
+and 1547 MB additional disk. Current inventory has 78 installed packages, zero
+incomplete dpkg records, no ordinary login account, empty archive/partial caches,
+and no `ca-certificates` package or public guest CA bundle. Old output was not
+persisted, so the precise prior HTTPS error cannot be retrospectively asserted.
+
+Native curl HEAD followed the exact first reviewed snapshot package URL to HTTP
+200. Native Python with its verified CA returned 403 with the default user-agent;
+`curl/8` returned HTTP 200, and a one-byte Range GET returned HTTP 206 with the
+archive prefix. This is bounded network reachability evidence, not package or
+workload installation. Two URI-only guest APT queries (download and install
+print-URIs modes) both reported the same epoch-escaped KDE cache filename; the
+before/after guest dpkg status hash was identical. No complete archive was
+downloaded/staged, and no package installation/recovery operation was executed by
+the assistant. The network probe read only one byte without saving a payload.
+
+The [APT manual](https://manpages.debian.org/trixie/apt/apt-get.8.en.html)
+documents URI destination filenames separately from remote filenames. The repair
+uses APT's metadata output rather than guessing filenames. Existing guest add-on
+plans bind exact archive URI/name/size/SHA-256, acquired-index digests and the Native
+CA digest. Downloads use Native Python TLS with `curl/8`, the same approved URLs,
+bounded network retries and verified persistent cache. All archives must verify
+before guest cache staging and `--no-download` APT apply. Missing guest CA tools
+are explicitly in the package plan. No alternative repo/driver/version is used,
+and TLS verification is not disabled. Additional cache-copy peak storage is
+included. Fresh setup keeps its Native-CA path with the matching user-agent and
+HTTPS time bounds; it is not claimed to use the add-on transport.
+
+Private event logs now retain sanitized output; journals include failed stage,
+reason, event-log location and timeout tail/kind. No-output deadlines bound silent
+legacy network APT and offline package work separately. Fixture evidence covers
+metadata/URI binding, cache/hash verification, retry bounds, no guest staging on
+integrity failure, verified-fetch-before-offline-install order, missing CA being
+planned before approval, redacted idle-timeout logs and double-cache peak space.
+
+The 450-line report was incorrectly rendered through a selection menu. The new
+view mode displays read-only line position, no checkboxes/selection counts, ignores
+Space, and returns to the separate approval on Enter/Esc. This does not approve
+individual dependency lines. Complete owner reinstall/ordinary-user/desktop
+acceptance is still pending; no live package repair or installation was done here.

@@ -217,7 +217,7 @@ class FreshProotSetupTests(unittest.TestCase):
         script = next(args[-1] for args in calls if "/bin/bash" in args)
         # Run only the package/user tail, with every external command stubbed.
         # The guest APT source edits are never executed on the host.
-        tail = script[script.index("apt-get -o Acquire::https::CaInfo=/tmp/ternuxx-native-ca.pem -o Acquire::Check-Valid-Until=false update"):]
+        tail = script[script.index("apt-get -o Acquire::https::CaInfo=/tmp/ternuxx-native-ca.pem -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 -o Acquire::Check-Valid-Until=false update"):]
         tail = tail.replace("/etc/locale.gen", str(self.base / "locale.gen"))
         stub = self.base / "stub"
         stub.mkdir()
@@ -410,7 +410,7 @@ class FreshProotSetupTests(unittest.TestCase):
                                          "debian", "--architecture", "aarch64"])
         self.assertEqual(calls[0][-1], "debian:trixie-20261005@sha256:913f6706df59a68922d1dd08f78c2476560a8d367897200a6005b00e5f67c2d5")
         self.assertIn("--isolated", calls[2])
-        self.assertIn("apt-get -o Acquire::https::CaInfo=/tmp/ternuxx-native-ca.pem install -y --no-install-recommends", calls[2][-1])
+        self.assertIn("apt-get -o Acquire::https::CaInfo=/tmp/ternuxx-native-ca.pem -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 install -y --no-install-recommends", calls[2][-1])
         self.assertIn("snapshot-cloudflare.debian.org/archive/debian/20261020T000000Z", calls[2][-1])
         self.assertEqual(calls[2][-3:], ["/bin/bash", "-lc", calls[2][-1]])
         syntax = subprocess.run(["bash", "-n", "-c", calls[2][-1]], check=False)
@@ -504,7 +504,7 @@ class FreshProotSetupTests(unittest.TestCase):
                 plan_id=resumed["plan_id"], confirmed=True, password="example-passphrase", runner=runner)
         self.assertEqual(result["status"], "installed")
         self.assertEqual(sum(call[1] == "install" for call in calls), 1)
-        self.assertEqual(sum("apt-get -o Acquire::https::CaInfo=/tmp/ternuxx-native-ca.pem install -y" in call[-1] for call in calls if "/bin/bash" in call), 2)
+        self.assertEqual(sum("apt-get -o Acquire::https::CaInfo=/tmp/ternuxx-native-ca.pem -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 install -y" in call[-1] for call in calls if "/bin/bash" in call), 2)
 
     def test_turnip_package_selection_is_previewed_and_hardware_drift_is_rejected(self):
         with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=True):

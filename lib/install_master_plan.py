@@ -68,6 +68,11 @@ def build(root):
                     else:disk+=amount
                     lines.append(f'Guest {label}: {amount/1048576:.1f} MiB')
                 lines.append('Guest package changes: '+str(len(op.get('transaction_packages',[]))))
+                if op.get('download_transport'):
+                    lines.append('Download transport: '+op['download_transport'])
+                    staging=sum(v['size'] for v in op.get('native_fetch',{}).get('archives',[]))
+                    disk+=staging
+                    lines.append(f'Additional verified-cache staging reserve: {staging/1048576:.1f} MiB (Native cache plus guest cache at peak).')
                 lines.append('Guest exact transaction: '+', '.join(p+'='+v for p,v in op.get('transaction_packages',[])))
                 if op.get('graphics_runtime'):unknown.append(name+': optional graphics archive/unpacked size')
             else:
@@ -87,7 +92,7 @@ def build(root):
     unknown.append('GTK compilation temporary space and optional guest graphics payloads')
     free=shutil.disk_usage(os.environ['PREFIX']).free
     peak=download+disk
-    lines.extend(['',f'Known download subtotal: {download/1048576:.1f} MiB',f'Known installed payload/additional disk subtotal: {disk/1048576:.1f} MiB',f'Known download + installed peak estimate: {peak/1048576:.1f} MiB',f'Free space: {free/1073741824:.2f} GiB','Estimates are metadata-based; caches, filesystem allocation and build scratch can vary.'])
+    lines.extend(['',f'Known download subtotal: {download/1048576:.1f} MiB',f'Known additional storage subtotal (payload + extra verified cache): {disk/1048576:.1f} MiB',f'Known download + installed peak estimate: {peak/1048576:.1f} MiB',f'Free space: {free/1073741824:.2f} GiB','Estimates are metadata-based; caches, filesystem allocation and build scratch can vary.'])
     if peak>free:raise ValueError('Known required space exceeds available storage; no apply is permitted')
     lines.append('Unresolved sizes: '+'; '.join(unknown))
     lines.append('Incomplete size estimates require a separate explicit acknowledgement before approval.')

@@ -84,7 +84,7 @@ def _source_digest(root: Path) -> str:
 
 
 def _run_guest(prefix: str, packages: list[str], *, apply: bool,
-               runner=subprocess.run, alias: str = "debian") -> dict[str, object]:
+               runner=subprocess.run, alias: str = "debian", no_download: bool = False, event_log=None) -> dict[str, object]:
     if alias not in {"debian", "ubuntu"}:
         raise DesktopSetupError("unsupported managed add-on distro")
     manager = str(Path(prefix) / "bin/proot-distro")
@@ -94,6 +94,7 @@ def _run_guest(prefix: str, packages: list[str], *, apply: bool,
            "-o", "Acquire::https::Timeout=60",
            "-o", "Acquire::https::Retries=2"]
     if apply:
+        if no_download: apt += ["--no-download"]
         apt += ["-y", "install", *packages]
     else:
         apt += ["--simulate", "--yes", "install", *packages]
@@ -105,7 +106,7 @@ def _run_guest(prefix: str, packages: list[str], *, apply: bool,
                "DEBIAN_FRONTEND=noninteractive", "--"]
     if apply and runner is subprocess.run and os.environ.get('TERNUXX_INSTALL_LOG') == '1':
         import install_events
-        result = install_events.run([*command, *apt], timeout=7200, env=env)
+        result = install_events.run([*command, *apt], timeout=7200, env=env, idle_timeout=600 if no_download else 180, log_path=event_log)
     else:
         result = runner([*command, *apt], capture_output=True, text=True, check=False, timeout=7200 if apply else 1800, env=env)
     output = (getattr(result, "stdout", "") or "") + "\n" + (getattr(result, "stderr", "") or "")
@@ -167,6 +168,9 @@ def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
     if not packages:
         raise DesktopSetupError("select a desktop, app or graphics runtime to add")
     before = _package_inventory(root)
+    native_transport=runner is subprocess.run and (Path(prefix)/'lib/apt/apt-helper').is_file()
+    if native_transport and 'ca-certificates' not in before and 'ca-certificates' not in packages:
+        packages.append('ca-certificates') # explicit reviewed trust bootstrap, never disable TLS verification
     status_path = root / "var/lib/dpkg/status"
     status_hash = _private_digest(status_path)
     source_hash = _source_digest(root)
@@ -197,6 +201,17 @@ def _plan(root: Path, identity: dict[str, int], *, selected: list[str],
         body["graphics_runtime"] = {"manifest_sha256": digest,
                                     "kgsl_accessible": proot_fresh_setup._kgsl_accessible(),
                                     "turnip_archive_sha256": manifest["graphics"]["turnip_archive"]["sha256"]}
+    if transaction_packages and native_transport:
+        import proot_package_fetch
+        records,indexes=proot_package_fetch.metadata(root,prefix,transaction_packages)
+        exact=[name+'='+version for name,version in transaction_packages]
+        manager=str(Path(prefix)/'bin/proot-distro')
+        env={k:v for k,v in os.environ.items() if k not in ('LD_LIBRARY_PATH','LD_PRELOAD','DISPLAY','DBUS_SESSION_BUS_ADDRESS')}
+        result=runner([manager,'run',alias,'--isolated','--','/usr/bin/apt-get','--print-uris','download',*exact],capture_output=True,text=True,check=False,timeout=90,env=env)
+        if result.returncode:raise DesktopSetupError('guest archive URI preview failed; no packages downloaded')
+        ca,ca_hash=proot_fresh_setup._native_ca_bundle(prefix)
+        body['native_fetch']={'archives':proot_package_fetch.bind_uris(result.stdout,records),'index_sha256':indexes,'ca_sha256':ca_hash}
+        body['download_transport']='native-verified-https; guest install --no-download'
     plan_id = hashlib.sha256(json.dumps(body, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
     return {**body, "plan_id": plan_id}
 
@@ -390,11 +405,24 @@ def apply(*, prefix: str, home: str, state_dir: str, plan_id: str,
         before = _package_inventory(root)
         exact_versions = dict([*saved["requested_versions"], *saved["transaction_packages"]])
         exact_requests = [f"{package}={version}" for package, version in exact_versions.items()]
+        event_log=state/f'desktop-{plan_id}.events.log'
+        failure_stage='native-verified-download' if saved.get('native_fetch') else 'guest-apt-install'
         try:
-            result = _run_guest(prefix, exact_requests, apply=True, runner=runner, alias=alias)
+            if saved.get('native_fetch'):
+                import proot_package_fetch
+                ca,ca_hash=proot_fresh_setup._native_ca_bundle(prefix)
+                if ca_hash!=saved['native_fetch']['ca_sha256']:raise DesktopSetupError('Native CA changed after review')
+                proot_fresh_setup._private_write(journal,{'plan_id':plan_id,'state':'applying','stage':'native-verified-download','event_log':str(event_log)})
+                proot_package_fetch.fetch(root,state,saved['native_fetch']['archives'],ca_file=ca,log_path=event_log)
+            failure_stage='guest-apt-install'
+            proot_fresh_setup._private_write(journal,{'plan_id':plan_id,'state':'applying','stage':'guest-apt-install','event_log':str(event_log)})
+            result = _run_guest(prefix, exact_requests, apply=True, runner=runner, alias=alias, no_download=bool(saved.get('native_fetch')),event_log=event_log)
         except (OSError, ValueError, subprocess.TimeoutExpired, KeyboardInterrupt) as exc:
             proot_fresh_setup._private_write(journal, {"plan_id": plan_id, "state": "failed",
-                                                       "failure_type": type(exc).__name__})
+                                                       "failure_type": type(exc).__name__, "stage":failure_stage, "event_log":str(event_log),
+                                                       "failure_message":__import__('install_events').clean(str(exc))[-4096:],
+                                                       "timeout_kind":getattr(exc,'timeout_kind',None),
+                                                       "last_output":getattr(exc,'last_output',None)})
             raise
         after = _package_inventory(root)
         expected_new = {name.split(":", 1)[0] for name, _version in saved["transaction_packages"]}

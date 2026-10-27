@@ -68,6 +68,25 @@ shown as **unknown**, never zero, and need a separate acknowledgement before fin
 approval. Known storage insufficiency blocks approval/apply. These are estimates,
 not an exact free-space guarantee.
 
+Existing guest add-on plans include a Native HTTPS archive transport. APT supplies
+URI/cache-name metadata without downloading; SHA-256/size come from the acquired
+package indexes, whose digests are bound to the exact plan. The Native CA digest
+is also bound. The installer downloads only those reviewed payloads using bounded
+same-URL retries, verifies persistent cache entries, then stages every archive for
+guest APT `--no-download` installation. A missing guest `ca-certificates` package
+is an explicit reviewed request, never an insecure TLS bypass. Peak storage
+includes the extra Native/guest cache copy. This path does not change the distro
+snapshot, choose a mirror, or approve different package versions. New fresh-rootfs
+setup retains its separate pinned image/CA bootstrap path.
+
+Categorized events are retained in private
+`$TERNUXX_STATE_DIR/proot-setup/desktop-PLAN_ID.events.log` files (bounded/redacted).
+Failure journals name the stage and log; guest APT enforces a 180-second no-output
+limit for network-capable legacy execution, 600 seconds for verified offline
+unpack/configuration, and an overall bound. Native archive requests have socket,
+transfer-size and total-transfer bounds with at most three network attempts.
+Verified caches survive a failure; retry still needs a new exact reviewed plan.
+
 After approval the saved exact subplans are applied; any changed plan/report,
 package transaction or target identity stops for a fresh review. The combined
 account plan explicitly permits package-added non-login UID 1–999 system users
@@ -81,6 +100,10 @@ Private reports and the combined plan live under `$TERNUXX_STATE_DIR/wizard-plan
 preserves selected workstation/guest package state; acknowledged metadata refresh
 or minimal planner bootstrap is not rolled back. Apply failure can leave completed
 substeps installed; retry must review the remaining state with a fresh exact plan.
+
+The combined plan report is **read-only**: arrows/page keys scroll and Enter/Esc
+returns to approval; report lines are not selectable packages. Checkbox lists are
+used only for actual choices.
 
 Use Up/Down to move, Space to toggle selections and Enter to continue. Home/End
 and PageUp/PageDown navigate long lists; the list shows position and selection count. Single-choice

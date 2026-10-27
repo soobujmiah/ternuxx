@@ -281,6 +281,18 @@ echo NESTED_DONE
         self.assertIn('NESTED_TWO',out)
         self.assertEqual(term.process.returncode,0,out)
 
+    def test_plan_report_is_read_only_and_space_cannot_select_rows(self):
+        term=self.fixture("_nt_pick 'Plan report' view '' 'one|First dependency' 'two|Second dependency'; echo REPORT_RETURNED")
+        term.wait_for(b'Read-only')
+        term.send(b' \x1b[B \n')
+        out=term.finish()
+        self.assertIn('REPORT_RETURNED',out)
+        self.assertNotIn('[ ]',out)
+        self.assertNotIn('[x]',out)
+        self.assertNotIn('selected',out)
+        self.assertNotIn('Space: select',out)
+        self.assertEqual(termios.tcgetattr(term.slave),term.original)
+
     def test_text_form_escape_restores_terminal(self):
         term = self.fixture('_nt_input "Guest username"; exit $?')
         term.wait_for(b'Guest username')

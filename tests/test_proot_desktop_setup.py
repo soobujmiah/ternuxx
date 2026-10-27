@@ -48,6 +48,37 @@ class DesktopInstallPlanTests(unittest.TestCase):
                        "Do you want to continue? [Y/n] N\nAbort.\n")
         return subprocess.CompletedProcess(args, 0 if simulating else 1, output, "")
 
+    def test_native_transport_finishes_verified_fetch_before_no_download_install(self):
+        import proot_package_fetch
+        helper=self.prefix/'lib/apt/apt-helper';helper.parent.mkdir(parents=True);helper.touch()
+        with (self.root/'var/lib/dpkg/status').open('a') as stream:stream.write('\n\nPackage: ca-certificates\nStatus: install ok installed\nArchitecture: all\nVersion: 1\n')
+        records={'lxde-core':dict(Package='lxde-core',Version='1:48+2',Architecture='all',Filename='pool/lxde-core_48+2_all.deb',Size='1',SHA256='a'*64)}
+        order=[]
+        def runner(argv,**kw):
+            if '--print-uris' in argv:
+                return subprocess.CompletedProcess(argv,0,"'https://example.invalid/pool/lxde-core_48+2_all.deb' lxde-core_1%3a48+2_all.deb 1 SHA256:"+'a'*64+'\n','')
+            if '-y' in argv:order.append('apt');self.assertIn('--no-download',argv)
+            return self.fake_runner(argv,**kw)
+        with mock.patch.object(proot_desktop_setup.proot_guest_retirement,'_assert_idle'),mock.patch.object(subprocess,'run',runner),mock.patch.object(proot_package_fetch,'metadata',return_value=(records,{'index':'b'*64})),mock.patch.object(proot_desktop_setup.proot_fresh_setup,'_native_ca_bundle',return_value=(self.prefix/'ca.pem','c'*64)),mock.patch.object(proot_package_fetch,'fetch',side_effect=lambda *a,**k:order.append('verified-fetch')):
+            plan=proot_desktop_setup.preview(prefix=str(self.prefix),home=str(self.home),state_dir=str(self.state),selected=['lxde'],runner=runner)
+            self.assertEqual(plan['operation']['native_fetch']['archives'][0]['sha256'],'a'*64)
+            result=proot_desktop_setup.apply(prefix=str(self.prefix),home=str(self.home),state_dir=str(self.state),plan_id=plan['plan_id'],confirmed=True,runner=runner)
+        self.assertEqual(result['status'],'complete')
+        self.assertEqual(order,['verified-fetch','apt'])
+
+    def test_missing_guest_ca_is_explicitly_included_before_approval(self):
+        import proot_package_fetch
+        helper=self.prefix/'lib/apt/apt-helper';helper.parent.mkdir(parents=True);helper.touch()
+        records={name:dict(Package=name,Version=version,Architecture='all',Filename='pool/'+name+'.deb',Size='1',SHA256=digest*64) for name,version,digest in (('lxde-core','1:48+2','a'),('ca-certificates','2026','b'))}
+        def runner(argv,**kw):
+            return subprocess.CompletedProcess(argv,0,"'https://example.invalid/pool/lxde-core.deb' lxde-core_1%3a48+2_all.deb 1 SHA256:"+'a'*64+"\n'https://example.invalid/pool/ca-certificates.deb' ca-certificates_2026_all.deb 1 SHA256:"+'b'*64+'\n','')
+        transaction=dict(new_packages=[['lxde-core','1:48+2'],['ca-certificates','2026']],new_package_count=2,upgraded=0,removed=0,not_upgraded=0,download=dict(value=1,unit='MB'),disk=dict(value=2,unit='MB'))
+        before=(self.root/'var/lib/dpkg/status').read_bytes()
+        with mock.patch.object(proot_desktop_setup.proot_guest_retirement,'_assert_idle'),mock.patch.object(subprocess,'run',runner),mock.patch.object(proot_desktop_setup,'_run_guest',return_value=transaction),mock.patch.object(proot_package_fetch,'metadata',return_value=(records,{'index':'c'*64})),mock.patch.object(proot_desktop_setup.proot_fresh_setup,'_native_ca_bundle',return_value=(self.prefix/'ca','d'*64)):
+            plan=proot_desktop_setup.preview(prefix=str(self.prefix),home=str(self.home),state_dir=str(self.state),selected=['lxde'],runner=runner)
+        self.assertIn('ca-certificates',plan['operation']['requested_packages'])
+        self.assertEqual((self.root/'var/lib/dpkg/status').read_bytes(),before)
+
     def test_preview_pins_transaction_without_changing_guest_and_apply_checks_exact_delta(self):
         with mock.patch.object(proot_desktop_setup.proot_guest_retirement, "_assert_idle"):
             plan = proot_desktop_setup.preview(prefix=str(self.prefix), home=str(self.home),

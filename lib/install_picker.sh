@@ -60,19 +60,28 @@ _nt_pick() (
     if [ "$redraw" = 1 ]; then
       if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
         _nt_window_selection "$title"
+        if [ "$mode" = view ]; then _nt_window_line "$((12 + _NT_WINDOW_SHIFT))" 'Arrows/PgUp/PgDn: scroll | Enter/Esc: return'; fi
       else
         printf '\033[H\033[2J' >&3
-        printf '%.*s\r\n' "$((columns - 1))" 'Arrow keys: move | Space: select | Enter: continue | Esc: cancel' >&3
+        local hint='Arrow keys: move | Space: select | Enter: continue | Esc: cancel'
+        [ "$mode" != view ] || hint='Arrows/PgUp/PgDn: scroll | Enter/Esc: return'
+        printf '%.*s\r\n' "$((columns - 1))" "$hint" >&3
         printf '%.*s\r\n%.*s\r\n%.*s\r\n' "$((columns - 1))" '-------------------------------------------------------------------------------' "$((columns - 1))" "$title" "$((columns - 1))" '-------------------------------------------------------------------------------' >&3
       fi
       for ((i=offset; i<${#items[@]} && i<offset+height; i++)); do
         mark=' '; [ "${selected[$i]}" = 0 ] || mark=x
         if [ "$i" = "$index" ]; then printf '\033[1;38;5;46m> ' >&3; else printf '  ' >&3; fi
-        printf '[%s] %.*s\033[0m\r\n' "$mark" "$((columns - 7))" "${items[$i]#*|}" >&3
+        if [ "$mode" = view ]; then
+          printf '%.*s\033[0m\r\n' "$((columns - 3))" "${items[$i]#*|}" >&3
+        else
+          printf '[%s] %.*s\033[0m\r\n' "$mark" "$((columns - 7))" "${items[$i]#*|}" >&3
+        fi
       done
       count=0
       for i in "${selected[@]}"; do count=$((count + i)); done
-      printf '\033[2K\033[38;5;114m%.*s\033[0m' "$((columns - 1))" "$((index + 1))/${#items[@]} | $count selected | Home/End, PgUp/PgDn" >&3
+      local position="$((index + 1))/${#items[@]} | $count selected | Home/End, PgUp/PgDn"
+      [ "$mode" != view ] || position="Line $((index + 1))/${#items[@]} | Read-only | Home/End, PgUp/PgDn"
+      printf '\033[2K\033[38;5;114m%.*s\033[0m' "$((columns - 1))" "$position" >&3
     elif [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
       _nt_window_footer
       printf '\033[s' >&3
@@ -92,7 +101,7 @@ _nt_pick() (
     case "$key" in
       $'\033')
         tail=''; sequence=''
-        IFS= read -rn1 -t 0.4 tail <&3 || return 130
+        IFS= read -rn1 -t 0.4 tail <&3 || { [ "$mode" != view ] || return 0; return 130; }
         [[ "$tail" = '[' || "$tail" = O ]] || continue
         for ((i=0; i<16; i++)); do
           tail=''
@@ -109,6 +118,7 @@ _nt_pick() (
           6~) index=$((index + height)); [ "$index" -lt "${#items[@]}" ] || index=$((${#items[@]} - 1)) ;;
         esac ;;
       ' ')
+        [ "$mode" != view ] || continue
         if [ "$mode" = single ]; then
           for i in "${!selected[@]}"; do selected[$i]=0; done
         fi
@@ -120,6 +130,7 @@ _nt_pick() (
           done
         fi ;;
       ''|$'\r')
+        [ "$mode" != view ] || return 0
         if [ "$mode" = single ]; then printf '%s\n' "${items[$index]%%|*}"; return 0; fi
         local result=''
         for i in "${!selected[@]}"; do

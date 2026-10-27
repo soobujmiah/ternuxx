@@ -4,6 +4,33 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Guest HTTPS timeout and read-only report repair — 2026-10-27
+
+Read-only inspection of the owner's failed run found a guest APT `TimeoutExpired`
+journal, 78 installed packages, no incomplete dpkg records, no ordinary login user,
+and no guest CA package/bundle. The reviewed transaction was 813 packages, about
+385 MB download and 1547 MB additional disk. No package repair/install was run by
+the assistant. Native Python HTTPS to one exact snapshot package returned 403 with
+its default user-agent but 200/206 with `curl/8`, a verified Native CA and a bounded
+one-byte range read. URI-only guest APT queries matched epoch-escaped cache names
+and left the dpkg status hash unchanged; they did not fetch/install packages.
+
+Existing-rootfs add-on plans now bind package URIs/cache filenames from APT's
+URI-only metadata, SHA-256/size from acquired indexes, index digests and Native CA
+digest. Native TLS downloads use the same reviewed URLs/versions, three bounded
+network attempts, hash-verified persistent cache, and stage all archives before
+guest APT runs with `--no-download`. Missing `ca-certificates` is explicitly part
+of the reviewed package plan. Both cache copies are reserved in the peak storage
+estimate. Integrity failure does not switch repositories/payloads. Fresh setup
+retains its Native CA bootstrap and now uses the same HTTPS user-agent/time bounds;
+the new Native archive transport currently targets existing-rootfs add-ons.
+
+Private categorized event logs retain redacted errors. Guest apply has no-output
+and overall deadlines; failed journals include stage, event-log path, timeout kind
+and last output. The plan report is a read-only viewer without checkboxes/selection
+counts; Space cannot select dependencies. Live complete install/user/desktop
+acceptance remains owner-pending; source/fixture results do not claim completion.
+
 ## Combined approval and live APT event follow-up — 2026-10-27
 
 The owner stopped their installer and required every selection/estimate before

@@ -794,8 +794,8 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         configure_sources = "rm -f /etc/apt/sources.list && find /etc/apt/sources.list.d -maxdepth 1 -type f \\( -name '*.sources' -o -name '*.list' \\) -delete && printf %s " + shlex.quote(sources) + " > /etc/apt/sources.list.d/ternuxx-snapshot.sources"
         script = "\n".join([
             "set -eu", f"trap 'rm -f {guest_ca_quoted}' EXIT", "export DEBIAN_FRONTEND=noninteractive", configure_sources,
-            f"apt-get -o Acquire::https::CaInfo={guest_ca_quoted} -o Acquire::Check-Valid-Until=false update",
-            f"apt-get -o Acquire::https::CaInfo={guest_ca_quoted} install -y --no-install-recommends {package_args}",
+            f"apt-get -o Acquire::https::CaInfo={guest_ca_quoted} -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 -o Acquire::Check-Valid-Until=false update",
+            f"apt-get -o Acquire::https::CaInfo={guest_ca_quoted} -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 install -y --no-install-recommends {package_args}",
             f"rm -f {guest_ca_quoted}",
             "printf '%s\\n' 'en_US.UTF-8 UTF-8' > /etc/locale.gen", "locale-gen",
             "if ! getent passwd " + guest_user + " >/dev/null; then useradd --create-home --shell /bin/bash " + guest_user + "; fi",

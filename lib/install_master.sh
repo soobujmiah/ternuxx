@@ -65,13 +65,13 @@ _nt_master_review() {
   local -a report=()
   while IFS= read -r line || [ -n "$line" ]; do report+=("row${#report[@]}|${line:- }"); done <"$folder/report.txt"
   # Always present the report before the approval menu, including size limitations.
-  _nt_pick 'Combined plan: download/disk sizes and all selections — Enter/Esc returns' single '' "${report[@]}" >/dev/null || true
+  _nt_pick 'Combined plan: download/disk sizes and all selections — Enter/Esc returns' view '' "${report[@]}" >/dev/null || true
   while :; do
     choice="$(_nt_pick "Combined plan ${plan:0:12} — approval starts installation" single '' \
       'details|Read full selections, exact packages, download/disk estimates and unknowns' \
       'approve|Review acknowledgement and approve this exact combined plan' 'cancel|Cancel; no workstation installation')" || return $?
     case "$choice" in
-      details) _nt_pick 'Combined plan report — arrows/page keys scroll; Enter/Esc returns' single '' "${report[@]}" >/dev/null || true ;;
+      details) _nt_pick 'Combined plan report — arrows/page keys scroll; Enter/Esc returns' view '' "${report[@]}" >/dev/null || true ;;
       approve)
         # Force the size limitations to be visible in the approval itself.
         _nt_confirm 'Approve known size estimates AND explicitly accept unresolved fresh-rootfs/graphics/build-scratch sizes shown in the report?' || continue

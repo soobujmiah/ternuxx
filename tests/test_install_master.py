@@ -39,6 +39,14 @@ class MasterTests(unittest.TestCase):
             self.part('guest-debian.part.json',{'plan_id':'c'*64})
             with self.assertRaisesRegex(ValueError,'changed'):plans.verify(self.home,plan)
 
+    def test_native_guest_fetch_reserves_both_cache_copies_at_peak(self):
+        self.part('native.part.json',dict(install='already_installed'))
+        self.part('guest-debian.part.json',dict(plan_id='b'*64,operation=dict(transaction_summary={},transaction_packages=[['fixture','1']],download_transport='native-verified',native_fetch=dict(archives=[dict(size=100)])),transaction=dict(download=dict(value=.1,unit='kB'),disk=dict(value=1,unit='kB'))))
+        with mock.patch.dict(os.environ,self.env):plans.build(self.home)
+        d=json.loads((self.home/'master.json').read_text())
+        self.assertEqual(d['download_bytes_known'],100)
+        self.assertEqual(d['disk_bytes_known'],1100)
+
     def coordinator(self,approve,tamper=False):
         log=self.home/'trace'
         script=f'''set -u
