@@ -32,7 +32,9 @@
       "sudo",
       "vulkan-tools",
       "x11-utils",
+      "x11-xserver-utils",
       "xauth",
+      "xdotool",
       "xfce4",
       "xfce4-terminal",
       "xserver-xephyr"

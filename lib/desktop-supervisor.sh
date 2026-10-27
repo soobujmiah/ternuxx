@@ -16,6 +16,7 @@ X11_TICKS=""
 X11_PGID=""
 X11_SID=""
 DESKTOP_PID=""
+WINDOW_FIT_PID=""
 DESKTOP_TICKS=""
 DESKTOP_PGID=""
 DESKTOP_SID=""
@@ -231,6 +232,11 @@ stop_group() {
 cleanup() {
   local failed=0
   trap - TERM INT HUP
+  if [ -n "$WINDOW_FIT_PID" ]; then
+    kill -TERM "$WINDOW_FIT_PID" 2>/dev/null || true
+    wait "$WINDOW_FIT_PID" 2>/dev/null || true
+    WINDOW_FIT_PID=""
+  fi
   if ! stop_group "$DESKTOP_PID" "$DESKTOP_TICKS" "$DESKTOP_MARKER" "$DESKTOP_PGID" "$DESKTOP_SID"; then
     failed=1
     STOP_REASON="desktop process group could not be verified stopped"
@@ -317,18 +323,17 @@ else
     *) fail "unsupported PRoot desktop environment" ;;
   esac
 fi
-export DISPLAY="$DISPLAY_VALUE" XDG_SESSION_TYPE=x11 XDG_CURRENT_DESKTOP="$CURRENT_DESKTOP"
-export XDG_SESSION_DESKTOP="$SESSION_DESKTOP" DESKTOP_SESSION="$DESKTOP_SESSION"
-export XDG_CONFIG_HOME="$STATE_DIR/$DESKTOP_ID/config" XDG_CACHE_HOME="$STATE_DIR/$DESKTOP_ID/cache"
-export XDG_DATA_HOME="$STATE_DIR/$DESKTOP_ID/data" XDG_RUNTIME_DIR="$STATE_DIR/$DESKTOP_ID/runtime"
-export TERNUXX_DESKTOP_LOG="$STATE_DIR/desktop.log"
 if [ "$PROVIDER" = native ]; then
   script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
-  "$OWNED_EXEC_BIN" "$script_dir/window_fit_session.sh" "$script_dir/window_fit.py" \
-    "$DBUS_LAUNCH_BIN" --exit-with-session "$XFCE_BIN" >> "$STATE_DIR/desktop.log" 2>&1 &
-else
-  "$OWNED_EXEC_BIN" "$DBUS_LAUNCH_BIN" --exit-with-session "$XFCE_BIN" >> "$STATE_DIR/desktop.log" 2>&1 &
+  DISPLAY="$DISPLAY_VALUE" TERNUXX_DESKTOP_LOG="$STATE_DIR/desktop.log" \
+    python3 "$script_dir/window_fit.py" --watch >> "$STATE_DIR/desktop.log" 2>&1 &
+  WINDOW_FIT_PID="$!"
 fi
+DISPLAY="$DISPLAY_VALUE" XDG_SESSION_TYPE=x11 XDG_CURRENT_DESKTOP="$CURRENT_DESKTOP" \
+XDG_SESSION_DESKTOP="$SESSION_DESKTOP" DESKTOP_SESSION="$DESKTOP_SESSION" \
+XDG_CONFIG_HOME="$STATE_DIR/$DESKTOP_ID/config" XDG_CACHE_HOME="$STATE_DIR/$DESKTOP_ID/cache" \
+XDG_DATA_HOME="$STATE_DIR/$DESKTOP_ID/data" XDG_RUNTIME_DIR="$STATE_DIR/$DESKTOP_ID/runtime" \
+  "$OWNED_EXEC_BIN" "$DBUS_LAUNCH_BIN" --exit-with-session "$XFCE_BIN" >> "$STATE_DIR/desktop.log" 2>&1 &
 DESKTOP_PID="$!"
 desktop_identity="$(capture_owned_group "$DESKTOP_PID" "$DESKTOP_MARKER")" || fail "could not verify desktop owned process group"
 read -r DESKTOP_TICKS DESKTOP_PGID DESKTOP_SID <<EOF_ID

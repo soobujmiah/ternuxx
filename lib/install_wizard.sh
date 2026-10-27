@@ -184,6 +184,9 @@ _nt_install_guest_addons() {
   local distro="$1" desktops="$2" apps="$3" desktops_set="$4" apps_set="$5" root="$6" output status plan_id
   [ "$desktops_set" = 1 ] || desktops="$(_nt_choose_guest_desktops "$distro" "$root")" || return $?
   [ "$apps_set" = 1 ] || apps="$(_nt_choose_guest_apps "$distro" "$root")" || return $?
+  if [ "$desktops" != none ] && [[ ",$apps," != *,cpu-runtime,* ]] && [[ ",$apps," != *,graphics-runtime,* ]]; then
+    apps="${apps:+$apps,}cpu-runtime"
+  fi
   if [ "${_NT_GUEST_READY[$distro]:-0}" != 1 ]; then _nt_collect_guest_account "$distro" "$root" || return $?; fi
   if [ "${_NT_GUEST_ACCOUNT_NEEDED[$distro]:-}" = create ]; then
     apps="${apps:+$apps,}account-tools"
