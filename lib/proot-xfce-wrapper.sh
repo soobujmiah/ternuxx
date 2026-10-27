@@ -108,8 +108,11 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
     system_bus_dir="$(mktemp -d "$XDG_RUNTIME_DIR/system-bus.XXXXXX")"
     system_bus_address="unix:path=$system_bus_dir/bus"
     system_bus_pid=
+    fit_pid=
     printf "Ternuxx PRoot private bus directory allocated: %s\n" "$system_bus_dir" >&2
     cleanup_system_bus() {
+      [ -z "${fit_pid:-}" ] || kill -TERM "$fit_pid" 2>/dev/null || true
+      [ -z "${fit_pid:-}" ] || wait "$fit_pid" 2>/dev/null || true
       [ -z "${system_bus_pid:-}" ] || kill -TERM "$system_bus_pid" 2>/dev/null || true
       [ -z "${system_bus_pid:-}" ] || wait "$system_bus_pid" 2>/dev/null || true
       [ -z "${system_bus_dir:-}" ] || { [ ! -S "$system_bus_dir/bus" ] || rm -f -- "$system_bus_dir/bus"; }
@@ -134,6 +137,10 @@ args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
     done
     [ -S "$system_bus_dir/bus" ] || { kill -TERM "$system_bus_pid" 2>/dev/null || true; wait "$system_bus_pid" 2>/dev/null || true; rmdir "$system_bus_dir"; echo "Private guest system bus did not become ready." >&2; exit 1; }
     export DBUS_SYSTEM_BUS_ADDRESS="$system_bus_address"
+    if [ -f "${TERNUXX_REPO_ROOT:-}/lib/window_fit.py" ]; then
+      python3 "$TERNUXX_REPO_ROOT/lib/window_fit.py" --watch >>"$state/window-fit.log" 2>&1 &
+      fit_pid=$!
+    fi
     printf "Ternuxx PRoot private system bus ready; launching: %s\n" "${desktop_argv[*]}" >&2
     dbus-launch --exit-with-session "${desktop_argv[@]}" &
     desktop_pid=$!

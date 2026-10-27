@@ -28,7 +28,7 @@ class ProotGuiRoutingTests(unittest.TestCase):
 
     def test_live_status_and_start_wait_for_owned_desktop_process_readiness(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
-        self.assertIn("desktop shell/WM/panel check %s", script)
+        self.assertIn('summary="Standalone managed guest GUI: running on %s;', script)
         self.assertIn("for _ in $(seq 1 60); do", script)
         self.assertIn('readiness=\"$(python3 -c', script)
         self.assertIn("passed shell, window-manager, panel and desktop process checks", script)

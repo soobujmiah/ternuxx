@@ -25,6 +25,18 @@ the exact recorded process group. The current session records are `failed` with 
 X11 socket/process remaining. No assistant cleanup was performed. Re-run after CI
 passes to verify server startup and Activity foregrounding on this exact installed version.
 
+## Responsive Native and PRoot app windows — 2026-10-28
+
+Managed Native, standalone PRoot, and nested PRoot sessions now start a
+session-owned X11 window-bounds watcher. It keeps oversized app windows reachable,
+requests maximize only for oversized non-transient windows, and restores the saved
+window size when the current work area can contain it again. Nested Xephyr also
+tracks Native display geometry and requests RandR framebuffer resizing after
+orientation changes. Native fresh desktop plans include `xdotool` and
+`xorg-xprop`; managed guest desktop plans include `xdotool` and X11 utilities.
+Source and static syntax checks are complete; on-device portrait/landscape visual
+acceptance remains open and active sessions were not restarted.
+
 ## PRoot desktop defaults and concise launch output — 2026-10-28
 
 Fresh/add-on guest setup now seeds VLC's XCB X11 video output and carries the

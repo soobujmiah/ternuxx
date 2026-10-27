@@ -16,8 +16,9 @@ CLI-only `vlc` package is already installed, its exact reviewed plan replaces th
 package and refuses unrelated removals. Native definitions live in
 `lib/install_catalog.sh`; guest definitions live in `lib/proot_software.py`. The
 existing package engines bind every selected package and dependency to a reviewed
-exact plan. The guest CPU/graphics runtime includes `x11-utils` for display
-inspection and `xserver-xephyr` for nested PRoot desktops. A missing candidate
+exact plan. Managed guest desktops include `xdotool`, `x11-utils`, and
+`x11-xserver-utils` for window fitting, display inspection, and orientation-aware
+nested Xephyr resizing. `xserver-xephyr` supplies the nested PRoot X server. A missing candidate
 stops preview rather than adding another package source, except the explicitly selected
 Blender option which enables the signed TUR source with consent.
 

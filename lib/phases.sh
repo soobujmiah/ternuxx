@@ -14,7 +14,7 @@ declare -gA _NT_GUEST_READY _NT_GUEST_USER _NT_GUEST_SUDO _NT_GUEST_DESKTOPS _NT
 _NT_CORE_PACKAGES=(python)
 _NT_DESKTOP_PACKAGES=(
   termux-x11-nightly dbus xfce4-session xfce4-panel xfce4-settings xfwm4
-  xfdesktop xfconf thunar xfce4-terminal
+  xfdesktop xfconf thunar xfce4-terminal xdotool xorg-xprop
 )
 _NT_MATE_PACKAGES=(mate)
 _NT_PLASMA_PACKAGES=(plasma-desktop)
@@ -45,6 +45,7 @@ _NT_BASE_PACKAGES=(
   vulkan-tools
   xorg-server-xvfb
   xdotool
+  xorg-xprop
 )
 _NT_FULL_NATIVE_PACKAGES=("${_NT_BASE_PACKAGES[@]}")
 _NT_ACTIVE_PROFILE=full-native

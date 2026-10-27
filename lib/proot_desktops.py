@@ -83,7 +83,8 @@ def packages_for(provider: str, selected: list[str] | tuple[str, ...] | None = N
     # Fresh profiles already include dbus-x11 in their base manifest. Include
     # it here too so adding a desktop to an existing guest installs the same
     # required dbus-launch helper used by the managed session launcher.
-    return list(dict.fromkeys(("dbus-x11", *(package for item in choices for package in desktops[item]["packages"]))))
+    return list(dict.fromkeys(("dbus-x11", "xdotool", "x11-utils", "x11-xserver-utils",
+                               *(package for item in choices for package in desktops[item]["packages"]))))
 
 
 def session_argv(provider: str, selected: str, *, route: str | None = None) -> tuple[str, ...]:

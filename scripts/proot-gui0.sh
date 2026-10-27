@@ -275,7 +275,10 @@ xfce_pid=
 system_bus_dir=
 system_bus_address=
 system_bus_pid=
+fit_pid=
 cleanup() {
+  [ -z "${fit_pid:-}" ] || kill -TERM "$fit_pid" 2>/dev/null || true
+  [ -z "${fit_pid:-}" ] || wait "$fit_pid" 2>/dev/null || true
   [ -z "${xfce_pid:-}" ] || kill -TERM "$xfce_pid" 2>/dev/null || true
   [ -z "${xfce_pid:-}" ] || wait "$xfce_pid" 2>/dev/null || true
   [ -z "${system_bus_pid:-}" ] || kill -TERM "$system_bus_pid" 2>/dev/null || true
@@ -312,6 +315,11 @@ done
 [ "$ready" -eq 1 ] || { echo "Xephyr :2 did not become ready; see $state/xephyr.log" >&2; exit 1; }
 renderer="$(DISPLAY=:2 es2_info 2>&1 | sed -n 's/^GL_RENDERER: //p' | head -n 1 || true)"
 printf 'Nested %s %s display :2 is ready; GLES context renderer (draw/presentation not verified): %s\n' "$TERNUXX_PROOT_ALIAS" "$TERNUXX_DESKTOP_ID" "${renderer:-unreported}"
+if [ -f "${TERNUXX_REPO_ROOT:-}/lib/window_fit.py" ]; then
+  DISPLAY=:2 python3 "$TERNUXX_REPO_ROOT/lib/window_fit.py" --watch \
+    --parent-display :1 --resize-display :2 >"$state/window-fit.log" 2>&1 &
+  fit_pid=$!
+fi
 DISPLAY=:2 dbus-launch --exit-with-session "${desktop_argv[@]}" &
 xfce_pid=$!
 wait "$xfce_pid"

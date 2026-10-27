@@ -317,11 +317,18 @@ else
     *) fail "unsupported PRoot desktop environment" ;;
   esac
 fi
-DISPLAY="$DISPLAY_VALUE" XDG_SESSION_TYPE=x11 XDG_CURRENT_DESKTOP="$CURRENT_DESKTOP" \
-XDG_SESSION_DESKTOP="$SESSION_DESKTOP" DESKTOP_SESSION="$DESKTOP_SESSION" \
-XDG_CONFIG_HOME="$STATE_DIR/$DESKTOP_ID/config" XDG_CACHE_HOME="$STATE_DIR/$DESKTOP_ID/cache" \
-XDG_DATA_HOME="$STATE_DIR/$DESKTOP_ID/data" XDG_RUNTIME_DIR="$STATE_DIR/$DESKTOP_ID/runtime" \
+export DISPLAY="$DISPLAY_VALUE" XDG_SESSION_TYPE=x11 XDG_CURRENT_DESKTOP="$CURRENT_DESKTOP"
+export XDG_SESSION_DESKTOP="$SESSION_DESKTOP" DESKTOP_SESSION="$DESKTOP_SESSION"
+export XDG_CONFIG_HOME="$STATE_DIR/$DESKTOP_ID/config" XDG_CACHE_HOME="$STATE_DIR/$DESKTOP_ID/cache"
+export XDG_DATA_HOME="$STATE_DIR/$DESKTOP_ID/data" XDG_RUNTIME_DIR="$STATE_DIR/$DESKTOP_ID/runtime"
+export TERNUXX_DESKTOP_LOG="$STATE_DIR/desktop.log"
+if [ "$PROVIDER" = native ]; then
+  script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+  "$OWNED_EXEC_BIN" "$script_dir/window_fit_session.sh" "$script_dir/window_fit.py" \
+    "$DBUS_LAUNCH_BIN" --exit-with-session "$XFCE_BIN" >> "$STATE_DIR/desktop.log" 2>&1 &
+else
   "$OWNED_EXEC_BIN" "$DBUS_LAUNCH_BIN" --exit-with-session "$XFCE_BIN" >> "$STATE_DIR/desktop.log" 2>&1 &
+fi
 DESKTOP_PID="$!"
 desktop_identity="$(capture_owned_group "$DESKTOP_PID" "$DESKTOP_MARKER")" || fail "could not verify desktop owned process group"
 read -r DESKTOP_TICKS DESKTOP_PGID DESKTOP_SID <<EOF_ID
