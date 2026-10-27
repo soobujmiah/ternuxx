@@ -1,0 +1,7 @@
+event_id: commit-202f1ab72595-f693b26f4310e088
+repository: soobujmiah/ternuxx
+commit: 202f1ab72595e872cfcbce2125afe307185f5c7a
+kind: commit
+occurred_at: '2026-10-27T16:29:37Z'
+status: completed
+summary: 'fix(proot): retain fresh guest setup diagnostics'
