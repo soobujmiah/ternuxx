@@ -1,0 +1,12 @@
+{
+  "renderer": "Adreno (TM) 825",
+  "vendor": "freedreno",
+  "version": "5.2.2 LTS",
+  "engine": "BLENDER_EEVEE",
+  "project": "/data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-60s-ternux-benchmark/fresh-kgsl/fresh_kgsl_gpu_test.blend",
+  "scene": "Scene",
+  "objects": 16,
+  "frame": 24,
+  "viewport": "RENDERED",
+  "camera": "FreshTestCamera"
+}

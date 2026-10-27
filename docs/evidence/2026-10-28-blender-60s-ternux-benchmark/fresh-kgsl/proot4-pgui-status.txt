@@ -1,0 +1,3 @@
+Native desktop: stopped
+Standalone managed guest GUI: running on :0; passed shell, window-manager, panel and desktop process checks. Android visibility remains unverified.
+Nested display :2 socket is absent.

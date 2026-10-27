@@ -1,0 +1,12 @@
+{
+  "renderer": "zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))",
+  "vendor": "Mesa",
+  "version": "4.3.2",
+  "engine": "BLENDER_EEVEE_NEXT",
+  "project": "/tmp/proot4-blender-test/proot4_fresh_gpu_test.blend",
+  "scene": "Scene",
+  "objects": 16,
+  "frame": 24,
+  "viewport": "RENDERED",
+  "camera": "FreshTestCamera"
+}

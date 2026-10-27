@@ -1,0 +1,29 @@
+GLES context renderer:
+GL_VERSION: OpenGL ES 3.2 Mesa 25.0.7-2+deb13u1
+GL_RENDERER: zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))
+
+GLX renderer summary:
+direct rendering: Yes
+Extended renderer info (GLX_MESA_query_renderer):
+    Vendor: Mesa (0x5143)
+    Device: zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP)) (0x44030000)
+    Version: 25.0.7
+OpenGL renderer string: zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))
+
+Vulkan devices:
+GPU0:
+	deviceType         = PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU
+	deviceName         = Adreno (TM) 825
+	driverName         = turnip Mesa driver
+
+GPU1:
+	deviceType         = PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU
+	deviceName         = Adreno (TM) 825
+	driverName         = turnip Mesa driver
+
+GPU2:
+	deviceType         = PHYSICAL_DEVICE_TYPE_CPU
+	deviceName         = llvmpipe (LLVM 19.1.7, 128 bits)
+	driverName         = llvmpipe
+
+These checks verify context creation and device enumeration; they do not prove frame presentation or inference offload.

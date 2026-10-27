@@ -1,0 +1,7 @@
+{
+  "renderer": "zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))",
+  "version": "4.3.2",
+  "project": "/tmp/proot4-blender-test/proot4_fresh_gpu_test.blend",
+  "viewport": "user perspective after simulated MMB orbit",
+  "frame": 24
+}
