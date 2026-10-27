@@ -6,6 +6,7 @@ import json
 import os
 import shutil
 import stat
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -63,6 +64,22 @@ class ProotSetupTests(unittest.TestCase):
             else:
                 digest.update(path.read_bytes())
         return digest.hexdigest()
+
+    def test_desktop_preview_forwards_alias_and_optional_apps(self) -> None:
+        script = f'''source "{ROOT}/lib/proot.sh"
+_TN_LIB_DIR="{ROOT}/lib"
+nt_require_termux() {{ return 0; }}
+nt_require_command() {{ return 0; }}
+nt_fail() {{ printf "FAIL:%s\\n" "$*" >&2; return 2; }}
+python3() {{ printf "ARG:%s\\n" "$*"; }}
+nt_cmd_proot setup desktop-preview --desktops xfce --alias debian --apps graphics-runtime
+'''
+        result = subprocess.run(["bash", "-c", script], capture_output=True, text=True, check=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("--alias debian", result.stdout)
+        self.assertIn("--desktops xfce", result.stdout)
+        self.assertIn("--apps graphics-runtime", result.stdout)
+        self.assertEqual(result.stdout.count("--desktops xfce"), 1)
 
     def test_adoption_preview_and_apply_only_write_native_state(self) -> None:
         before = self._guest_digest()

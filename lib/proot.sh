@@ -360,7 +360,7 @@ nt_cmd_proot() {
     db) _nt_use launch; nt_cmd_db "$@" ;;
     gui)   _nt_proot_gui "$@" ;;
     setup)
-      local action="${1:-status}" user="" plan_id="" backup_id="" guest_alias="" package_groups="" desktop_choices="" sudo_mode="password" migration_id="" confirmed=0 option
+      local action="${1:-status}" user="" plan_id="" backup_id="" guest_alias="" package_groups="" package_apps="" desktop_choices="" sudo_mode="password" migration_id="" confirmed=0 option
       [ $# -eq 0 ] || shift
       case "$action" in
         catalog|status|adopt-preview|adopt|adoption-rollback-preview|adoption-rollback|fresh-preview|fresh-resume-preview|fresh-install|desktop-preview|desktop-install|desktop-resume-preview|desktop-resume|retire-preview|retire|restore-preview|restore|icd-migrate-preview|icd-migrate|icd-rollback-preview|icd-rollback) ;;
@@ -375,6 +375,7 @@ nt_cmd_proot() {
             guest_alias="$1"; shift ;;
           --plan-id) [ "$#" -gt 0 ] || { nt_fail "--plan-id needs a value."; return 2; }; plan_id="$1"; shift ;;
           --groups) [ "$#" -gt 0 ] && [ -n "$1" ] || { nt_fail "--groups needs comma-separated package groups."; return 2; }; package_groups="$1"; shift ;;
+          --apps) [ "$#" -gt 0 ] && [ -n "$1" ] || { nt_fail "--apps needs comma-separated guest app IDs."; return 2; }; package_apps="$1"; shift ;;
           --desktops) [ "$#" -gt 0 ] && [ -n "$1" ] || { nt_fail "--desktops needs comma-separated desktop IDs."; return 2; }; desktop_choices="$1"; shift ;;
           --sudo-mode) [ "$#" -gt 0 ] || { nt_fail "--sudo-mode needs password or passwordless."; return 2; }; sudo_mode="$1"; shift ;;
           --backup-id) [ "$#" -gt 0 ] || { nt_fail "--backup-id needs a value."; return 2; }; backup_id="$1"; shift ;;
@@ -467,9 +468,9 @@ nt_cmd_proot() {
         desktop-resume) [ -n "$plan_id" ] && [ "$confirmed" -eq 1 ] && [ -z "$user$package_groups$desktop_choices$guest_alias$backup_id$migration_id" ] || {
           nt_fail "Desktop resume requires --yes --plan-id RECOVERY_PLAN_ID."; return 2;
         }; setup_args+=(--yes --plan-id "$plan_id") ;;
-        desktop-preview) [ -n "$desktop_choices" ] && [ -z "$user$plan_id$package_groups$guest_alias$backup_id$migration_id" ] && [ "$confirmed" -eq 0 ] || {
-          nt_fail "Usage: tx proot setup desktop-preview --desktops ID[,ID...]"; return 2;
-        }; setup_args+=(--desktops "$desktop_choices") ;;
+        desktop-preview) [ -n "$desktop_choices" ] && [ -z "$user$plan_id$package_groups$backup_id$migration_id" ] && [ "$confirmed" -eq 0 ] || {
+          nt_fail "Usage: tx proot setup desktop-preview --desktops ID[,ID...] [--alias debian|ternuxx-replay-NAME] [--apps APP[,APP...]]"; return 2;
+        }; [ -z "$guest_alias" ] || setup_args+=(--alias "$guest_alias"); [ -z "$package_apps" ] || setup_args+=(--apps "$package_apps") ;;
         fresh-install) [ -n "$plan_id" ] && [ "$confirmed" -eq 1 ] || {
           nt_fail "Fresh install requires --yes --plan-id ID from the matching preview."; return 2;
         }; [ -z "$user" ] || setup_args+=(--user "$user"); setup_args+=(--sudo-mode "$sudo_mode" --yes --plan-id "$plan_id") ;;
@@ -486,6 +487,9 @@ nt_cmd_proot() {
           *) nt_fail "--desktops is supported only by fresh preview actions."; return 2 ;;
         esac
       fi
+      if [ -n "$package_apps" ] && [ "$action" != desktop-preview ]; then
+        nt_fail "--apps is supported only by desktop-preview."; return 2
+      fi
       if [ -n "$package_groups" ]; then
         case "$action" in
           fresh-preview|fresh-resume-preview) setup_args+=(--groups "$package_groups") ;;
@@ -495,6 +499,7 @@ nt_cmd_proot() {
       if [ -n "$guest_alias" ]; then
         case "$action" in
           fresh-preview|fresh-resume-preview|fresh-install) setup_args+=(--alias "$guest_alias") ;;
+          desktop-preview) ;;
           *) nt_fail "--alias is supported only by fresh setup."; return 2 ;;
         esac
       fi
