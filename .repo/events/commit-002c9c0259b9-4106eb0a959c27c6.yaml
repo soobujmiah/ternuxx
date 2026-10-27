@@ -1,0 +1,7 @@
+event_id: commit-002c9c0259b9-4106eb0a959c27c6
+repository: soobujmiah/ternuxx
+commit: 002c9c0259b99796c82e965fa6e3adcc070c25ef
+kind: commit
+occurred_at: '2026-10-27T20:07:27Z'
+status: completed
+summary: 'fix(gui): fit app windows to changing displays'
