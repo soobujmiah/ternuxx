@@ -17,6 +17,11 @@ class PRootSessionRegistryTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="ternuxx-proot-registry-")
         self.base = Path(self.temp.name)
+        self.home = self.base / "home"
+        self.home.mkdir(mode=0o700)
+        self._home_env = mock.patch.dict(os.environ, {
+            "HOME": str(self.home), "TERNUXX_STATE_DIR": str(self.home / ".local/share/ternuxx")})
+        self._home_env.start()
         self.state = self.base / "state"
         self.state.mkdir(mode=0o700)
         self.rootfs = self.base / "rootfs"
@@ -26,6 +31,7 @@ class PRootSessionRegistryTests(unittest.TestCase):
         self.launcher.chmod(0o700)
 
     def tearDown(self):
+        self._home_env.stop()
         self.temp.cleanup()
 
     def make_record(self, *, pid=1234567, process_start="old-start", state="running",

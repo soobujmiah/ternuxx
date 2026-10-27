@@ -20,6 +20,15 @@ import proot_fresh_setup  # noqa: E402
 
 
 class ProotDiagnosticsTests(unittest.TestCase):
+    def setUp(self):
+        self.home = tempfile.TemporaryDirectory(prefix="ternuxx-proot-diagnostics-home-")
+        self.addCleanup(self.home.cleanup)
+        home = Path(self.home.name)
+        state = home / ".local/share/ternuxx"
+        patcher = mock.patch.dict(os.environ, {"HOME": str(home), "TERNUXX_STATE_DIR": str(state)})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
     def _rootfs_fixture(self, base: Path, passwd: str) -> Path:
         root = base / "prefix" / "var/lib/proot-distro/containers/debian/rootfs"
         (root / "etc").mkdir(parents=True)

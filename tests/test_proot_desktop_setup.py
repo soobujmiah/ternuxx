@@ -25,7 +25,8 @@ class DesktopInstallPlanTests(unittest.TestCase):
         (self.root / "etc/os-release").write_text('ID=debian\nVERSION_CODENAME=trixie\n')
         status = self.root / "var/lib/dpkg/status"
         status.parent.mkdir(parents=True)
-        status.write_text("Package: xfce4\nStatus: install ok installed\nArchitecture: all\nVersion: 4.20.1\n\n"
+        status.write_text("Package: dbus-x11\nStatus: install ok installed\nArchitecture: all\nVersion: 1.14.10-1\n\n"
+                          "Package: xfce4\nStatus: install ok installed\nArchitecture: all\nVersion: 4.20.1\n\n"
                           "Package: xfce4-terminal\nStatus: install ok installed\nArchitecture: arm64\nVersion: 1.1.4-1\n")
         self.state = self.home / ".local/share/ternuxx"
         self.calls = []
@@ -113,9 +114,10 @@ class DesktopInstallPlanTests(unittest.TestCase):
         with mock.patch.object(proot_desktop_setup.proot_guest_retirement, "_assert_idle"):
             plan = proot_desktop_setup.preview(prefix=str(self.prefix), home=str(self.home),
                 state_dir=str(self.state), selected=["plasma"], runner=runner)
-        self.assertEqual(plan["operation"]["requested_packages"], ["kde-plasma-desktop", "kwin-x11"])
+        self.assertEqual(plan["operation"]["requested_packages"], ["dbus-x11", "kde-plasma-desktop", "kwin-x11"])
         self.assertEqual(plan["operation"]["requested_versions"],
-                         [["kde-plasma-desktop", "5:162"], ["kwin-x11", "4:6.3.6-1"]])
+                         [["dbus-x11", "1.14.10-1"], ["kde-plasma-desktop", "5:162"],
+                          ["kwin-x11", "4:6.3.6-1"]])
         self.assertEqual(plan["transaction"]["new_package_count"], 1)
         self.assertTrue(plan["operation"]["guest_packages_changed"] is False)
 

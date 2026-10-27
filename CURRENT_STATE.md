@@ -54,8 +54,13 @@ Focused regression checks for installer plans/output logging, package grouping,
 geometry parsing, and terminal streaming passed (48 tests). The complete local
 Termux suite ran 1,308 tests but had 10 PRoot fixture errors and 2 PRoot fixture
 assertion failures: mocked APT fixtures omitted `dbus-x11`, and temporary rootfs
-receipts failed identity validation. These checks do not exercise the changed code;
-clean-run GitHub CI remains the integration gate. Fixture/PTY passes do not establish
+receipts failed identity validation. These checks do not exercise the changed code. Previous GitHub validation run
+40541456525 also exposed six desktop-plan fixture errors: the simulated existing
+XFCE guest omitted the newly-required `dbus-x11` package. The fixture now models the
+pinned base profile, which already includes `dbus-x11`. The PRoot diagnostics/session
+tests now also isolate HOME and state so device receipts cannot affect fixture
+results; all 90 previously affected desktop/diagnostic/session tests pass. Clean-run
+GitHub CI remains the integration gate. Fixture/PTY passes do not establish
 device GUI visibility or audible output.
 
 ## Guest HTTPS timeout and read-only report repair — 2026-10-27
