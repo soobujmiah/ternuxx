@@ -37,13 +37,13 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["mate", "lxqt"]),
                          ("lxqt", "mate"))
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxde", "lxqt"]),
-                         ["lxqt", "openbox", "lxde-core"])
+                         ["dbus-x11", "lxqt", "openbox", "lxde-core"])
         self.assertEqual(proot_desktops.session_command("debian-trixie", "mate"), "mate-session")
         self.assertEqual(proot_desktops.catalog("debian-trixie"),
                          ("xfce", "lxqt", "lxde", "mate", "plasma", "gnome", "cinnamon"))
-        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["gnome"]), ["gnome-core"])
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["gnome"]), ["dbus-x11", "gnome-core"])
         self.assertEqual(proot_desktops.packages_for("debian-trixie", ["cinnamon"]),
-                         ["cinnamon-desktop-environment"])
+                         ["dbus-x11", "cinnamon-desktop-environment"])
         self.assertEqual(proot_desktops.validate_selection("debian-trixie", ["plasma"], route="standalone"),
                          ("plasma",))
         for failed in ("gnome", "cinnamon"):
@@ -57,7 +57,7 @@ class ProotDesktopCatalogTests(unittest.TestCase):
             with self.subTest(selection=selection), self.assertRaises(proot_desktops.DesktopError):
                 proot_desktops.validate_selection("debian-trixie", selection)
         self.assertEqual(proot_desktops.validate_selection("ubuntu-noble", ["xfce"]), ("xfce",))
-        self.assertEqual(proot_desktops.packages_for("ubuntu-noble", ["xfce"]), ["xfce4", "xfce4-terminal"])
+        self.assertEqual(proot_desktops.packages_for("ubuntu-noble", ["xfce"]), ["dbus-x11", "xfce4", "xfce4-terminal"])
         self.assertEqual(proot_desktops.catalog("ubuntu-noble", route="nested"), ("xfce",))
         with self.assertRaises(proot_desktops.DesktopError):
             proot_desktops.validate_selection("ubuntu-noble", ["lxqt"])
@@ -69,8 +69,8 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         manifest = json.loads((ROOT / "config/proot/debian-trixie.json").read_text())
         base = manifest["packages"]["base"]
         self.assertTrue({"xfce4", "xfce4-terminal"}.issubset(base))
-        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxqt"]), ["lxqt", "openbox"])
-        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["plasma"]), ["kde-plasma-desktop", "kwin-x11"])
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["lxqt"]), ["dbus-x11", "lxqt", "openbox"])
+        self.assertEqual(proot_desktops.packages_for("debian-trixie", ["plasma"]), ["dbus-x11", "kde-plasma-desktop", "kwin-x11"])
         setup = __import__("proot_fresh_setup")
         groups = ["base"]
         self.assertEqual(set(setup._workstation_packages(manifest, groups, ("lxqt",))), {"lxqt", "openbox"}.union(
