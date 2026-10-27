@@ -1,0 +1,7 @@
+event_id: commit-0ad0d5e08f06-d1daf47d5482fd75
+repository: soobujmiah/ternuxx
+commit: 0ad0d5e08f06bbf9b557dce7948ffa757c0a7651
+kind: commit
+occurred_at: '2026-10-27T08:01:54Z'
+status: completed
+summary: Simplify workstation install approval flow
