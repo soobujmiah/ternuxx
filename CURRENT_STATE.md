@@ -4,6 +4,18 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Desktop lifecycle stale-lock recovery — 2026-10-27
+
+The owner reported an empty legacy `.session.lock` directory left from a prior
+lifecycle operation, blocking `tx pgui`, `tx start` and `tx stop` after a successful
+install. Read-only inspection showed the managed desktop stopped and all owned
+processes absent; only that empty stale directory was removed. Lifecycle locking
+now records PID/start-time ownership under a serialized private guard and safely
+reclaims dead-owner locks only when session/display evidence is stopped or exactly
+stale with no live owned processes. Empty old-format locks use an age guard and the
+same process/session verification. PRoot GUI paths use the same lock helper. Live or
+uncertain sessions preserve their locks. No GUI was started during recovery.
+
 ## Simplified workstation approval — 2026-10-27
 
 The guided coordinator now presents one concise Install/Cancel summary instead of

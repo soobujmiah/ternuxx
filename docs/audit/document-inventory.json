@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "0b91acfc97a252937013d86aac168638a7532e6cd174437a86b1c8fefa3c5343",
-      "lines": 251,
+      "sha256": "df94013d6e2784408d04642fa53a8243f1f1935388f677b4cdbe2f673d2b4819",
+      "lines": 263,
       "read_status": "read",
-      "read_sha256": "0b91acfc97a252937013d86aac168638a7532e6cd174437a86b1c8fefa3c5343"
+      "read_sha256": "df94013d6e2784408d04642fa53a8243f1f1935388f677b4cdbe2f673d2b4819"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -163,10 +163,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "72edd068353dadbd0357e957f5a8dc3c2c28c08a2ba36998fe269fdeb6cb70bf",
-      "lines": 456,
+      "sha256": "c8becfa3b187f0404480529f8c86b1ebdc04ccae73ecfbee59bcfcccdb1f33ed",
+      "lines": 467,
       "read_status": "read",
-      "read_sha256": "72edd068353dadbd0357e957f5a8dc3c2c28c08a2ba36998fe269fdeb6cb70bf"
+      "read_sha256": "c8becfa3b187f0404480529f8c86b1ebdc04ccae73ecfbee59bcfcccdb1f33ed"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",

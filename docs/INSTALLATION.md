@@ -396,6 +396,17 @@ remains broken after interruption, run `stty sane` in that terminal first. The n
 selector restores its saved terminal mode on normal exit, Esc and handled signals.
 
 
+## Desktop lifecycle lock recovery
+
+`tx start`, `tx stop` and managed PRoot GUI lifecycle commands record the owning
+process identity in the private session lock. Normal exit removes the record and
+lock; process death leaves enough evidence for the next lifecycle command to
+reclaim it only after verifying that the recorded owner is gone and the managed
+desktop is stopped or exactly stale with no live owned processes. Old empty
+mkdir-only locks are recovered after a short age guard and the same read-only
+session check. Live or uncertain sessions keep the lock and are never signaled by
+lock recovery.
+
 ## Existing guest account repair and login
 
 An existing rootfs is preserved. The wizard now inspects its ordinary login accounts

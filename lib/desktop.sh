@@ -22,9 +22,15 @@ _nt_journal_update() {
 _nt_session_lock() { printf '%s/.session.lock\n' "$TERNUXX_STATE_DIR"; }
 _NT_ACTIVE_SESSION_LOCK=""
 
+_nt_acquire_session_lock() {
+  local operation="$1" lock
+  lock="$(_nt_session_lock)"
+  python3 "$_TN_LIB_DIR/desktop_lifecycle_lock.py" acquire "$TERNUXX_STATE_DIR" "$HOME" /proc "${TMPDIR:-/data/data/com.termux/files/usr/tmp}" "$$" "$operation" || return 1
+  _NT_ACTIVE_SESSION_LOCK="$lock"
+}
 _nt_release_session_lock() {
   [ -n "${_NT_ACTIVE_SESSION_LOCK:-}" ] || return 0
-  rmdir "$_NT_ACTIVE_SESSION_LOCK" 2>/dev/null || true
+  python3 "$_TN_LIB_DIR/desktop_lifecycle_lock.py" release "$TERNUXX_STATE_DIR" /proc "$$" >/dev/null 2>&1 || true
   _NT_ACTIVE_SESSION_LOCK=""
 }
 
@@ -269,10 +275,7 @@ nt_cmd_start() {
 
   local lock session_report session_state
   lock="$(_nt_session_lock)"
-  if ! (umask 077 && mkdir "$lock") 2>/dev/null; then
-    nt_fail "Another Ternuxx lifecycle operation holds the session lock. If no operation is running, inspect and recover the lock manually."; return 1
-  fi
-  _NT_ACTIVE_SESSION_LOCK="$lock"
+  _nt_acquire_session_lock start || { nt_fail "Another Ternuxx lifecycle operation holds the session lock, or its state is unsafe; no desktop process was changed."; return 1; }
   trap '_nt_release_session_lock' EXIT
 
   session_report="$(python3 "$_TN_LIB_DIR/desktop_session_state.py" inspect "$HOME" "$state_root" /proc "${TMPDIR:-/data/data/com.termux/files/usr/tmp}" 2>/dev/null)" || {
@@ -448,11 +451,7 @@ nt_cmd_stop() {
   fi
 
   lock="$(_nt_session_lock)"
-  if ! (umask 077 && mkdir "$lock") 2>/dev/null; then
-    nt_fail "Another Ternuxx lifecycle operation holds the session lock. If no operation is running, inspect and recover the lock manually."
-    return 1
-  fi
-  _NT_ACTIVE_SESSION_LOCK="$lock"
+  _nt_acquire_session_lock stop || { nt_fail "Another Ternuxx lifecycle operation holds the session lock, or its state is unsafe; no process was signaled."; return 1; }
   trap '_nt_release_session_lock' EXIT
 
   local ownership_report ownership_state

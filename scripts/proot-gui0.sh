@@ -13,6 +13,7 @@ SUPERVISOR="$ROOT/lib/desktop-supervisor.sh"
 WRAPPER="$ROOT/lib/proot-xfce-wrapper.sh"
 OWNED_EXEC="$ROOT/lib/owned-exec.py"
 STATE_HELPER="$ROOT/lib/desktop_session_state.py"
+LIFECYCLE_LOCK_HELPER="$ROOT/lib/desktop_lifecycle_lock.py"
 DISPLAY_TOOL="$ROOT/lib/x11_display.py"
 ACTION="${1:-status}"
 shift || true
@@ -100,6 +101,8 @@ USAGE
 }
 
 inspect() { python3 "$STATE_HELPER" inspect "$HOME" "$STATE_DIR" /proc "$TMP_ROOT"; }
+acquire_lifecycle_lock() { python3 "$LIFECYCLE_LOCK_HELPER" acquire "$1" "$HOME" /proc "$TMP_ROOT" "$$" "$2"; }
+release_lifecycle_lock() { python3 "$LIFECYCLE_LOCK_HELPER" release "$1" /proc "$$" >/dev/null 2>&1 || true; }
 json_state() { python3 -c 'import json,sys; print(json.load(sys.stdin).get("state","unknown"))' <<<"$1" 2>/dev/null || printf '%s\n' "${2:-unknown}"; }
 state_value() { python3 - "$STATE_FILE" "$1" <<'PY'
 import json,sys
@@ -187,11 +190,11 @@ exit "$result"
     python3 "$STATE_HELPER" ensure-state "$HOME" "$STATE_DIR" >/dev/null
     GLOBAL_LOCK="$NATIVE_STATE/.session.lock"
     LOCAL_LOCK="$STATE_DIR/.session.lock"
-    mkdir "$GLOBAL_LOCK" 2>/dev/null || { echo "Another Ternuxx desktop lifecycle operation is active; retry after it finishes." >&2; exit 1; }
+    acquire_lifecycle_lock "$NATIVE_STATE" "PRoot $MODE start" || exit 1
     global_lock=1; local_lock=0
     release_locks() {
-      [ "$local_lock" -eq 0 ] || rmdir "$LOCAL_LOCK" 2>/dev/null || true
-      [ "$global_lock" -eq 0 ] || rmdir "$GLOBAL_LOCK" 2>/dev/null || true
+      [ "$local_lock" -eq 0 ] || release_lifecycle_lock "$STATE_DIR"
+      [ "$global_lock" -eq 0 ] || release_lifecycle_lock "$NATIVE_STATE"
     }
     trap release_locks EXIT
     trap 'exit 130' INT
@@ -327,7 +330,7 @@ GUEST
     [ "$native_state" = stopped ] || { echo "Standalone display :0 requires Native GUI stopped; current Native state is $native_state. Choose nested mode while Native GUI is running." >&2; exit 1; }
     [ -x "$SUPERVISOR" ] && [ -x "$WRAPPER" ] && [ -x "$ROOT/lib/proot-dbus-session.sh" ] && [ -x "$OWNED_EXEC" ] || { echo "Ternuxx PRoot desktop component is unavailable." >&2; exit 1; }
     PYTHONPATH="$ROOT/lib" python3 -c 'import os,sys,proot_diagnostics; proot_diagnostics.resolve_proot_guest_shell(distro=sys.argv[1],user=sys.argv[2],prefix=os.environ["PREFIX"])' "$DISTRO_ID" "$guest_user" >/dev/null 2>&1 || { echo "The selected guest account profile is unavailable; no setup changes were made." >&2; exit 1; }
-    mkdir "$LOCAL_LOCK" 2>/dev/null || { echo "Another standalone PRoot GUI operation is active." >&2; exit 1; }
+    acquire_lifecycle_lock "$STATE_DIR" "PRoot standalone start" || exit 1
     local_lock=1
     current="$(inspect 2>/dev/null || true)"
     current_state="$(json_state "$current" unknown)"
@@ -405,14 +408,14 @@ PY
     python3 "$STATE_HELPER" ensure-state "$HOME" "$NATIVE_STATE" >/dev/null
     GLOBAL_LOCK="$NATIVE_STATE/.session.lock"
     LOCAL_LOCK="$STATE_DIR/.session.lock"
-    mkdir "$GLOBAL_LOCK" 2>/dev/null || { echo "Another Ternuxx desktop lifecycle operation is active; retry after it finishes." >&2; exit 1; }
+    acquire_lifecycle_lock "$NATIVE_STATE" "PRoot stop" || exit 1
     global_lock=1; local_lock=0
-    release_locks() { [ "$local_lock" -eq 0 ] || rmdir "$LOCAL_LOCK" 2>/dev/null || true; [ "$global_lock" -eq 0 ] || rmdir "$GLOBAL_LOCK" 2>/dev/null || true; }
+    release_locks() { [ "$local_lock" -eq 0 ] || release_lifecycle_lock "$STATE_DIR"; [ "$global_lock" -eq 0 ] || release_lifecycle_lock "$NATIVE_STATE"; }
     trap release_locks EXIT
     trap 'exit 130' INT
     trap 'exit 143' TERM
     trap 'exit 129' HUP
-    mkdir "$LOCAL_LOCK" 2>/dev/null || { echo "Another standalone PRoot GUI operation is active." >&2; exit 1; }
+    acquire_lifecycle_lock "$STATE_DIR" "PRoot standalone stop" || exit 1
     local_lock=1
     report="$(inspect)" || { echo "PRoot GUI ownership is unknown or unsafe; no signal was sent." >&2; exit 1; }
     current_state="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("state","unknown"))' <<<"$report")"
