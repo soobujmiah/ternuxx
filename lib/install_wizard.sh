@@ -339,10 +339,16 @@ _nt_collect_guest_account() {
   if [ -e "$PREFIX/var/lib/proot-distro/containers/$distro" ]; then
     existing=1
     candidates="$(python3 "$root/lib/proot_account_setup.py" users --alias "$distro")" || return $?
-    while IFS= read -r choice; do [ -z "$choice" ] || account_options+=("$choice|$choice"); done < <(python3 -c 'import json,sys; print("\n".join(json.load(sys.stdin)))' <<<"$candidates")
+    while IFS= read -r choice; do [ -z "$choice" ] || account_options+=("account:$choice|Use existing account: $choice"); done < <(python3 -c 'import json,sys; print("\n".join(json.load(sys.stdin)))' <<<"$candidates")
     if [ "${#account_options[@]}" -gt 0 ]; then
-      user="$(_nt_pick "Choose $distro login account" single '' "${account_options[@]}")" || return $?
-      _NT_GUEST_ACCOUNT_NEEDED[$distro]=select
+      account_options+=("new|Create a new guest username")
+      choice="$(_nt_pick "Choose $distro login account" single '' "${account_options[@]}")" || return $?
+      if [[ "$choice" = account:* ]]; then
+        user="${choice#account:}"
+        _NT_GUEST_ACCOUNT_NEEDED[$distro]=select
+      else
+        _NT_GUEST_ACCOUNT_NEEDED[$distro]=create
+      fi
     else
       nt_info "$distro has no ordinary login account. The reviewed installer will create one, preserving the rootfs."
       _NT_GUEST_ACCOUNT_NEEDED[$distro]=create

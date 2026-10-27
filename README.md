@@ -47,7 +47,8 @@ The matching Termux:X11 Android app is installed/opened separately.
 
 Native DEs are XFCE, MATE and Plasma; managed guests are Debian Trixie and Ubuntu
 Noble. Select multiple DEs, apps or distros with Space. Guest usernames and hidden
-passwords remain text inputs and are collected before bulk installation. A Writer-only Native package is unavailable; the
+passwords remain text inputs and are collected before bulk installation; on an existing
+guest, users can select an existing account or create a new username of their choice. A Writer-only Native package is unavailable; the
 wizard does not substitute the monolithic LibreOffice suite. Guest setup offers
 Writer-only and other optional apps after DE selection; the clean/base profile keeps
 its managed CPU rendering, graphics and audio setup.

@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "8f15e9bde4ffc16bb0608d651cc3f99df89466e94c6abe4e4a36d0bda18dfdc2",
-      "lines": 155,
+      "sha256": "f595ad829ee72152406f10fd650f35dc183fcb24c964bb0f1d0dc0d6d883441a",
+      "lines": 156,
       "read_status": "read",
-      "read_sha256": "8f15e9bde4ffc16bb0608d651cc3f99df89466e94c6abe4e4a36d0bda18dfdc2"
+      "read_sha256": "f595ad829ee72152406f10fd650f35dc183fcb24c964bb0f1d0dc0d6d883441a"
     },
     {
       "path": "SECURITY.md",
@@ -163,10 +163,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "ed66368a18efa60233d5cf9447271fc2070622344388a511975b07be13de3b52",
-      "lines": 454,
+      "sha256": "72edd068353dadbd0357e957f5a8dc3c2c28c08a2ba36998fe269fdeb6cb70bf",
+      "lines": 456,
       "read_status": "read",
-      "read_sha256": "ed66368a18efa60233d5cf9447271fc2070622344388a511975b07be13de3b52"
+      "read_sha256": "72edd068353dadbd0357e957f5a8dc3c2c28c08a2ba36998fe269fdeb6cb70bf"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",

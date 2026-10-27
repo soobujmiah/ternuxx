@@ -402,8 +402,10 @@ An existing rootfs is preserved. The wizard now inspects its ordinary login acco
 before bulk installation. If none exists, it collects a new username/sudo mode and
 hidden password; required `sudo`/`passwd` packages join the reviewed add-on package
 plan. A separate exact account plan creates only that new account. If accounts
-already exist, select one with arrows; this records a rootfs-bound default without
-rewriting existing passwords or sudo configuration. A failed partial account operation
+already exist, select one or choose **Create a new guest username**. New usernames
+are entered by the user and are not fixed to `sbj`; choosing an existing account
+records a rootfs-bound default without rewriting existing passwords or sudo
+configuration. A failed partial account operation
 keeps a journal and requires inspection, rather than silently adopting an incomplete
 setup. No guest rootfs is overwritten and account setup refuses a busy managed guest.
 
