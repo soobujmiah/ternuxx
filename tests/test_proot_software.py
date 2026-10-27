@@ -19,6 +19,7 @@ class GuestSoftwareTests(unittest.TestCase):
                 self.assertIn(package, packages)
             self.assertNotIn('claude-code', packages)
             self.assertIn('x11-utils', packages)
+            self.assertIn('xserver-xephyr', packages)
             self.assertEqual(len(packages), len(set(packages)))
             # Agent choices declare prerequisites and recipes, not a hidden curl installer.
             self.assertIn('recipe', proot_software.catalog(distro)['ai-codex'][0])
@@ -49,6 +50,8 @@ class GuestSoftwareTests(unittest.TestCase):
         self.assertNotIn('xfce4-terminal', result)
         self.assertIn('mesa-vulkan-drivers', result)
         self.assertIn('pulseaudio-utils', result)
+        self.assertIn('x11-utils', result)
+        self.assertIn('xserver-xephyr', result)
         self.assertEqual(len(result), len(set(result)))
 
     def test_ubuntu_browser_avoids_snap_and_unknown_apps_fail(self):

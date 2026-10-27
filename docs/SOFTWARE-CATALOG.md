@@ -12,8 +12,9 @@ CLI-only `vlc` package is already installed, its exact reviewed plan replaces th
 package and refuses unrelated removals. Native definitions live in
 `lib/install_catalog.sh`; guest definitions live in `lib/proot_software.py`. The
 existing package engines bind every selected package and dependency to a reviewed
-exact plan. A missing candidate stops preview rather
-than adding another package source.
+exact plan. The guest CPU/graphics runtime includes `x11-utils` for display
+inspection and `xserver-xephyr` for nested PRoot desktops. A missing candidate
+stops preview rather than adding another package source.
 
 | Category | Examples in Native | Additional guest selections |
 |---|---|---|

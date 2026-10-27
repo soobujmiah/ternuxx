@@ -163,10 +163,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "e3aaf10cfb2b26cc61c34abd629b19d224e5e67c6ca43246c1fdfaf6e44cf299",
+      "sha256": "9d56638747a6dc8582051e50866f640bbc84be0ff41eb8ab4f6bb9af9eb51a2e",
       "lines": 487,
       "read_status": "read",
-      "read_sha256": "e3aaf10cfb2b26cc61c34abd629b19d224e5e67c6ca43246c1fdfaf6e44cf299"
+      "read_sha256": "9d56638747a6dc8582051e50866f640bbc84be0ff41eb8ab4f6bb9af9eb51a2e"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -259,10 +259,10 @@
     {
       "path": "docs/SOFTWARE-CATALOG.md",
       "kind": "narrative",
-      "sha256": "29df1c11ca5ef386450da88bf5b0f735e5ea15b1d40edabb9beeb5b15c7303f2",
-      "lines": 73,
+      "sha256": "fc195b7f28a181eb2db8911064629f92dce2d2c55b18e6a21aff192bc6f0062e",
+      "lines": 74,
       "read_status": "read",
-      "read_sha256": "29df1c11ca5ef386450da88bf5b0f735e5ea15b1d40edabb9beeb5b15c7303f2"
+      "read_sha256": "fc195b7f28a181eb2db8911064629f92dce2d2c55b18e6a21aff192bc6f0062e"
     },
     {
       "path": "docs/WINE-NATIVE.md",

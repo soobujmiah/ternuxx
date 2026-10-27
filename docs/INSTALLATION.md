@@ -223,7 +223,7 @@ Guest login starts directly in the terminal. If the guest has multiple ordinary
 accounts, Ternuxx presents an account chooser; `tx db --user NAME` selects one
 without prompting. `tx pgui` uses the same account selection before launching
 the desktop. With Native desktop `:1` running, PRoot GUI uses nested display `:2`;
-otherwise it uses standalone display `:0`.
+otherwise it uses standalone display `:0`. The managed guest graphics/CPU runtime includes `x11-utils` for display geometry and `xserver-xephyr` for the nested X server.
 
 The fresh setup flow refuses to replace an existing guest. Debian desktop and graphics acceptance are separate from Native desktop verification; see the [capability matrix](architecture/CAPABILITY-MATRIX.md) and [known limitations](testing/KNOWN-LIMITATIONS.md).
 
