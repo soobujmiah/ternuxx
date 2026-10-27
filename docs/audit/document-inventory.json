@@ -43,10 +43,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "df94013d6e2784408d04642fa53a8243f1f1935388f677b4cdbe2f673d2b4819",
-      "lines": 263,
+      "sha256": "5905bf0329dc76ea9c1515b8b91d79a9fcd9cbafa745e2163968c06387a19244",
+      "lines": 302,
       "read_status": "read",
-      "read_sha256": "df94013d6e2784408d04642fa53a8243f1f1935388f677b4cdbe2f673d2b4819"
+      "read_sha256": "5905bf0329dc76ea9c1515b8b91d79a9fcd9cbafa745e2163968c06387a19244"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +67,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "f595ad829ee72152406f10fd650f35dc183fcb24c964bb0f1d0dc0d6d883441a",
-      "lines": 156,
+      "sha256": "f9ead0a054010d1af858d529724d31436614621b958b06016d0b82c53c9a59bb",
+      "lines": 159,
       "read_status": "read",
-      "read_sha256": "f595ad829ee72152406f10fd650f35dc183fcb24c964bb0f1d0dc0d6d883441a"
+      "read_sha256": "f9ead0a054010d1af858d529724d31436614621b958b06016d0b82c53c9a59bb"
     },
     {
       "path": "SECURITY.md",
@@ -163,10 +163,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "c8becfa3b187f0404480529f8c86b1ebdc04ccae73ecfbee59bcfcccdb1f33ed",
-      "lines": 467,
+      "sha256": "e3aaf10cfb2b26cc61c34abd629b19d224e5e67c6ca43246c1fdfaf6e44cf299",
+      "lines": 487,
       "read_status": "read",
-      "read_sha256": "c8becfa3b187f0404480529f8c86b1ebdc04ccae73ecfbee59bcfcccdb1f33ed"
+      "read_sha256": "e3aaf10cfb2b26cc61c34abd629b19d224e5e67c6ca43246c1fdfaf6e44cf299"
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -179,10 +179,10 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "456a3842df1b2f44d5c48a55e96e884e871fcb379b62c82106aa0cbeaf3fc956",
-      "lines": 79,
+      "sha256": "ba3ccc55797e633bf34f54c96904e4fd8238926c00b8dc98eec03827edbf85d7",
+      "lines": 81,
       "read_status": "read",
-      "read_sha256": "456a3842df1b2f44d5c48a55e96e884e871fcb379b62c82106aa0cbeaf3fc956"
+      "read_sha256": "ba3ccc55797e633bf34f54c96904e4fd8238926c00b8dc98eec03827edbf85d7"
     },
     {
       "path": "docs/OPTIMIZATION.md",
@@ -259,10 +259,10 @@
     {
       "path": "docs/SOFTWARE-CATALOG.md",
       "kind": "narrative",
-      "sha256": "6e3722bb8406c5a580b71f2c1b72fe297edc499a2aa65f7a05df16227fb778a0",
-      "lines": 69,
+      "sha256": "29df1c11ca5ef386450da88bf5b0f735e5ea15b1d40edabb9beeb5b15c7303f2",
+      "lines": 73,
       "read_status": "read",
-      "read_sha256": "6e3722bb8406c5a580b71f2c1b72fe297edc499a2aa65f7a05df16227fb778a0"
+      "read_sha256": "29df1c11ca5ef386450da88bf5b0f735e5ea15b1d40edabb9beeb5b15c7303f2"
     },
     {
       "path": "docs/WINE-NATIVE.md",

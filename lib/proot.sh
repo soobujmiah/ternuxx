@@ -95,23 +95,28 @@ _nt_proot_verify() {
 _nt_guest_login() {
   local distro="$1"; shift
   if [ "${1:-}" = --help ] || [ "${1:-}" = -h ]; then
-    printf 'Open the installed %s guest through the shared owned session service.\nPreview then type LOGIN. No GUI or service starts.\n' "$distro"
+    printf 'Open the installed %s guest in this terminal. Choose an account only when multiple ordinary accounts exist; --user NAME skips that chooser. No GUI or service starts.\n' "$distro"
     return 0
   fi
-  [ "$#" = 0 ] || { nt_fail "Guest login accepts no arguments; use tx proot setup for management."; return 2; }
+  local selected_user="" option service="$_TN_LIB_DIR/management_service.py" picker="$_TN_LIB_DIR/proot_user_picker.py" preview plan_id login_user
+  while [ "$#" -gt 0 ]; do
+    option="$1"; shift
+    case "$option" in
+      --user) [ "$#" -gt 0 ] && [ -n "$1" ] || { nt_fail "--user needs an account name."; return 2; }; selected_user="$1"; shift ;;
+      *) nt_fail "Usage: tx db [--user NAME]"; return 2 ;;
+    esac
+  done
   [ -t 0 ] && [ -t 1 ] || { nt_fail "Guest login needs an attached terminal."; return 2; }
   nt_require_termux || return 1
   nt_require_command python3 || return 1
-  local service="$_TN_LIB_DIR/management_service.py" preview plan_id answer login_user
-  preview="$(python3 "$service" --operation proot.start.preview --guest-profile debian-interactive --alias "$distro" --json)" || { printf '%s\n' "$preview"; return 1; }
+  local -a picker_args=(--prefix "$PREFIX" --alias "$distro")
+  [ -z "$selected_user" ] || picker_args+=(--user "$selected_user")
+  login_user="$(PYTHONPATH="$_TN_LIB_DIR" python3 "$picker" "${picker_args[@]}")" || return $?
+  preview="$(python3 "$service" --operation proot.start.preview --guest-profile debian-interactive --alias "$distro" --user "$login_user" --json)" || { printf '%s\n' "$preview"; return 1; }
   plan_id="$(python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("data",{}).get("plan_id", "") if d.get("ok") else "")' <<<"$preview")"
   [ -n "$plan_id" ] || { printf '%s\n' "$preview"; return 1; }
-  login_user="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["data"]["user"])' <<<"$preview")" || return 1
   nt_info "Guest login: $distro | Account: $login_user | Foreground terminal; no GUI/service start."
-  printf 'Type LOGIN to enter this exact %s session: ' "$distro"
-  IFS= read -r answer || return 1
-  [ "$answer" = LOGIN ] || { nt_warn 'Cancelled; no guest session started.'; return 2; }
-  python3 "$service" --operation proot.start --guest-profile debian-interactive --alias "$distro" --yes --plan-id "$plan_id" --json
+  python3 "$service" --operation proot.start --guest-profile debian-interactive --alias "$distro" --user "$login_user" --yes --plan-id "$plan_id" --json
 }
 
 nt_cmd_db() { _nt_guest_login debian "$@"; }

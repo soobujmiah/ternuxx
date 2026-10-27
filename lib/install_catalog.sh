@@ -7,7 +7,7 @@ _NT_NATIVE_APP_CATALOG=(
   'pdf|Office: Evince PDF viewer|evince|termux-x11'
   'editor|Editors: Mousepad|mousepad|termux-x11'
   'archive|Files: Xarchiver|xarchiver|termux-x11'
-  'video|Media: VLC player|vlc|termux-main'
+  'video|Media: VLC player (GUI)|vlc-qt|termux-x11'
   'gimp|Graphics: GIMP image editor|gimp|termux-x11'
   'inkscape|Graphics: Inkscape vector editor|inkscape|termux-x11'
   'krita|Graphics: Krita painting|krita|termux-x11'

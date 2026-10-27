@@ -44,19 +44,12 @@ alias,prefix=sys.argv[1:]
 proot_diagnostics.verify_managed_guest_alias(alias,prefix)
 PYALIAS
     fi
-    guest_user="$(PYTHONPATH="$ROOT/lib" python3 - "$DISTRO_ID" "$EXPLICIT_USER" <<'PYUSER'
-import os,sys,proot_diagnostics as guests
-try:
-    alias, explicit = sys.argv[1:]
-    if explicit:
-        if guests.ordinary_guest_users(distro=alias,prefix=os.environ['PREFIX']).count(explicit)!=1:
-            raise ValueError('selected account is not one ordinary guest login')
-        print(explicit)
-    else: print(guests.resolve_proot_guest_user(distro=alias,prefix=os.environ['PREFIX']))
-except ValueError as exc:
-    print(str(exc),file=sys.stderr);raise SystemExit(1)
-PYUSER
-)" || { echo "No desktop started. Set up the account with tx install proot $DISTRO_ID, or select an existing one with tx pgui --user NAME." >&2; exit 1; }
+    picker_args=(--prefix "$PREFIX" --alias "$DISTRO_ID")
+    [ -z "$EXPLICIT_USER" ] || picker_args+=(--user "$EXPLICIT_USER")
+    guest_user="$(PYTHONPATH="$ROOT/lib" python3 "$ROOT/lib/proot_user_picker.py" "${picker_args[@]}")" || {
+      echo "No desktop started. Set up an account with tx install proot $DISTRO_ID, or select one with tx pgui --user NAME." >&2
+      exit 1
+    }
     selection="$(PYTHONPATH="$ROOT/lib" python3 - "$PREFIX/var/lib/proot-distro/containers/$DISTRO_ID/rootfs" "$DESKTOP_ID" "$MODE" "$PROFILE_ID" <<'PYSEL'
 import sys
 import proot_desktops

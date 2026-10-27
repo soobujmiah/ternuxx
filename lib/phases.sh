@@ -52,6 +52,8 @@ _NT_ACTIVE_COMPONENTS=""
 _NT_ACTIVE_SKIPPED_COMPONENTS=""
 _NT_PLAN_MODE=install
 _NT_PLAN_RESOURCE_ESTIMATES='{"schema_version":1,"complete":false,"packages":[]}'
+_NT_PLAN_ALLOW_VLC_REPLACEMENT=0
+_NT_PLAN_REMOVALS=()
 
 _nt_capture_install_resource_estimates() {
   if [ ${#_NT_PLAN_TRANSACTION[@]} -eq 0 ]; then
@@ -275,6 +277,8 @@ _nt_package_candidate_from_official_repo() {
 
 _nt_make_install_plan() {
   _NT_PLAN_MODE=install
+  _NT_PLAN_ALLOW_VLC_REPLACEMENT=0
+  _NT_PLAN_REMOVALS=()
   local package expected_repo candidate simulation upgrade_simulation
   local -A upgrade_names=()
   local -a simulation_options=(--no-upgrade) plan_roots=("${_NT_BASE_PACKAGES[@]}")
@@ -319,13 +323,30 @@ _nt_make_install_plan() {
     return 0
   fi
 
-  simulation="$(apt-get -s --no-install-recommends --no-remove "${simulation_options[@]}" install "${_NT_PLAN_PACKAGES[@]}" 2>&1)" || {
+  local -a remove_policy=(--no-remove)
+  if [[ " ${_NT_PLAN_PACKAGES[*]} " == *" vlc-qt "* ]] && _nt_package_installed vlc; then
+    # Termux's `vlc` is CLI-only. Its GUI build `vlc-qt` explicitly replaces
+    # it; allow that one named transition, while rejecting every other removal.
+    _NT_PLAN_ALLOW_VLC_REPLACEMENT=1
+    remove_policy=()
+  fi
+  simulation="$(apt-get -s --no-install-recommends "${remove_policy[@]}" "${simulation_options[@]}" install "${_NT_PLAN_PACKAGES[@]}" 2>&1)" || {
     nt_fail "APT could not resolve the preview. No packages were changed."
     printf '%s\n' "$simulation" >&2
     return 1
   }
-  if printf '%s\n' "$simulation" | grep -Eq '^(Remv|The following packages will be REMOVED:)'; then
-    nt_fail "The proposed transaction removes packages; refusing it. No packages were changed."
+  _NT_PLAN_REMOVALS=()
+  while IFS= read -r package; do
+    [ -n "$package" ] || continue
+    if [ "$_NT_PLAN_ALLOW_VLC_REPLACEMENT" = 1 ] && [ "$package" = vlc ] && _nt_package_installed vlc; then
+      _NT_PLAN_REMOVALS+=("$package")
+    else
+      nt_fail "The proposed transaction removes an unapproved package ($package); refusing it. No packages were changed."
+      return 1
+    fi
+  done < <(printf '%s\n' "$simulation" | awk '$1 == "Remv" {print $2}')
+  if [ "$_NT_PLAN_ALLOW_VLC_REPLACEMENT" = 1 ] && [ " ${_NT_PLAN_REMOVALS[*]} " != " vlc " ]; then
+    nt_fail "The VLC GUI replacement did not resolve to the exact vlc-to-vlc-qt change; refusing it."
     return 1
   fi
   if ! printf '%s\n' "$simulation" | awk '/^(Inst|Conf) / && $0 !~ /termux-main|termux-x11/ { bad=1 } END { exit bad ? 1 : 0 }'; then
@@ -355,6 +376,8 @@ _nt_make_install_plan() {
 
 _nt_make_update_plan() {
   _NT_PLAN_MODE=update
+  _NT_PLAN_ALLOW_VLC_REPLACEMENT=0
+  _NT_PLAN_REMOVALS=()
   local package expected_repo candidate installed simulation index expected_version
   _NT_PLAN_PACKAGES=()
   _NT_PLAN_VERSIONS=()
@@ -505,7 +528,8 @@ PYCHECKPREVIEW
 }
 
 _nt_apply_install_transaction() {
-  local -a options=(--assume-yes --no-install-recommends --no-remove)
+  local -a options=(--assume-yes --no-install-recommends)
+  [ "${_NT_PLAN_ALLOW_VLC_REPLACEMENT:-0}" = 1 ] || options+=(--no-remove)
   [ "${_NT_PLAN_MODE:-install}" = update ] || options+=(--no-upgrade)
   if [ "${TERNUXX_WIZARD_ACTIVE:-0}" = 1 ]; then
     options+=(-o Dpkg::Use-Pty=0 -o Dpkg::Progress-Fancy=0)
@@ -783,7 +807,11 @@ nt_cmd_install() {
     fi
     plan_id="$( _nt_compute_plan_id )" || return 1
     nt_info "Native preview: $_NT_ACTIVE_PROFILE · ${#_NT_PLAN_VERSIONS[@]} requested packages · ${#_NT_PLAN_TRANSACTION[@]} total package changes."
-    nt_info "Only the displayed transaction from official Termux repositories will be applied; upgrades and removals are refused."
+    if [ "${_NT_PLAN_ALLOW_VLC_REPLACEMENT:-0}" = 1 ]; then
+      nt_info "Only the exact vlc-to-vlc-qt GUI replacement and its displayed dependencies will be applied; no other removals are allowed."
+    else
+      nt_info "Only the displayed transaction from official Termux repositories will be applied; upgrades and removals are refused."
+    fi
     printf 'Install this Native workstation profile now? [y/N] ' >/dev/tty
     local guided_answer
     IFS= read -r guided_answer </dev/tty || return 2
@@ -808,6 +836,8 @@ nt_cmd_install() {
     printf '%s\n' "$_NT_PLAN_SIMULATION"
     if [ "$update" = "1" ]; then
       nt_info "Only the displayed core-package updates and their exact simulated dependencies can change; removals, recommendations, and repository changes are refused."
+    elif [ "${_NT_PLAN_ALLOW_VLC_REPLACEMENT:-0}" = 1 ]; then
+      nt_info "This exact plan replaces CLI-only vlc with GUI-enabled vlc-qt; no other removals, upgrades, recommendations, or repository changes are allowed."
     else
       nt_info "No upgrades, removals, recommendations, or repository changes are allowed by this plan."
     fi
@@ -830,7 +860,12 @@ nt_cmd_install() {
       nt_info "Requested packages: ${#_NT_PLAN_VERSIONS[@]} · Resolved changes: ${#_NT_PLAN_TRANSACTION[@]}"
       nt_info "Profile: $_NT_ACTIVE_PROFILE"
       nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
-      nt_info "Scope: official Termux repositories; no removals, recommendations, or unrelated upgrades."
+      if [ "${_NT_PLAN_ALLOW_VLC_REPLACEMENT:-0}" = 1 ]; then
+        nt_info "Exact replacement: remove CLI-only vlc and install GUI-enabled vlc-qt; no other removals are allowed."
+        nt_info "Scope: official Termux repositories; no recommendations or unrelated upgrades."
+      else
+        nt_info "Scope: official Termux repositories; no removals, recommendations, or unrelated upgrades."
+      fi
       nt_info "Preview only; no package changes have been made."
       nt_info "Run 'tx install $([ "$update" = "1" ] && printf 'update ')preview --verbose' to review package versions and the full APT simulation."
     fi

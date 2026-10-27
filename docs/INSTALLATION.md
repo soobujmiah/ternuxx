@@ -219,6 +219,12 @@ tx proot status
 tx db
 ```
 
+Guest login starts directly in the terminal. If the guest has multiple ordinary
+accounts, Ternuxx presents an account chooser; `tx db --user NAME` selects one
+without prompting. `tx pgui` uses the same account selection before launching
+the desktop. With Native desktop `:1` running, PRoot GUI uses nested display `:2`;
+otherwise it uses standalone display `:0`.
+
 The fresh setup flow refuses to replace an existing guest. Debian desktop and graphics acceptance are separate from Native desktop verification; see the [capability matrix](architecture/CAPABILITY-MATRIX.md) and [known limitations](testing/KNOWN-LIMITATIONS.md).
 
 ## Interfaces
@@ -229,7 +235,7 @@ tx web
 tx gui
 ```
 
-The Web UI binds to loopback and requires its authenticated setup flow. The TUI, Web UI, and GTK center expose only the operations implemented for each client through the shared management service. Check current support in the [capability matrix](architecture/CAPABILITY-MATRIX.md).
+`tx gui` starts the Native desktop when it is stopped, then opens the GTK center. The Web UI binds to loopback and requires its authenticated setup flow. The TUI, Web UI, and GTK center expose only the operations implemented for each client through the shared management service. Check current support in the [capability matrix](architecture/CAPABILITY-MATRIX.md).
 
 ## SSH and recovery
 
@@ -440,7 +446,7 @@ tx db                     # Debian login; tx debian is equivalent
 tx ub                     # Ubuntu login; tx ubuntu is equivalent
 tx pgui                   # default recorded Debian user / XFCE
 tx pgui --alias ubuntu
-tx pgui --user NAME        # explicit existing ordinary Debian account
+tx pgui --user NAME       # explicit existing ordinary Debian account
 ```
 
 Kali has no qualified adapter yet: `tx kali` reports that state and starts nothing.

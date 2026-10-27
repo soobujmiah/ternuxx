@@ -36,6 +36,32 @@ class LaunchCommandTests(unittest.TestCase):
             capture_output=True, text=True, env=self.env, timeout=15,
         )
 
+    def _run_gui_open_with_status(self, lifecycle: str) -> subprocess.CompletedProcess[str]:
+        script = """
+source \"%s\"
+_nt_use() { printf 'use:%%s\\n' \"$1\"; }
+nt_cmd_status() { printf '{\"status\":\"%%s\"}\\n' \"$TEST_DESKTOP_STATE\"; }
+nt_cmd_start() { printf 'start\\n'; }
+nt_cmd_management() { printf 'center:%%s\\n' \"$1\"; }
+nt_info() { printf 'info:%%s\\n' \"$*\"; }
+nt_fail() { printf 'fail:%%s\\n' \"$*\" >&2; }
+nt_cmd_gui
+""" % (ROOT / "lib/launch.sh")
+        return subprocess.run(["bash", "-c", script], capture_output=True, text=True,
+                              env={**self.env, "TEST_DESKTOP_STATE": lifecycle}, timeout=10)
+
+    def test_tx_gui_starts_stopped_native_desktop_then_opens_management_center(self):
+        result = self._run_gui_open_with_status("stopped")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("start\n", result.stdout)
+        self.assertIn("center:center\n", result.stdout)
+
+    def test_tx_gui_keeps_running_native_desktop_and_opens_management_center(self):
+        result = self._run_gui_open_with_status("running")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("start\n", result.stdout)
+        self.assertIn("center:center\n", result.stdout)
+
     def test_restored_guest_routes_are_documented_and_status_stays_read_only(self):
         self.env["PREFIX"] = "/data/data/com.termux/files/usr"
         self.env["TERMUX_VERSION"] = "fixture"
@@ -268,7 +294,7 @@ class LaunchCommandTests(unittest.TestCase):
         self.assertIn("tx install proot [DISTRO] [DE]", result.stdout)
         self.assertIn("tx install gpu", result.stdout)
         self.assertLess(result.stdout.index("./tx install"), result.stdout.index("Open and inspect:"))
-        self.assertIn("tx db (Debian), tx ub (Ubuntu)", result.stdout)
+        self.assertIn("tx db [--user NAME] (Debian), tx ub (Ubuntu)", result.stdout)
 
     def test_native_management_alias_and_proot_help(self):
         result = self.cli("mng", "--help")

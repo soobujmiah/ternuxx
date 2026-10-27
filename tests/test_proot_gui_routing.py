@@ -21,6 +21,11 @@ class ProotGuiRoutingTests(unittest.TestCase):
             self.assertIn("Standalone managed guest GUI: stopped; target display :0", result.stdout)
             self.assertIn("Nested display :2 socket is absent.", result.stdout)
 
+    def test_start_uses_shared_interactive_guest_account_picker(self) -> None:
+        script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
+        self.assertIn("proot_user_picker.py", script)
+        self.assertIn("--user \"$EXPLICIT_USER\"", script)
+
     def test_live_status_and_start_wait_for_owned_desktop_process_readiness(self) -> None:
         script = (ROOT / "scripts/proot-gui0.sh").read_text(encoding="utf-8")
         self.assertIn("desktop shell/WM/panel check %s", script)

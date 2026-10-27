@@ -69,11 +69,13 @@ Nested `tx pgui start --mode nested` uses Xephyr display `:2`. It refuses to sta
 
 `tx db` and `tx debian` select the managed Debian guest. `tx ub` and `tx ubuntu`
 select the managed Ubuntu guest through the same preview-confirmed owned PTY
-session service. The selected alias is bound to the exact plan; an Ubuntu request
-cannot fall back to Debian. `tx kali` is reserved and explicitly unavailable.
+session service. Login proceeds directly when one account is resolved; if multiple
+ordinary accounts exist, Ternuxx asks which one to use. `--user NAME` selects an
+account explicitly. The selected alias and account are bound to the exact plan; an
+Ubuntu request cannot fall back to Debian. `tx kali` is reserved and unavailable.
 
 If `pgui` reports no ordinary guest account, rerun `tx install proot DISTRO`: it
 preserves the rootfs and offers reviewed account creation/default selection. When
-multiple accounts exist, an identity-bound account/fresh-install receipt supplies
-the default, or `tx pgui --user NAME` selects an existing ordinary account explicitly.
+multiple accounts exist, `tx pgui` asks which ordinary account to use, or
+`tx pgui --user NAME` selects one explicitly.
 No automatic root login is used. See [account setup](INSTALLATION.md#existing-guest-account-repair-and-login).

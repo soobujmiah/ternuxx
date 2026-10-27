@@ -106,8 +106,11 @@ tx proot status
 In an attached Native terminal, run `tx install debian` and follow the keyboard selectors. Ternuxx asks for the guest username, shows the pinned Debian target, and asks before installing. The normal setup uses XFCE and applies Ternuxx guest configuration, including available graphics setup and Native PulseAudio handoff. Existing guest data is preserved. Ubuntu Noble currently offers XFCE. Its standalone `:0` and guest-to-Native `:1` graphics routes passed live checks; nested `:2` starts XFCE and passes Vulkan/audio endpoint checks but remains partial because Xephyr DRI3/GLX drawing is unavailable. Other distro names remain unsupported until their Ternuxx-managed profiles are implemented and qualified. The separate `preview`/`apply --plan-id` commands are advanced automation and review forms; most users do not need them. The TUI can launch this guided installer from its terminal; Web and GTK provide distro selectors and open the guided installer in Native terminal sessions.
 
 Guest login shortcuts are `tx db` / `tx debian` and `tx ub` / `tx ubuntu`.
-Reinstall can set up an ordinary account in an existing root-only guest while
-preserving its rootfs. `tx pgui --user NAME` selects an existing account explicitly.
+They enter directly without repeated confirmation. If multiple ordinary guest
+accounts exist, Ternuxx asks which one to use; `tx db --user NAME` selects one
+explicitly. Reinstall can set up an ordinary account in an existing root-only
+guest while preserving its rootfs. `tx pgui --user NAME` selects an existing account explicitly.
+`tx gui` starts the Native desktop if it is stopped, then opens the GTK management center.
 Kali remains unavailable until its provider is qualified.
 
 For the qualified Adreno 825 route, the managed GPU wizard offers a checksum-pinned

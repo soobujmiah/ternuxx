@@ -51,6 +51,17 @@ nt_cmd_gui() {
   case "$action" in
     open|center)
       [ $# -eq 0 ] || { nt_fail "Usage: tx gui"; return 2; }
+      _nt_use desktop || return 1
+      local desktop_report lifecycle
+      desktop_report="$(TERNUXX_JSON=1 nt_cmd_status)" || return 1
+      lifecycle="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("status", "unknown"))' <<<"$desktop_report" 2>/dev/null)" || lifecycle=unknown
+      case "$lifecycle" in
+        running) ;;
+        stopped|stale)
+          nt_info "The Native desktop is $lifecycle; starting it so the GUI center has a verified display."
+          nt_cmd_start || return $? ;;
+        *) nt_fail "Native desktop state is $lifecycle; inspect 'tx status' before opening the GUI center."; return 1 ;;
+      esac
       _nt_use management || return 1
       nt_cmd_management center
       ;;

@@ -7,16 +7,19 @@ Ternuxx manages Native Termux packages and optional pinned Debian/Ubuntu guest p
 `tx install` offers keyboard-selected optional apps. Up/Down and Space select;
 Home/End and PageUp/PageDown navigate long lists. `none` excludes other choices.
 The Native Audacious choice installs both `audacious` and `audacious-plugins` so its
-output backend is present. Native definitions live in `lib/install_catalog.sh`; guest
-definitions live in `lib/proot_software.py`. The existing package engines bind every selected package
-and dependency to a reviewed exact plan. A missing candidate stops preview rather
+output backend is present. VLC uses the GUI-enabled `vlc-qt` package. When the
+CLI-only `vlc` package is already installed, its exact reviewed plan replaces that
+package and refuses unrelated removals. Native definitions live in
+`lib/install_catalog.sh`; guest definitions live in `lib/proot_software.py`. The
+existing package engines bind every selected package and dependency to a reviewed
+exact plan. A missing candidate stops preview rather
 than adding another package source.
 
 | Category | Examples in Native | Additional guest selections |
 |---|---|---|
 | Graphics/photos | GIMP, Inkscape, Krita, Darktable, RawTherapee, ImageMagick, Flameshot | Blender, FreeCAD |
 | CAD | OpenSCAD | OpenSCAD, FreeCAD, Blender |
-| Media | Audacity, Kdenlive, HandBrake, FFmpeg, mpv, VLC, Audacious | Audacity, Kdenlive, FFmpeg, mpv, VLC |
+| Media | Audacity, Kdenlive, HandBrake, FFmpeg, mpv, VLC (`vlc-qt`), Audacious | Audacity, Kdenlive, FFmpeg, mpv, VLC |
 | Office | AbiWord, Gnumeric, Qalculate, TeXstudio, Evince | LibreOffice Writer/Calc/Impress as separate choices |
 | Development | Geany, Kate, Meld, QGit, Neovim, Lazygit, Node.js LTS, Rust, Go, jq, SQLite | Guest-native editor/language tools |
 | System | XFCE task manager, ncdu, duf, lsof, strace | htop, ncdu, lsof, strace |

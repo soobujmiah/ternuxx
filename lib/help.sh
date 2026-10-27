@@ -28,7 +28,7 @@ Open and inspect:
   tx audio status                  Sound status
 
 More commands:
-  Guests: tx db (Debian), tx ub (Ubuntu); proot setup, pgui, terminal
+  Guests: tx db [--user NAME] (Debian), tx ub (Ubuntu); proot setup, pgui
   tx kali                         Reserved; provider not qualified yet
   tx app / tx mng                  Software and services
   tx ai                           CPU, Vulkan GPU and experimental HTP inference routes
@@ -44,7 +44,9 @@ EOF
       printf '%s\n' 'tx kali is reserved for a future managed Kali provider; it is not available yet.' 'Use tx db / tx debian or tx ub / tx ubuntu for supported guest login.' ;;
     proot|db|ub|debian|ubuntu|pgui|virgl)
       cat <<'EOF'
-Login aliases: tx db / tx debian; tx ub / tx ubuntu. Kali is not qualified yet.
+Login aliases: tx db / tx debian; tx ub / tx ubuntu. No repeated LOGIN confirmation is needed.
+When multiple ordinary guest accounts exist, Ternuxx asks which one to use; pass --user NAME to choose directly.
+Kali is not qualified yet.
 Managed PRoot guests use the Native Termux host. Run `tx proot setup catalog` to
 list profiles and their accepted desktop routes. The short flows are `tx install debian`
 and `tx install ubuntu`; each asks for the guest username and, in an attached
@@ -70,8 +72,10 @@ is the default when no alias is supplied.
 inspect interrupted records. Apply reconciliation only when its exact preview
 proves the original process exited. `tx proot stop-preview SESSION_ID` prepares
 an exact stop plan; apply it with
-`tx proot stop SESSION_ID --yes --plan-id ID`. `tx db` opens an owned
-interactive Debian login; `tx pgui` starts Debian XFCE by default; `tx pgui DE` selects an installed desktop.
+`tx proot stop SESSION_ID --yes --plan-id ID`. `tx db [--user NAME]` opens an owned
+interactive Debian login and asks for an account only when multiple ordinary accounts exist;
+`tx pgui [--user NAME]` starts Debian XFCE by default and prompts for an account when needed;
+`tx pgui DE` selects an installed desktop. `tx gui` starts the Native desktop when stopped, then opens the GTK center.
 `tx mng app launch --desktop-id APP.desktop --display :N` launches an
 allowlisted Debian XFCE application through the shared guest service.
 `tx proot shortcuts list` inspects launcher state; `preview add|remove APP_ID`

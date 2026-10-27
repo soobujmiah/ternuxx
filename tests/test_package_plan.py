@@ -717,5 +717,55 @@ echo 'install ok installed'
             self.assertEqual((state / "install-transactions").stat().st_mode & 0o777, 0o700)
 
 
+    def test_native_video_component_selects_the_gui_enabled_vlc_package(self):
+        result = subprocess.run(
+            ["bash", "-c", 'source "$1"; _nt_native_app_lookup video; printf "%s\n" "${_NT_OPTIONAL_PACKAGES[*]}"; printf "%s\n" "$_NT_OPTIONAL_REPO"',
+             "bash", str(PHASES)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(result.stdout.splitlines(), ["vlc-qt", "termux-x11"])
+
+    def _vlc_replacement_plan(self, simulation):
+        command = "\n".join([
+            'source "$1"',
+            '_NT_BASE_PACKAGES=(vlc-qt)',
+            '_NT_ACTIVE_COMPONENTS=video',
+            '_nt_package_installed() { [[ "$1" = vlc ]]; }',
+            '_nt_package_candidate_from_official_repo() { [[ "$2" = termux-x11 || "$2" = termux-main ]] || return 1; printf "3.0.24-1\\n"; }',
+            '_nt_capture_install_resource_estimates() { :; }',
+            'apt-get() { printf "%s\\n" "$SIMULATION"; }',
+            'if _nt_make_install_plan; then result=0; else result=$?; fi',
+            'printf "ALLOW %s\\n" "$_NT_PLAN_ALLOW_VLC_REPLACEMENT"',
+            'printf "REMOVALS %s\\n" "${_NT_PLAN_REMOVALS[*]}"',
+            'exit "$result"',
+        ])
+        return subprocess.run(
+            ["bash", "-c", command, "bash", str(PHASES)],
+            env={**os.environ, "SIMULATION": simulation},
+            text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+
+    def test_vlc_gui_replacement_allows_only_the_named_cli_package(self):
+        simulation = "\n".join([
+            "Remv vlc [3.0.24-1]",
+            "Inst vlc-qt (3.0.24-1 termux-x11 x11/main [aarch64])",
+            "Conf vlc-qt (3.0.24-1 termux-x11 x11/main [aarch64])",
+        ])
+        result = self._vlc_replacement_plan(simulation)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("ALLOW 1", result.stdout)
+        self.assertIn("REMOVALS vlc", result.stdout)
+
+    def test_vlc_gui_replacement_rejects_any_additional_removal(self):
+        simulation = "\n".join([
+            "Remv vlc [3.0.24-1]",
+            "Remv unrelated [1]",
+            "Inst vlc-qt (3.0.24-1 termux-x11 x11/main [aarch64])",
+        ])
+        result = self._vlc_replacement_plan(simulation)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("unapproved package (unrelated)", result.stderr)
+
+
 if __name__ == "__main__":
     unittest.main()

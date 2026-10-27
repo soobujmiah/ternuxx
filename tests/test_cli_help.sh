@@ -32,7 +32,7 @@ ai_npu_preview="$(bash "$ROOT/tx" ai npu runtime preview)"
 
  grep -Fq 'Native Termux host and managed PRoot workstation management' <<<"$main"
 grep -Fq 'tx guides' <<<"$main"
-grep -Fq 'tx db (Debian), tx ub (Ubuntu)' <<<"$main"
+grep -Fq 'tx db [--user NAME] (Debian), tx ub (Ubuntu)' <<<"$main"
 grep -Fq 'experimental HTP inference routes' <<<"$main"
 grep -Fq 'verified Native desktop process group' <<<"$start"
 grep -Fq 'using SIGTERM' <<<"$stop"

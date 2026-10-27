@@ -97,6 +97,24 @@ class PRootSessionRegistryTests(unittest.TestCase):
         self.assertEqual(record["rootfs"], replay["rootfs"])
         proot_sessions._validate_record(record)
 
+    def test_explicit_guest_user_is_bound_to_the_start_plan(self):
+        prefix = self.replay_roots()
+        root = Path(prefix) / "var/lib/proot-distro/containers/debian/rootfs"
+        (root / "etc/passwd").write_text(
+            "sbj:x:1000:1000::/home/sbj:/bin/bash\n"
+            "guest:x:1001:1001::/home/guest:/bin/bash\n", encoding="utf-8")
+        with mock.patch("shutil.which", return_value=str(self.launcher)):
+            chosen = proot_sessions.preview_start("debian-interactive", prefix=prefix, user="guest")
+            self.assertEqual(chosen["user"], "guest")
+            with self.assertRaisesRegex(proot_sessions.SessionError, "ambiguous"):
+                proot_sessions.preview_start("debian-interactive", prefix=prefix)
+            with mock.patch("pty.fork") as fork:
+                with self.assertRaisesRegex(proot_sessions.SessionError, "stale"):
+                    proot_sessions.spawn_login_interactive(
+                        self.state, prefix=prefix, confirmed=True,
+                        plan_id=chosen["plan_id"], user="sbj")
+                fork.assert_not_called()
+
     def test_default_plan_cannot_start_separate_alias(self):
         prefix = self.replay_roots()
         with mock.patch("shutil.which", return_value=str(self.launcher)):
@@ -500,6 +518,10 @@ class PRootSessionRegistryTests(unittest.TestCase):
         self.assertFalse(interactive["available"])
         self.assertIn("ambiguous", interactive["unavailable_reason"])
 
+    def test_explicit_user_is_rejected_for_noninteractive_profile(self):
+        with self.assertRaisesRegex(proot_sessions.SessionError, "interactive PRoot login"):
+            proot_sessions.preview_start("isolated-probe", prefix=str(self.base), user="sbj")
+
     def test_profile_preview_binds_plan_to_rootfs_launcher_and_profile(self):
         prefix = self.base / "prefix"
         root = prefix / "var/lib/proot-distro/containers/debian/rootfs"
@@ -558,7 +580,7 @@ class PRootSessionRegistryTests(unittest.TestCase):
                                side_effect=AssertionError("broker spawn must not require a client TTY")), \
              mock.patch.object(proot_sessions, "preview_start",
                                return_value={"plan_id": "plan-fixture", "user": "sbj"}), \
-             mock.patch.object(proot_sessions.proot_diagnostics, "resolve_proot_guest_user", return_value="sbj"), \
+             mock.patch.object(proot_sessions.proot_diagnostics, "ordinary_guest_users", return_value=["sbj"]), \
              mock.patch.object(proot_sessions, "_start_plan",
                                return_value="plan-fixture"), \
              mock.patch.object(proot_sessions, "discover_debian",
