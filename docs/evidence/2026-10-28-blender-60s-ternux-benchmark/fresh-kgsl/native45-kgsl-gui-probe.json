@@ -1,0 +1,16 @@
+{
+  "version": "4.5.14 LTS",
+  "engine": "BLENDER_EEVEE_NEXT",
+  "renderer": "Adreno (TM) 825",
+  "objects": 16,
+  "camera": "FreshTestCamera",
+  "views": [
+    {
+      "width": 620,
+      "height": 973,
+      "shading": "RENDERED",
+      "perspective": "CAMERA"
+    }
+  ],
+  "time": 1793141861.323804
+}

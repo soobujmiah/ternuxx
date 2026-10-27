@@ -1,0 +1,27 @@
+# Blender 4.5.14, Commit date: 2026-09-14 14:54, Hash 62c1db4208e8
+
+# backtrace
+/data/data/com.termux/files/usr/lib/libandroid-execinfo.so(backtrace+0x38) [0x7ee0ecfe5c]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x5946411838]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x5945a9b148]
+[vdso](+0x0) [0x7f5e2d3844]
+/apex/com.android.runtime/lib64/bionic/libc.so(+0x0) [0x7efc72b218]
+/data/data/com.termux/files/home/.local/share/ternuxx/graphics/providers/native-mesa-0219ff84/extracted/data/data/com.termux/files/usr/lib/libgallium-26.3.0-devel.so(+0x0) [0x7c0720cfac]
+/data/data/com.termux/files/home/.local/share/ternuxx/graphics/providers/native-mesa-0219ff84/extracted/data/data/com.termux/files/usr/lib/libgallium-26.3.0-devel.so(+0x0) [0x7c06f5d5e0]
+/data/data/com.termux/files/home/.local/share/ternuxx/graphics/providers/native-mesa-0219ff84/extracted/data/data/com.termux/files/usr/lib/libgallium-26.3.0-devel.so(+0x0) [0x7c06d38440]
+/data/data/com.termux/files/home/.local/share/ternuxx/graphics/providers/native-mesa-0219ff84/extracted/data/data/com.termux/files/usr/lib/libgallium-26.3.0-devel.so(+0x0) [0x7c06cf2f68]
+/data/data/com.termux/files/home/.local/share/ternuxx/graphics/providers/native-mesa-0219ff84/extracted/data/data/com.termux/files/usr/lib/libgallium-26.3.0-devel.so(+0x0) [0x7c06cf31fc]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x59466cc3ec]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x59466aeec8]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x59470aaf50]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x59470ab144]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x5947b3b69c]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x5947b249e8]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x5947b8b414]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x59470a22c4]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x594677a800]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x59467755f4]
+/data/data/com.termux/files/usr/bin/blender-4.5(+0x0) [0x5945a96108]
+/apex/com.android.runtime/lib64/bionic/libc.so(__libc_init+0x7c) [0x7efc72acd0]
+
+# Python backtrace
