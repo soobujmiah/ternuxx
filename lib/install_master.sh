@@ -1,8 +1,14 @@
 # One workstation approval after every selection and exact subplan is collected.
 _nt_master_prepare() {
-  local -a prerequisites=()
+  local components="${1:-}"; local -a prerequisites=()
   command -v python3 >/dev/null || prerequisites+=(python)
   _nt_package_installed x11-repo || prerequisites+=(x11-repo)
+  if [[ ",$components," = *,blender,* ]] && ! _nt_package_installed tur-repo; then
+    nt_info 'Blender is distributed by the community TUR repository; Ternuxx will enable TUR only for this explicit Blender selection.'
+    _nt_confirm 'Install tur-repo and enable its signed package index for Blender?' || return 130
+    _NT_WINDOW_QUERY=1 _nt_window_run _nt_network_retry 'TUR repository metadata' env -u LD_LIBRARY_PATH pkg update -y || return $?
+    _nt_window_run env -u LD_LIBRARY_PATH pkg install -y --no-upgrade tur-repo || return $?
+  fi
   if [ "${#prerequisites[@]}" -gt 0 ]; then
     _nt_confirm "Bootstrap missing planner prerequisites ONLY: ${prerequisites[*]}? Workstation install requires combined approval later." || return 130
     _nt_window_stage 'Bootstrap | Missing planner prerequisites only' 'Separately approved; no workstation apply'
@@ -120,7 +126,7 @@ _nt_master_apply_guest() {
 _nt_master_workstation() {
   local root="$1" components="$2" distros="$3" folder plan native_id distro output entry_id
   local _NT_MASTER_DISTROS="$distros" _NT_MASTER_BACKEND=keep _NT_MASTER_PRESET_DESKTOP="${4:-}"
-  _nt_master_prepare || return $?
+  _nt_master_prepare "$components" || return $?
   umask 077
   python3 -c 'import os,stat,pathlib; p=pathlib.Path(os.environ["TERNUXX_STATE_DIR"])/"wizard-plans"; p.mkdir(mode=0o700,parents=True,exist_ok=True); s=p.lstat(); assert not p.is_symlink() and stat.S_ISDIR(s.st_mode) and s.st_uid==os.getuid() and not s.st_mode & 0o077, "unsafe wizard plan directory"' || return 1
   folder="$(mktemp -d "$TERNUXX_STATE_DIR/wizard-plans/plan.XXXXXXXX")" || return 1

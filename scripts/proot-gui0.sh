@@ -86,7 +86,7 @@ fi
 usage() { cat <<'USAGE'
 Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|plasma] [--alias debian|ubuntu|ternuxx-replay-NAME] [--user NAME]|status|stop]
 Auto uses standalone :0 when Native GUI is stopped, otherwise nested Xephyr :2 inside Native :1.
-Standalone and Native desktop sessions cannot run together. Nested mode holds the lifecycle lock until closed.
+Standalone and Native desktop sessions cannot run together. Nested mode holds the lifecycle lock until closed; tx pgui stop closes the managed nested GUI while leaving Native :1 running.
 Choose an installed environment with `tx pgui ID` or `tx pgui start --desktop ID`; XFCE is the default when installed.
 The canonical Debian guest is the default. Ubuntu requires a Ternuxx install receipt; receipt-verified replay aliases can use standalone :0 or nested :2 with `--alias`.
 Use tx pgui graphics verify to inspect the selected guest GUI's GLES, GLX, and Vulkan devices.
@@ -209,6 +209,7 @@ PYROUTE
       [ "$native_state" = running ] || { echo "Nested PRoot GUI requires the verified Native desktop to be running." >&2; exit 1; }
       native_display="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("display",""))' <<<"$native_report")"
       [ "$native_display" = :1 ] || { echo "Nested PRoot GUI currently requires Native display :1; found $native_display." >&2; exit 1; }
+      python3 "$LIFECYCLE_LOCK_HELPER" tag-nested-stop "$NATIVE_STATE" /proc "$$" || exit 1
       nested_display_state="$(python3 "$DISPLAY_TOOL" "$TMP_ROOT" 2 2>/dev/null || true)"
       [ -n "$nested_display_state" ] || nested_display_state=unknown
       if [ "$nested_display_state" = busy ]; then
@@ -317,8 +318,25 @@ GUEST
         MESA_DISK_CACHE_SINGLE_FILE=1 MESA_SHADER_CACHE_MAX_SIZE=2048M QT_X11_NO_MITSHM=1 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
         /bin/bash -c "$guest_script")
       printf "Starting %s %s nested in Native :1 through Xephyr :2 at Native display geometry. Use Termux:X11 fullscreen/orientation controls; the Xephyr host window is resizable. Press Ctrl-C in this terminal to close only the nested desktop.\n" "$DISTRO_ID" "$DESKTOP_ID"
-      env -u DBUS_SYSTEM_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS -u DBUS_SESSION_BUS_PID -u DBUS_STARTER_ADDRESS -u DBUS_STARTER_BUS_TYPE -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE -u LD_LIBRARY_PATH -u LD_PRELOAD "$PREFIX/bin/proot-distro" "${args[@]}"
-      exit $?
+      python3 "$ROOT/lib/session_exec.py" env -u DBUS_SYSTEM_BUS_ADDRESS -u DBUS_SESSION_BUS_ADDRESS -u DBUS_SESSION_BUS_PID -u DBUS_STARTER_ADDRESS -u DBUS_STARTER_BUS_TYPE -u ANDROID_ART_ROOT -u ANDROID_DATA -u ANDROID_I18N_ROOT -u ANDROID_ROOT -u ANDROID_RUNTIME_ROOT -u ANDROID_TZDATA_ROOT -u BOOTCLASSPATH -u DEX2OATBOOTCLASSPATH -u EXTERNAL_STORAGE -u LD_LIBRARY_PATH -u LD_PRELOAD "$PREFIX/bin/proot-distro" "${args[@]}" &
+      nested_pid=$!
+      nested_shutdown() {
+        local result="$1"
+        trap - INT TERM HUP USR1
+        kill -TERM -- -"$nested_pid" 2>/dev/null || kill -TERM "$nested_pid" 2>/dev/null || true
+        wait "$nested_pid" 2>/dev/null || true
+        exit "$result"
+      }
+      trap 'nested_shutdown 0' USR1
+      trap 'nested_shutdown 130' INT
+      trap 'nested_shutdown 143' TERM
+      trap 'nested_shutdown 129' HUP
+      set +e
+      wait "$nested_pid"
+      nested_status=$?
+      set -e
+      trap - USR1
+      exit "$nested_status"
     fi
     [ "$native_state" = stopped ] || { echo "Standalone display :0 requires Native GUI stopped; current Native state is $native_state. Choose nested mode while Native GUI is running." >&2; exit 1; }
     [ -x "$SUPERVISOR" ] && [ -x "$WRAPPER" ] && [ -x "$ROOT/lib/proot-dbus-session.sh" ] && [ -x "$OWNED_EXEC" ] || { echo "Ternuxx PRoot desktop component is unavailable." >&2; exit 1; }
@@ -397,9 +415,18 @@ PY
 
   stop)
     [ "$#" -eq 0 ] || { usage >&2; exit 2; }
-    [ -f "$STATE_FILE" ] || { echo "Ternuxx standalone PRoot GUI is stopped."; exit 0; }
     python3 "$STATE_HELPER" ensure-state "$HOME" "$NATIVE_STATE" >/dev/null
     GLOBAL_LOCK="$NATIVE_STATE/.session.lock"
+    if python3 "$LIFECYCLE_LOCK_HELPER" request-nested-stop "$NATIVE_STATE" /proc >/dev/null 2>&1; then
+      echo "Closing the verified nested PRoot GUI on :2; Native :1 will remain running."
+      nested_wait=0
+      while [ -e "$GLOBAL_LOCK" ] && [ "$nested_wait" -lt 150 ]; do sleep 0.1; nested_wait=$((nested_wait + 1)); done
+      [ ! -e "$GLOBAL_LOCK" ] || { echo "Nested PRoot GUI did not release its lifecycle lock; other sessions were left running." >&2; exit 1; }
+    elif [ -e "$GLOBAL_LOCK" ]; then
+      echo "Another lifecycle operation owns the shared lock; no GUI process was changed." >&2
+      exit 1
+    fi
+    [ -f "$STATE_FILE" ] || { echo "No standalone PRoot session record or cooperative nested session was found; no other process was changed."; exit 0; }
     LOCAL_LOCK="$STATE_DIR/.session.lock"
     acquire_lifecycle_lock "$NATIVE_STATE" "PRoot stop" || exit 1
     global_lock=1; local_lock=0

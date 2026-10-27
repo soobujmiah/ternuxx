@@ -275,6 +275,26 @@ nt_cmd_start() {
 
   local lock session_report session_state
   lock="$(_nt_session_lock)"
+  # Nested PRoot intentionally holds the shared lock for its lifetime. Native
+  # start is still safe when the recorded Native session is already verified
+  # running, so expose this read-only/idempotent path before lock contention.
+  # Mutating or uncertain states are inspected again after acquiring the lock.
+  session_report="$(python3 "$_TN_LIB_DIR/desktop_session_state.py" inspect "$HOME" "$state_root" /proc "${TMPDIR:-/data/data/com.termux/files/usr/tmp}" 2>/dev/null)" || session_report=""
+  session_state="$(printf '%s' "$session_report" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("state", "unknown"))' 2>/dev/null || printf unknown)"
+  if [ "$session_state" = running ]; then
+    local active_display active_desktop
+    active_display="$(printf '%s' "$session_report" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("display", ""))')"
+    active_desktop="$(printf '%s' "$session_report" | python3 -c 'import json,sys; print(json.load(sys.stdin).get("desktop_id", "xfce"))')"
+    if [ "$active_desktop" != "$desktop_id" ]; then
+      nt_fail "Native $active_desktop is running; stop it before selecting $desktop_id."; return 1
+    fi
+    nt_ok "Ternuxx desktop is already running and its recorded process and display identities are verified."
+    nt_info "Display: $active_display"
+    if [ "$TERNUXX_JSON" = "1" ]; then
+      nt_json_object "start" "running" "display" "$active_display" "activity_request" "disabled_by_default" "gui_visible" "unknown" "audio_owner" "ternuxx-native"
+    fi
+    return 0
+  fi
   _nt_acquire_session_lock start || { nt_fail "Another Ternuxx lifecycle operation holds the session lock, or its state is unsafe; no desktop process was changed."; return 1; }
   trap '_nt_release_session_lock' EXIT
 
@@ -451,6 +471,14 @@ nt_cmd_stop() {
   fi
 
   lock="$(_nt_session_lock)"
+  if python3 "$_TN_LIB_DIR/desktop_lifecycle_lock.py" request-nested-stop "$TERNUXX_STATE_DIR" /proc >/dev/null 2>&1; then
+    nt_info "Closing the verified nested PRoot GUI before stopping Native :1..."
+    local wait_count=0
+    while [ -e "$lock" ] && [ "$wait_count" -lt 150 ]; do sleep 0.1; wait_count=$((wait_count + 1)); done
+    if [ -e "$lock" ]; then
+      nt_fail "The nested PRoot GUI did not release its verified lifecycle lock; Native desktop was left running."; return 1
+    fi
+  fi
   _nt_acquire_session_lock stop || { nt_fail "Another Ternuxx lifecycle operation holds the session lock, or its state is unsafe; no process was signaled."; return 1; }
   trap '_nt_release_session_lock' EXIT
 

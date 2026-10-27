@@ -7,18 +7,23 @@ Ternuxx manages Native Termux packages and optional pinned Debian/Ubuntu guest p
 `tx install` offers keyboard-selected optional apps. Up/Down and Space select;
 Home/End and PageUp/PageDown navigate long lists. `none` excludes other choices.
 The Native Audacious choice installs both `audacious` and `audacious-plugins` so its
-output backend is present. VLC uses the GUI-enabled `vlc-qt` package. When the
+output backend is present. Audacity is a separate optional audio editor. VLC uses
+the GUI-enabled `vlc-qt` package. Blender 4.5 is available as the Native optional
+`blender4` package from the community TUR repository; choosing it explicitly asks
+Ternuxx to install `tur-repo` and refresh signed indexes before planning. TUR-origin
+packages are permitted only in that Blender-selected transaction. When the
 CLI-only `vlc` package is already installed, its exact reviewed plan replaces that
 package and refuses unrelated removals. Native definitions live in
 `lib/install_catalog.sh`; guest definitions live in `lib/proot_software.py`. The
 existing package engines bind every selected package and dependency to a reviewed
 exact plan. The guest CPU/graphics runtime includes `x11-utils` for display
 inspection and `xserver-xephyr` for nested PRoot desktops. A missing candidate
-stops preview rather than adding another package source.
+stops preview rather than adding another package source, except the explicitly selected
+Blender option which enables the signed TUR source with consent.
 
 | Category | Examples in Native | Additional guest selections |
 |---|---|---|
-| Graphics/photos | GIMP, Inkscape, Krita, Darktable, RawTherapee, ImageMagick, Flameshot | Blender, FreeCAD |
+| Graphics/photos | Blender 4.5 (TUR), GIMP, Inkscape, Krita, Darktable, RawTherapee, ImageMagick, Flameshot | Blender, FreeCAD |
 | CAD | OpenSCAD | OpenSCAD, FreeCAD, Blender |
 | Media | Audacity, Kdenlive, HandBrake, FFmpeg, mpv, VLC (`vlc-qt`), Audacious | Audacity, Kdenlive, FFmpeg, mpv, VLC |
 | Office | AbiWord, Gnumeric, Qalculate, TeXstudio, Evince | LibreOffice Writer/Calc/Impress as separate choices |
@@ -29,16 +34,18 @@ stops preview rather than adding another package source.
 | AI setup recipes | Codex Termux `@next`, experimental Hermes canary | Upstream Codex, Hermes and Claude Code |
 
 AI entries install only labeled prerequisites and show [explicit setup recipes](AI-TOOLS.md).
-They do not claim an installed agent. Native Claude is not offered. Blender was
-absent from the checked official Native index and is guest-only in this catalog.
+They do not claim an installed agent. Native Claude is not offered. Blender is an
+optional TUR package and is not included in default workstation selections.
 Native Writer-only remains unavailable; AbiWord is a separate alternative and is
 never silently substituted. Guest browser defaults remain Debian Firefox ESR and
 Ubuntu Epiphany (no Snap).
 
 Package availability is not workload qualification. Graphics-heavy programs need
 separate CPU/GPU/display acceptance; installing network tools does not start a
-service. No package source is added by these choices. The Native catalog was checked
-against the existing signed index without refreshing or changing device packages.
+service. No package source is added implicitly; the explicitly selected Blender
+choice asks before enabling the signed TUR repository and scopes its packages to that
+reviewed transaction. Other Native package candidates are checked against configured
+signed Termux indexes.
 
 ## What is implemented
 

@@ -27,9 +27,9 @@ class PolishTests(unittest.TestCase):
 
     def test_native_catalog_resolves_new_apps_and_correct_official_sources(self):
         with tempfile.TemporaryDirectory() as tmp:
-            result = self.shell('''_nt_select_install_profile custom gimp,krita,inkscape,ncdu,ai-codex,ai-hermes,nodejs,music || exit $?
+            result = self.shell('''_nt_select_install_profile custom gimp,krita,inkscape,blender,ncdu,ai-codex,ai-hermes,nodejs,music || exit $?
 printf 'PACKAGES=%s\\n' "${_NT_BASE_PACKAGES[*]}"
-for package in mpv gnuplot octave nodejs-lts gimp krita audacious audacious-plugins; do
+for package in mpv gnuplot octave nodejs-lts gimp krita audacious audacious-plugins blender4; do
  printf '%s=%s\\n' "$package" "$(_nt_native_app_repository "$package")"
 done
 _nt_native_app_lookup 'not-an-app; touch unsafe' && exit 90
@@ -37,12 +37,21 @@ exit 0
 ''', Path(tmp))
             self.assertEqual(result.returncode, 0, result.stderr)
             packages = result.stdout.splitlines()[0].split('=', 1)[1].split()
-            for package in ('gimp', 'krita', 'inkscape', 'ncdu', 'nodejs-lts', 'gnupg', 'audacious', 'audacious-plugins'):
+            for package in ('gimp', 'krita', 'inkscape', 'blender4', 'ncdu', 'nodejs-lts', 'gnupg', 'audacious', 'audacious-plugins'):
                 self.assertIn(package, packages)
             self.assertEqual(len(packages), len(set(packages)))
             for package in ('mpv', 'gnuplot', 'octave', 'nodejs-lts'):
                 self.assertIn(package + '=termux-main', result.stdout)
             self.assertIn('gimp=termux-x11', result.stdout)
+            self.assertIn('blender4=tur-packages', result.stdout)
+
+    def test_tur_origin_is_allowed_only_for_explicit_blender_dependency_plan(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            result=self.shell("""_nt_package_transaction_origins_allowed 'Inst blender4 (4.5 Termux-user-repository tur-packages:tur-packages [aarch64])\nInst dep (1 Termux-user-repository tur-packages:tur-packages [aarch64])' 1 || exit 1
+_nt_package_transaction_origins_allowed 'Inst unrelated (1 Termux-user-repository tur-packages:tur-packages [aarch64])' 0 && exit 2
+_nt_package_transaction_origins_allowed 'Inst dep (1 unknown-repo [aarch64])' 1 && exit 3 || :
+""", Path(tmp))
+            self.assertEqual(result.returncode, 0, result.stderr)
 
     def test_transport_retries_are_bounded_and_signature_failures_never_retry(self):
         for output, expected in [('Could not resolve mirror', 3), ('Hash Sum mismatch', 1)]:

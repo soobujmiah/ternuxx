@@ -275,17 +275,32 @@ _nt_package_candidate_from_official_repo() {
   printf '%s\n' "$candidate"
 }
 
+_nt_package_transaction_origins_allowed() {
+  local simulation="$1" allow_tur="${2:-0}"
+  printf '%s\n' "$simulation" | awk -v allow_tur="$allow_tur" '
+    /^(Inst|Conf) / && $0 !~ /termux-main|termux-x11/ {
+      if (allow_tur == 1 && $0 ~ /Termux-user-repository tur-packages/) next
+      bad=1
+    }
+    END { exit bad ? 1 : 0 }
+  '
+}
+
 _nt_make_install_plan() {
   _NT_PLAN_MODE=install
   _NT_PLAN_ALLOW_VLC_REPLACEMENT=0
+  _NT_PLAN_ALLOW_TUR=0
   _NT_PLAN_REMOVALS=()
   local package expected_repo candidate simulation upgrade_simulation
   local -A upgrade_names=()
+  [[ ",${_NT_ACTIVE_COMPONENTS:-}," = *,blender,* ]] && _NT_PLAN_ALLOW_TUR=1
   local -a simulation_options=(--no-upgrade) plan_roots=("${_NT_BASE_PACKAGES[@]}")
   if [[ ",${_NT_ACTIVE_COMPONENTS:-}," = *,system-upgrade,* ]]; then
     _NT_PLAN_MODE=update; simulation_options=()
     upgrade_simulation="$(apt-get -s --no-remove upgrade 2>&1)" || return 1
-    printf '%s\n' "$upgrade_simulation" | awk '/^Remv / {bad=1} /^Inst / && $0 !~ /termux-main|termux-x11/ {bad=1} END {exit bad}' || { nt_fail 'Upgrade includes an unapproved repository or removal.'; return 1; }
+    if ! printf '%s\n' "$upgrade_simulation" | awk '/^Remv / {bad=1} END {exit bad}' || ! _nt_package_transaction_origins_allowed "$upgrade_simulation" "$_NT_PLAN_ALLOW_TUR"; then
+      nt_fail 'Upgrade includes an unapproved repository or removal.'; return 1
+    fi
     while read -r package; do
       [ -n "$package" ] || continue
       upgrade_names[$package]=1; plan_roots+=("$package")
@@ -349,8 +364,8 @@ _nt_make_install_plan() {
     nt_fail "The VLC GUI replacement did not resolve to the exact vlc-to-vlc-qt change; refusing it."
     return 1
   fi
-  if ! printf '%s\n' "$simulation" | awk '/^(Inst|Conf) / && $0 !~ /termux-main|termux-x11/ { bad=1 } END { exit bad ? 1 : 0 }'; then
-    nt_fail "The dependency plan includes a package outside the official Termux repositories; refusing it."
+  if ! _nt_package_transaction_origins_allowed "$simulation" "$_NT_PLAN_ALLOW_TUR"; then
+    nt_fail "The dependency plan includes a package outside the repositories permitted for this explicit selection; refusing it."
     return 1
   fi
   if ! printf '%s\n' "$simulation" | grep -q '^Inst '; then
@@ -809,6 +824,8 @@ nt_cmd_install() {
     nt_info "Native preview: $_NT_ACTIVE_PROFILE · ${#_NT_PLAN_VERSIONS[@]} requested packages · ${#_NT_PLAN_TRANSACTION[@]} total package changes."
     if [ "${_NT_PLAN_ALLOW_VLC_REPLACEMENT:-0}" = 1 ]; then
       nt_info "Only the exact vlc-to-vlc-qt GUI replacement and its displayed dependencies will be applied; no other removals are allowed."
+    elif [ "${_NT_PLAN_ALLOW_TUR:-0}" = 1 ]; then
+      nt_info "TUR packages are allowed only for the explicitly selected Blender package and its displayed dependency closure."
     else
       nt_info "Only the displayed transaction from official Termux repositories will be applied; upgrades and removals are refused."
     fi
@@ -827,7 +844,11 @@ nt_cmd_install() {
     else
       nt_info "Ternuxx Native package profile: $_NT_ACTIVE_PROFILE"
       nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
-      nt_info "Ternuxx package preview (official Termux repositories only):"
+      if [ "${_NT_PLAN_ALLOW_TUR:-0}" = 1 ]; then
+        nt_info "Ternuxx package preview (official Termux repositories + explicitly selected TUR Blender):"
+      else
+        nt_info "Ternuxx package preview (official Termux repositories only):"
+      fi
     fi
     printf '  %s\n' "${_NT_PLAN_VERSIONS[@]}"
     nt_info "Resolved APT transaction (all changed packages, including dependencies):"
@@ -838,6 +859,8 @@ nt_cmd_install() {
       nt_info "Only the displayed core-package updates and their exact simulated dependencies can change; removals, recommendations, and repository changes are refused."
     elif [ "${_NT_PLAN_ALLOW_VLC_REPLACEMENT:-0}" = 1 ]; then
       nt_info "This exact plan replaces CLI-only vlc with GUI-enabled vlc-qt; no other removals, upgrades, recommendations, or repository changes are allowed."
+    elif [ "${_NT_PLAN_ALLOW_TUR:-0}" = 1 ]; then
+      nt_info "This plan permits signed TUR packages only for the selected Blender and its displayed dependencies; no other repositories or removals are allowed."
     else
       nt_info "No upgrades, removals, recommendations, or repository changes are allowed by this plan."
     fi
@@ -863,6 +886,8 @@ nt_cmd_install() {
       if [ "${_NT_PLAN_ALLOW_VLC_REPLACEMENT:-0}" = 1 ]; then
         nt_info "Exact replacement: remove CLI-only vlc and install GUI-enabled vlc-qt; no other removals are allowed."
         nt_info "Scope: official Termux repositories; no recommendations or unrelated upgrades."
+      elif [ "${_NT_PLAN_ALLOW_TUR:-0}" = 1 ]; then
+        nt_info "Scope: official Termux plus TUR only for selected Blender dependencies; no removals, recommendations, or unrelated upgrades."
       else
         nt_info "Scope: official Termux repositories; no removals, recommendations, or unrelated upgrades."
       fi

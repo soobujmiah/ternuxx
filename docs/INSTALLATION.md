@@ -425,7 +425,10 @@ reclaim it only after verifying that the recorded owner is gone and the managed
 desktop is stopped or exactly stale with no live owned processes. Old empty
 mkdir-only locks are recovered after a short age guard and the same read-only
 session check. Live or uncertain sessions keep the lock and are never signaled by
-lock recovery.
+lock recovery. `tx stop` can request a cooperative shutdown only from the current
+Ternuxx nested PRoot launcher; it signals that launcher's isolated guest process
+group, waits for its lock release, then stops the verified Native session. Other
+live lifecycle owners remain untouched.
 
 ## Existing guest account repair and login
 

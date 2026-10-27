@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import stat
+import signal
 import sys
 import time
 
@@ -131,6 +132,59 @@ def release(state_dir: Path, proc_root: Path, pid: int) -> None:
         fcntl.flock(guard,fcntl.LOCK_UN);os.close(guard)
 
 
+def tag_nested_stop(state_dir: Path, proc_root: Path, pid: int) -> None:
+    _private_dir(state_dir)
+    guard=_guard(state_dir)
+    lock=state_dir/".session.lock"
+    try:
+        owner=lock/"owner.json"
+        record=json.loads(owner.read_text(encoding="utf-8"))
+        ticks=_ticks(proc_root,pid)
+        if record.get("pid")!=pid or not ticks or record.get("start_ticks")!=ticks:
+            raise RuntimeError("lifecycle lock ownership changed before cooperative stop setup")
+        record["operation"]="PRoot nested start nested-stop-v1"
+        flags=os.O_WRONLY|os.O_TRUNC|getattr(os,"O_NOFOLLOW",0)|getattr(os,"O_CLOEXEC",0)
+        fd=os.open(owner,flags)
+        try:
+            metadata=os.fstat(fd)
+            if (not stat.S_ISREG(metadata.st_mode) or metadata.st_uid!=os.getuid()
+                    or stat.S_IMODE(metadata.st_mode)!=0o600):
+                raise RuntimeError("lifecycle lock owner record is unsafe")
+            with os.fdopen(fd,"w",encoding="utf-8",closefd=False) as stream:
+                json.dump(record,stream,separators=(",",":"));stream.write("\n");stream.flush();os.fsync(stream.fileno())
+        finally:
+            os.close(fd)
+    finally:
+        fcntl.flock(guard,fcntl.LOCK_UN);os.close(guard)
+
+
+def request_nested_stop(state_dir: Path, proc_root: Path) -> bool:
+    """Ask only a current cooperative PRoot launcher to close its isolated child."""
+    _private_dir(state_dir)
+    guard=_guard(state_dir)
+    lock=state_dir/".session.lock"
+    try:
+        record=json.loads((lock/"owner.json").read_text(encoding="utf-8"))
+        pid=record.get("pid");ticks=record.get("start_ticks")
+        if (record.get("operation")!="PRoot nested start nested-stop-v1"
+                or type(pid) is not int or not isinstance(ticks,str)
+                or _ticks(proc_root,pid)!=ticks):
+            return False
+        try:
+            args=(proc_root/str(pid)/"cmdline").read_bytes().decode("utf-8","replace").split("\0")
+        except OSError:
+            return False
+        mode_positions=[i+1 for i,arg in enumerate(args[:-1]) if arg=="--mode"]
+        if (not any(Path(arg).name=="proot-gui0.sh" for arg in args)
+                or "start" not in args
+                or not any(args[i] in {"auto","nested"} for i in mode_positions)):
+            return False
+        os.kill(pid,signal.SIGUSR1)
+        return True
+    finally:
+        fcntl.flock(guard,fcntl.LOCK_UN);os.close(guard)
+
+
 def main(argv: list[str]) -> int:
     try:
         action=argv[1]
@@ -140,6 +194,13 @@ def main(argv: list[str]) -> int:
         elif action=="release":
             state_dir,proc,pid=argv[2:]
             release(Path(state_dir),Path(proc),int(pid))
+        elif action=="request-nested-stop":
+            state_dir,proc=argv[2:]
+            if not request_nested_stop(Path(state_dir),Path(proc)):
+                raise RuntimeError("no verified cooperative nested PRoot lifecycle owner was found")
+        elif action=="tag-nested-stop":
+            state_dir,proc,pid=argv[2:]
+            tag_nested_stop(Path(state_dir),Path(proc),int(pid))
         else: raise RuntimeError("unsupported lifecycle lock action")
         return 0
     except (OSError,ValueError,RuntimeError,KeyError,TypeError) as exc:

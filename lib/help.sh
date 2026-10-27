@@ -75,7 +75,8 @@ an exact stop plan; apply it with
 `tx proot stop SESSION_ID --yes --plan-id ID`. `tx db [--user NAME]` opens an owned
 interactive Debian login and asks for an account only when multiple ordinary accounts exist;
 `tx pgui [--user NAME]` starts Debian XFCE by default and prompts for an account when needed;
-`tx pgui DE` selects an installed desktop. `tx gui` starts the Native desktop when stopped, then opens the GTK center.
+`tx pgui DE` selects an installed desktop. `tx pgui stop` closes managed standalone `:0` and nested `:2` sessions; Native `:1` remains running. `tx stop` closes a cooperative nested guest first, then stops Native `:1`.
+`tx gui` starts the Native desktop when stopped, then opens the GTK center.
 `tx mng app launch --desktop-id APP.desktop --display :N` launches an
 allowlisted Debian XFCE application through the shared guest service.
 `tx proot shortcuts list` inspects launcher state; `preview add|remove APP_ID`
@@ -111,9 +112,10 @@ Run `tx status` to inspect the saved session and `tx stop` to stop it.
 EOF
       ;;
     stop) cat <<'EOF'
-tx stop — Stop the recorded Native desktop session
-Only recorded process identities are stopped, using SIGTERM. Unknown or changed
-processes are preserved. Session state and logs remain available for diagnosis.
+tx stop — Stop the Native desktop session
+If a verified nested PRoot desktop is using Native :1, tx stop closes that exact
+guest's isolated process group first, then stops the recorded Native session.
+Unknown or changed processes are preserved. State and logs remain for diagnosis.
 EOF
       ;;
     restart) cat <<'EOF'

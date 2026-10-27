@@ -4,6 +4,30 @@
 
 **Reviewed:** 2026-10-27. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Native media packages and nested GUI lock follow-up — 2026-10-28
+
+Native optional software now includes Blender 4.5 through the signed TUR
+repository, enabled only after explicit selection/consent and scoped to that
+reviewed package transaction. Blender is intentionally not installed as part of
+this source change. VLC uses the GUI-enabled `vlc-qt` catalog package; prior device
+checks observed a VLC PulseAudio sink input and synthetic video window on Native
+`:1`, but do not establish audible speaker output or Android Termux:X11 visibility.
+The Native `audacity` package is absent on this device, so guest Audacity menu
+availability must not be described as a Native install result.
+
+A reported lifecycle lock was traced to a live `tx pgui start --mode auto` child
+of the Codex managed app-server, not a stale file or a Termux:Boot hook. The owner
+denied starting it; the exact process group was interrupted on request and released
+its own lock. `tx pgui status` then reported standalone `:0` stopped and nested `:2`
+socket absent; Native `:1` was left running. `tx start` now verifies the recorded
+Native session before requesting the shared lifecycle lock and returns success when
+the matching desktop is already healthy, including during an active nested GUI.
+`tx pgui stop` can close either the owned standalone :0 session or a cooperative
+nested :2 session while leaving Native :1 running. `tx stop` requests shutdown only
+from a lock owner tagged by the current cooperative PRoot launcher, which runs the
+guest inside its own process group; it waits for lock release before stopping Native
+:1. Legacy/unknown owners are left untouched. Android GUI visibility remains unknown.
+
 ## Desktop lifecycle stale-lock recovery — 2026-10-27
 
 The owner reported an empty legacy `.session.lock` directory left from a prior

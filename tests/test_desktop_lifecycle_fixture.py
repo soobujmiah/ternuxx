@@ -265,7 +265,9 @@ while True:
         command = '''set -e
 runner='source "$TERNUXX_LIB_DIR/core.sh"; source "$TERNUXX_LIB_DIR/desktop.sh"; _TN_LIB_DIR="$TERNUXX_LIB_DIR"; _nt_request_termux_x11_activity() { : > "$ACTIVITY_MARKER"; }; case "$1" in start) nt_cmd_start ;; status) nt_cmd_status ;; esac'
 bash -c "$runner" _ start
+mkdir "$TERNUXX_STATE_DIR/.session.lock"
 bash -c "$runner" _ start
+rmdir "$TERNUXX_STATE_DIR/.session.lock"
 bash -c "$runner" _ status
 '''
         result = subprocess.run(["bash", "-c", command], env=env,

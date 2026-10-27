@@ -11,6 +11,7 @@ _NT_NATIVE_APP_CATALOG=(
   'gimp|Graphics: GIMP image editor|gimp|termux-x11'
   'inkscape|Graphics: Inkscape vector editor|inkscape|termux-x11'
   'krita|Graphics: Krita painting|krita|termux-x11'
+  'blender|Graphics: Blender 4.5 (TUR community repository)|blender4|tur-packages'
   'darktable|Graphics: Darktable photo workflow|darktable|termux-x11'
   'rawtherapee|Graphics: RawTherapee RAW photos|rawtherapee|termux-x11'
   'imagemagick|Graphics: ImageMagick CLI tools|imagemagick|termux-main'
