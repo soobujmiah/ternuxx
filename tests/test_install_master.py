@@ -47,6 +47,37 @@ class MasterTests(unittest.TestCase):
         self.assertEqual(d['download_bytes_known'],100)
         self.assertEqual(d['disk_bytes_known'],1100)
 
+    def test_summary_has_sizes_and_user_without_internal_hashes(self):
+        self.part('native.part.json',dict(install='already_installed'))
+        self.part('choices.part.json',dict(components='terminal,graphics',native_backend='system'))
+        self.part('guest-debian.part.json',dict(plan_id='b'*64,operation=dict(transaction_summary={},transaction_packages=[],desktop_environments=['xfce'],apps=['graphics-runtime'])))
+        self.part('account-debian.part.json',dict(plan_id='a'*64,user='fixture',action='create',sudo_mode='password'))
+        with mock.patch.dict(os.environ,self.env):
+            plan=plans.build(self.home)
+            output=io.StringIO()
+            with contextlib.redirect_stdout(output):plans.summary(self.home,plan)
+        text=output.getvalue()
+        self.assertIn('debian: fixture | xfce',text)
+        self.assertIn('CPU fallback + supported GPU',text)
+        self.assertIn('extra disk',text)
+        self.assertNotIn('b'*64,text)
+        self.assertNotIn('gpu_baseline',text)
+
+    def test_default_runtime_collects_cpu_and_gpu_without_extra_picker(self):
+        script=f'''source "{ROOT}/lib/install_wizard.sh"
+_nt_gpu_probe() {{ echo 'unsupported|fixture'; }}
+_nt_pick() {{ echo UNEXPECTED_PICKER >&2; return 2; }}
+_NT_MASTER_DISTROS=debian
+_NT_GUEST_APPS[debian]=music,cpu-runtime
+_nt_master_gpu_choices '{ROOT}' || exit $?
+printf '%s' "${{_NT_GUEST_APPS[debian]}}"
+'''
+        result=subprocess.run(['bash','-c',script],env=self.env,capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertNotIn('UNEXPECTED_PICKER',result.stderr)
+        expected='graphics-runtime' if os.access('/dev/kgsl-3d0',os.R_OK) else 'cpu-runtime'
+        self.assertEqual(result.stdout,'music,'+expected)
+
     def coordinator(self,approve,tamper=False):
         log=self.home/'trace'
         script=f'''set -u

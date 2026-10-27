@@ -9,7 +9,6 @@ _nt_master_prepare() {
     _NT_WINDOW_QUERY=1 _nt_window_run _nt_network_retry 'Bootstrap metadata' env -u LD_LIBRARY_PATH pkg update -y || return $?
     _nt_window_run env -u LD_LIBRARY_PATH pkg install -y --no-upgrade "${prerequisites[@]}" || return $?
   fi
-  _nt_confirm 'Refresh signed package indexes for planning? No package install or upgrade.' || return 130
   _nt_window_stage 'Plan | Refreshing signed metadata' 'No workstation package or guest apply'
   _NT_WINDOW_QUERY=1 _nt_window_run _nt_network_retry 'Planning metadata' env -u LD_LIBRARY_PATH pkg update -y
 }
@@ -26,11 +25,11 @@ _nt_master_gpu_choices() {
     option='kgsl-freedreno|Pinned experimental Adreno 825 Mesa'
     if [ -e "$TERNUXX_STATE_DIR/native-graphics-prefix" ] || [ -e "$TERNUXX_STATE_DIR/native-graphics-backend" ]; then choices+=("$option"); else choices=("$option" "${choices[@]}"); fi
   fi
-  _NT_MASTER_BACKEND="$(_nt_pick 'Native GPU choice for the combined plan' single '' "${choices[@]}")" || return $?
+  # Preserve an existing preference, otherwise choose the detected supported route.
+  _NT_MASTER_BACKEND="${choices[0]%%|*}"
   for distro in ${_NT_MASTER_DISTROS//,/ }; do
-    local -a runtime_options=('cpu-runtime|CPU rendering + sound; preserve GPU files')
-    [ ! -r /dev/kgsl-3d0 ] || runtime_options=('graphics-runtime|Managed pinned Turnip/Zink + CPU + sound (KGSL detected)' "${runtime_options[@]}")
-    runtime="$(_nt_pick "$distro graphics/audio runtime for the combined plan" single '' "${runtime_options[@]}")" || return $?
+    runtime=cpu-runtime
+    [ ! -r /dev/kgsl-3d0 ] || runtime=graphics-runtime
     cleaned=''
     for app in ${_NT_GUEST_APPS[$distro]//,/ }; do
       case "$app" in cpu-runtime|graphics-runtime) continue ;; esac
@@ -61,24 +60,19 @@ _nt_master_guest_preview() {
 }
 
 _nt_master_review() {
-  local folder="$1" plan="$2" choice line
-  local -a report=()
-  while IFS= read -r line || [ -n "$line" ]; do report+=("row${#report[@]}|${line:- }"); done <"$folder/report.txt"
-  # Always present the report before the approval menu, including size limitations.
-  _nt_pick 'Combined plan: download/disk sizes and all selections — Enter/Esc returns' view '' "${report[@]}" >/dev/null || true
-  while :; do
-    choice="$(_nt_pick "Combined plan ${plan:0:12} — approval starts installation" single '' \
-      'details|Read full selections, exact packages, download/disk estimates and unknowns' \
-      'approve|Review acknowledgement and approve this exact combined plan' 'cancel|Cancel; no workstation installation')" || return $?
-    case "$choice" in
-      details) _nt_pick 'Combined plan report — arrows/page keys scroll; Enter/Esc returns' view '' "${report[@]}" >/dev/null || true ;;
-      approve)
-        # Force the size limitations to be visible in the approval itself.
-        _nt_confirm 'Approve known size estimates AND explicitly accept unresolved fresh-rootfs/graphics/build-scratch sizes shown in the report?' || continue
-        _nt_confirm "Install exact combined plan ${plan:0:16}? Native + guest changes start only now." && return 0 ;;
-      cancel) return 130 ;;
-    esac
-  done
+  local folder="$1" plan="$2" choice line result=0
+  local -a _NT_PICK_SUMMARY=()
+  while IFS= read -r line; do _NT_PICK_SUMMARY+=("$line"); done < <(python3 "${root:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)}/lib/install_master_plan.py" summary "$folder" "$plan")
+  [ "${#_NT_PICK_SUMMARY[@]}" -gt 0 ] || return 2
+  choice="$(_NT_WINDOW_ACTIVE=0 _nt_pick 'Ready to install — review selections and estimated space' single '' \
+    'approve|Install everything shown; accept estimated/unknown sizes' \
+    'cancel|Cancel without workstation installation')" || result=$?
+  if [ "${_NT_WINDOW_ACTIVE:-0}" = 1 ]; then
+    printf '\033[?1049h' >/dev/tty
+    _nt_window_draw
+  fi
+  [ "$result" = 0 ] || return "$result"
+  [ "$choice" = approve ] || return 130
 }
 
 _nt_master_verify() { python3 "$1/lib/install_master_plan.py" verify "$2" "$3"; }

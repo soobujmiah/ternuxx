@@ -51,22 +51,21 @@ RAM and prefix storage. Three keyboard-driven profiles follow:
 
 The guided workstation and `tx install NATIVE_DE` / `tx install proot DISTRO DE`
 shortcuts now use a combined planning barrier. Select all accounts/desktops/apps,
-CPU/GPU/audio runtimes and Native GPU preference first. Signed metadata refresh is
-planning work; any missing Python/X11 planner prerequisites need a separately
-labeled bootstrap consent. No selected workstation/guest package transaction,
-launcher deployment or management build starts before the combined report and
-explicit final approval.
+and optional software first. CPU rendering/audio libraries are included by default;
+when detected, supported GPU support is added alongside them. Existing Native
+launch preferences are preserved; a new install uses the detected supported route.
+Only one renderer is active for a workload, but CPU fallback remains installed.
+Signed metadata refresh is planning work; missing Python/X11 planner prerequisites
+still require clearly labeled bootstrap consent.
 
-The scrollable report lists exact subplan IDs, requested and resolved package
-versions, guest/account actions, download estimates, installed/additional disk
-estimates, known peak storage and available space. Native upgrade roots and new
-packages are resolved in one transaction. Cached downloads can reduce actual
-traffic; upgraded installed payload is a conservative estimate. Fresh rootfs
-compressed layer bytes are known from its pinned manifest; fresh guest APT/unpacked
-rootfs, optional graphics and build-scratch sizes may remain unresolved. They are
-shown as **unknown**, never zero, and need a separate acknowledgement before final
-approval. Known storage insufficiency blocks approval/apply. These are estimates,
-not an exact free-space guarantee.
+One concise final summary shows selected Native components, guest account/desktops/
+apps, known download/extra disk/peak estimates and free storage. Select Install or
+Cancel once. Unresolved rootfs/dependency, graphics and build-scratch sizes are
+explicitly marked unknown and included in that approval. No further questions or
+completion keypress follow. Technical subplan hashes and exact package versions
+remain in the private report for diagnostics, rather than a mandatory viewer.
+Known storage insufficiency blocks apply; estimates are not a free-space guarantee.
+No workstation/guest packages, launcher or management build apply before approval.
 
 Existing guest add-on plans include a Native HTTPS archive transport. APT supplies
 URI/cache-name metadata without downloading; SHA-256/size come from the acquired

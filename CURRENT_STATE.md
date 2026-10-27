@@ -4,6 +4,17 @@
 
 **Reviewed:** 2026-10-26. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Simplified workstation approval — 2026-10-27
+
+The guided coordinator now presents one concise Install/Cancel summary instead of
+a forced raw report, extra acknowledgement menus and GPU/CPU-exclusive selectors.
+CPU fallback remains installed alongside detected GPU support; saved Native launch
+preferences are preserved. Device rows use their actual widest displayed content
+for block centering. Successful or failed runs return without a completion keypress.
+The latest local installer diagnostic observed during this change recorded exit 0;
+that does not qualify desktop visibility, acceleration or the owner's reported failure.
+No device package/account/service mutation was performed for this source change.
+
 ## Guest HTTPS timeout and read-only report repair — 2026-10-27
 
 Read-only inspection of the owner's failed run found a guest APT `TimeoutExpired`

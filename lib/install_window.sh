@@ -58,11 +58,15 @@ _nt_window_divider() {
 
 _nt_window_info() {
   local label="$2" value="$3"
-  local block_width=$((_NT_WINDOW_COLS - 5)) pad=2
-  [ "$block_width" -le 76 ] || block_width=76
+  local block_width=0 candidate pad
+  local -a values=("$_NT_WINDOW_DEVICE | Android $_NT_WINDOW_ANDROID | $_NT_WINDOW_ABI" "$_NT_WINDOW_SOC | RAM $_NT_WINDOW_RAM" "$_NT_WINDOW_GPU" "$_NT_WINDOW_AUDIO" "$_NT_WINDOW_STORAGE | Native Termux" "$_NT_WINDOW_KERNEL" "Native Termux | ${PREFIX:-unknown}")
+  [ "${_NT_WINDOW_ADDON_ROWS:-0}" != 1 ] || values+=("${_NT_WINDOW_ADDONS:-Android visibility unknown}")
+  for candidate in "${values[@]}"; do
+    [ "$((11 + ${#candidate}))" -le "$block_width" ] || block_width=$((11 + ${#candidate}))
+  done
+  [ "$block_width" -le "$((_NT_WINDOW_COLS - 2))" ] || block_width=$((_NT_WINDOW_COLS - 2))
   pad=$(((_NT_WINDOW_COLS - block_width) / 2))
-  # Center the whole block while keeping its labels/value columns aligned.
-  printf '\033[%s;1H\033[2K %*s\033[38;5;114m%-9s\033[0m  %.*s' "$1" "$pad" '' "$label" "$((block_width - 12))" "$value" >/dev/tty
+  printf '\033[%s;1H\033[2K%*s\033[38;5;114m%-9s\033[0m  %.*s' "$1" "$pad" '' "$label" "$((block_width - 11))" "$value" >/dev/tty
 }
 
 _nt_window_keys() {
@@ -297,9 +301,9 @@ _nt_window_session() (
   # Selection and command relays refresh elapsed time and the green title.
   if _nt_install_preflight; then "$@"; result=$?; else result=$?; fi
   _nt_install_diagnostic "$result" || true
-  _nt_window_stage "Finished | exit $result" 'Press Enter to return to your terminal'
-  local answer
-  IFS= read -r answer </dev/tty || true
+  _nt_window_cleanup
+  trap - EXIT
+  printf 'TERNUXX installation finished (exit %s). Diagnostic: %s/install-last-result.txt\n' "$result" "$TERNUXX_STATE_DIR"
   return "$result"
 )
 

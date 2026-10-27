@@ -95,13 +95,31 @@ def build(root):
     lines.extend(['',f'Known download subtotal: {download/1048576:.1f} MiB',f'Known additional storage subtotal (payload + extra verified cache): {disk/1048576:.1f} MiB',f'Known download + installed peak estimate: {peak/1048576:.1f} MiB',f'Free space: {free/1073741824:.2f} GiB','Estimates are metadata-based; caches, filesystem allocation and build scratch can vary.'])
     if peak>free:raise ValueError('Known required space exceeds available storage; no apply is permitted')
     lines.append('Unresolved sizes: '+'; '.join(unknown))
-    lines.append('Incomplete size estimates require a separate explicit acknowledgement before approval.')
+    lines.append('Unresolved sizes are included in the final installation approval.')
     report='\n'.join(piece for line in lines for piece in (textwrap.wrap(line,70) or ['']))
     body={'report_sha256':hashlib.sha256(report.encode()).hexdigest(),'schema_version':1,'parts':parts,'download_bytes_known':download,'disk_bytes_known':disk,'unknown_estimates':unknown}
     record={**body,'plan_id':digest(body)}
     (root/'master.json').write_text(json.dumps(record,sort_keys=True));os.chmod(root/'master.json',0o600)
     (root/'report.txt').write_text(report);os.chmod(root/'report.txt',0o600)
     return record['plan_id']
+
+
+def summary(root, plan_id):
+    verify(root, plan_id)
+    record=json.loads((root/'master.json').read_text())
+    parts=record['parts']; choices=parts.get('choices.part.json',{})
+    components=list(dict.fromkeys(choices.get('components','').split(',')))
+    print('Native: '+', '.join(filter(None,components)))
+    print('Graphics: CPU fallback + supported GPU; Native '+choices.get('native_backend','system'))
+    for name,data in parts.items():
+        if not name.startswith('guest-'):continue
+        distro=name.removeprefix('guest-').removesuffix('.part.json');op=data.get('operation',{})
+        account=parts.get('account-'+distro+'.part.json',{}).get('user',op.get('guest_user','existing user'))
+        print(distro+': '+account+' | '+', '.join(op.get('desktop_environments',[]))+' | '+', '.join(op.get('apps',op.get('package_groups',[]))))
+    print(f"Download >= {record['download_bytes_known']/1048576:.1f} MiB | extra disk >= {record['disk_bytes_known']/1048576:.1f} MiB")
+    print(f"Known peak >= {(record['download_bytes_known']+record['disk_bytes_known'])/1048576:.1f} MiB | free {shutil.disk_usage(os.environ['PREFIX']).free/1073741824:.1f} GiB")
+    if record['unknown_estimates']:print('Additional sizes unknown: rootfs/dependencies where unresolved, graphics, build scratch.')
+    print('One approval starts all steps; no further questions. Technical details saved privately.')
 
 
 def verify(root,plan_id):
@@ -114,6 +132,7 @@ if __name__=='__main__':
     try:
         action,folder,*args=sys.argv[1:];root=Path(folder)
         if action=='build':print(build(root))
+        elif action=='summary':summary(root,args[0])
         elif action in ('verify','capacity'):
             verify(root,args[0])
             if action=='capacity':

@@ -1,6 +1,7 @@
 # Keyboard selector. stdout contains IDs only; the controlling terminal owns input.
 _nt_pick() (
   local title="$1" mode="$2" defaults="$3"; shift 3
+  declare -p _NT_PICK_SUMMARY >/dev/null 2>&1 || local -a _NT_PICK_SUMMARY=()
   local -a items=("$@") selected=()
   local index=0 offset=0 height rows columns key tail sequence item id i mark saved_terminal count read_status redraw=1 previous_rows=0 previous_columns=0 dimensions_changed=0
   [ "${TERM:-dumb}" != dumb ] || { printf 'Selection needs an attached terminal with arrow keys.\n' >&2; return 2; }
@@ -25,7 +26,7 @@ _nt_pick() (
   # Keep one noncanonical, non-echo mode across the entire escape sequence.
   # Per-byte silent reads previously left echo/canonical gaps between key bytes.
   stty -echo -icanon -ixon min 1 time 0 <&3 || return 2
-  if [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ]; then printf '\033[?1049h' >&3; fi
+  if [ "${_NT_WINDOW_ACTIVE:-0}" != 1 ]; then printf '\033[?1049h\033[r' >&3; fi
   printf '\033[?25l' >&3
   for item in "${items[@]}"; do
     id="${item%%|*}"
@@ -55,6 +56,9 @@ _nt_pick() (
       height=$((_NT_WINDOW_LOG_LAST - _NT_WINDOW_LOG_FIRST))
       [ "$height" -gt 0 ] || height=1
     fi
+    local summary_count=${#_NT_PICK_SUMMARY[@]}
+    height=$((height - summary_count))
+    [ "$height" -gt 0 ] || height=1
     [ "$index" -ge "$offset" ] || offset="$index"
     [ "$index" -lt "$((offset + height))" ] || offset=$((index - height + 1))
     if [ "$redraw" = 1 ]; then
@@ -68,6 +72,9 @@ _nt_pick() (
         printf '%.*s\r\n' "$((columns - 1))" "$hint" >&3
         printf '%.*s\r\n%.*s\r\n%.*s\r\n' "$((columns - 1))" '-------------------------------------------------------------------------------' "$((columns - 1))" "$title" "$((columns - 1))" '-------------------------------------------------------------------------------' >&3
       fi
+      for item in "${_NT_PICK_SUMMARY[@]}"; do
+        printf '\033[38;5;114m%.*s\033[0m\r\n' "$((columns - 1))" "$item" >&3
+      done
       for ((i=offset; i<${#items[@]} && i<offset+height; i++)); do
         mark=' '; [ "${selected[$i]}" = 0 ] || mark=x
         if [ "$i" = "$index" ]; then printf '\033[1;38;5;46m> ' >&3; else printf '  ' >&3; fi

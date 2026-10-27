@@ -113,6 +113,18 @@ echo RESULT=$result''', rows=24, columns=70)
         self.assertIn('RESULT=app1,app60', out)
         self.assertEqual(termios.tcgetattr(term.slave), term.original)
 
+    def test_final_summary_needs_only_one_approval_keypress(self):
+        term = self.fixture('''_NT_PICK_SUMMARY=('Native: terminal, graphics' 'Graphics: CPU + GPU' 'Download >= 12 MiB | extra disk >= 30 MiB' 'Additional sizes unknown: graphics/build scratch')
+choice=$(_nt_pick 'Ready to install' single '' 'approve|Install everything shown' 'cancel|Cancel')
+printf 'FINAL=%s\n' "$choice"
+''', rows=24, columns=80)
+        term.wait_for(b'Additional sizes unknown')
+        term.send(b'\n')
+        out = term.finish()
+        self.assertIn('FINAL=approve', out)
+        self.assertEqual(term.process.returncode, 0, out)
+        self.assertEqual(termios.tcgetattr(term.slave), term.original)
+
     def test_existing_guest_confirmation_inside_fixed_frame(self):
         with tempfile.TemporaryDirectory() as tmp:
             term = self.fixture(f'''source "{ROOT}/lib/phases.sh"
@@ -149,8 +161,7 @@ _nt_window_session scenario
             os.killpg(term.process.pid, signal.SIGWINCH)
             term.wait_for(b'1/2 |', after=start)
             term.send(b'\x1b[B\n')
-            term.wait_for(b'Press Enter to return')
-            term.send(b'\n')
+            term.wait_for(b'TERNUXX installation finished')
             out = term.finish()
             self.assertEqual(term.process.returncode, 0, out)
             self.assertIn('CONFIRMED', out)
