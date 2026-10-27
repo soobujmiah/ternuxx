@@ -1,0 +1,7 @@
+event_id: commit-4fbb99420abc-156d01c7ad871f4c
+repository: soobujmiah/ternuxx
+commit: 4fbb99420abc42bcc5aa4e7cf28263fe152ab50a
+kind: commit
+occurred_at: '2026-10-27T23:02:32Z'
+status: completed
+summary: 'docs: report native Blender 4.5 viewport recheck'
