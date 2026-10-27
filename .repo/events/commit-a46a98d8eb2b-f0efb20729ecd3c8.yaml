@@ -1,0 +1,7 @@
+event_id: commit-a46a98d8eb2b-f0efb20729ecd3c8
+repository: soobujmiah/ternuxx
+commit: a46a98d8eb2b7e69e07a9cb7fd1d3a1e97e6f72c
+kind: commit
+occurred_at: '2026-10-27T22:28:12Z'
+status: completed
+summary: 'docs(test): compare Blender viewport backends'
