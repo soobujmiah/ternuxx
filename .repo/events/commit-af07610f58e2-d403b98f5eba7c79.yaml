@@ -1,0 +1,7 @@
+event_id: commit-af07610f58e2-d403b98f5eba7c79
+repository: soobujmiah/ternuxx
+commit: af07610f58e216ad40c3180425b00e53a272653a
+kind: commit
+occurred_at: '2026-10-27T20:42:14Z'
+status: completed
+summary: 'fix(proot): preserve unsupported desktop diagnostics'
