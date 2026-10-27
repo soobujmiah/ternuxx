@@ -85,6 +85,11 @@ _STREAM_LOG_LIMIT = 16 * 1024 * 1024
 
 
 def _private_log(path, *, truncate=False):
+    # Nested command wrappers may run before the installer session initializes
+    # its state directory. Create it here so a missing parent never suppresses
+    # command output.
+    parent = os.path.dirname(os.path.abspath(path))
+    os.makedirs(parent, mode=0o700, exist_ok=True)
     flags = os.O_WRONLY | os.O_CREAT | os.O_NOFOLLOW | os.O_CLOEXEC
     flags |= os.O_TRUNC if truncate else os.O_APPEND
     fd = os.open(path, flags, 0o600)
