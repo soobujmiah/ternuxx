@@ -1,0 +1,18 @@
+Visible glmark2 A/B; requested=zink; display=:1; renderer=zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP)); duration=4s/scene
+=======================================================
+    glmark2 2023.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      Mesa
+    GL_RENDERER:    zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))
+    GL_VERSION:     4.6 (Compatibility Profile) Mesa 26.3.0-devel (git-98f3d6229d)
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=32 stencil=0 samples=0
+    Surface Size:   640x360 windowed
+=======================================================
+[build] duration=4: FPS: 691 FrameTime: 1.448 ms
+[texture] duration=4: FPS: 678 FrameTime: 1.477 ms
+[shading] duration=4: FPS: 594 FrameTime: 1.684 ms
+=======================================================
+                                  glmark2 Score: 653
+=======================================================
+EXIT=0 WALL_SECONDS=12.32 REQUESTED_BACKEND=zink

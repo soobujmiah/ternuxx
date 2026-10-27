@@ -1,0 +1,20 @@
+Visible glmark2 A/B; requested=kgsl; display=:1; renderer=Adreno (TM) 825; duration=4s/scene
+=======================================================
+    glmark2 2023.01
+=======================================================
+    OpenGL Information
+    GL_VENDOR:      freedreno
+    GL_RENDERER:    Adreno (TM) 825
+    GL_VERSION:     4.6 (Compatibility Profile) Mesa 26.3.0-devel (git-98f3d6229d)
+    Surface Config: buf=32 r=8 g=8 b=8 a=8 depth=32 stencil=0 samples=0
+    Surface Size:   640x360 windowed
+=======================================================
+[build] duration=4: FPS: 688 FrameTime: 1.454 ms
+[texture] duration=4: FPS: 667 FrameTime: 1.500 ms
+[shading] duration=4: FPS: 663 FrameTime: 1.510 ms
+=======================================================
+                                  glmark2 Score: 671
+=======================================================
+os_same_file_description couldn't determine if two DRM fds reference the same file description. (Operation not permitted)
+Let's just assume that file descriptors for the same DRM file probably share the file description instead. This may cause problems when that isn't the case.
+EXIT=0 WALL_SECONDS=12.30 REQUESTED_BACKEND=kgsl
