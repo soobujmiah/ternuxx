@@ -150,17 +150,30 @@ def _display_state(session: dict, tmp_root: Path, *, require_ready: bool) -> str
     sock_dir = tmp_root / ".X11-unix"
     try:
         root_meta = tmp_root.lstat()
-        dir_meta = sock_dir.lstat()
     except OSError:
         return "unknown"
     if (stat.S_ISLNK(root_meta.st_mode) or not stat.S_ISDIR(root_meta.st_mode)
-            or root_meta.st_uid != os.getuid() or stat.S_ISLNK(dir_meta.st_mode)
+            or root_meta.st_uid != os.getuid()):
+        return "unsafe"
+    try:
+        dir_meta = sock_dir.lstat()
+    except FileNotFoundError:
+        # A missing X11 socket directory is a normal stopped state when the
+        # matching display lock is also absent. Keep a lock without its socket
+        # directory ambiguous below; never treat it as a clean display.
+        dir_meta = None
+    except OSError:
+        return "unknown"
+    if dir_meta is not None and (stat.S_ISLNK(dir_meta.st_mode)
             or not stat.S_ISDIR(dir_meta.st_mode) or dir_meta.st_uid != os.getuid()):
         return "unsafe"
     sock = sock_dir / f"X{number}"
     lock = tmp_root / f".X{number}-lock"
     found = []
-    for path in (sock, lock):
+    for index, path in enumerate((sock, lock)):
+        if index == 0 and dir_meta is None:
+            found.append(None)
+            continue
         try:
             meta = path.lstat()
         except FileNotFoundError:

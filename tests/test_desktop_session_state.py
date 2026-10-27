@@ -248,6 +248,23 @@ class DesktopSessionStateTests(unittest.TestCase):
         (self.tmp / ".X1-lock").write_text("102\n", encoding="ascii")
         self.assertEqual(self._inspect()["state"], "failed")
 
+    def test_stopped_session_without_socket_directory_or_lock_is_stopped(self) -> None:
+        self._session("stopped", process_ticks="999")
+        import shutil
+        shutil.rmtree(self.tmp / ".X11-unix")
+        result = self._inspect()
+        self.assertEqual(result["state"], "stopped")
+        self.assertEqual(result["display_state"], "absent")
+
+    def test_display_lock_without_socket_directory_remains_unknown(self) -> None:
+        self._session("stopped", process_ticks="999")
+        import shutil
+        shutil.rmtree(self.tmp / ".X11-unix")
+        (self.tmp / ".X1-lock").write_text("102\n", encoding="ascii")
+        result = self._inspect()
+        self.assertEqual(result["state"], "unknown")
+        self.assertEqual(result["display_state"], "unknown")
+
     def test_unresponsive_owned_display_is_stale_without_deleting_artifacts(self) -> None:
         self._session(process_ticks="999")
         socket_path = self.tmp / ".X11-unix/X1"

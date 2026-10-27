@@ -4,6 +4,30 @@
 
 **Reviewed:** 2026-10-28. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
 
+## Stopped desktop inspection when the X11 socket directory is absent — 2026-10-28
+
+I asked Codex to repair `tx start` and check `tx pgui` after both reported unknown
+session ownership. The Native and standalone PRoot records were stopped, their
+recorded processes were absent, and the matching display locks were absent; the
+Termux temporary `.X11-unix` directory had also been removed. The shared session
+classifier treated that clean stopped state as unknown, blocking Native startup
+and PRoot status. It now treats a missing socket directory as absent only when
+that display's lock is absent; a surviving lock remains ambiguous and is
+preserved. Live Native `tx start` then succeeded on `:1`, and `tx status` verified
+the supervisor, Termux:X11 and XFCE process identities. I then stopped Native
+`:1` and started standalone Debian XFCE on `:0`; `tx pgui status` passed its
+shell, window-manager, panel and desktop-process checks, and `xdotool` found eight
+visible X11 windows. This confirms windows are mapped in the X server. The
+Termux:X11 Activity launch was accepted, but foreground Activity state could not
+be read because Termux lacks Android's `DUMP` permission; Android screen
+visibility remains unverified. The Ctrl+Alt+Delete shortcut did not open a dialog.
+I then sent `xfce4-session-logout --logout --fast` through the verified guest
+session bus: the helper exited 0, PRoot status became stopped, and the session
+record ended stopped with `xfce session exited with status 0`. This verifies XFCE
+logout teardown, but not that the Android Activity was foreground or that the
+shortcut dialog itself rendered. The fixture suite also checks that a natural
+XFCE session exit makes the supervisor stop its exact X11 group.
+
 ## Termux:X11 Activity launch and installed server compatibility — 2026-10-28
 
 The owner reported that `tx start` claimed the Native desktop was running while the

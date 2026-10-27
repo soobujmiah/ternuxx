@@ -82,8 +82,8 @@ os.execv(sys.argv[2], sys.argv[2:])
 import os, time
 with open(os.environ["FAKE_ENV_FILE"], "w", encoding="utf-8") as stream:
     stream.write(os.environ.get("LD_LIBRARY_PATH", "missing"))
-while True:
-    time.sleep(1)
+while not os.path.exists(os.environ["FAKE_LOGOUT_FILE"]):
+    time.sleep(0.1)
 """,
         )
 
@@ -99,6 +99,7 @@ while True:
                 "TERNUXX_LIB_DIR": str(self.lib_dir),
                 "TERNUXX_NO_ACTIVITY_LAUNCH": "1",
                 "FAKE_ENV_FILE": str(self.base / "desktop-loader-path"),
+                "FAKE_LOGOUT_FILE": str(self.base / "xfce-logout"),
                 "X11_ARGS_FILE": str(self.base / "x11-args.json"),
                 "PATH": f"{self.bin_dir}{os.pathsep}{os.environ['PATH']}",
             }
@@ -371,6 +372,25 @@ bash -c "$runner" _ status
         self.assertFalse((self.tmp / ".X11-unix/X7").exists())
         self.assertFalse((self.tmp / ".X7-lock").exists())
         self.assertEqual(len(list(journal.glob("*.json"))), 3)
+
+    def test_desktop_session_exit_closes_supervisor_and_owned_x11(self) -> None:
+        start = self._run("start", "--display", "7")
+        self.assertEqual(start.returncode, 0, start.stderr)
+        self.assertEqual(self._state()["status"], "running")
+
+        # A user logging out ends xfce4-session. Model that natural desktop
+        # exit and verify the supervisor tears down only its recorded X11 group.
+        Path(self.env["FAKE_LOGOUT_FILE"]).touch()
+        for _ in range(100):
+            state = self._state()
+            if state["status"] == "stopped":
+                break
+            import time
+            time.sleep(0.1)
+        self.assertEqual(state["status"], "stopped")
+        self.assertFalse((self.tmp / ".X11-unix/X7").exists())
+        self.assertFalse((self.tmp / ".X7-lock").exists())
+        self.assertFalse((self.state / ".session.lock").exists())
 
     def test_live_session_state_is_discovered_after_default_path_changes(self) -> None:
         start = self._run("start", "--display", "7")
