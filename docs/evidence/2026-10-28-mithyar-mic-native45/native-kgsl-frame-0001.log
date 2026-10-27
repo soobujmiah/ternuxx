@@ -1,0 +1,15 @@
+Blender 4.5.14 LTS (hash 62c1db4208e8 built 2026-10-25 10:35:22)
+Read blend: "/sdcard/Blender/bangla-short-films/mithyar-mic-native45-production-2026-10-28/mithyar_mic_native45_60s.blend"
+Warning: Could not find a matching GPU name. Things may not behave as expected.
+Detected OpenGL configuration:
+Vendor: freedreno
+Renderer: Adreno (TM) 825
+Fra:1 Mem:452.01M (Peak 495.98M) | Time:00:13.43 | Rendering 1 / 16 samples
+Fra:1 Mem:452.01M (Peak 495.98M) | Time:00:25.36 | Rendering 16 / 16 samples
+Saved: '/sdcard/Blender/bangla-short-films/mithyar-mic-native45-production-2026-10-28/renders/preview_0001.png'
+Time: 00:25.77 (Saving: 00:00.32)
+
+os_same_file_description couldn't determine if two DRM fds reference the same file description. (Operation not permitted)
+Let's just assume that file descriptors for the same file probablyshare the file description instead. This may cause problems whenthat isn't the case.
+
+Blender quit
