@@ -25,7 +25,7 @@
 - Source project SHA-256: `68c46a93f72135f912cd53385279af832cd76d41437c362ab465516d708b8609`
 - Timeline script SHA-256: `33339415b75a7a6c4cdb79f722f0614213a97737a13104cedc2da84a3a02706f`
 - New editable output: `/sdcard/Blender/bangla-short-films/mithyar-mic-native45-production-2026-10-28/mithyar_mic_native45_60s.blend`
-- Output project SHA-256: `1a4943e69c610c1b054cfa64fe6c31eeb7a9bf70eedae4f7ffcbfc7775a8ee59`; size 99 MiB. Original project hash remained the same.
+- Initial output project SHA-256: `1a4943e69c610c1b054cfa64fe6c31eeb7a9bf70eedae4f7ffcbfc7775a8ee59`. After the follow-up visibility adjustment, current editable copy SHA-256: `9af2ba1fccee3569ba1c89f7d72734e11d8c3414c265df27478fe99e0bd832b2`; original source hash remained the same.
 - Timeline: frames 1–1440, 24 fps, 60 seconds; EEVEE Next; 1280×720; 16 samples. The scene has 153 objects, story-timed gestures/props, seven camera objects with story camera markers, and the packed Bengali moral end card.
 - Dialogue audio: not included. Story dialogue remains in the copied `STORY.md`; no dialogue subtitles were added, consistent with the source handoff.
 
@@ -60,5 +60,7 @@ The current Codex session did not expose the Blender MCP tools. The Blender Pyth
 ## Limits and follow-up
 
 This report demonstrates smooth GUI orbit and confirms that a Native Adreno-backed EEVEE invocation can execute a frame. It does **not** demonstrate that the scene was generated cleanly or that the rendered result is usable. The Native KGSL image is visibly broken, so 1,440-frame rendering would spend substantial time producing an unacceptable sequence. The previous Native Zink/Turnip attempt with Blender 4.5 crashed opening this workload; the PRoot Zink path is separately configured and its earlier viewport evidence is not a same-version full-render qualification. The Ternuxx runbook therefore requires representative frames to pass before full rendering and prohibits a silent backend/runtime switch.
+
+A follow-up scene inspection found `Workshop_Ground` (11×11 plane at z=0) exactly coplanar with the top face of `Courtyard_Ground` (18×18 slab ending at z=0). The two surfaces overlap across the full 11×11 region and can z-fight. The generated copy now retains but hides `Workshop_Ground` in the viewport and render; the original source is unchanged. A camera-ray check also found the `Podium` in front of the politician body center in `SHOT_WIDE`; other character centers project inside frame, so additional staging/occlusion review remains necessary. The latest camera-view capture is [`native-camera-after-ground-hide.png`](../../evidence/2026-10-28-mithyar-mic-native45/native-camera-after-ground-hide.png). This is a diagnostic visibility change, not a confirmed composition pass.
 
 The source handoff records unresolved art-review items for the phone placement and the politician likeness. This task did not claim those models as owner-approved. The next decision is whether to keep debugging Native KGSL for this scene or authorize a separately reported PRoot Zink/Turnip render path. Audio/dialogue and final MP4 assembly also remain unproduced.
