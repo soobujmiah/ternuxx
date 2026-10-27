@@ -1,0 +1,7 @@
+event_id: commit-1d9346a0c339-6ca40b18ed2faaf9
+repository: soobujmiah/ternuxx
+commit: 1d9346a0c339fe9e82ab677ba392f73f34e17673
+kind: commit
+occurred_at: '2026-10-27T21:06:41Z'
+status: completed
+summary: 'docs: record native logout lifecycle verification'
