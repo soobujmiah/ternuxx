@@ -11,9 +11,14 @@ PROFILE_POLICIES: dict[str, dict[str, tuple[str, ...]]] = {
     "debian-trixie": {"always_hold": (), "forbidden_packages": ()},
     "ubuntu-noble": {"always_hold": ("snapd",), "forbidden_packages": ("snapd",)},
 }
+PROFILE_ID_ALIASES = {
+    "ternuxx-debian-trixie-workstation": "debian-trixie",
+    "ternuxx-ubuntu-noble-workstation": "ubuntu-noble",
+}
 
 
 def policy_for(profile_id: str) -> dict[str, list[str]]:
+    profile_id = PROFILE_ID_ALIASES.get(profile_id, profile_id)
     try:
         policy = PROFILE_POLICIES[profile_id]
     except KeyError as exc:

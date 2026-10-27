@@ -46,6 +46,9 @@ class ProotDesktopCatalogTests(unittest.TestCase):
         for failed in ("gnome", "cinnamon"):
             with self.subTest(desktop=failed), self.assertRaises(proot_desktops.DesktopError):
                 proot_desktops.validate_selection("debian-trixie", [failed])
+            with self.subTest(desktop=failed), self.assertRaises(proot_desktops.DesktopError):
+                proot_desktops.packages_for("debian-trixie", [failed])
+            self.assertEqual(proot_desktops.DESKTOP_ROUTES[failed], frozenset())
         self.assertEqual(proot_desktops.DESKTOP_ROUTES["plasma"], frozenset({"standalone"}))
 
     def test_invalid_or_unsupported_selections_fail_closed(self):

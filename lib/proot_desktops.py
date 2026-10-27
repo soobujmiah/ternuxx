@@ -15,6 +15,9 @@ DEBIAN_DESKTOPS = {
     "lxde": {"name": "LXDE", "packages": ("lxde-core",), "session": "startlxde"},
     "mate": {"name": "MATE", "packages": ("mate-desktop-environment-core",), "session": "mate-session"},
     "plasma": {"name": "KDE Plasma", "packages": ("kde-plasma-desktop", "kwin-x11"), "session": "startplasma-x11"},
+    # Retained for legacy inventory/shortcut diagnostics; no accepted route.
+    "gnome": {"name": "GNOME", "packages": ("gnome-core",), "session": "gnome-session"},
+    "cinnamon": {"name": "Cinnamon", "packages": ("cinnamon-desktop-environment",), "session": "cinnamon-session"},
 }
 DEFAULT_DESKTOPS = ("xfce",)
 UBUNTU_DESKTOPS = {
@@ -40,6 +43,8 @@ DESKTOP_ROUTES = {
     "mate": frozenset({"standalone", "nested"}),
     # Plasma is accepted on standalone :0 only.
     "plasma": frozenset({"standalone"}),
+    "gnome": frozenset(),
+    "cinnamon": frozenset(),
 }
 
 
@@ -69,7 +74,8 @@ def catalog(provider: str, *, route: str | None = None) -> tuple[str, ...]:
     if route not in {None, "standalone", "nested"}:
         raise DesktopError("desktop route must be standalone or nested")
     return tuple(item for item in desktops
-                 if route is None or route in DESKTOP_ROUTES.get(item, frozenset({"standalone", "nested"})))
+                 if DESKTOP_ROUTES.get(item, frozenset({"standalone", "nested"}))
+                 and (route is None or route in DESKTOP_ROUTES.get(item, frozenset({"standalone", "nested"}))))
 
 
 def packages_for(provider: str, selected: list[str] | tuple[str, ...] | None = None) -> list[str]:
@@ -85,6 +91,8 @@ def session_argv(provider: str, selected: str, *, route: str | None = None) -> t
     desktops = PROVIDERS.get(provider, {})
     if selected not in catalog(provider, route=route):
         raise DesktopError("unsupported PRoot desktop selection for this route")
+    if provider == "debian-trixie" and selected == "gnome":
+        return ("gnome-session", "--session=gnome")
     return (str(desktops[selected]["session"]),)
 
 
