@@ -2,7 +2,7 @@
   "backend": "kgsl-direct",
   "blender": "5.2.2 LTS",
   "renderer": "Adreno (TM) 825",
-  "file": "/sdcard/Blender/bangla-short-films/mithyar-mic-2026-10-14/mithyar_mic.blend",
+  "file": "[external Blender project path redacted]",
   "scene": "Mithyar Mic | Character Workshop",
   "viewport": "RENDERED",
   "camera": "SHOT_WIDE",

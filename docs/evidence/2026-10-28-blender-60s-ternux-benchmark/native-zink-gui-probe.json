@@ -1,0 +1,9 @@
+{
+  "pid": null,
+  "file": "[external Blender project path redacted]",
+  "version": "5.2.2 LTS",
+  "renderer": "zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))",
+  "vendor": "Mesa",
+  "gl_version": "4.6 (Core Profile) Mesa 26.3.0-devel (git-98f3d6229d)",
+  "objects": 153
+}

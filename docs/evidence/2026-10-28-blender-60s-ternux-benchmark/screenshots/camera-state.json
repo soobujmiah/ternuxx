@@ -1,0 +1,67 @@
+{
+  "scene_camera": "SHOT_WIDE",
+  "camera_count": 8,
+  "areas": [
+    {
+      "screen": "Animation",
+      "perspective": "CAMERA",
+      "shading": "SOLID",
+      "camera": "SHOT_WIDE"
+    },
+    {
+      "screen": "Animation",
+      "perspective": "CAMERA",
+      "shading": "SOLID",
+      "camera": "SHOT_WIDE"
+    },
+    {
+      "screen": "Geometry Nodes",
+      "perspective": "CAMERA",
+      "shading": "SOLID",
+      "camera": "SHOT_WIDE"
+    },
+    {
+      "screen": "Layout",
+      "perspective": "CAMERA",
+      "shading": "SOLID",
+      "camera": "SHOT_WIDE"
+    },
+    {
+      "screen": "Modeling",
+      "perspective": "CAMERA",
+      "shading": "SOLID",
+      "camera": "SHOT_WIDE"
+    },
+    {
+      "screen": "Scripting",
+      "perspective": "CAMERA",
+      "shading": "SOLID",
+      "camera": "SHOT_WIDE"
+    },
+    {
+      "screen": "Sculpting",
+      "perspective": "CAMERA",
+      "shading": "SOLID",
+      "camera": "SHOT_WIDE"
+    },
+    {
+      "screen": "Shading",
+      "perspective": "CAMERA",
+      "shading": "SOLID",
+      "camera": "SHOT_WIDE"
+    },
+    {
+      "screen": "Texture Paint",
+      "perspective": "CAMERA",
+      "shading": "SOLID",
+      "camera": "SHOT_WIDE"
+    },
+    {
+      "screen": "UV Editing",
+      "perspective": "CAMERA",
+      "shading": "SOLID",
+      "camera": "SHOT_WIDE"
+    }
+  ],
+  "file": "[external Blender project path redacted]"
+}

@@ -1,0 +1,9 @@
+[
+  "DRAW",
+  "DRAW_SWAP",
+  "DRAW_WIN",
+  "DRAW_WIN_SWAP",
+  "ANIM_STEP",
+  "ANIM_PLAY",
+  "UNDO"
+]

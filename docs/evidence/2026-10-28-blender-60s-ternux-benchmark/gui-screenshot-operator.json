@@ -1,0 +1,30 @@
+{
+  "available": true,
+  "properties": [
+    "rna_type",
+    "filepath",
+    "hide_props_region",
+    "check_existing",
+    "filter_blender",
+    "filter_backup",
+    "filter_image",
+    "filter_movie",
+    "filter_python",
+    "filter_font",
+    "filter_sound",
+    "filter_text",
+    "filter_archive",
+    "filter_btx",
+    "filter_alembic",
+    "filter_usd",
+    "filter_obj",
+    "filter_volume",
+    "filter_folder",
+    "filter_blenlib",
+    "filemode",
+    "show_multiview",
+    "use_multiview",
+    "display_type",
+    "sort_method"
+  ]
+}

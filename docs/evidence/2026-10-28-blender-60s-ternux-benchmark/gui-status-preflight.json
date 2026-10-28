@@ -1,0 +1,31 @@
+{
+  "initialize": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "tools": {}
+      },
+      "serverInfo": {
+        "name": "blender-native-gpu",
+        "version": "0.1.0-native"
+      }
+    }
+  },
+  "call": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"active\": true,\n  \"busy\": false,\n  \"pid\": 31438,\n  \"blender\": \"5.2.2 LTS\",\n  \"display\": \":1.0\",\n  \"queue\": \"[local Blender bridge queue path redacted]\",\n  \"waiting\": 0,\n  \"last_result\": {\n    \"file\": \"154ff4e6054d48b7b0a7fb1a8f06d800.py\",\n    \"result\": \"OK\",\n    \"completed_utc\": \"2026-10-27T21:49:20+00:00\"\n  },\n  \"updated_utc\": \"2026-10-27T21:49:20+00:00\",\n  \"bridge_active\": true,\n  \"waiting_scripts\": []\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "adapter_exit_code": 0,
+  "adapter_stderr": ""
+}

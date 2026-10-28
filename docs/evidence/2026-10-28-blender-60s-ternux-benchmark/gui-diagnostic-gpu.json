@@ -1,0 +1,31 @@
+{
+  "initialize": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "tools": {}
+      },
+      "serverInfo": {
+        "name": "blender-native-gpu",
+        "version": "0.1.0-native"
+      }
+    }
+  },
+  "call": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"display\": \":1\",\n  \"display_note\": \"using existing Native display :1; no display lifecycle change\",\n  \"backend\": \"KGSL/Freedreno\",\n  \"opengl_renderer\": \"Adreno (TM) 825\",\n  \"accelerated\": true,\n  \"gpu_path_ok\": true,\n  \"software_fallback_available\": true,\n  \"software_renderer\": \"llvmpipe (LLVM 21.1.8, 128 bits)\",\n  \"blender\": \"Blender 5.2.2 LTS\",\n  \"diagnosis\": \"Adreno GPU ready\"\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "adapter_exit_code": 0,
+  "adapter_stderr": ""
+}

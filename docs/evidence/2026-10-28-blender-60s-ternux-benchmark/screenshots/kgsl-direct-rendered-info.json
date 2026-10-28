@@ -1,0 +1,15 @@
+{
+  "renderer": "Adreno (TM) 825",
+  "version": "5.2.2 LTS",
+  "file": "[external Blender project path redacted]",
+  "scene": "Mithyar Mic | Character Workshop",
+  "workspace": "Layout",
+  "camera": "SHOT_WIDE",
+  "viewport_mode": "RENDERED",
+  "overlays": false,
+  "wait_after_open_s": 12,
+  "result": [
+    "FINISHED"
+  ],
+  "screenshot": "/data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/kgsl-direct-rendered.png"
+}

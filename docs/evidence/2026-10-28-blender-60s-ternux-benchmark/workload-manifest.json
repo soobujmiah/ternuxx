@@ -1,0 +1,35 @@
+{
+  "upstream_repository": "https://github.com/soobujmiah/ternux.git",
+  "upstream_branch": "main",
+  "upstream_commit": "9fda63162426f77ee575b5f6729d8799a30f51b7",
+  "upstream_project": "experiments/bengali-short-film",
+  "upstream_license": "Apache-2.0 (repository LICENSE)",
+  "source_sha256": {
+    "README.md": "764cc76a30231bb6c181fc97b5e1d941667c0314b2b2cc61b28daa9a2e9106ba",
+    "project_config.json": "396c725e915cd19d3213a31d2b18ddfb3ad1c5e12ebcda0ac80ec9bfa3bee352",
+    "film.py": "bc9367d4c05a20c1be10db149dc603c3d41b3415b79139cf35f9af02c221e446",
+    "environment.py": "6f3f0a13898a4d5fa8b77423895b8f82508dd79760aec28fb1364ed977ca8743",
+    "humans.py": "5ff0a9a0500e8e06fe29fd351c1851d2fcad6296d11eb43acd5312b786f97cc8",
+    "head.py": "d829ccf70fd34131ced2050ae6d39828078f6159fd855ed2107b0b912d7df58d",
+    "render_film.py": "196f5bbb64b3ffce2be3da314edc4387dfd73c0826c19962f133ac55c0e5677a",
+    "assets/lines.json": "06c6ce08e42764deeb12b95aa683ae7ed4b963bba19ce8e84858ad5eddfb4e83",
+    "assets/cues.json": "0693d12055fbbe52c42151efea03ea9ae3634cbca13e67930e0283bb236ca621"
+  },
+  "native_adaptation": {
+    "only_engine_change": "BLENDER_EEVEE_NEXT -> BLENDER_EEVEE (Native Blender 5.2.2 exposes only BLENDER_EEVEE)",
+    "lip_sync": "deterministic synthetic mouth envelope; original generated TTS/lipsync assets are absent from Git",
+    "audio_and_captions": "omitted; this test measures Blender scene rendering only",
+    "output_settings": {
+      "fps": 24,
+      "frames": 1440,
+      "resolution": [
+        1280,
+        720
+      ],
+      "eevee_samples": 16
+    },
+    "render_processes": "one Blender process per scene, five scenes, matching the reported Ternux pipeline"
+  },
+  "synthetic_lipsync_sha256": "fc8e538b0f955749153c8d7fcd78b8da0ed20a3902b6cc0f2b54b792a907a8f4",
+  "work_root": "/data/data/com.termux/files/home/.cache/ternux-benchmark-run"
+}

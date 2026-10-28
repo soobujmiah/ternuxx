@@ -1,0 +1,17 @@
+{
+  "blender": "5.2.2 LTS",
+  "engine_ids": [
+    "BLENDER_EEVEE"
+  ],
+  "has_eevee_scene_settings": true,
+  "has_eevee_next_scene_settings": false,
+  "render_resolution": [
+    1920,
+    1080
+  ],
+  "visible_preview_objects": [
+    "Benchmark Preview Core",
+    "Benchmark Preview Orbit",
+    "Benchmark Preview Title"
+  ]
+}

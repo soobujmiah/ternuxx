@@ -1,0 +1,31 @@
+{
+  "initialize": {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "result": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {
+        "tools": {}
+      },
+      "serverInfo": {
+        "name": "blender-native-gpu",
+        "version": "0.1.0-native"
+      }
+    }
+  },
+  "call": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"queued\": true,\n  \"job_id\": \"2f67c1283fb843a78fa4a05193e32ad9\",\n  \"queue_file\": \"[local Blender bridge queue path redacted]/2f67c1283fb843a78fa4a05193e32ad9.py\",\n  \"bridge_active\": true,\n  \"note\": \"Executes in the open Blender GUI with that process's full Python/file authority; this is not a sandbox.\"\n}"
+        }
+      ],
+      "isError": false
+    }
+  },
+  "adapter_exit_code": 0,
+  "adapter_stderr": ""
+}

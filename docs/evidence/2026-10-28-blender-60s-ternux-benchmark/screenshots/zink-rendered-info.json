@@ -1,0 +1,12 @@
+{
+  "renderer": "zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))",
+  "version": "5.2.2 LTS",
+  "file": "[external Blender project path redacted]",
+  "scene": "Mithyar Mic | Character Workshop",
+  "workspace": "Layout",
+  "rendered_areas_set": 1,
+  "result": [
+    "FINISHED"
+  ],
+  "screenshot": "/data/data/com.termux/files/home/ternuxx/docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/zink-rendered.png"
+}

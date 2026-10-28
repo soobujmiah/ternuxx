@@ -1,0 +1,33 @@
+{
+  "file": "[external Blender project path redacted]",
+  "version": "5.2.2 LTS",
+  "scene": "Mithyar Mic | Character Workshop",
+  "objects": 153,
+  "mesh_objects": 135,
+  "vertices": 164940,
+  "resolution": [
+    1280,
+    720,
+    75
+  ],
+  "engine": "BLENDER_EEVEE",
+  "viewport_shading": [
+    "MATERIAL",
+    "MATERIAL",
+    "MATERIAL",
+    "MATERIAL",
+    "MATERIAL",
+    "MATERIAL",
+    "MATERIAL",
+    "MATERIAL",
+    "MATERIAL",
+    "MATERIAL"
+  ],
+  "renderer": "Adreno (TM) 825",
+  "vendor": "freedreno",
+  "version_gl": "4.6 (Core Profile) Mesa 26.3.0-devel (git-98f3d6229d)",
+  "gpu_backend": "OPENGL",
+  "display": ":1.0",
+  "gallium_driver": null,
+  "mesa_gl_version_override": null
+}
