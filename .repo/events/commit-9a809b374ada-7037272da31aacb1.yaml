@@ -1,0 +1,7 @@
+event_id: commit-9a809b374ada-7037272da31aacb1
+repository: soobujmiah/ternuxx
+commit: 9a809b374adae258fd45bbc4d07cb2b3c3b1a388
+kind: commit
+occurred_at: '2026-10-28T00:39:57Z'
+status: completed
+summary: Apply PRoot graphics preference across launch routes
