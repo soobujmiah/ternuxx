@@ -1,0 +1,7 @@
+event_id: commit-4e161770c05a-bde145dafca7cbf8
+repository: soobujmiah/ternuxx
+commit: 4e161770c05a7b1578c58ead94c1661f6fc3377f
+kind: commit
+occurred_at: '2026-10-28T00:25:37Z'
+status: completed
+summary: 'fix: clarify desktop launch and PRoot readiness output'
