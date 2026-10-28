@@ -257,70 +257,72 @@ PYGPUPROBE
 }
 
 _nt_gpu_setup() {
-  local root="$1" target backend choices choice distros distro probe
-  local -a native_options=('keep|Keep current Native graphics configuration (default)')
-  target="$(_nt_pick 'Graphics/sound setup (no desktop required)' single '' \
-    'native|Native Termux' 'proot|Managed PRoot guests' 'both|Native + PRoot' 'none|Keep all existing backend choices')" || return $?
-  [ "$target" != none ] || return 0
+  local root="$1" target backend choices choice distros distro probe gpu_preview gpu_plan selected
+  local -a native_options=('system|Native CPU/Mesa software fallback (always available)') proot_options=('runtime|PRoot CPU/Mesa software fallback (always available)') active_options=('keep|Keep current Native backend' 'system|System Mesa / CPU fallback')
+  target="$(_nt_pick 'Graphics/sound setup (select every provider to prepare)' multi 'native,proot' \
+    'native|Native Termux' 'proot|Managed PRoot guests' 'none|Keep all existing setup')" || return $?
+  [[ ",$target," = *,none,* ]] && return 0
   nt_info "Device: $(getprop ro.product.model 2>/dev/null || echo unknown); SoC: $(getprop ro.soc.model 2>/dev/null || echo unknown)."
   if [ "${2:-0}" = 1 ]; then
     _nt_wizard_native audio,graphics,proot || return $?
   fi
-  nt_info 'Drivers, CPU rendering libraries and PulseAudio are installed by default; no service or GUI is started here.'
-  if [[ "$target" = native || "$target" = both ]]; then
+  nt_info 'CPU rendering remains the fallback. Selected compatible providers are installed; one backend at a time is selected for new Native desktop starts.'
+  if [[ ",$target," = *,native,* ]]; then
     probe="$(_nt_gpu_probe "$root")" || return $?
     if [[ "$probe" = supported\|* ]]; then
-      choice="termux-zink|Termux Zink/Turnip: ${probe#*|} (Vulkan enumeration passed)"
-      if [ -e "$TERNUXX_STATE_DIR/native-graphics-backend" ] || [ -e "$TERNUXX_STATE_DIR/native-graphics-prefix" ]; then
-        native_options+=("$choice")
-      else
-        native_options=("$choice" "${native_options[@]}")
-      fi
+      native_options+=( 'termux-zink|Termux Zink + Freedreno ICD (device enumeration passed)' )
     else
-      nt_info "Native Zink unavailable: ${probe#*|}. No accelerated backend is advertised."
+      nt_info "Native Termux Zink not selected: ${probe#*|}. Stock Vulkan ICD enumeration is required before this route can be offered."
     fi
     if [ -r /dev/kgsl-3d0 ] && [ "$(getprop ro.soc.model 2>/dev/null)" = SM8735 ]; then
-      nt_info 'Adreno 825 experimental Mesa: pinned public release, verified cache, private extraction and compatibility probe. Existing system Mesa is preserved.'
-      if [ -e "$TERNUXX_STATE_DIR/native-graphics-prefix" ] || [ -e "$TERNUXX_STATE_DIR/native-graphics-backend" ]; then
-        native_options+=('kgsl-freedreno|Pinned experimental Mesa / Adreno 825 (review and install)')
-      else
-        native_options=('kgsl-freedreno|Pinned experimental Mesa / Adreno 825 (review and install)' "${native_options[@]}")
-      fi
+      native_options+=( 'kgsl-freedreno|Pinned experimental Adreno 825 KGSL Mesa (verified candidate)' )
+      nt_info 'This Adreno 825 candidate is isolated and checksum-pinned; applying it preserves the Termux system Mesa.'
     fi
-    native_options+=('system|System Mesa defaults / CPU fallback; remove forced Native GPU preference')
-    backend="$(_nt_pick 'Native backend (future CLI workloads / desktop starts)' single '' "${native_options[@]}")" || return $?
+    local native_defaults=system
+    [[ "$probe" != supported\|* ]] || native_defaults+=,termux-zink
+    if [ -r /dev/kgsl-3d0 ] && [ "$(getprop ro.soc.model 2>/dev/null)" = SM8735 ]; then native_defaults+=,kgsl-freedreno; fi
+    selected="$(_nt_pick 'Native graphics providers to install (compatible choices preselected)' multi "$native_defaults" "${native_options[@]}")" || return $?
+    if [[ ",$selected," = *,kgsl-freedreno,* ]]; then
+      gpu_preview="$(python3 "$root/lib/native_gpu_setup.py" preview)" || return $?
+      gpu_plan="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["plan_id"])' <<<"$gpu_preview")" || return 1
+      nt_info 'Review the pinned KGSL plan below; it downloads only the pinned release, verifies its checksum, privately extracts and probes it.'
+      _nt_confirm 'Apply this exact experimental Native KGSL plan?' || return $?
+      _nt_window_run python3 "$root/lib/native_gpu_setup.py" apply --yes --plan-id "$gpu_plan" || return $?
+    fi
+    if [[ ",$selected," = *,termux-zink,* ]]; then
+      nt_info 'Termux Zink packages were included in the Native graphics profile; the stock Freedreno ICD passed device enumeration.'
+    fi
+    [[ ",$selected," = *,termux-zink,* ]] && active_options+=( 'termux-zink|Termux Zink + Freedreno ICD' )
+    [[ ",$selected," = *,kgsl-freedreno,* ]] && active_options+=( 'kgsl-freedreno|Pinned experimental Adreno 825 KGSL Mesa' )
+    backend="$(_nt_pick 'Native backend for future desktop starts' single '' "${active_options[@]}")" || return $?
     if [ "$backend" != keep ]; then
-      _nt_confirm "Select Native $backend for future workloads (no restart)?" || return $?
+      _nt_confirm "Select Native $backend for future starts? A running desktop is not restarted." || return $?
       if [ "$backend" = kgsl-freedreno ]; then
-        local gpu_preview gpu_plan
-        gpu_preview="$(python3 "$root/lib/native_gpu_setup.py" preview)" || return $?
-        gpu_plan="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["plan_id"])' <<<"$gpu_preview")" || return 1
-        nt_info 'Pinned GPU plan: download pinned release if needed, verify archive/packages/files, probe Vulkan, select for future starts; system Mesa stays installed.'
-        _nt_confirm 'Apply this exact experimental Native GPU plan?' || return $?
-        _nt_window_run python3 "$root/lib/native_gpu_setup.py" apply --yes --plan-id "$gpu_plan" || return $?
+        # The verified acquisition plan above performs selection only after its compatibility probe.
+        :
       else
         "$root/tx" mng graphics select native "$backend" || return $?
       fi
     fi
   fi
-  if [[ "$target" = proot || "$target" = both ]]; then
-    local -a guest_options=('runtime|CPU rendering/audio libraries only; preserve current GPU files')
+  if [[ ",$target," = *,proot,* ]]; then
     if [ -r /dev/kgsl-3d0 ]; then
-      guest_options=( 'managed|Pinned managed Turnip/Zink + CPU rendering + audio (KGSL detected; workload verification required)' "${guest_options[@]}" )
+      proot_options=( 'zink|PRoot Zink/Turnip + CPU rendering/audio (KGSL detected; verify workload separately)' "${proot_options[@]}" )
     else
-      nt_info 'No readable KGSL device: managed Adreno Turnip is not offered.'
+      nt_info 'No readable KGSL device: accelerated managed Zink/Turnip is not offered on this device.'
     fi
-    backend="$(_nt_pick 'PRoot graphics runtime' single '' "${guest_options[@]}")" || return $?
+    local proot_defaults=runtime
+    [ ! -r /dev/kgsl-3d0 ] || proot_defaults+=,zink
+    backend="$(_nt_pick 'PRoot graphics runtime (select installable routes)' multi "$proot_defaults" "${proot_options[@]}")" || return $?
     distros="$(_nt_pick 'Configure guest runtimes (one or more)' multi debian 'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
-    local app=cpu-runtime
-    [ "$backend" != managed ] || app=graphics-runtime
     for distro in ${distros//,/ }; do
-      # No desktop is implicitly installed by the graphics-only flow. Fresh
-      # setup still shows its pinned image and asks for a guest account.
+      local app=cpu-runtime
+      [[ ",$backend," != *,zink,* ]] || app=graphics-runtime
       _nt_install_managed_guest "$distro" --desktops none --apps "$app" || return $?
     done
+    nt_info 'PRoot VirGL is not offered as installable: this checkout has a verifier route but no managed VirGL server install/lifecycle. CPU and managed Zink/Turnip routes are available above.'
   fi
-  nt_info 'Configuration only. Verify a bounded workload separately; no rendered-acceleration claim was made.'
+  nt_info 'Configuration only. Verify a bounded workload separately; provider detection or installation does not prove accelerated rendering.'
 }
 
 _nt_install_gpu() {

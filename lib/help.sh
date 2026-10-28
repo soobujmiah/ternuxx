@@ -180,9 +180,12 @@ a network, start a service, or enable public ingress.
 EOF
       ;;
     graphics) cat <<'EOF'
-tx graphics native status|enable --prefix PATH|disable
-Select an extracted Native KGSL Mesa candidate for future desktop sessions.
-GPU inference is not implied by a detected device or installed library.
+tx install gpu — Install device-supported Native and PRoot graphics runtimes (selected by default)
+tx mng graphics status native — Show the active Native backend and probe results
+tx mng graphics select native {system|termux-zink|kgsl-freedreno} — Change the backend for future Native starts
+Supported choices depend on device probes; kgsl-freedreno is an isolated, device-specific experimental Mesa candidate.
+PRoot graphics packages are managed with `tx install gpu`; VirGL is shown only after a managed server lifecycle exists.
+GPU inference or rendered acceleration is not implied by a detected device or installed library.
 EOF
       ;;
     web) cat <<'EOF'

@@ -464,6 +464,8 @@ reinstall and later guest additions. Root is never chosen as an automatic GUI lo
 
 ## Pinned Native GPU release and repeated installation
 
+`tx install gpu` defaults both Native and managed PRoot runtimes on, with CPU/Mesa software fallback always selected and compatible accelerated providers preselected after device probes. The installer allows changing those checkboxes before applying. Native stock Zink is offered only when the installed Termux Freedreno ICD enumerates a supported Vulkan device; PRoot Zink/Turnip is offered only when KGSL access is detected. A selected KGSL provider uses the isolated pinned candidate described below. One Native backend is active for future starts at a time; installing a provider does not prove workload acceleration. VirGL currently has a verifier path but no managed server install/lifecycle, so the installer does not advertise it as installable. `tx mng graphics select native {system|termux-zink|kgsl-freedreno}` changes the Native preference for future starts; Web, TUI and GTK management open the same reviewed GPU installer and expose the Native selector.
+
 On the qualified SM8735/Adreno 825 route, `tx install gpu` offers the pinned
 experimental Native Mesa provider. The official installed Freedreno 26.2.5 probe on
 the owner's device rejected its GPU; silently choosing that driver would not fix

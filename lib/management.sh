@@ -117,7 +117,7 @@ nt_cmd_management() {
         status) python3 "$_TN_LIB_DIR/management_service.py" --operation graphics.provider.status --provider "$provider" --json ;;
         verify) python3 "$_TN_LIB_DIR/management_service.py" --operation graphics.provider.verify --provider "$provider" --graphics-api "$api" --display "$display" --json ;;
         select) [ "$provider" = native ] || { nt_fail "Only Native Termux graphics backends are supported here."; return 2; }; python3 "$_TN_LIB_DIR/management_service.py" --operation graphics.provider.select --provider native --graphics-backend "$api" --yes --json ;;
-        *) nt_fail "Usage: tx mng graphics status native | verify native {opengl|gles|vulkan} [:N]"; return 2 ;;
+        *) nt_fail "Usage: tx mng graphics {status native|verify native {opengl|gles|vulkan} [:N]|select native {system|termux-zink|kgsl-freedreno}}"; return 2 ;;
       esac
       ;;
     logs)
