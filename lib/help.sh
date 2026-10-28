@@ -7,36 +7,185 @@ _nt_help_raw() {
   local cmd="${1:-}"
   case "$cmd" in
     "") cat <<'EOF'
-Ternuxx — Native Termux host and managed PRoot workstation management
+Ternuxx — Complete Native + PRoot Command Reference
+Commands are grouped by purpose; use `tx help TOPIC` for detailed options.
 
-First install:
-  ./tx install                    Device info and guided setup
-  tx install                      Same wizard after tx is installed
+SETUP AND SOFTWARE
+  tx install [interactive]
+    Guided workstation setup; interactive opens the same selector.
+  tx install proot [DISTRO] [DE]
+    Set up/add to a managed Debian or Ubuntu guest.
+    Selectors prompt for any omitted values.
+  tx install gpu
+    Preview and install compatible graphics/audio runtimes for Native/PRoot.
+  tx install xfce|mate|plasma
+    Add a supported Native desktop environment.
+  tx install preview [--profile NAME] [--components GROUPS]
+    Preview the exact Native package transaction.
+  tx install apply [--profile NAME] --yes --plan-id ID
+    Apply the exact reviewed Native package transaction.
+  tx desktop list
+    List Native desktop environments and their install state.
+  tx app list|catalog
+    List curated Native applications and current package state.
+  tx app preview APP_ID install|update|remove
+    Preview one Native application package change.
+  tx app apply APP_ID ACTION --plan-id ID [--confirm ACTION]
+    Apply the reviewed application change with its exact plan.
+  tx app run directory-tree HOME_PATH
+    Read-only file/directory handoff below HOME; file contents are not read.
+  tx app -- ALLOWLISTED_DEBIAN_APP [fixed options]
+    Compatibility launcher for fixed Native XFCE guest-app menu entries.
 
-Add or configure later:
-  tx install xfce|mate|plasma      Native desktop
-  tx install proot [DISTRO] [DE]   Guest, desktop and optional software
-  tx install gpu                  Device-aware Native / PRoot / both setup
+DESKTOP AND GUI
+  tx start [--desktop DE] [--display :N]
+    Start the owned Native Termux:X11 desktop; XFCE and :1 are defaults.
+  tx stop | tx restart [--desktop DE] | tx status
+    Stop, restart, or inspect the Native desktop session.
+  tx gui
+    Start Native desktop if needed, then open the GTK management center.
+  tx gui start|stop|restart|status
+    Native desktop lifecycle shortcuts.
+  tx gui monitor status|enable|disable|configure [options]
+    Inspect or configure GUI monitoring and Android X11 Activity behavior.
+  tx tui
+    Open the interactive terminal management client.
+  tx web [--port PORT] [--browser choose|android|native|auto]
+    Run authenticated loopback Web management.
 
-Open and inspect:
-  tx tui / tx web / tx gui         Terminal / browser / GTK management
-  tx start [--desktop DE]          Native desktop
-  tx pgui [DE]                     Debian XFCE; auto :0 or nested :2
-  tx pgui --alias ubuntu          Ubuntu GUI; --user NAME selects an existing account
-  tx status / tx doctor            Current state / health checks
-  tx audio status                  Sound status
+GRAPHICS AND AUDIO
+  tx install gpu
+    Install compatible graphics/audio runtimes; review the package plan.
+  tx mng graphics status native|proot
+    Inspect the saved Native or PRoot graphics backend.
+  tx mng graphics verify native {opengl|gles|vulkan} [:N]
+    Run a bounded Native graphics API probe; display defaults to :1.
+  tx mng graphics select proot cpu|zink
+    Select CPU/Mesa or Zink/Turnip for future PRoot launches.
+  tx mng graphics select native system|termux-zink|kgsl-freedreno
+    Select Native backend for future desktop starts.
+  tx audio [status|start|stop|restart]
+    Inspect or manage the Native PulseAudio service.
+  tx graphics native status|disable
+    Inspect Native graphics or select the system fallback (compatibility route).
+  tx graphics native enable --prefix PATH
+    Select the exact qualified KGSL candidate prefix (compatibility route).
 
-More commands:
-  Guests: tx db [--user NAME] (Debian), tx ub (Ubuntu); proot setup, pgui
-  tx kali                         Reserved; provider not qualified yet
-  tx app / tx mng                  Software and services
-  tx ai                           CPU, Vulkan GPU and experimental HTP inference routes
-  tx checkpoint / tx recovery      Recovery tools
-  tx guides                       Interactive setup guide
+PRoot GUESTS
+  tx proot [status|profiles|sessions|setup|stop ...]
+    Inspect guests; review setup, session, graphics, and recovery subcommands.
+  tx pgui [DE] [--alias DISTRO] [--user NAME]
+    Start a managed guest desktop; Debian XFCE is the default.
+  tx pgui stop
+    Stop managed standalone and nested PRoot desktop sessions.
+  tx db [--user NAME] (Debian), tx ub [--user NAME] (Ubuntu)
+    Open that guest in the current terminal; no GUI/service starts.
+  tx mng proot ...
+    Compatibility namespace for managed PRoot status/setup commands.
+  tx debian [--user NAME] | tx ubuntu [--user NAME]
+    Login aliases for `tx db` and `tx ub`.
+  tx pgui --help | tx proot --help
+    Show guest desktop routes, setup, sessions, and recovery operations.
 
-Use tx help NAME for options, graphics checks, SSH, boot and recovery details.
-Options: --json, --verbose, --quiet, --help
-Changes show a preview and require confirmation. Remote access is disabled by default.
+MANAGEMENT CENTER — tx mng (alias: tx mg)
+  tx mng center [install]
+    Open or install the Native GTK management center.
+  tx mng catalog list [--category ID] [--query TEXT] [--status STATE]
+    Browse supported resources and management capabilities.
+  tx mng app launch APP_ID | --desktop-id DESKTOP_ID [--display :N]
+    Launch an allowlisted Debian XFCE application.
+  tx mng logs list | tx mng logs read SOURCE_ID
+    List log sources or read one bounded log.
+  tx mng cron status|start|stop
+    Inspect or control the Native scheduler.
+    Starting it may run enabled jobs and requires confirmation.
+  tx mng cron jobs list|show|validate|next-runs
+  tx mng cron jobs create|update|enable|disable|remove|apply
+    Inspect, validate, schedule, or manage allowlisted jobs.
+  tx mng cron executions {list|show}
+    Inspect recorded scheduler executions.
+  tx mng timezone {status|list|set IANA_NAME}
+    Inspect available timezones or set the system timezone.
+  tx mng boot cron {status|validate|preview|enable|disable}
+    Inspect or manage the optional Cron Termux:Boot helper.
+  tx mng boot helpers status
+  tx mng boot helpers preview {deploy|rollback} HELPER_ID [SNAPSHOT_ID]
+  tx mng boot helpers apply ACTION HELPER_ID [SNAPSHOT_ID] --yes --plan-id ID
+    Inspect, deploy, or rollback the fixed owned boot helper files.
+  tx mng hermes status | tx mng doctor [--graphics]
+    Inspect Hermes integration or run a management health report.
+  tx mng web [--port PORT] [--browser choose|android|native|auto]
+    Open the authenticated Web management interface.
+  tx mng http serve [--port PORT]
+    Serve the authenticated loopback management API.
+
+AI INFERENCE
+  Inference routes: CPU, Vulkan GPU, and experimental HTP inference routes.
+  tx ai status | tx ai devices
+    Inspect CPU/model state or list Vulkan inference devices.
+  tx ai runtime preview [cpu|vulkan|opencl]
+    Run read-only Termux package simulation; it does not install packages.
+  tx ai setup
+    Guided local model/runtime preflight and optional CPU run.
+  tx ai model {preview|install|remove-preview|remove} [options]
+    Review or manage the pinned local model; changes require confirmation.
+  tx ai run [--backend cpu|vulkan|npu] [--device ID] [--max-tokens N]
+    Run bounded local inference on the selected backend.
+  tx ai npu status | tx ai npu runtime {preview|apply}
+    Inspect SM8735 HTP support or review/install the experimental NPU runtime.
+
+SYSTEM, RECOVERY, AND ACCESS
+  tx check | tx doctor [--graphics]
+    Run Native readiness checks or the detailed read-only health report.
+  tx info
+    Show device, package, command, and renderer information.
+  tx kali
+    Reserved command; Kali has no qualified managed provider yet.
+  tx ssh inspect|deploy|start|stop|restart
+    Inspect/setup/control the Native SSH service.
+  tx ssh keys-list|enroll-preview|enroll|revoke-preview|revoke
+    Manage authorized client keys; use `tx help ssh` for rollback actions.
+  tx remote access preview
+    Read-only remote-access policy preview; does not enable remote access.
+  tx terminal status|service preview-install|start
+  tx terminal attach SESSION_ID | close SESSION_ID
+  tx terminal service install --yes --plan-id ID
+  tx terminal service socket preview|recover
+    Inspect/manage the optional PRoot terminal broker and guest sessions.
+  tx boot status | tx boot profile status|preview PROFILE
+  tx boot enable --profile PROFILE [--yes] | tx boot disable [--yes]
+    Inspect/configure startup policy and Termux:Boot integration.
+  tx wakelock status|acquire OWNER [--persistent]|release OWNER
+  tx wakelock ssh-policy status|preview|apply --enabled|--disabled [options]
+    Inspect or manage Android Wake Locks and SSH Wake Lock policy.
+  tx checkpoint {prepare|verify} [options]
+    Preview and record private continuity-check evidence; does not reboot.
+  tx reboot {status|prepare|verify|resume-info} [options]
+    Inspect and record reboot-test continuity evidence; does not reboot.
+  tx backup {create|list|inspect} [options]
+    Preview/create or inspect a private backup.
+  tx restore --preview BACKUP_ID
+  tx restore BACKUP_ID --yes --plan-id ID
+    Review, then apply the exact backup restore plan.
+  tx recovery {status|inspect|resolve|rollback} [options]
+    Inspect/reconcile recorded recovery state; changes require a reviewed plan.
+  tx guides
+    Open the interactive setup and documentation guide.
+
+HELP, ALIASES, AND OPTIONS
+  tx help [TOPIC] | tx TOPIC --help
+    Show this complete index or detailed help where that topic provides it.
+  tx --version
+    Show Ternuxx version and repository.
+  Aliases: up=start, dn=stop, rs=restart, st=status, doc=doctor, inf=info,
+    mg=mng, in=install, ck=check, cp=checkpoint, ra=remote, rb=reboot,
+    bt=boot, wl=wakelock, bk=backup, rc=recovery, rt=restore, g=guides,
+    h=help, db=debian, ub=ubuntu. `tx management` is deprecated; use `tx mng`.
+  Global flags: --json, --verbose, --quiet, --help
+
+Managed package/service changes require preview and confirmation as described by
+the command. Existing guest root filesystems are preserved by managed additions;
+GPU detection alone does not prove accelerated rendering.
 EOF
       ;;
     kali)
@@ -158,9 +307,11 @@ EOF
       ;;
     ssh) cat <<'EOF'
 tx ssh inspect — Inspect Native SSH state
-tx ssh deploy — Preview first-time loopback 8023 config + Runit setup, then apply exact plan
+tx ssh deploy — Preview first-time loopback 8023 configuration and Runit setup,
+  then apply the exact reviewed plan.
 tx ssh start|stop|restart — Preview, then confirm with --yes --plan-id ID
-SSH keys use the managed service’s validated AuthorizedKeysFile; inspect the preview impact.
+SSH keys use the managed service's validated AuthorizedKeysFile.
+Inspect the preview impact before applying key changes.
 EOF
       ;;
     remote) cat <<'EOF'
@@ -253,10 +404,111 @@ Zink/Turnip availability depends on device probes. VirGL is not installable
 until its managed server lifecycle is implemented.
 EOF
       ;;
+    audio) cat <<'EOF'
+tx audio [status|start|stop|restart] — Manage Native PulseAudio
+status inspects readiness; start/stop/restart control the Native user service.
+Audio is managed separately from Native and PRoot desktop lifecycle commands.
+EOF
+      ;;
+    gui) cat <<'EOF'
+tx gui — Start Native desktop if needed, then open the GTK management center
+tx gui start|stop|restart|status — Native desktop lifecycle shortcuts
+tx gui monitor status|enable|disable|configure — Inspect/configure GUI monitor
+  Android X11 Activity behavior can be configured separately.
+Monitor configure accepts --enabled on|off, --activity-launch on|off,
+--focus-check on|off, and --interval VALUE UNIT.
+EOF
+      ;;
+    boot) cat <<'EOF'
+tx boot status — Inspect startup policy and helper state
+tx boot profile status|preview <cli-only|native>
+  Inspect the startup profile or preview a profile change.
+tx boot enable --profile <cli-only|native> [--yes] — Enable the selected profile
+tx boot disable [--yes] — Disable startup integration
+tx boot gui <on|off> [--yes] — Compatibility form for Native GUI startup policy
+Preview before applying optional startup changes.
+EOF
+      ;;
+    backup) cat <<'EOF'
+tx backup create --name NAME [--yes --plan-id ID] — Preview/create a backup
+tx backup list — List available backups
+tx backup inspect BACKUP_ID — Inspect one backup
+Creation applies only the exact current preview plan.
+EOF
+      ;;
+    restore) cat <<'EOF'
+tx restore --preview BACKUP_ID — Preview a backup restore
+tx restore BACKUP_ID --yes --plan-id ID — Apply the exact restore plan
+Review the preview before applying; existing data may be changed by restore.
+EOF
+      ;;
+    recovery) cat <<'EOF'
+tx recovery status — Inspect recovery journal state
+tx recovery inspect OPERATION_ID — Inspect one recorded operation
+tx recovery resolve OPERATION_ID [--yes --plan-id ID]
+  Preview/reconcile supported recovery state.
+tx recovery rollback OPERATION_ID [--yes --plan-id ID]
+  Preview/rollback a recorded operation.
+Mutations require the exact current preview plan.
+EOF
+      ;;
+    reboot) cat <<'EOF'
+tx reboot status [TEST_ID] — Inspect continuity/reboot test records
+tx reboot prepare --test-id ID [--baseline-json JSON] [--yes --plan-id ID]
+tx reboot verify TEST_ID [--yes --plan-id ID]
+tx reboot resume-info TEST_ID — Read post-reboot resume information
+Prepare and verify create evidence records; they do not reboot the device.
+EOF
+      ;;
+    wakelock) cat <<'EOF'
+tx wakelock status — Inspect Wake Lock state
+tx wakelock acquire OWNER [--persistent] — Acquire a named Wake Lock
+tx wakelock release OWNER — Release a named Wake Lock
+tx wakelock ssh-policy status|preview --enabled|--disabled
+tx wakelock ssh-policy apply --enabled|--disabled --yes --plan-id ID
+Inspect the exact SSH policy preview before applying it.
+EOF
+      ;;
+    ssh) cat <<'EOF'
+tx ssh inspect — Inspect Native SSH service and keys
+tx ssh deploy — Preview/apply managed SSH service setup
+tx ssh start|stop|restart — Preview and control Native SSH lifecycle
+tx ssh keys-list | rollback-list | rollback-preview ID
+tx ssh rollback-apply ID --yes --plan-id PLAN_ID
+tx ssh enroll-preview|enroll | revoke-preview|revoke — Manage authorized client keys
+tx ssh client-key-preview|client-key-create — Create a client key with preview/confirmation
+tx ssh autostart-status|autostart-preview|autostart-apply — Manage SSH autostart
+Use --help on the command and inspect plans before applying changes.
+EOF
+      ;;
     tui) cat <<'EOF'
 tx tui — Interactive Native Termux management
 Use arrows or the displayed keys to browse resources and review supported
 Native actions. Mutating operations use shared preview/confirmation rules.
+EOF
+      ;;
+    desktop) cat <<'EOF'
+tx desktop list — List Native Termux desktop environments and install state
+Start a selected installed desktop with `tx start --desktop ID`.
+EOF
+      ;;
+    info) cat <<'EOF'
+tx info — Show Android device, Termux paths/version, desktop packages,
+  available commands, and renderer.
+This is an informational snapshot; it does not install or change packages.
+EOF
+      ;;
+    check) cat <<'EOF'
+tx check — Run Native Termux prerequisite checks
+tx doctor [--graphics] — Run the detailed read-only health report
+Checks report observed prerequisites and probes.
+They do not install missing items.
+EOF
+      ;;
+    guides) cat <<'EOF'
+tx guides — Open the interactive Native Termux/PRoot setup guide
+The menu links to installer, health, desktop, AI, and guest workflows,
+plus TUI, Web, and GTK management.
 EOF
       ;;
     app) cat <<'EOF'

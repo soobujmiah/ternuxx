@@ -293,8 +293,8 @@ nt_cmd_gui
         self.assertIn("tx guides", result.stdout)
         self.assertIn("tx install proot [DISTRO] [DE]", result.stdout)
         self.assertIn("tx install gpu", result.stdout)
-        self.assertLess(result.stdout.index("./tx install"), result.stdout.index("Open and inspect:"))
-        self.assertIn("tx db [--user NAME] (Debian), tx ub (Ubuntu)", result.stdout)
+        self.assertLess(result.stdout.index("SETUP AND SOFTWARE"), result.stdout.index("DESKTOP AND GUI"))
+        self.assertIn("tx db [--user NAME] (Debian), tx ub [--user NAME] (Ubuntu)", result.stdout)
 
     def test_native_management_alias_and_proot_help(self):
         result = self.cli("mng", "--help")
