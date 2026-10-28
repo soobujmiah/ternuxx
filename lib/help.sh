@@ -17,7 +17,6 @@ Add or configure later:
   tx install xfce|mate|plasma      Native desktop
   tx install proot [DISTRO] [DE]   Guest, desktop and optional software
   tx install gpu                  Device-aware Native / PRoot / both setup
-  tx install debian|ubuntu        Guided managed guest setup
 
 Open and inspect:
   tx tui / tx web / tx gui         Terminal / browser / GTK management
@@ -48,12 +47,11 @@ Login aliases: tx db / tx debian; tx ub / tx ubuntu. No repeated LOGIN confirmat
 When multiple ordinary guest accounts exist, Ternuxx asks which one to use; pass --user NAME to choose directly.
 Kali is not qualified yet.
 Managed PRoot guests use the Native Termux host. Run `tx proot setup catalog` to
-list profiles and their accepted desktop routes. The short flows are `tx install debian`
-and `tx install ubuntu`; each asks for the guest username and, in an attached
-terminal, offers desktop and software choices (arrow keys/Space; XFCE default), then
-shows the pinned plan and asks before applying it. You do not need to copy a
-plan ID in the guided flow. Use explicit `preview`/`apply` only for review-only
-or automated setup.
+list profiles and their accepted desktop routes. Use `tx install proot [DISTRO] [DE]`
+for the guided flow; it asks for a distro when omitted, then offers desktop/software
+choices (arrows/Space) and reviews the combined guest plan before apply. You do not
+need to copy a plan ID in this flow. For explicit fresh-rootfs review and automation,
+use `tx proot setup fresh-preview` and `tx proot setup fresh-install`.
 The lower-level equivalent is `tx proot setup fresh-preview --user NAME
 --desktops xfce,lxqt`; Desktop IDs depend on the selected profile: Debian offers `xfce`, `lxqt`, `lxde`, `mate`, and `plasma`; Ubuntu currently offers `xfce`. Only selected desktops are installed; XFCE is the default in non-interactive preview flows.
 The Debian catalog accepts XFCE, LXQt, LXDE, and MATE on standalone :0 and nested :2; Plasma is standalone :0 only. GNOME and Cinnamon are not selectable because no complete Ternuxx launch route is available. Review the exact
@@ -130,32 +128,24 @@ or stop processes. GUI visibility is reported as unknown unless observed.
 EOF
       ;;
     install) cat <<'EOF'
-tx install debian [--user NAME] — Guided Debian Trixie guest setup
-Guest setup: choose DEs, then optional apps; base/clean keeps graphics/CPU rendering/audio.
-tx install ubuntu [--user NAME] — Guided Ubuntu Noble guest setup
-tx install debian preview --user NAME — Review-only; no guest changes
-tx proot setup catalog — List installable guest profiles and desktop routes
-tx install ubuntu preview --user NAME — Review-only; no guest changes
-tx install gpu — Device-aware Native/PRoot/both runtime and backend selector
-All guided profiles include sound and graphics tools; desktops remain optional.
-tx install xfce|mate|plasma — Add a supported Native desktop
- tx install proot [debian|ubuntu] [DE] — Create guest or add DE/apps to existing guest
- tx install — Device info, then Minimal / Native Full / Native Full + PRoot
+tx install — Device info, then Minimal / Native Full / Native Full + PRoot
 tx install interactive — Choose, preview, and confirm a Native workstation profile in one session
-Use arrow keys + Space + Enter for profile, DE, app, distro and confirmation choices.
-Minimal includes CLI/TUI/Web, terminal/build tools and the PRoot CLI provider; Full adds GUI management/audio/graphics.
-tx install preview [--profile NAME] [--components GROUPS] — Review exact package transaction
-tx install update preview — Review Native Ternuxx core updates
-tx install apply [--profile NAME] --yes --plan-id ID — Apply the exact saved plan
+Use arrows + Space + Enter for profile, DE, app, distro and confirmation choices.
+tx install proot [debian|ubuntu] [DE] — Guided managed guest setup/additions
+tx install gpu — Device-aware Native/PRoot graphics and sound runtime setup
+tx install xfce|mate|plasma — Add a supported Native desktop
+Native package plan:
+  tx install preview [--profile NAME] [--components GROUPS]
+  tx install apply [--profile NAME] --yes --plan-id ID — Apply the exact saved plan
+Managed guest fresh-rootfs review/apply:
+  tx proot setup fresh-preview --user NAME [--desktops IDS]
+  tx proot setup fresh-install --yes --plan-id ID
+  tx proot setup catalog — List profiles and accepted desktop routes
+`tx install debian` and `tx install ubuntu` are retired; use `tx install proot`
+with a distro name. Existing guests are preserved and receive reviewed additions.
 Profiles: minimal-native, full-native, graphical, developer, native-proot-provider, custom.
-The guided Native flow previews the transaction and asks before installing; after
-it, you can also set up the optional managed Debian or Ubuntu guest. `tx install debian` or `tx install ubuntu`
-shows its pinned target and confirms the same plan in one terminal flow. Plan-ID
-commands are for explicit review and automation.
-Custom groups: desktop,audio,proot,graphics,developer,mate,plasma,terminal,gui,
-sound-controls,nested,guest-display,browser,music,images,pdf,editor,archive,video. All profiles use the same
-repository and dependency checks. The PRoot-provider profile installs the runtime only.
-If APT fails, some packages may have changed; create a fresh preview before retrying.
+All profiles use shared dependency/repository checks. The PRoot-provider preset
+installs the runtime only. If APT fails, create a fresh preview before retrying.
 EOF
       ;;
     checkpoint) cat <<'EOF'

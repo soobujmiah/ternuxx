@@ -202,42 +202,21 @@ nt_cmd_install apply --profile native-debian --user sobuj --yes --guest-plan-id 
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(order_file.read_text().splitlines(), [f"guest:{'b' * 64}"])
 
-    def test_distro_named_debian_preview_uses_one_pinned_guest_plan(self):
-        script = """source "$1"
-nt_require_termux() { return 0; }
-nt_require_command() { return 0; }
-python3() {
-  printf '%s\n' "$*" >> "$ARGS_FILE"
-  printf '{"status":"preview","plan_id":"%s"}\n' "$PLAN_ID"
-}
-nt_cmd_install debian --user sobuj
-"""
-        env = {**os.environ, "TERNUXX_JSON": "1", "PLAN_ID": "c" * 64,
-               "ARGS_FILE": str(Path(tempfile.gettempdir()) / f"tx-install-args-{os.getpid()}")}
-        args_file = Path(env["ARGS_FILE"])
-        try:
-            result = subprocess.run(
-                ["bash", "-c", script, "bash", str(PHASES)], env=env,
-                text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
-            )
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(json.loads(result.stdout)["plan_id"], "c" * 64)
-            forwarded = args_file.read_text()
-            self.assertIn("fresh-preview", forwarded)
-            self.assertIn("--user sobuj", forwarded)
-            self.assertIn("--sudo-mode password", forwarded)
-            self.assertIn("--desktops xfce", forwarded)
-            self.assertIn("--json", forwarded)
-        finally:
-            args_file.unlink(missing_ok=True)
-
-    def test_distro_named_guest_apply_requires_explicit_consent_and_exact_plan(self):
+    def test_distro_named_guest_install_alias_is_retired(self):
         result = subprocess.run(
-            ["bash", "-c", 'source "$1"; nt_require_termux() { return 0; }; nt_require_command() { return 0; }; nt_cmd_install debian apply --user sobuj --plan-id "' + "a" * 64 + '"',
+            ["bash", "-c", 'source "$1"; nt_cmd_install debian --user sobuj',
              "bash", str(PHASES)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
         )
         self.assertEqual(result.returncode, 2)
-        self.assertIn("Apply requires --yes", result.stderr)
+        self.assertIn("tx install proot debian [DE]", result.stderr)
+
+    def test_distro_named_guest_apply_alias_is_retired(self):
+        result = subprocess.run(
+            ["bash", "-c", 'source "$1"; nt_cmd_install ubuntu apply --user sobuj --plan-id "' + "a" * 64 + '"',
+             "bash", str(PHASES)], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("tx install proot ubuntu [DE]", result.stderr)
 
     def test_native_debian_profile_requires_user_before_package_probes(self):
         result = subprocess.run(

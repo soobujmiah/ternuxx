@@ -658,6 +658,8 @@ nt_cmd_install() {
       shift
       . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
       _nt_window_session _nt_install_proot_short "$@"; return $? ;;
+    debian|ubuntu)
+      nt_fail "Use 'tx install proot $1 [DE]' for guided guest setup, or 'tx proot setup fresh-preview --user NAME' for explicit review."; return 2 ;;
   esac
   if [ $# -eq 0 ] || { [ $# -eq 1 ] && [[ "$1" = interactive || "$1" = --interactive ]]; }; then
     . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
@@ -669,7 +671,8 @@ nt_cmd_install() {
   local apply=0 consent=0 update=0 interactive=0 guided=0 profile="full-native" profile_set=0 components="" verbose="${TERNUXX_VERBOSE:-0}" arg plan_id="" guest_plan_id="" guest_user=""
   local combined_guest=0
   local profile_lib="${_TN_LIB_DIR:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)}"
-  if [ -n "${1:-}" ] && command -v python3 >/dev/null 2>&1 && PYTHONPATH="$profile_lib" command python3 -c 'import sys; from proot_profiles import installable_aliases; sys.exit(0 if sys.argv[1] in installable_aliases(sys.argv[2]) else 1)' "$1" "$(cd -- "$profile_lib/.." && pwd -P)"; then
+  if [ -n "${1:-}" ] && command -v python3 >/dev/null 2>&1 \
+      && PYTHONPATH="$profile_lib" command python3 -c 'import sys; from proot_profiles import installable_aliases; sys.exit(0 if sys.argv[1] in installable_aliases(sys.argv[2]) else 1)' "$1" "$(cd -- "$profile_lib/.." && pwd -P)"; then
     local distro="$1"
     shift
     _nt_install_managed_guest "$distro" "$@"
@@ -778,7 +781,7 @@ nt_cmd_install() {
       return 0
     fi
     nt_ok "Ternuxx profile $_NT_ACTIVE_PROFILE packages are already installed."
-    [ "$combined_guest" = "1" ] || nt_info "Optional managed Debian/Ubuntu guest: tx install debian or tx install ubuntu (then choose a guest username)."
+    [ "$combined_guest" = "1" ] || nt_info "Optional managed Debian/Ubuntu guest: tx install proot (choose a distro and guest options)."
     nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
     if [ "$combined_guest" = "1" ]; then
       if [ "$apply" = "1" ]; then
@@ -908,7 +911,7 @@ nt_cmd_install() {
     else
       nt_info "Apply after review: tx install apply --profile $_NT_ACTIVE_PROFILE --yes --plan-id $plan_id"
     fi
-    [ "$combined_guest" = "1" ] || [ "$update" = "1" ] || nt_info "Optional managed Debian/Ubuntu guest: tx install debian or tx install ubuntu (then choose a guest username)."
+    [ "$combined_guest" = "1" ] || [ "$update" = "1" ] || nt_info "Optional managed Debian/Ubuntu guest: tx install proot (choose a distro and guest options)."
     if [ "$TERNUXX_JSON" = "1" ]; then
       local package_json
       package_json="$(nt_json_array "${_NT_PLAN_VERSIONS[@]}")"
@@ -948,7 +951,7 @@ nt_cmd_install() {
   fi
   if [ ${#_NT_PLAN_PACKAGES[@]} -eq 0 ]; then
     nt_ok "Ternuxx profile $_NT_ACTIVE_PROFILE packages are already installed."
-    [ "$combined_guest" = "1" ] || nt_info "Optional managed Debian/Ubuntu guest: tx install debian or tx install ubuntu (then choose a guest username)."
+    [ "$combined_guest" = "1" ] || nt_info "Optional managed Debian/Ubuntu guest: tx install proot (choose a distro and guest options)."
     nt_info "Skipped components: $_NT_ACTIVE_SKIPPED_COMPONENTS"
     _NT_COMBINED_GUEST_PLAN_ID="$guest_plan_id"
     _nt_apply_combined_guest || return $?
@@ -999,7 +1002,7 @@ nt_cmd_install() {
     else
       nt_ok "Ternuxx Native profile $_NT_ACTIVE_PROFILE installed. The Termux:X11 Android app still must be installed separately if absent."
     fi
-    nt_info "Optional managed Debian/Ubuntu guest: tx install debian or tx install ubuntu (then choose a guest username)."
+    nt_info "Optional managed Debian/Ubuntu guest: tx install proot (choose a distro and guest options)."
   fi
   if [ "$combined_guest" != "1" ] && [ "$update" != "1" ] && [ "$TERNUXX_JSON" != "1" ]; then
     _nt_offer_managed_guest || return $?
@@ -1148,6 +1151,3 @@ _nt_install_managed_guest() {
   unset '_NT_GUEST_PASSWORD[$distro]'
   return "$result"
 }
-
-_nt_install_debian_guest() { _nt_install_managed_guest debian "$@"; }
-_nt_install_ubuntu_guest() { _nt_install_managed_guest ubuntu "$@"; }

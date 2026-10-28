@@ -61,13 +61,13 @@ tx start
 
 ## ঐচ্ছিক Debian PRoot
 
-ঐচ্ছিক পরিচালিত Debian guest এক কমান্ডে সেটআপ করতে Native Termux-এর সংযুক্ত terminal-এ চালান:
+ঐচ্ছিক পরিচালিত Debian বা Ubuntu guest সেটআপ/পরিবর্তন করতে Native Termux-এর সংযুক্ত terminal-এ unified command চালান:
 
 ```sh
-tx install debian --user USER
+tx install proot
 ```
 
-কমান্ডটি নির্দিষ্ট Debian লক্ষ্য ও পরিকল্পনা দেখিয়ে, ওই পরিকল্পনা প্রয়োগের আগে নিশ্চিতকরণ চাইবে; plan ID কপি করে দ্বিতীয় কমান্ড চালাতে হবে না। কেবল পর্যালোচনার জন্য `tx install debian preview --user USER` চালান; automation-এ preview ও exact plan-ID apply ধাপ আলাদা রাখুন। `--sudo-mode password` দিলে password গোপন prompt-এ দিতে হয়। `--sudo-mode passwordless` কোনো secret ছাড়াই চলে এবং NOPASSWD কেবল PRoot guest-এর মধ্যে প্রযোজ্য।
+Distro, guest account, desktop ও app selector-এ বাছাই করে নির্দিষ্ট package plan পর্যালোচনা ও নিশ্চিত করুন। সরাসরি বাছাইয়ের জন্য `tx install proot debian xfce` বা `tx install proot ubuntu xfce` চালান। কেবল fresh-rootfs review/apply চাইলে `tx proot setup fresh-preview --user USER` এবং এরপর exact plan দিয়ে `tx proot setup fresh-install --yes --plan-id PLAN_ID` ব্যবহার করুন। `--sudo-mode passwordless` শুধু guest-এর ভেতরে NOPASSWD sudo দেয়।
 
 আগে `tx proot status` দিয়ে Native `proot`/`proot-distro` ও Debian পরিবেশের তালিকা দেখুন। নতুন Debian পরিবেশের জন্য নির্দিষ্ট ব্যবহারকারীর নামসহ পূর্বরূপ তৈরি করুন, লক্ষ্য ও ডিস্ক-ছবির নির্দিষ্ট SHA-256 পরিচিতি যাচাই করুন, তারপর শুধু সেই পরিকল্পনা প্রয়োগ করুন:
 

@@ -14,25 +14,17 @@ CLI = ROOT / "bin" / "tx"
 
 
 class DistroNamedInstallCLITests(unittest.TestCase):
-    def test_debian_install_route_requests_account_before_running_preview(self):
-        result = subprocess.run(
-            ["bash", str(CLI), "install", "debian"],
-            env={**os.environ, "TERMUX_VERSION": "fixture"},
-            capture_output=True, text=True, timeout=5,
-        )
-        self.assertEqual(result.returncode, 2)
-        self.assertIn("Choose a Debian Trixie guest account with --user NAME", result.stderr)
-        self.assertNotIn("Unknown install option", result.stderr)
-
-    def test_ubuntu_install_route_requests_account_before_running_preview(self):
-        result = subprocess.run(
-            ["bash", str(CLI), "install", "ubuntu"],
-            env={**os.environ, "TERMUX_VERSION": "fixture"},
-            capture_output=True, text=True, timeout=5,
-        )
-        self.assertEqual(result.returncode, 2)
-        self.assertIn("Choose a Ubuntu 24.04 LTS (Noble) guest account with --user NAME", result.stderr)
-        self.assertNotIn("Unknown install option", result.stderr)
+    def test_distro_named_install_aliases_direct_users_to_unified_proot_command(self):
+        for distro in ("debian", "ubuntu"):
+            with self.subTest(distro=distro):
+                result = subprocess.run(
+                    ["bash", str(CLI), "install", distro],
+                    env={**os.environ, "TERMUX_VERSION": "fixture"},
+                    capture_output=True, text=True, timeout=5,
+                )
+                self.assertEqual(result.returncode, 2)
+                self.assertIn(f"tx install proot {distro} [DE]", result.stderr)
+                self.assertNotIn("Unknown install option", result.stderr)
 
     def test_guided_install_applies_the_exact_plan_after_terminal_confirmation(self):
         plan_id = "c" * 64
@@ -50,7 +42,7 @@ python3() {
     *) printf '{"status":"installed"}\n' ;;
   esac
 }
-nt_cmd_install debian --user sobuj
+_nt_install_managed_guest debian --user sobuj
 '''
             master, slave = pty.openpty()
             process = subprocess.Popen(
