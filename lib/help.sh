@@ -179,14 +179,33 @@ Remote access is disabled by default. Preview does not persist settings, contact
 a network, start a service, or enable public ingress.
 EOF
       ;;
-    graphics) cat <<'EOF'
-tx install gpu — Install device-supported Native and PRoot graphics runtimes (selected by default)
-tx mng graphics status {native|proot} — Show the selected backend and probe results
-tx mng graphics select native {system|termux-zink|kgsl-freedreno} — Change Native backend for future starts
-tx mng graphics select proot {cpu|zink} — Change managed PRoot backend for future starts
-Supported choices depend on device probes; kgsl-freedreno is an isolated, device-specific experimental Mesa candidate.
-PRoot graphics packages are managed with `tx install gpu`; VirGL is shown only after a managed server lifecycle exists.
-GPU inference or rendered acceleration is not implied by a detected device or installed library.
+    graphics|gpu) cat <<'EOF'
+Graphics setup and management
+  tx install gpu
+    Open the device-aware installer. Native and PRoot are selected by default;
+    CPU rendering stays selected, and compatible accelerated providers are preselected.
+    Use Space to change selections. Package/runtime changes have a reviewed confirmation.
+
+  tx mng graphics status native
+    Show Native backend, OpenGL/GLES/Vulkan probe results, and display information.
+  tx mng graphics status proot
+    Show the saved PRoot backend and whether it is the legacy device-aware default.
+  tx mng graphics verify native {opengl|gles|vulkan} [:N]
+    Run a bounded Native graphics probe on the selected display (default :1).
+  tx mng graphics select native {system|termux-zink|kgsl-freedreno}
+    Save the Native backend for future desktop starts; it does not restart a running desktop.
+  tx mng graphics select proot {cpu|zink}
+    Save the PRoot backend for future desktop starts; run `tx install gpu` first to install runtimes.
+
+  tx tui | tx web | tx gui
+    Open management clients. Choose GPU setup to install runtimes or change the
+    saved Native/PRoot backend through the same reviewed installer flow.
+
+Native Zink appears only when the installed Termux Freedreno ICD enumerates a
+supported Vulkan device. The pinned KGSL Mesa candidate is experimental and
+Adreno 825-specific. PRoot Zink/Turnip requires accessible KGSL. VirGL currently
+has a verifier but no managed server installation/lifecycle, so it is not offered
+as an install choice. Detection and installation do not prove accelerated rendering.
 EOF
       ;;
     web) cat <<'EOF'
@@ -203,6 +222,14 @@ tx mng logs list|read SOURCE_ID — Read bounded Ternuxx logs
 tx mng cron ... — Manage the Native scheduler and jobs
 tx mng timezone ... — Inspect or set the system timezone
 tx mng graphics ... — Inspect or change Native and managed PRoot graphics
+Graphics commands:
+  tx mng graphics status {native|proot}
+  tx mng graphics verify native {opengl|gles|vulkan} [:N]
+  tx mng graphics select native {system|termux-zink|kgsl-freedreno}
+  tx mng graphics select proot {cpu|zink}
+Install/change providers with `tx install gpu`; the same installer is available
+from `tx tui`, `tx web`, and `tx gui`. Zink/Turnip options depend on device probes;
+VirGL is not installable until its managed server lifecycle is implemented.
 tx mng http serve — Run the authenticated loopback API
 EOF
       ;;
