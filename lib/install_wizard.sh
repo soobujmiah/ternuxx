@@ -257,7 +257,7 @@ PYGPUPROBE
 }
 
 _nt_gpu_setup() {
-  local root="$1" target backend choices choice distros distro probe gpu_preview gpu_plan selected
+  local root="$1" target backend choices choice distros distro probe gpu_preview gpu_plan selected current_guest_backend
   local -a native_options=('system|Native CPU/Mesa software fallback (always available)') proot_options=('runtime|PRoot CPU/Mesa software fallback (always available)') active_options=('keep|Keep current Native backend' 'system|System Mesa / CPU fallback')
   target="$(_nt_pick 'Graphics/sound setup (select every provider to prepare)' multi 'native,proot' \
     'native|Native Termux' 'proot|Managed PRoot guests' 'none|Keep all existing setup')" || return $?
@@ -320,6 +320,20 @@ _nt_gpu_setup() {
       [[ ",$backend," != *,zink,* ]] || app=graphics-runtime
       _nt_install_managed_guest "$distro" --desktops none --apps "$app" || return $?
     done
+    current_guest_backend="$(PYTHONPATH="$root/lib" python3 -m proot_graphics_selection status | python3 -c 'import json,sys; print(json.load(sys.stdin)["backend"])')" || return $?
+    local -a guest_backends=()
+    if [[ ",$backend," = *,zink,* ]]; then
+      if [ "$current_guest_backend" = zink ]; then
+        guest_backends=( 'zink|Zink + Turnip (KGSL; workload verification separate)' 'cpu|CPU/Mesa software rendering' )
+      else
+        guest_backends=( 'cpu|CPU/Mesa software rendering' 'zink|Zink + Turnip (KGSL; workload verification separate)' )
+      fi
+    else
+      guest_backends=( 'cpu|CPU/Mesa software rendering' )
+    fi
+    guest_backend="$(_nt_pick 'PRoot backend for future desktop starts' single '' "${guest_backends[@]}")" || return $?
+    _nt_confirm "Save PRoot $guest_backend for future desktop starts? A running guest desktop is not restarted." || return $?
+    PYTHONPATH="$root/lib" python3 -m proot_graphics_selection select "$guest_backend" || return $?
     nt_info 'PRoot VirGL is not offered as installable: this checkout has a verifier route but no managed VirGL server install/lifecycle. CPU and managed Zink/Turnip routes are available above.'
   fi
   nt_info 'Configuration only. Verify a bounded workload separately; provider detection or installation does not prove accelerated rendering.'

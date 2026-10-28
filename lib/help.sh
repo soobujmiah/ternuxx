@@ -181,8 +181,9 @@ EOF
       ;;
     graphics) cat <<'EOF'
 tx install gpu — Install device-supported Native and PRoot graphics runtimes (selected by default)
-tx mng graphics status native — Show the active Native backend and probe results
-tx mng graphics select native {system|termux-zink|kgsl-freedreno} — Change the backend for future Native starts
+tx mng graphics status {native|proot} — Show the selected backend and probe results
+tx mng graphics select native {system|termux-zink|kgsl-freedreno} — Change Native backend for future starts
+tx mng graphics select proot {cpu|zink} — Change managed PRoot backend for future starts
 Supported choices depend on device probes; kgsl-freedreno is an isolated, device-specific experimental Mesa candidate.
 PRoot graphics packages are managed with `tx install gpu`; VirGL is shown only after a managed server lifecycle exists.
 GPU inference or rendered acceleration is not implied by a detected device or installed library.
@@ -201,7 +202,7 @@ tx mng catalog list — Browse supported Native resources
 tx mng logs list|read SOURCE_ID — Read bounded Ternuxx logs
 tx mng cron ... — Manage the Native scheduler and jobs
 tx mng timezone ... — Inspect or set the system timezone
-tx mng graphics ... — Inspect Native graphics
+tx mng graphics ... — Inspect or change Native and managed PRoot graphics
 tx mng http serve — Run the authenticated loopback API
 EOF
       ;;

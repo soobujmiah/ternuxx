@@ -112,12 +112,20 @@ nt_cmd_management() {
       return 2 ;;
     graphics)
       local action="${1:-status}" provider="${2:-native}" api="${3:-opengl}" display="${4:-:1}"
-      [ "$provider" = native ] || { nt_warn "Only Native Termux graphics are supported."; return 2; }
       case "$action" in
-        status) python3 "$_TN_LIB_DIR/management_service.py" --operation graphics.provider.status --provider "$provider" --json ;;
-        verify) python3 "$_TN_LIB_DIR/management_service.py" --operation graphics.provider.verify --provider "$provider" --graphics-api "$api" --display "$display" --json ;;
-        select) [ "$provider" = native ] || { nt_fail "Only Native Termux graphics backends are supported here."; return 2; }; python3 "$_TN_LIB_DIR/management_service.py" --operation graphics.provider.select --provider native --graphics-backend "$api" --yes --json ;;
-        *) nt_fail "Usage: tx mng graphics {status native|verify native {opengl|gles|vulkan} [:N]|select native {system|termux-zink|kgsl-freedreno}}"; return 2 ;;
+        status)
+          if [ "$provider" = proot ]; then PYTHONPATH="$_TN_LIB_DIR" python3 -m proot_graphics_selection status
+          else [ "$provider" = native ] || { nt_warn "Choose graphics provider native or proot."; return 2; }; python3 "$_TN_LIB_DIR/management_service.py" --operation graphics.provider.status --provider native --json; fi ;;
+        verify) [ "$provider" = native ] || { nt_warn "Graphics verification currently supports Native only."; return 2; }; python3 "$_TN_LIB_DIR/management_service.py" --operation graphics.provider.verify --provider "$provider" --graphics-api "$api" --display "$display" --json ;;
+        select)
+          if [ "$provider" = proot ]; then
+            [ "$api" = cpu ] || [ "$api" = zink ] || { nt_fail "Choose PRoot backend cpu or zink."; return 2; }
+            PYTHONPATH="$_TN_LIB_DIR" python3 -m proot_graphics_selection select "$api"
+          else
+            [ "$provider" = native ] || { nt_fail "Choose graphics provider native or proot."; return 2; }
+            python3 "$_TN_LIB_DIR/management_service.py" --operation graphics.provider.select --provider native --graphics-backend "$api" --yes --json
+          fi ;;
+        *) nt_fail "Usage: tx mng graphics {status {native|proot}|verify native {opengl|gles|vulkan} [:N]|select native {system|termux-zink|kgsl-freedreno}|select proot {cpu|zink}}"; return 2 ;;
       esac
       ;;
     logs)

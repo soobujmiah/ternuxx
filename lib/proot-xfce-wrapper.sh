@@ -38,17 +38,26 @@ except ValueError as exc:
     print(str(exc),file=__import__('sys').stderr);raise SystemExit(1)
 PYUSER
 )" || { echo 'Guest account is unavailable; no desktop was started.' >&2; exit 1; }
+graphics_backend="$(PYTHONPATH="$SCRIPT_LIB_DIR" python3 -m proot_graphics_selection status | python3 -c 'import json,sys; print(json.load(sys.stdin)["backend"])')" || {
+  echo "Saved PRoot graphics preference is invalid; refusing to start the desktop." >&2; exit 1;
+}
+render_env=()
+if [ "$graphics_backend" = zink ]; then
+  [ -r /dev/kgsl-3d0 ] || { echo "Saved PRoot Zink preference needs readable KGSL; select CPU with tx install gpu." >&2; exit 1; }
+  render_env+=(GALLIUM_DRIVER=zink MESA_LOADER_DRIVER_OVERRIDE=zink
+    TU_DEBUG=sysmem,noconform MESA_VK_WSI_DEBUG=sw)
+else
+  render_env+=(LIBGL_ALWAYS_SOFTWARE=true)
+fi
+printf 'Ternuxx PRoot graphics backend: %s (saved preference; applies to this start).\n' "$graphics_backend" >&2
 args=(login "$guest_alias" --shared-tmp --user "$guest_user"
   --env DISPLAY=:0
   --env TERNUXX_SESSION_ID=proot-display0
   --env TERNUXX_DESKTOP_ID="$desktop_id"
   --env TERNUXX_REPO_ROOT="$REPO_ROOT"
-  --env TERNUXX_DESKTOP_SESSION="$desktop_id"
-  --env GALLIUM_DRIVER=zink
-  --env MESA_LOADER_DRIVER_OVERRIDE=zink
-  --env TU_DEBUG=sysmem,noconform
-  --env MESA_VK_WSI_DEBUG=sw
-  --env MESA_DISK_CACHE_SINGLE_FILE=1
+  --env TERNUXX_DESKTOP_SESSION="$desktop_id")
+for renderer_var in "${render_env[@]}"; do args+=(--env "$renderer_var"); done
+args+=(--env MESA_DISK_CACHE_SINGLE_FILE=1
   --env MESA_SHADER_CACHE_MAX_SIZE=2048M
   --env QT_X11_NO_MITSHM=1
   --env LANG=en_US.UTF-8 --env LC_ALL=en_US.UTF-8)
@@ -63,9 +72,7 @@ if [ -n "${TERNUXX_PULSE_COOKIE:-}" ]; then
     --env PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie)
 fi
 args+=(--env PULSE_SERVER=tcp:127.0.0.1:4713 --
-  /usr/bin/env DISPLAY=:0 TERNUXX_SESSION_ID=proot-display0 TERNUXX_DESKTOP_ID="$desktop_id" TERNUXX_DESKTOP_SESSION="$desktop_id" PULSE_SERVER=tcp:127.0.0.1:4713
-  GALLIUM_DRIVER=zink MESA_LOADER_DRIVER_OVERRIDE=zink
-  TU_DEBUG=sysmem,noconform MESA_VK_WSI_DEBUG=sw
+  /usr/bin/env "${render_env[@]}" DISPLAY=:0 TERNUXX_SESSION_ID=proot-display0 TERNUXX_DESKTOP_ID="$desktop_id" TERNUXX_DESKTOP_SESSION="$desktop_id" PULSE_SERVER=tcp:127.0.0.1:4713
   QT_X11_NO_MITSHM=1 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
   /bin/bash -c '
     set -eu
