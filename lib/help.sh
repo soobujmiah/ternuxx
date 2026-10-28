@@ -181,31 +181,36 @@ EOF
       ;;
     graphics|gpu) cat <<'EOF'
 Graphics setup and management
+
+Commands:
   tx install gpu
-    Open the device-aware installer. Native and PRoot are selected by default;
-    CPU rendering stays selected, and compatible accelerated providers are preselected.
-    Use Space to change selections. Package/runtime changes have a reviewed confirmation.
+      Open the device-aware installer. Native and PRoot are selected by default.
+      CPU rendering stays selected; compatible accelerated providers are
+      preselected after device probes. Use Space to change selections.
+      Package/runtime changes show a plan and require confirmation.
 
   tx mng graphics status native
-    Show Native backend, OpenGL/GLES/Vulkan probe results, and display information.
+      Show the Native backend and OpenGL/GLES/Vulkan probe results.
   tx mng graphics status proot
-    Show the saved PRoot backend and whether it is the legacy device-aware default.
+      Show the saved PRoot backend and its default/selected source.
   tx mng graphics verify native {opengl|gles|vulkan} [:N]
-    Run a bounded Native graphics probe on the selected display (default :1).
+      Run a bounded Native graphics probe. Display defaults to :1.
   tx mng graphics select native {system|termux-zink|kgsl-freedreno}
-    Save the Native backend for future desktop starts; it does not restart a running desktop.
+      Save the Native backend for future starts; running desktops are unchanged.
   tx mng graphics select proot {cpu|zink}
-    Save the PRoot backend for future desktop starts; run `tx install gpu` first to install runtimes.
+      Save the PRoot backend for future starts. Install runtimes with
+      `tx install gpu` first.
 
   tx tui | tx web | tx gui
-    Open management clients. Choose GPU setup to install runtimes or change the
-    saved Native/PRoot backend through the same reviewed installer flow.
+      Open a management client. Choose GPU setup to install runtimes or change
+      the saved Native/PRoot backend through the shared installer.
 
-Native Zink appears only when the installed Termux Freedreno ICD enumerates a
-supported Vulkan device. The pinned KGSL Mesa candidate is experimental and
-Adreno 825-specific. PRoot Zink/Turnip requires accessible KGSL. VirGL currently
-has a verifier but no managed server installation/lifecycle, so it is not offered
-as an install choice. Detection and installation do not prove accelerated rendering.
+Provider notes:
+  Native Zink requires successful Vulkan device enumeration by the installed
+  Termux Freedreno ICD. The pinned KGSL Mesa candidate is experimental and
+  Adreno 825-specific. PRoot Zink/Turnip requires accessible KGSL. VirGL has
+  a verifier but no managed server installation/lifecycle, so it is not an
+  install choice. Detection does not prove accelerated rendering.
 EOF
       ;;
     web) cat <<'EOF'
@@ -216,21 +221,31 @@ Android or an installed Native Termux browser. Press Ctrl-C to stop the service.
 EOF
       ;;
     management|mng) cat <<'EOF'
-tx mng center [install] — Open or install the Native GTK app
-tx mng catalog list — Browse supported Native resources
-tx mng logs list|read SOURCE_ID — Read bounded Ternuxx logs
-tx mng cron ... — Manage the Native scheduler and jobs
-tx mng timezone ... — Inspect or set the system timezone
-tx mng graphics ... — Inspect or change Native and managed PRoot graphics
+Ternuxx management commands
+
+  tx mng center [install]
+      Open or install the Native GTK app.
+  tx mng catalog list
+      Browse supported Native resources.
+  tx mng logs list|read ID
+      Read bounded Ternuxx logs.
+  tx mng cron ...
+      Manage the Native scheduler and jobs.
+  tx mng timezone ...
+      Inspect or set the system timezone.
+  tx mng http serve
+      Run the authenticated loopback API.
+
 Graphics commands:
   tx mng graphics status {native|proot}
   tx mng graphics verify native {opengl|gles|vulkan} [:N]
   tx mng graphics select native {system|termux-zink|kgsl-freedreno}
   tx mng graphics select proot {cpu|zink}
-Install/change providers with `tx install gpu`; the same installer is available
-from `tx tui`, `tx web`, and `tx gui`. Zink/Turnip options depend on device probes;
-VirGL is not installable until its managed server lifecycle is implemented.
-tx mng http serve — Run the authenticated loopback API
+
+Use `tx install gpu` to install or change providers. The same installer is
+available from `tx tui`, `tx web`, and `tx gui`. Zink/Turnip choices depend on
+device probes. VirGL is not installable until its managed server lifecycle is
+implemented.
 EOF
       ;;
     tui) cat <<'EOF'
