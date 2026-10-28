@@ -14,7 +14,7 @@ tx web
 tx mng center
 ```
 
-`tx start`, `stop`, `restart`, and `status` operate on the recorded Native desktop. The supervisor verifies process identity before sending signals and refuses ambiguous ownership. The Android Termux:X11 app's visible state is separate from server readiness.
+`tx start`, `stop`, `restart`, and `status` operate on the recorded Native desktop. The supervisor verifies process identity before sending signals and refuses ambiguous ownership. Native `tx start` and standalone `tx pgui start` launch detached `nohup setsid` supervisors, so their X-server and desktop processes survive the launching shell exiting; stop them with the matching `tx stop` or `tx pgui stop` command. This does not promise survival after Android force-stop or OS process eviction. The Android Termux:X11 app's visible state is separate from server readiness.
 
 ## Management clients
 
@@ -60,7 +60,9 @@ Use `tx proot status` for Native-host inventory, `tx proot setup fresh-preview -
 
 The generated Debian application launchers use `tx mng app launch --desktop-id APP.desktop --display :N` to enter the shared typed launcher service. Fixed apps can use `tx mng app launch APP_ID [--display :N]`. Only installed, visible XFCE desktop entries are accepted; arbitrary shell commands are not.
 
-For standalone `tx pgui start`, Ternuxx waits up to 60 seconds for the selected desktop shell, window manager, panel, and desktop processes in the owned PRoot session group. `tx pgui status` reports the same process-readiness result. If the deadline expires, the session is left running and the missing processes are reported. This does not establish window-surface visibility, Android foreground presentation, audible playback, or accelerated rendering.
+For standalone `tx pgui start`, Ternuxx starts its supervisor detached from the launching shell and waits up to 60 seconds for the selected desktop shell, window manager, panel, and desktop processes in the owned PRoot session group. `tx pgui status` reports the same process-readiness result and the display endpoint state. If the deadline expires, the session is left running and the missing processes are reported. This does not establish window-surface visibility, Android foreground presentation, audible playback, or accelerated rendering.
+
+Use `tx pgui stop` to stop standalone `:0` or nested `:2`; it leaves Native `:1` running. If the display endpoint is unavailable but the recorded supervisor identity is live and verified, Ternuxx asks that supervisor to stop only its recorded desktop and X11 process groups. If the supervisor is absent, the existing exact orphan-recovery checks apply. `tx stop` manages Native `:1` and is not a substitute for `tx pgui stop` when closing a PRoot GUI.
 
 Nested `tx pgui start --mode nested` uses Xephyr display `:2`. It refuses to start when that display is occupied or its ownership is ambiguous. Before refusing, it may reclaim only a positively stale PRoot `--link2symlink` lock chain whose PID is absent, whose socket refuses connections, and whose complete lock chain is confined to the installed Debian rootfs `.l2s` directory; it never signals a process. All other stale/unknown artifacts remain untouched. Startup geometry follows Native display dimensions. The owner has physically accepted portrait and landscape/fullscreen rotation on this device; screen resizing remains dependent on Termux:X11 and its window manager, and no independent capture was recorded.
 

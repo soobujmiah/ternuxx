@@ -86,7 +86,7 @@ fi
 usage() { cat <<'USAGE'
 Usage: tx pgui [start [--mode auto|standalone|nested] [--desktop xfce|lxqt|lxde|mate|plasma] [--alias debian|ubuntu|ternuxx-replay-NAME] [--user NAME]|status|stop]
 Auto uses standalone :0 when Native GUI is stopped, otherwise nested Xephyr :2 inside Native :1.
-Standalone and Native desktop sessions cannot run together. Standalone :0 opens Termux:X11 after readiness; nested :2 uses the existing Native window and does not open another. Nested mode holds the lifecycle lock until closed; tx pgui stop closes the managed nested GUI while leaving Native :1 running.
+Standalone and Native desktop sessions cannot run together. Standalone :0 opens Termux:X11 after readiness; nested :2 uses the existing Native window and does not open another. Nested mode holds the lifecycle lock until closed. tx pgui stop closes managed :0 or :2 while leaving Native :1 running; when readiness fails but the recorded supervisor is still verifiable, stop requests cleanup through that supervisor.
 Choose an installed environment with `tx pgui ID` or `tx pgui start --desktop ID`; XFCE is the default when installed.
 The canonical Debian guest is the default. Ubuntu requires a Ternuxx install receipt; receipt-verified replay aliases can use standalone :0 or nested :2 with `--alias`.
 Use tx pgui graphics verify to inspect the selected guest GUI's GLES, GLX, and Vulkan devices.
@@ -132,7 +132,7 @@ case "$ACTION" in
       echo "Standalone managed guest GUI: stopped; target display :0"
     else
       report="$(inspect)" || { echo "PRoot GUI ownership is unknown or unsafe; state preserved." >&2; exit 1; }
-      python3 -c 'import json,sys; d=json.load(sys.stdin); state=d.get("state"); display=d.get("display",":0"); detail=d.get("reason","unknown"); readiness=d.get("desktop_readiness",{}); missing=readiness.get("missing_processes",[]); rstate=readiness.get("state","unknown"); summary="Standalone managed guest GUI: running on %s; passed shell, window-manager, panel and desktop process checks%s. Android visibility remains unverified." % (display,("; missing "+", ".join(missing)) if missing else "") if state=="running" and rstate=="ready" else "Standalone managed guest GUI: state={state} display={display} detail={detail}".format(state=state,display=display,detail=detail); print(summary)' <<<"$report"
+      python3 -c 'import json,sys; d=json.load(sys.stdin); state=d.get("state"); display=d.get("display",":0"); endpoint=d.get("display_state","unknown"); detail=d.get("reason","unknown"); readiness=d.get("desktop_readiness",{}); missing=readiness.get("missing_processes",[]); rstate=readiness.get("state","unknown"); summary="Standalone managed guest GUI: running on %s; passed shell, window-manager, panel and desktop process checks%s. Android visibility remains unverified." % (display,("; missing "+", ".join(missing)) if missing else "") if state=="running" and rstate=="ready" else "Standalone managed guest GUI: state={state} display={display} endpoint={endpoint} detail={detail}".format(state=state,display=display,endpoint=endpoint,detail=detail); print(summary)' <<<"$report"
     fi
     if [ -S "$TMP_ROOT/.X11-unix/X2" ]; then
       echo "Nested display :2 socket exists; socket presence alone does not establish session ownership."
@@ -463,25 +463,33 @@ PY
     report="$(inspect)" || { echo "PRoot GUI ownership is unknown or unsafe; no signal was sent." >&2; exit 1; }
     current_state="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("state","unknown"))' <<<"$report")"
     if [ "$current_state" = failed ]; then
-      recovery="$(python3 "$ROOT/lib/desktop_orphan_stop.py" "$HOME" "$STATE_DIR" "$TMP_ROOT" "$DISPLAY_TOOL")" || {
-        echo "Orphaned PRoot GUI identity could not be proved; no process was signaled. Inspect $STATE_FILE." >&2
-        exit 1
-      }
-      echo "$(python3 -c 'import json,sys; d=json.loads(sys.stdin.read()); print("Stopped only the verified orphaned managed PRoot GUI on %s; preserved its prior session record as %s."%(d["display"],d["archive"]))' <<<"$recovery")"
-      exit 0
+      supervisor_state="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("processes",{}).get("supervisor","unknown"))' <<<"$report")"
+      if [ "$supervisor_state" = live ]; then
+        echo "PRoot GUI readiness is inconsistent, but its recorded supervisor is live and verified; requesting a graceful stop through that supervisor."
+      else
+        recovery="$(python3 "$ROOT/lib/desktop_orphan_stop.py" "$HOME" "$STATE_DIR" "$TMP_ROOT" "$DISPLAY_TOOL")" || {
+          echo "Orphaned PRoot GUI identity could not be proved; no process was signaled. Inspect $STATE_FILE." >&2
+          exit 1
+        }
+        echo "$(python3 -c 'import json,sys; d=json.loads(sys.stdin.read()); print("Stopped only the verified orphaned managed PRoot GUI on %s; preserved its prior session record as %s."%(d["display"],d["archive"]))' <<<"$recovery")"
+        exit 0
+      fi
     fi
-    [ "$current_state" = running ] || { echo "PRoot GUI is $current_state; stop sent no signal and preserved all state." >&2; exit 1; }
+    [ "$current_state" = running ] || [ "$current_state" = failed ] || { echo "PRoot GUI is $current_state; stop sent no signal and preserved all state." >&2; exit 1; }
     pid="$(state_value supervisor.pid)"; ticks="$(state_value supervisor.start_ticks)"
     python3 - "$pid" "$ticks" <<'PY'
 import sys
 from pathlib import Path
+import os
 pid,ticks=sys.argv[1:]
 try:
  raw=Path(f"/proc/{pid}/stat").read_text(); fields=raw[raw.rfind(")")+2:].split()
  cmd=Path(f"/proc/{pid}/cmdline").read_bytes().replace(b"\0",b" ").decode(errors="replace")
- if fields[19] != ticks or "desktop-supervisor.sh" not in cmd:
+ status=Path(f"/proc/{pid}/status").read_text()
+ uid_line=next(line for line in status.splitlines() if line.startswith("Uid:"))
+ if fields[19] != ticks or "desktop-supervisor.sh" not in cmd or int(uid_line.split()[1]) != os.getuid():
   raise SystemExit("supervisor PID identity mismatch")
-except (OSError,IndexError):
+except (OSError,IndexError,StopIteration,ValueError):
  raise SystemExit("supervisor identity is unavailable")
 PY
     kill -TERM "$pid"

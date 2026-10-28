@@ -15,6 +15,34 @@ These are single-device smoke checks on the experimental KGSL/Freedreno provider
 not a sustained production qualification. Full procedure, raw responses, hashes
 and limits are in the [Blender MCP report](docs/testing/reports/2026-10-28-blender-native-gpu-mcp.md).
 
+## PRoot X11 endpoint loss and managed stop recovery — 2026-10-28
+
+The owner reported that after exiting Termux, the standalone PRoot `:0` screen
+remained visible but opening an XFCE terminal and logging out did not work.
+`tx pgui stop` refused because it classified the record as failed; the recorded
+supervisor and guest/X11 processes were still live while the `:0` display
+endpoint artifacts were absent. Its failed-session path only accepted an
+orphaned supervisor with a ready display, so its recovery preconditions could
+not match this state. `tx stop` is the separate Native `:1` lifecycle and did
+not stop the PRoot `:0` session.
+
+`tx pgui stop` now routes this case through the exact recorded supervisor when
+its process identity and UID are verified. The supervisor then performs its
+existing scoped cleanup of its recorded desktop and X11 groups. The stricter
+orphan recovery path remains in place when the supervisor is absent. The live
+Native `tx` entrypoint delegates to this checkout, so no separate package copy
+was needed. `bash -n` passed; the patched `tx pgui stop` stopped `:0`, and both
+`tx pgui status` and the session inspector confirmed all recorded processes
+absent and state `stopped`. Native `:1` remained stopped, as it already was
+before this repair. A later live persistence check launched both `tx start` and
+`tx pgui start --mode standalone` from short-lived shells. After each launching
+shell exited, the corresponding X11 socket, supervisor and desktop processes
+remained ready; `tx stop` and `tx pgui stop` then cleanly stopped their own
+sessions. This verifies survival of the launching shell exit on this device, not
+Android force-stop/OS process eviction or visual foreground state. The exact
+Android event that caused the earlier endpoint to disappear was not captured.
+See the [incident and recovery evidence](docs/evidence/2026-10-28-proot-x11-endpoint-loss-recovery.md).
+
 ## Stopped desktop inspection when the X11 socket directory is absent — 2026-10-28
 
 I asked Codex to repair `tx start` and check `tx pgui` after both reported unknown
@@ -120,7 +148,9 @@ socket absent; Native `:1` was left running. `tx start` now verifies the recorde
 Native session before requesting the shared lifecycle lock and returns success when
 the matching desktop is already healthy, including during an active nested GUI.
 `tx pgui stop` can close either the owned standalone :0 session or a cooperative
-nested :2 session while leaving Native :1 running. `tx stop` requests shutdown only
+nested :2 session while leaving Native :1 running. If display readiness is lost
+but the exact recorded supervisor remains live, it requests cleanup through that
+supervisor; `tx stop` remains the Native :1 command. `tx stop` requests shutdown only
 from a lock owner tagged by the current cooperative PRoot launcher, which runs the
 guest inside its own process group; it waits for lock release before stopping Native
 :1. Legacy/unknown owners are left untouched. Android GUI visibility remains unknown until the window is visually confirmed.
