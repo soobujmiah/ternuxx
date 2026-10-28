@@ -427,7 +427,8 @@ PY
       sleep 1
     done
     if [ "$desktop_ready" -eq 1 ]; then
-      printf '%s %s ready on :0.\n' "$DISTRO_ID" "$DESKTOP_ID"
+      printf 'PRoot GUI is ready: guest=%s desktop=%s display=:0 (shell, window manager, panel, and desktop checks passed).\n' "$DISTRO_ID" "$DESKTOP_ID"
+      echo "The session is detached from this shell; use 'tx pgui status' to inspect it or 'tx pgui stop' to close it."
     else
       missing="$(python3 -c 'import json,sys; print(", ".join(json.load(sys.stdin).get("desktop_readiness",{}).get("missing_processes",[])))' <<<"$report" 2>/dev/null || true)"
       echo "The managed session group is live, but $DESKTOP_ID desktop readiness is incomplete${missing:+; missing $missing}. The session was left running; inspect with 'tx pgui status' and do not infer a usable desktop." >&2

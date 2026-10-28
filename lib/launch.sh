@@ -46,6 +46,7 @@ nt_cmd_gui_monitor() {
 
 nt_cmd_gui() {
   local action="${1:-open}"
+  local activity_already_requested=0
   [ $# -eq 0 ] || shift
   if [ "$action" = "monitor" ]; then nt_cmd_gui_monitor "$@"; return $?; fi
   case "$action" in
@@ -59,11 +60,16 @@ nt_cmd_gui() {
         running) ;;
         stopped|stale)
           nt_info "The Native desktop is $lifecycle; starting it so the GUI center has a verified display."
-          nt_cmd_start || return $? ;;
+          nt_cmd_start || return $?
+          activity_already_requested=1 ;;
         *) nt_fail "Native desktop state is $lifecycle; inspect 'tx status' before opening the GUI center."; return 1 ;;
       esac
       _nt_use management || return 1
-      nt_cmd_management center
+      if [ "$activity_already_requested" -eq 1 ]; then
+        TERNUXX_SKIP_X11_ACTIVITY_REQUEST=1 nt_cmd_management center
+      else
+        nt_cmd_management center
+      fi
       ;;
     start|stop|restart|status)
       # Preserve the historical explicit desktop lifecycle subcommands.

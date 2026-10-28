@@ -174,9 +174,12 @@ nt_cmd_management() {
             return 1
           }
           [ -x "$app" ] || { nt_fail "GTK management client is not installed; run 'tx mng center install'."; return 1; }
-          _nt_request_termux_x11_activity || nt_warn "Could not foreground the Native Termux:X11 window; open Termux:X11 manually."
+          if [ "${TERNUXX_SKIP_X11_ACTIVITY_REQUEST:-0}" != 1 ]; then
+            _nt_request_termux_x11_activity || nt_warn "Could not foreground the Native Termux:X11 window; open Termux:X11 manually."
+          fi
           _nt_use audio || return 1
           nt_audio_ensure || true
+          nt_info "Opening the GTK management center in the foreground; this command waits while its window is open. Ctrl+C closes the center, but leaves the Native desktop running; use 'tx stop' to stop the desktop."
           DISPLAY="$selected_display" "$app"
           ;;
         --help|-h) nt_help management ;;
