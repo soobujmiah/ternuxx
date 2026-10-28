@@ -40,6 +40,8 @@ def status(*, home: str, state_dir: str | None = None) -> dict[str, str]:
 def select(backend: str, *, home: str, state_dir: str | None = None) -> dict[str, object]:
     if backend not in VALID:
         raise ValueError("PRoot backend must be cpu or zink")
+    if backend == "zink" and not os.access("/dev/kgsl-3d0", os.R_OK):
+        raise ValueError("PRoot Zink needs a readable KGSL device; keep or select CPU rendering")
     path = _path(home, state_dir, create=True)
     current = status(home=home, state_dir=state_dir)
     if current["backend"] == backend and current["source"] == "saved":

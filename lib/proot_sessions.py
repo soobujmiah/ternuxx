@@ -846,14 +846,18 @@ def _login_environment(marker: str, token: str,
     result[marker.split("=", 1)[0]] = token
     if (source.get("PREFIX") == "/data/data/com.termux/files/usr"
             and source.get("TERMUX_VERSION")):
+        import proot_graphics_selection
+        graphics = proot_graphics_selection.status(home=source.get("HOME", str(Path.home())),
+            state_dir=source.get("TERNUXX_STATE_DIR"))
         result.update({"DISPLAY": source.get("DISPLAY") or ":1",
                        "PULSE_SERVER": "tcp:127.0.0.1:4713",
-                       "PULSE_COOKIE": "/tmp/.ternuxx-pulse-cookie",
-                       "GALLIUM_DRIVER": "zink",
-                       "MESA_LOADER_DRIVER_OVERRIDE": "zink",
-                       "TU_DEBUG": "sysmem,noconform",
-                       "MESA_VK_WSI_DEBUG": "sw",
-                       "MESA_SHADER_CACHE_DISABLE": "true"})
+                       "PULSE_COOKIE": "/tmp/.ternuxx-pulse-cookie"})
+        if graphics["backend"] == "zink":
+            result.update({"GALLIUM_DRIVER": "zink", "MESA_LOADER_DRIVER_OVERRIDE": "zink",
+                           "TU_DEBUG": "sysmem,noconform", "MESA_VK_WSI_DEBUG": "sw",
+                           "MESA_SHADER_CACHE_DISABLE": "true"})
+        else:
+            result["LIBGL_ALWAYS_SOFTWARE"] = "true"
     return result
 
 
@@ -863,13 +867,17 @@ def _native_pulse_login_args(source: dict[str, str] | None = None) -> list[str]:
             or not source.get("TERMUX_VERSION")):
         return []
     cookie = Path(source.get("HOME", str(Path.home()))) / ".config/pulse/cookie"
+    import proot_graphics_selection
+    graphics = proot_graphics_selection.status(home=source.get("HOME", str(Path.home())),
+        state_dir=source.get("TERNUXX_STATE_DIR"))
     args = ["--env", "DISPLAY=" + (source.get("DISPLAY") or ":1"),
-            "--env", "PULSE_SERVER=tcp:127.0.0.1:4713",
-            "--env", "GALLIUM_DRIVER=zink",
-            "--env", "MESA_LOADER_DRIVER_OVERRIDE=zink",
-            "--env", "TU_DEBUG=sysmem,noconform",
-            "--env", "MESA_VK_WSI_DEBUG=sw",
-            "--env", "MESA_SHADER_CACHE_DISABLE=true"]
+            "--env", "PULSE_SERVER=tcp:127.0.0.1:4713"]
+    if graphics["backend"] == "zink":
+        args.extend(["--env", "GALLIUM_DRIVER=zink", "--env", "MESA_LOADER_DRIVER_OVERRIDE=zink",
+                     "--env", "TU_DEBUG=sysmem,noconform", "--env", "MESA_VK_WSI_DEBUG=sw",
+                     "--env", "MESA_SHADER_CACHE_DISABLE=true"])
+    else:
+        args.extend(["--env", "LIBGL_ALWAYS_SOFTWARE=true"])
     try:
         info = cookie.lstat()
         if (stat.S_ISREG(info.st_mode) and info.st_uid == os.getuid()

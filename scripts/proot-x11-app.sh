@@ -133,4 +133,10 @@ pulse_cookie="$(PYTHONPATH="$ROOT/lib" python3 -c 'import proot_diagnostics; p=p
 if [ -n "$pulse_cookie" ]; then
   pulse_args+=(--bind "$pulse_cookie:/tmp/.ternuxx-pulse-cookie" --env PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie)
 fi
-exec "${PROOT_ENV[@]}" proot-distro login debian --shared-tmp "${binds[@]}" "${pulse_args[@]}" --user "$GUEST_USER" --env "DISPLAY=$DISPLAY_VALUE" --env PULSE_SERVER=tcp:127.0.0.1:4713 --env MESA_LOADER_DRIVER_OVERRIDE=zink --env GALLIUM_DRIVER=zink --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw --env MESA_SHADER_CACHE_DISABLE=true --env QT_X11_NO_MITSHM=1 -- "$@"
+graphics_backend="$(PYTHONPATH="$ROOT/lib" python3 -m proot_graphics_selection status | python3 -c 'import json,sys; print(json.load(sys.stdin)["backend"])')" || { echo "Saved PRoot graphics preference is invalid." >&2; exit 1; }
+render_args=()
+if [ "$graphics_backend" = zink ]; then
+  [ -r /dev/kgsl-3d0 ] || { echo "Saved PRoot Zink preference needs readable KGSL; select CPU with tx install gpu." >&2; exit 1; }
+  render_args+=(--env MESA_LOADER_DRIVER_OVERRIDE=zink --env GALLIUM_DRIVER=zink --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw)
+else render_args+=(--env LIBGL_ALWAYS_SOFTWARE=true); fi
+exec "${PROOT_ENV[@]}" proot-distro login debian --shared-tmp "${binds[@]}" "${pulse_args[@]}" --user "$GUEST_USER" --env "DISPLAY=$DISPLAY_VALUE" --env PULSE_SERVER=tcp:127.0.0.1:4713 "${render_args[@]}" --env MESA_SHADER_CACHE_DISABLE=true --env QT_X11_NO_MITSHM=1 -- "$@"

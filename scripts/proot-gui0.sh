@@ -219,6 +219,12 @@ if selected not in proot_desktops.catalog(profile, route=route):
     raise SystemExit(2)
 PYROUTE
     if [ "$MODE" = nested ]; then
+      GRAPHICS_BACKEND="$(PYTHONPATH="$ROOT/lib" python3 -m proot_graphics_selection status | python3 -c 'import json,sys; print(json.load(sys.stdin)["backend"])')" || { echo "Saved PRoot graphics preference is invalid." >&2; exit 1; }
+      render_env=()
+      if [ "$GRAPHICS_BACKEND" = zink ]; then
+        [ -r /dev/kgsl-3d0 ] || { echo "Saved PRoot Zink preference needs readable KGSL; select CPU with tx install gpu." >&2; exit 1; }
+        render_env+=(GALLIUM_DRIVER=zink MESA_LOADER_DRIVER_OVERRIDE=zink TU_DEBUG=sysmem,noconform MESA_VK_WSI_DEBUG=sw)
+      else render_env+=(LIBGL_ALWAYS_SOFTWARE=true); fi
       [ "$native_state" = running ] || { echo "Nested PRoot GUI requires the verified Native desktop to be running." >&2; exit 1; }
       native_display="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("display",""))' <<<"$native_report")"
       [ "$native_display" = :1 ] || { echo "Nested PRoot GUI currently requires Native display :1; found $native_display." >&2; exit 1; }
@@ -328,14 +334,12 @@ GUEST
       args=(login "$DISTRO_ID" --shared-tmp --user "$guest_user"
         --bind "$cookie:/tmp/.ternuxx-pulse-cookie"
         --env DISPLAY=:1 --env TERNUXX_PROOT_ALIAS="$DISTRO_ID" --env TERNUXX_DESKTOP_ID="$DESKTOP_ID" --env TERNUXX_DESKTOP_SESSION="$DESKTOP_SESSION" --env TERNUXX_REPO_ROOT="$ROOT" --env PULSE_SERVER=tcp:127.0.0.1:4713 --env PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie
-        --env GALLIUM_DRIVER=zink --env MESA_LOADER_DRIVER_OVERRIDE=zink
-        --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw
         --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M
         --env QT_X11_NO_MITSHM=1 --env LANG=en_US.UTF-8 --env LC_ALL=en_US.UTF-8)
+      for renderer_var in "${render_env[@]}"; do args+=(--env "$renderer_var"); done
       [ ! -c /dev/kgsl-3d0 ] || args+=(--bind /dev/kgsl-3d0:/dev/kgsl)
       [ ! -d /dev/dri ] || args+=(--bind /dev/dri)
-      args+=(-- /usr/bin/env DISPLAY=:1 TERNUXX_PROOT_ALIAS="$DISTRO_ID" PULSE_SERVER=tcp:127.0.0.1:4713 PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie
-        GALLIUM_DRIVER=zink MESA_LOADER_DRIVER_OVERRIDE=zink TU_DEBUG=sysmem,noconform MESA_VK_WSI_DEBUG=sw
+      args+=(-- /usr/bin/env "${render_env[@]}" DISPLAY=:1 TERNUXX_PROOT_ALIAS="$DISTRO_ID" PULSE_SERVER=tcp:127.0.0.1:4713 PULSE_COOKIE=/tmp/.ternuxx-pulse-cookie
         MESA_DISK_CACHE_SINGLE_FILE=1 MESA_SHADER_CACHE_MAX_SIZE=2048M QT_X11_NO_MITSHM=1 LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8
         /bin/bash -c "$guest_script")
       printf "Starting %s %s nested in Native :1 through Xephyr :2 at Native display geometry. It appears inside the existing Native Termux:X11 window; no second X11 window is opened. Use Termux:X11 fullscreen/orientation controls; the Xephyr host window is resizable. Press Ctrl-C in this terminal to close only the nested desktop.\n" "$DISTRO_ID" "$DESKTOP_ID"
