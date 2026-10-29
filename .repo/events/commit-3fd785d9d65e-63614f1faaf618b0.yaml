@@ -1,0 +1,7 @@
+event_id: commit-3fd785d9d65e-63614f1faaf618b0
+repository: soobujmiah/ternuxx
+commit: 3fd785d9d65e5a77e53d7da18147d6679fe216c6
+kind: commit
+occurred_at: '2026-10-29T22:34:55Z'
+status: completed
+summary: 'feat(p12): route local inference by accelerator priority'
