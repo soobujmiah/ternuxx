@@ -214,10 +214,10 @@ features:
     implementation_status: PARTIAL
     commercial_class: FREE_CORE
     runtime: Termux-package-manager-owned-llama-cpp
-    dependencies: [Termux llama-cpp 0.7.0 candidate, pinned Qwen3-0.6B Q4_0 Apache-2.0 model]
+    dependencies: [Termux llama-cpp 0.7.0 candidate, pinned Qwen2.5-1.5B Q4_K_M Apache-2.0 model]
     validation_status: PARTIAL
     qualification: WORKLOAD_VERIFIED
-    evidence: [CPU-BASELINE.md, ../evidence/2026-10-24-native-cpu-inference-candidate-audit.md, ../evidence/2026-10-24-native-cpu-inference-workflow.md, reports/2026-10-24-native-profile-25053RT47C.md, ../../lib/cpu_inference.py, ../../tests/test_cpu_inference.py]
+    evidence: [../evidence/2026-10-30-p12-cpu-qualification.json, CPU-BASELINE.md, ../evidence/2026-10-24-native-cpu-inference-candidate-audit.md, ../evidence/2026-10-24-native-cpu-inference-workflow.md, reports/2026-10-24-native-profile-25053RT47C.md, ../../lib/cpu_inference.py, ../../tests/test_cpu_inference.py]
     release_qualified: false
     limitations: [One pinned model and bounded foreground workload; the Termux runtime package remains Termux-managed; the observed mirror and package are device-local candidates; clean-install replay, long-run thermal/memory stability, streaming, model quality, and network-isolated offline execution are unqualified.]
     next_action: Run a longer monitored correctness, memory, and thermal qualification; verify offline inference under actual network isolation; keep CPU-only support bounds explicit and retain third-party/provenance review before release.
@@ -232,9 +232,9 @@ features:
     dependencies: [Termux llama-cpp 0.7.0, installed llama-cpp-backend-vulkan 0.7.0, selected experimental Adreno 825 Vulkan ICD]
     validation_status: PARTIAL
     qualification: WORKLOAD_VERIFIED
-    evidence: [GPU-ACCELERATION.md, ../evidence/2026-10-24-native-acceleration-live-check.md, ../evidence/2026-10-24-p12-complete-offload-gate.md, reports/2026-10-24-native-profile-25053RT47C.md, ../../lib/cpu_inference.py, ../../tests/test_cpu_inference.py, ../../tests/test_management_service.py]
+    evidence: [../evidence/2026-10-30-p12-vulkan-qualification.json, GPU-ACCELERATION.md, ../evidence/2026-10-24-native-acceleration-live-check.md, ../evidence/2026-10-24-p12-complete-offload-gate.md, reports/2026-10-24-native-profile-25053RT47C.md, ../../lib/cpu_inference.py, ../../tests/test_cpu_inference.py, ../../tests/test_management_service.py]
     release_qualified: false
-    limitations: [The managed Ternuxx API selects only pinned Qwen3 0.6B; three owner-provided LAI GGUFs were separately tested through direct Termux llama-cli and do not add model selection to the API. All bounded runs reported 29/29 Vulkan layer offload with the installed Termux backend and selected experimental Mesa/Freedreno ICD. This does not qualify sustained thermals, clean-device installation, or general workload performance. The OpenCL backend reports no platforms.]
+    limitations: [The managed Ternuxx API now pins Qwen2.5 1.5B Q4_K_M (1,117,320,736 bytes, Apache-2.0); the exact variant is downloaded and hash-verified; the first Vulkan call passed 29/29 layers, while a repeat was cancelled at CPU 60.4°C; the CPU call was cancelled at 61.2°C. Neither path is repeat-qualified (2026-10-30 P12 reports). Earlier bounded runs on the former Qwen3 0.6B model reported 29/29 Vulkan layer offload. Three owner-provided LAI GGUFs were separately tested through direct Termux llama-cli and do not add model selection to the API. Sustained thermals, clean-device installation, and general workload performance remain unqualified. The OpenCL backend reports no platforms.]
     next_action: Complete longer correctness, memory, and thermal checks; qualify clean installation and provenance for the experimental graphics ICD.
     owner_decision_required: false
 
@@ -244,11 +244,11 @@ features:
     implementation_status: PARTIAL
     commercial_class: NOT_READY
     runtime: Ternuxx-pinned-llama.cpp-Snapdragon-b11849-HVX-only-HTP0
-    dependencies: [SM8735, pinned llama.cpp b11849 Snapdragon artifact, pinned Qwen3 0.6B Q4_0 model]
+    dependencies: [SM8735, pinned llama.cpp b11849 Snapdragon artifact, pinned Qwen2.5 1.5B Q4_K_M model]
     validation_status: PARTIAL
     qualification: WORKLOAD_VERIFIED
-    evidence: [NPU-ACCELERATION.md, ../evidence/2026-10-24-native-acceleration-live-check.md, ../evidence/2026-10-24-p12-ternux-htp-path-review.md, ../evidence/2026-10-24-p12-htp-runtime-integrity-followup.md, ../evidence/2026-10-24-p12-complete-offload-gate.md, ../../lib/npu_inference.py, ../../tests/test_npu_inference.py, ../../tests/test_management_service.py]
+    evidence: [../evidence/2026-10-30-p12-htp-repeat-qualification.json, ../evidence/2026-10-30-p12-htp-qualification.json, NPU-ACCELERATION.md, ../evidence/2026-10-24-native-acceleration-live-check.md, ../evidence/2026-10-24-p12-ternux-htp-path-review.md, ../evidence/2026-10-24-p12-htp-runtime-integrity-followup.md, ../evidence/2026-10-24-p12-complete-offload-gate.md, ../../lib/npu_inference.py, ../../tests/test_npu_inference.py, ../../tests/test_management_service.py]
     release_qualified: false
-    limitations: ["Ternuxx installs only selected files from the SHA-256-pinned MIT release into private HOME state and injects a fixed child-process loader/DSP environment without copying system/vendor libraries. The managed operation accepts only the pinned Qwen3 0.6B model; a separate direct-runtime Qwen2.5 1.5B reference check does not add API model selection. SM8735-only experimental HTP inference passes repeated short known-answer runs with full layer offload and clean cancellation/restart, but is slower than CPU on tested prompts; sustained thermals, memory pressure, broader model/operator correctness, and clean-device runtime acquisition remain unqualified. CPU fallback is disabled."]
+    limitations: ["Ternuxx installs only selected files from the SHA-256-pinned MIT release into private HOME state and injects a fixed child-process loader/DSP environment without copying system/vendor libraries. The managed operation now pins Qwen2.5 1.5B Q4_K_M, and this exact 1.117 GB variant is downloaded and hash-verified; one HTP call passed 29/29 layers, but a second call was cancelled at HTP 61.0°C. It is not repeat or thermal qualified (2026-10-30 P12 reports). Earlier direct-runtime Qwen2.5 1.5B Q4_0 checks and managed Qwen3 0.6B runs passed short known-answer HTP tests with full layer offload; both tested variants were slower than CPU on short prompts. Sustained thermals, memory pressure, model/operator coverage, and clean-device runtime acquisition remain unqualified. CPU fallback is disabled."]
     next_action: Complete controlled repeated CPU/HTP correctness, memory, and thermal qualification; retain explicit experimental labeling unless performance and stability evidence supports broader use.
     owner_decision_required: false

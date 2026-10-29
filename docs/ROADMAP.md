@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Run CI for the runtime-selection follow-up. After green CI, verify a fresh Native install and qualify a supported 1–2 GB chat model on CPU, Vulkan and the Ternuxx HTP candidate after fresh guarded thermal preflights.
+**Next action:** Thermal headroom is a device gate: repeat guarded CPU/Vulkan/HTP qualification only when samples support it; no overrides. Complete exact-output/model/runtime-integrity evidence, clean-install replay, and runtime/artifact licensing/provenance before any release decision.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

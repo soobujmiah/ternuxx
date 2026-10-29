@@ -33,11 +33,11 @@ class ModelSpec:
 
 
 MODEL = ModelSpec(
-    model_id="qwen3-0.6b-q4_0",
-    filename="Qwen3-0.6B-Q4_0.gguf",
-    url="https://huggingface.co/ggml-org/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q4_0.gguf",
-    size_bytes=428_970_080,
-    sha256="da2572f16c06133561ce56accaa822216f2391ef4d37fba427801cd6736417d4",
+    model_id="qwen2.5-1.5b-instruct-q4_k_m",
+    filename="qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    url="https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    size_bytes=1_117_320_736,
+    sha256="6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
     license="Apache-2.0",
 )
 MAX_PROMPT_BYTES = 4096

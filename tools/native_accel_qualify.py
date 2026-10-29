@@ -347,7 +347,8 @@ def run(args: argparse.Namespace) -> int:
             "minimum_memavailable_kib": peak_memavailable, "thermal_samples": samples,
             "before": before, "after": after, "new_llama_cli_pids_remaining": new_pids}
         if data:
-            row["result"] = {k: v for k, v in data.items() if k != "output"}
+            # Fixed arithmetic prompts are safe to retain as auditable test evidence.
+            row["result"] = dict(data)
             row["output_words"] = len(str(data.get("output", "")).split())
             row["answer_verified"] = status == "passed"
         if error:

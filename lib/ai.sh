@@ -127,7 +127,7 @@ nt_cmd_ai() {
         return 0
       fi
       if [ -t 0 ]; then
-        read -r -p 'Review and download the pinned Qwen3 0.6B CPU model? [y/N] ' answer || return 2
+        read -r -p 'Review and download the pinned Qwen2.5 1.5B CPU model? [y/N] ' answer || return 2
         case "$answer" in y|Y|yes|YES) nt_cmd_ai model install || return $? ;; *) return 0 ;; esac
         read -r -p 'Run a local prompt using HTP0, then Vulkan, then CPU fallback? [y/N] ' answer || return 2
         case "$answer" in y|Y|yes|YES) nt_cmd_ai run ;; *) return 0 ;; esac

@@ -1833,7 +1833,7 @@ def _run(screen: "curses._CursesWindow") -> int:
                     prompt = _prompt(screen, "One-line local prompt (max 4096 UTF-8 bytes)")
                     if prompt:
                         _show_details(screen, {"ok": True, "data": {
-                            "backend": "CPU", "model_id": "qwen3-0.6b-q4_0",
+                            "backend": "CPU", "model_id": "qwen2.5-1.5b-instruct-q4_k_m",
                             "max_output_tokens": 64, "resource_limit": "4 CPU threads, 512-token context"}})
                         if _prompt(screen, "Run this prompt locally? type RUN").strip() == "RUN":
                             report = _call("inference.cpu.run", {"prompt": prompt, "max_tokens": 64})

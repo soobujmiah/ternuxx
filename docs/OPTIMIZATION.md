@@ -4,7 +4,7 @@ Ternuxx does not currently provide named `efficiency`, `balanced`, `sustained`, 
 
 The implemented graphics controls are narrower: Native graphics diagnostics, API-specific bounded render checks, Native backend selection for future desktop starts, and a verified software-rendering fallback. Current results and their exact limits are in the [Native graphics report](testing/GPU-ACCELERATION.md). A renderer result from an off-screen test is not an application FPS or battery claim.
 
-Local AI inference is implemented through bounded CPU and Vulkan routes plus an experimental SM8735 HTP route. The managed workflow currently accepts only the pinned Qwen3 0.6B model; LAI GGUF runs are separate direct-runtime compatibility probes, not model-catalog support. See the [CPU baseline](testing/CPU-BASELINE.md), [GPU qualification](testing/GPU-ACCELERATION.md), and [NPU qualification](testing/NPU-ACCELERATION.md).
+Local AI inference is implemented through bounded CPU and Vulkan routes plus an experimental SM8735 HTP route. The managed workflow currently pins one Qwen2.5 1.5B Q4_K_M model; broader model catalog support is not implemented, and this exact artifact remains unqualified. See the [CPU baseline](testing/CPU-BASELINE.md), [GPU qualification](testing/GPU-ACCELERATION.md), and [NPU qualification](testing/NPU-ACCELERATION.md).
 
 ## Safe qualification standard
 

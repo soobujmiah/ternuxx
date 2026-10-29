@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-29T23:01:42.478540+00:00",
+  "platform": {
+    "system": "Android",
+    "release": "16",
+    "machine": "aarch64",
+    "prefix": "/data/data/com.termux/files/usr"
+  },
+  "provider": "native-termux",
+  "backend": "cpu",
+  "prompt_suite_id": "arithmetic-operators-v1",
+  "scheduled_case_ids": [
+    "addition-2-plus-2-v1",
+    "subtraction-9-minus-4-v1",
+    "multiplication-3-times-2-v1"
+  ],
+  "max_tokens": 8,
+  "guards": {
+    "cpu": 60,
+    "gpu": 60,
+    "htp": 60,
+    "battery": 45,
+    "socd": 70,
+    "minimum_memavailable_mib": 2048,
+    "note": "Conservative test guards selected for this run; not OEM-rated limits."
+  },
+  "thermal_limits_ignored": false,
+  "preflight": {
+    "cpu": 52.8,
+    "gpu": 44.8,
+    "htp": 45.9,
+    "battery": 42.33,
+    "socd": 20.0,
+    "memavailable_kib": 5776612
+  },
+  "completed_runs": 0,
+  "requested_runs": 3,
+  "runs": [
+    {
+      "run": 1,
+      "case_id": "addition-2-plus-2-v1",
+      "status": "guard_cancelled",
+      "elapsed_seconds": 4.497,
+      "exit_code": 1,
+      "peak_llama_cli_rss_kib": 1186356,
+      "minimum_memavailable_kib": 5660520,
+      "thermal_samples": [
+        {
+          "cpu": 47.7,
+          "gpu": 44.8,
+          "htp": 45.1,
+          "battery": 42.34,
+          "socd": 20.0,
+          "memavailable_kib": 5774864
+        },
+        {
+          "cpu": 53.6,
+          "gpu": 45.1,
+          "htp": 46.7,
+          "battery": 42.33,
+          "socd": 20.0,
+          "memavailable_kib": 5740404
+        },
+        {
+          "cpu": 53.6,
+          "gpu": 45.5,
+          "htp": 46.7,
+          "battery": 42.33,
+          "socd": 20.0,
+          "memavailable_kib": 5736904
+        },
+        {
+          "cpu": 54.8,
+          "gpu": 45.9,
+          "htp": 47.9,
+          "battery": 42.33,
+          "socd": 20.0,
+          "memavailable_kib": 5738652
+        },
+        {
+          "cpu": 55.2,
+          "gpu": 45.9,
+          "htp": 47.9,
+          "battery": 42.33,
+          "socd": 20.0,
+          "memavailable_kib": 5740508
+        },
+        {
+          "cpu": 57.6,
+          "gpu": 46.3,
+          "htp": 48.7,
+          "battery": 42.35,
+          "socd": 20.0,
+          "memavailable_kib": 5733848
+        },
+        {
+          "cpu": 56.0,
+          "gpu": 47.1,
+          "htp": 49.5,
+          "battery": 42.34,
+          "socd": 20.0,
+          "memavailable_kib": 5682540
+        },
+        {
+          "cpu": 57.2,
+          "gpu": 47.1,
+          "htp": 50.3,
+          "battery": 42.35,
+          "socd": 20.0,
+          "memavailable_kib": 5682404
+        },
+        {
+          "cpu": 58.8,
+          "gpu": 46.7,
+          "htp": 49.9,
+          "battery": 42.35,
+          "socd": 20.0,
+          "memavailable_kib": 5664804
+        },
+        {
+          "cpu": 61.2,
+          "gpu": 47.5,
+          "htp": 49.9,
+          "battery": 42.35,
+          "socd": 20.0,
+          "memavailable_kib": 5660520
+        }
+      ],
+      "before": {
+        "cpu": 48.8,
+        "gpu": 44.8,
+        "htp": 45.5,
+        "battery": 42.33,
+        "socd": 20.0,
+        "memavailable_kib": 5776376
+      },
+      "after": {
+        "cpu": 58.1,
+        "gpu": 50.3,
+        "htp": 53.1,
+        "battery": 42.39,
+        "socd": 20.0,
+        "memavailable_kib": 5776624
+      },
+      "new_llama_cli_pids_remaining": [],
+      "error": "cpu=61.2 C reached guard 60 C"
+    }
+  ],
+  "ok": false
+}

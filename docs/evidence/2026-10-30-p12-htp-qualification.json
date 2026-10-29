@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-29T23:05:36.469002+00:00",
+  "platform": {
+    "system": "Android",
+    "release": "16",
+    "machine": "aarch64",
+    "prefix": "/data/data/com.termux/files/usr"
+  },
+  "provider": "native-termux",
+  "backend": "npu",
+  "prompt_suite_id": "arithmetic-operators-v1",
+  "scheduled_case_ids": [
+    "addition-2-plus-2-v1"
+  ],
+  "max_tokens": 8,
+  "guards": {
+    "cpu": 60,
+    "gpu": 60,
+    "htp": 60,
+    "battery": 45,
+    "socd": 70,
+    "minimum_memavailable_mib": 2048,
+    "note": "Conservative test guards selected for this run; not OEM-rated limits."
+  },
+  "thermal_limits_ignored": false,
+  "preflight": {
+    "cpu": 52.0,
+    "gpu": 44.0,
+    "htp": 44.8,
+    "battery": 42.05,
+    "socd": 21.0,
+    "memavailable_kib": 5778620
+  },
+  "completed_runs": 1,
+  "requested_runs": 1,
+  "runs": [
+    {
+      "run": 1,
+      "case_id": "addition-2-plus-2-v1",
+      "status": "passed",
+      "elapsed_seconds": 7.259,
+      "exit_code": 0,
+      "peak_llama_cli_rss_kib": 283112,
+      "minimum_memavailable_kib": 4402676,
+      "thermal_samples": [
+        {
+          "cpu": 47.7,
+          "gpu": 44.4,
+          "htp": 45.1,
+          "battery": 42.07,
+          "socd": 21.0,
+          "memavailable_kib": 5775864
+        },
+        {
+          "cpu": 52.8,
+          "gpu": 44.4,
+          "htp": 46.3,
+          "battery": 42.05,
+          "socd": 21.0,
+          "memavailable_kib": 5737768
+        },
+        {
+          "cpu": 52.4,
+          "gpu": 45.1,
+          "htp": 46.3,
+          "battery": 42.05,
+          "socd": 21.0,
+          "memavailable_kib": 5743200
+        },
+        {
+          "cpu": 54.8,
+          "gpu": 45.5,
+          "htp": 47.1,
+          "battery": 42.05,
+          "socd": 21.0,
+          "memavailable_kib": 5743272
+        },
+        {
+          "cpu": 54.0,
+          "gpu": 45.5,
+          "htp": 47.9,
+          "battery": 42.04,
+          "socd": 21.0,
+          "memavailable_kib": 5745068
+        },
+        {
+          "cpu": 53.6,
+          "gpu": 45.9,
+          "htp": 47.9,
+          "battery": 42.05,
+          "socd": 21.0,
+          "memavailable_kib": 5744620
+        },
+        {
+          "cpu": 54.4,
+          "gpu": 46.3,
+          "htp": 47.9,
+          "battery": 42.05,
+          "socd": 21.0,
+          "memavailable_kib": 5744820
+        },
+        {
+          "cpu": 54.4,
+          "gpu": 46.3,
+          "htp": 48.3,
+          "battery": 42.05,
+          "socd": 21.0,
+          "memavailable_kib": 5744820
+        },
+        {
+          "cpu": 55.6,
+          "gpu": 46.7,
+          "htp": 48.7,
+          "battery": 42.07,
+          "socd": 21.0,
+          "memavailable_kib": 5743560
+        },
+        {
+          "cpu": 57.2,
+          "gpu": 46.7,
+          "htp": 49.1,
+          "battery": 42.06,
+          "socd": 21.0,
+          "memavailable_kib": 5690424
+        },
+        {
+          "cpu": 59.6,
+          "gpu": 47.5,
+          "htp": 49.9,
+          "battery": 42.06,
+          "socd": 21.0,
+          "memavailable_kib": 5673068
+        },
+        {
+          "cpu": 58.8,
+          "gpu": 47.5,
+          "htp": 50.7,
+          "battery": 42.07,
+          "socd": 21.0,
+          "memavailable_kib": 4967368
+        },
+        {
+          "cpu": 57.3,
+          "gpu": 47.9,
+          "htp": 51.5,
+          "battery": 42.06,
+          "socd": 21.0,
+          "memavailable_kib": 4413228
+        },
+        {
+          "cpu": 58.4,
+          "gpu": 48.7,
+          "htp": 51.5,
+          "battery": 42.07,
+          "socd": 21.0,
+          "memavailable_kib": 4590800
+        },
+        {
+          "cpu": 54.5,
+          "gpu": 49.1,
+          "htp": 51.1,
+          "battery": 42.09,
+          "socd": 21.0,
+          "memavailable_kib": 4592420
+        },
+        {
+          "cpu": 54.9,
+          "gpu": 49.5,
+          "htp": 50.7,
+          "battery": 42.1,
+          "socd": 21.0,
+          "memavailable_kib": 4588224
+        },
+        {
+          "cpu": 54.5,
+          "gpu": 49.5,
+          "htp": 50.7,
+          "battery": 42.1,
+          "socd": 21.0,
+          "memavailable_kib": 4587508
+        },
+        {
+          "cpu": 54.5,
+          "gpu": 49.5,
+          "htp": 54.7,
+          "battery": 42.1,
+          "socd": 21.0,
+          "memavailable_kib": 4406368
+        },
+        {
+          "cpu": 54.1,
+          "gpu": 49.5,
+          "htp": 58.2,
+          "battery": 42.12,
+          "socd": 21.0,
+          "memavailable_kib": 4403636
+        },
+        {
+          "cpu": 53.3,
+          "gpu": 49.5,
+          "htp": 59.0,
+          "battery": 42.13,
+          "socd": 21.0,
+          "memavailable_kib": 4403384
+        },
+        {
+          "cpu": 53.2,
+          "gpu": 49.5,
+          "htp": 59.0,
+          "battery": 42.15,
+          "socd": 21.0,
+          "memavailable_kib": 4405188
+        },
+        {
+          "cpu": 53.7,
+          "gpu": 49.5,
+          "htp": 59.0,
+          "battery": 42.15,
+          "socd": 21.0,
+          "memavailable_kib": 4402676
+        },
+        {
+          "cpu": 58.8,
+          "gpu": 49.5,
+          "htp": 52.3,
+          "battery": 42.17,
+          "socd": 21.0,
+          "memavailable_kib": 5772424
+        }
+      ],
+      "before": {
+        "cpu": 49.2,
+        "gpu": 44.0,
+        "htp": 45.1,
+        "battery": 42.05,
+        "socd": 21.0,
+        "memavailable_kib": 5778116
+      },
+      "after": {
+        "cpu": 51.3,
+        "gpu": 48.7,
+        "htp": 49.5,
+        "battery": 42.19,
+        "socd": 21.0,
+        "memavailable_kib": 5800376
+      },
+      "new_llama_cli_pids_remaining": [],
+      "result": {
+        "backend": "Hexagon HTP",
+        "device_id": "HTP0",
+        "elapsed_seconds": 4.335,
+        "exit_code": 0,
+        "experimental": true,
+        "gpu_layers": 0,
+        "max_output_tokens": 8,
+        "model_id": "qwen2.5-1.5b-instruct-q4_k_m",
+        "npu_layers": 29,
+        "npu_model_buffer_mib": 1023.48,
+        "silent_fallback": false,
+        "total_layers": 29
+      },
+      "output_words": 1,
+      "answer_verified": true
+    }
+  ],
+  "ok": true
+}

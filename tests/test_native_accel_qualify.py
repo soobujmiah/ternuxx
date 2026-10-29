@@ -75,6 +75,7 @@ class NativeAccelQualificationTests(unittest.TestCase):
         passed, data, error = parse_result(json.dumps(good), "vulkan")
         self.assertTrue(passed)
         self.assertEqual(data["gpu_layers"], 29)
+        self.assertEqual(data["output"], "4")
         self.assertIsNone(error)
         partial = {"ok": True, "data": {"backend": "Vulkan", "gpu_layers": 28,
                    "gpu_total_layers": 29, "output": "4"}}

@@ -457,7 +457,7 @@ tx ai npu status — Check pinned HTP0 runtime and SM8735 availability
 tx ai npu runtime preview|apply — Preview or install the pinned experimental NPU runtime
 tx ai runtime preview [cpu|vulkan|opencl] — Run a read-only Termux apt simulation
 tx ai setup — Interactive runtime preflight, model preview, and optional CPU run
-tx ai model preview — Show the exact 429 MB download, checksum, license, and target
+tx ai model preview — Show the exact pinned model download size, checksum, license, and target
 tx ai model install — Preview first; type DOWNLOAD to install the pinned model
 tx ai model remove-preview / tx ai model remove — Preview, then type REMOVE
 tx ai run [--backend auto|cpu|vulkan|npu] [--device ID] [--max-tokens N] — Bounded local inference; auto prefers HTP0, then Vulkan, then CPU

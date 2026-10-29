@@ -21,11 +21,19 @@ class FakeResponse(io.BytesIO):
 
 
 class CpuInferenceTests(unittest.TestCase):
+    def test_product_model_pin_is_immutable_and_matches_the_requested_size_band(self):
+        spec = cpu_inference.MODEL
+        self.assertEqual(spec.model_id, "qwen2.5-1.5b-instruct-q4_k_m")
+        self.assertEqual(spec.size_bytes, 1_117_320_736)
+        self.assertEqual(spec.sha256, "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e")
+        self.assertEqual(spec.license, "Apache-2.0")
+        self.assertIn("/resolve/91cad51170dc346986eccefdc2dd33a9da36ead9/", spec.url)
+
     def test_cli_setup_guidance_is_english_and_keeps_runtime_package_owner_clear(self):
         source = (ROOT / "lib" / "ai.sh").read_text()
         self.assertIn("The llama-cpp runtime is missing.", source)
         self.assertIn("Ternuxx does not install packages.", source)
-        self.assertIn("Review and download the pinned Qwen3 0.6B CPU model?", source)
+        self.assertIn("Review and download the pinned Qwen2.5 1.5B CPU model?", source)
         self.assertNotRegex(source, "[\u0980-\u09ff]")
 
     def setUp(self):

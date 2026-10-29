@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Native AI runtime install multi-select is integrated into the preview-bound workstation plan: CPU/Vulkan use Termux packages and experimental HTP0 is installed only after approval. The exact HTP preview/apply barrier has coordinator coverage; all 1,356 repository tests pass. Clean-device acceptance and inference qualification remain open.
+The exact Qwen2.5 model and b11849 HTP path are verified; one HTP call passed, a repeated call crossed the thermal guard, and CPU/Vulkan also stopped under guards.
 
-**Next action:** Run CI for the runtime-selection follow-up. After green CI, verify a fresh Native install and qualify a supported 1–2 GB chat model on CPU, Vulkan and the Ternuxx HTP candidate after fresh guarded thermal preflights.
+**Next action:** Thermal headroom is a device gate: repeat guarded CPU/Vulkan/HTP qualification only when samples support it; no overrides. Complete exact-output/model/runtime-integrity evidence, clean-install replay, and runtime/artifact licensing/provenance before any release decision.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -172,3 +172,4 @@ Evidence:
 - [docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md](evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md)
 - [docs/evidence/2026-10-29-p12-auto-backend-routing.md](evidence/2026-10-29-p12-auto-backend-routing.md)
 - [docs/evidence/2026-10-29-p12-runtime-install-selection.md](evidence/2026-10-29-p12-runtime-install-selection.md)
+- [docs/evidence/2026-10-30-p12-native-qualification.md](evidence/2026-10-30-p12-native-qualification.md)

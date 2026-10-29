@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-29T23:03:47.169199+00:00",
+  "platform": {
+    "system": "Android",
+    "release": "16",
+    "machine": "aarch64",
+    "prefix": "/data/data/com.termux/files/usr"
+  },
+  "provider": "native-termux",
+  "backend": "vulkan",
+  "prompt_suite_id": "arithmetic-operators-v1",
+  "scheduled_case_ids": [
+    "addition-2-plus-2-v1",
+    "subtraction-9-minus-4-v1",
+    "multiplication-3-times-2-v1"
+  ],
+  "max_tokens": 8,
+  "guards": {
+    "cpu": 60,
+    "gpu": 60,
+    "htp": 60,
+    "battery": 45,
+    "socd": 70,
+    "minimum_memavailable_mib": 2048,
+    "note": "Conservative test guards selected for this run; not OEM-rated limits."
+  },
+  "thermal_limits_ignored": false,
+  "preflight": {
+    "cpu": 52.4,
+    "gpu": 44.4,
+    "htp": 45.5,
+    "battery": 42.19,
+    "socd": 21.0,
+    "memavailable_kib": 5783008
+  },
+  "completed_runs": 1,
+  "requested_runs": 3,
+  "runs": [
+    {
+      "run": 1,
+      "case_id": "addition-2-plus-2-v1",
+      "status": "passed",
+      "elapsed_seconds": 5.05,
+      "exit_code": 0,
+      "peak_llama_cli_rss_kib": 271644,
+      "minimum_memavailable_kib": 4481728,
+      "thermal_samples": [
+        {
+          "cpu": 48.1,
+          "gpu": 44.4,
+          "htp": 45.1,
+          "battery": 42.18,
+          "socd": 21.0,
+          "memavailable_kib": 5779268
+        },
+        {
+          "cpu": 53.6,
+          "gpu": 44.8,
+          "htp": 47.1,
+          "battery": 42.19,
+          "socd": 21.0,
+          "memavailable_kib": 5744908
+        },
+        {
+          "cpu": 53.2,
+          "gpu": 45.1,
+          "htp": 46.7,
+          "battery": 42.19,
+          "socd": 21.0,
+          "memavailable_kib": 5745676
+        },
+        {
+          "cpu": 54.8,
+          "gpu": 45.1,
+          "htp": 47.9,
+          "battery": 42.17,
+          "socd": 21.0,
+          "memavailable_kib": 5743032
+        },
+        {
+          "cpu": 55.2,
+          "gpu": 45.9,
+          "htp": 48.3,
+          "battery": 42.19,
+          "socd": 21.0,
+          "memavailable_kib": 5747648
+        },
+        {
+          "cpu": 58.0,
+          "gpu": 45.9,
+          "htp": 48.7,
+          "battery": 42.19,
+          "socd": 21.0,
+          "memavailable_kib": 5746560
+        },
+        {
+          "cpu": 58.8,
+          "gpu": 46.3,
+          "htp": 49.5,
+          "battery": 42.19,
+          "socd": 21.0,
+          "memavailable_kib": 5710292
+        },
+        {
+          "cpu": 58.0,
+          "gpu": 46.7,
+          "htp": 49.5,
+          "battery": 42.2,
+          "socd": 21.0,
+          "memavailable_kib": 5689688
+        },
+        {
+          "cpu": 56.4,
+          "gpu": 47.1,
+          "htp": 49.9,
+          "battery": 42.19,
+          "socd": 21.0,
+          "memavailable_kib": 5680392
+        },
+        {
+          "cpu": 58.8,
+          "gpu": 47.5,
+          "htp": 50.7,
+          "battery": 42.19,
+          "socd": 21.0,
+          "memavailable_kib": 4602572
+        },
+        {
+          "cpu": 57.2,
+          "gpu": 48.3,
+          "htp": 51.1,
+          "battery": 42.21,
+          "socd": 21.0,
+          "memavailable_kib": 4601988
+        },
+        {
+          "cpu": 58.8,
+          "gpu": 49.1,
+          "htp": 51.5,
+          "battery": 42.21,
+          "socd": 21.0,
+          "memavailable_kib": 4505068
+        },
+        {
+          "cpu": 52.5,
+          "gpu": 48.7,
+          "htp": 49.1,
+          "battery": 42.21,
+          "socd": 21.0,
+          "memavailable_kib": 4502200
+        },
+        {
+          "cpu": 54.5,
+          "gpu": 51.1,
+          "htp": 50.3,
+          "battery": 42.21,
+          "socd": 21.0,
+          "memavailable_kib": 4482716
+        },
+        {
+          "cpu": 50.5,
+          "gpu": 53.5,
+          "htp": 48.7,
+          "battery": 42.23,
+          "socd": 21.0,
+          "memavailable_kib": 4482468
+        },
+        {
+          "cpu": 52.1,
+          "gpu": 53.9,
+          "htp": 48.7,
+          "battery": 42.23,
+          "socd": 21.0,
+          "memavailable_kib": 4481728
+        }
+      ],
+      "before": {
+        "cpu": 50.0,
+        "gpu": 44.4,
+        "htp": 45.1,
+        "battery": 42.19,
+        "socd": 21.0,
+        "memavailable_kib": 5782000
+      },
+      "after": {
+        "cpu": 51.3,
+        "gpu": 49.5,
+        "htp": 49.1,
+        "battery": 42.24,
+        "socd": 21.0,
+        "memavailable_kib": 5779824
+      },
+      "new_llama_cli_pids_remaining": [],
+      "result": {
+        "backend": "Vulkan",
+        "device_id": "Vulkan0",
+        "elapsed_seconds": 3.426,
+        "exit_code": 0,
+        "gpu_layers": 29,
+        "gpu_total_layers": 29,
+        "max_output_tokens": 8,
+        "model_id": "qwen2.5-1.5b-instruct-q4_k_m"
+      },
+      "output_words": 1,
+      "answer_verified": true
+    },
+    {
+      "run": 2,
+      "case_id": "subtraction-9-minus-4-v1",
+      "status": "guard_cancelled",
+      "elapsed_seconds": 6.015,
+      "exit_code": 1,
+      "peak_llama_cli_rss_kib": 93172,
+      "minimum_memavailable_kib": 5680200,
+      "thermal_samples": [
+        {
+          "cpu": 47.7,
+          "gpu": 44.8,
+          "htp": 44.4,
+          "battery": 42.51,
+          "socd": 21.0,
+          "memavailable_kib": 5774804
+        },
+        {
+          "cpu": 51.2,
+          "gpu": 44.8,
+          "htp": 46.3,
+          "battery": 42.51,
+          "socd": 21.0,
+          "memavailable_kib": 5737244
+        },
+        {
+          "cpu": 53.6,
+          "gpu": 45.1,
+          "htp": 47.5,
+          "battery": 42.51,
+          "socd": 21.0,
+          "memavailable_kib": 5738964
+        },
+        {
+          "cpu": 53.2,
+          "gpu": 45.5,
+          "htp": 47.5,
+          "battery": 42.51,
+          "socd": 21.0,
+          "memavailable_kib": 5738968
+        },
+        {
+          "cpu": 53.2,
+          "gpu": 45.9,
+          "htp": 47.9,
+          "battery": 42.49,
+          "socd": 21.0,
+          "memavailable_kib": 5741828
+        },
+        {
+          "cpu": 54.0,
+          "gpu": 46.3,
+          "htp": 47.9,
+          "battery": 42.49,
+          "socd": 21.0,
+          "memavailable_kib": 5738840
+        },
+        {
+          "cpu": 58.0,
+          "gpu": 45.9,
+          "htp": 48.7,
+          "battery": 42.5,
+          "socd": 21.0,
+          "memavailable_kib": 5737224
+        },
+        {
+          "cpu": 55.6,
+          "gpu": 46.3,
+          "htp": 48.7,
+          "battery": 42.49,
+          "socd": 21.0,
+          "memavailable_kib": 5686824
+        },
+        {
+          "cpu": 60.4,
+          "gpu": 46.7,
+          "htp": 49.5,
+          "battery": 42.5,
+          "socd": 21.0,
+          "memavailable_kib": 5680200
+        }
+      ],
+      "before": {
+        "cpu": 46.1,
+        "gpu": 44.4,
+        "htp": 44.8,
+        "battery": 42.51,
+        "socd": 21.0,
+        "memavailable_kib": 5776012
+      },
+      "after": {
+        "cpu": 48.1,
+        "gpu": 45.5,
+        "htp": 46.3,
+        "battery": 42.53,
+        "socd": 21.0,
+        "memavailable_kib": 5775004
+      },
+      "new_llama_cli_pids_remaining": [],
+      "error": "cpu=60.4 C reached guard 60 C"
+    }
+  ],
+  "ok": false
+}
