@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Mesa capture now maps extracted Ubuntu host dependencies through exact package-index, archive, and payload hashes, and records candidate dpkg database availability; the pinned rerun is pending.
+Added a source- and toolchain-digest-pinned internal Snapdragon HTP build candidate workflow with deterministic packaging and two-run archive comparison; CI and device qualification remain open. The independent pinned Mesa capture and dependency/license review also remain open.
 
-**Next action:** Run the pinned Mesa capture, review all host/target owner candidates and dpkg-root inventory, then resolve remaining target-prefix ownership and license-evidence gaps.
+**Next action:** Run the two independent GitHub Actions builds, inspect SPDX and byte-identical archive evidence, and continue the pinned Mesa capture and dependency/license review; then device-test the candidate before considering runtime pin changes or release.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -168,3 +168,5 @@ Evidence:
 - [docs/evidence/2026-10-25-p12-mesa-build-artifact-audit.md](evidence/2026-10-25-p12-mesa-build-artifact-audit.md)
 - [docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md](evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md)
 - [docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md](evidence/2026-10-26-p12-mesa-generated-source-follow-up.md)
+- [docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.md](evidence/2026-10-30-p12-htp-reproducible-build-preparation.md)
+- [docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md](evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md)

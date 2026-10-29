@@ -236,7 +236,7 @@
       "id": "P12",
       "title": "Qualify Native CPU, GPU and NPU acceleration",
       "status": "in_progress",
-      "summary": "Mesa capture now maps extracted Ubuntu host dependencies through exact package-index, archive, and payload hashes, and records candidate dpkg database availability; the pinned rerun is pending.",
+      "summary": "Added a source- and toolchain-digest-pinned internal Snapdragon HTP build candidate workflow with deterministic packaging and two-run archive comparison; CI and device qualification remain open. The independent pinned Mesa capture and dependency/license review also remain open.",
       "evidence": [
         "docs/evidence/2026-10-24-native-acceleration-live-check.md",
         "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
@@ -265,9 +265,11 @@
         "docs/evidence/2026-10-25-p12-cpu-suite-guard-cancel-2027z.md",
         "docs/evidence/2026-10-25-p12-mesa-build-artifact-audit.md",
         "docs/evidence/2026-10-26-p12-native-adreno825-acceleration-and-inference.md",
-        "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md"
+        "docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md",
+        "docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.md",
+        "docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md"
       ],
-      "next_action": "Run the pinned Mesa capture, review all host/target owner candidates and dpkg-root inventory, then resolve remaining target-prefix ownership and license-evidence gaps."
+      "next_action": "Run the two independent GitHub Actions builds, inspect SPDX and byte-identical archive evidence, and continue the pinned Mesa capture and dependency/license review; then device-test the candidate before considering runtime pin changes or release."
     }
   ]
 }

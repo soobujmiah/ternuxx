@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Run the pinned Mesa capture, review all host/target owner candidates and dpkg-root inventory, then resolve remaining target-prefix ownership and license-evidence gaps.
+**Next action:** Run the two independent GitHub Actions builds, inspect SPDX and byte-identical archive evidence, and continue the pinned Mesa capture and dependency/license review; then device-test the candidate before considering runtime pin changes or release.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->
