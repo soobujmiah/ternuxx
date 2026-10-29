@@ -1,0 +1,7 @@
+event_id: commit-7347743e0e00-3c15c0f1ae2335ec
+repository: soobujmiah/ternuxx
+commit: 7347743e0e0041156a802fb2308f37ba45bf2673
+kind: commit
+occurred_at: '2026-10-29T22:48:25Z'
+status: completed
+summary: 'feat(p12): add preview-bound runtime selection'
