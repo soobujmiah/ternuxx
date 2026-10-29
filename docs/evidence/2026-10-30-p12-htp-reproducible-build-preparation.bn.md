@@ -17,10 +17,10 @@ Verify job দুই archive ও manifest আলাদাভাবে যাচ�
 - `python3 -m unittest tests.test_package_snapdragon_release`: **৫টি পাস** (একই tar bytes তৈরি, archive tampering ধরা, file ও directory symlink প্রত্যাখ্যান, pinned-source manifest যাচাই)।
 - Clean `main`-এর প্রথম suite-এ **১,৩৩৯টি test-এর মধ্যে installer/CLI-help-এর ৪টি পুরোনো assertion fail** করেছিল। বর্তমান help/output-এর সঙ্গে শুধু ওই assertion-গুলো মিলিয়ে rerun-এ **১,৩৩৯টি test ২০১.৫৮৯ সেকেন্ডে পাস** করেছে।
 - ওই ৪টি focused test এবং `bash tests/test_cli_help.sh` পাস করেছে।
-- GitHub suite run [`40962905557`](https://github.com/soobujmiah/ternuxx/actions/runs/40962905557)-এ আরেকটি host-dependent assertion ধরা পড়ে: PRoot graphics test ধরে নিয়েছিল physical device-এ KGSL আছে, তাই সবসময় Zink বেছে নেবে। এখন test-এ প্রত্যাশিত Zink preference explicit mock করা হয়েছে; GitHub rerun বাকি।
+- GitHub suite run [`40962905557`](https://github.com/soobujmiah/ternuxx/actions/runs/40962905557)-এ আরেকটি host-dependent assertion ধরা পড়ে: PRoot graphics test ধরে নিয়েছিল physical device-এ KGSL আছে, তাই সবসময় Zink বেছে নেবে। test-এ প্রত্যাশিত Zink preference explicit mock করা হয়েছে। পরের GitHub run [`40963452566`](https://github.com/soobujmiah/ternuxx/actions/runs/40963452566)-এ ১,৩৩৯টি Python test পাস করলেও shell CLI-help gate-এর পুরোনো `tx ai run` syntax assertion ব্যর্থ হয়েছে; বর্তমান command syntax অনুযায়ী assertion স্থানীয়ভাবে ঠিক করা হয়েছে, GitHub rerun বাকি।
 - `python3 -m py_compile tools/package_snapdragon_release.py tests/test_package_snapdragon_release.py`: পাস।
 - PyYAML দিয়ে workflow YAML ও pinned image/matrix গঠন যাচাই; `git diff --check` পাস।
-- GitHub run [`40962133386`](https://github.com/soobujmiah/ternuxx/actions/runs/40962133386) দুই runner-এই CMake configure ধাপে fail করেছে: Ternuxx workspace root-এ `CMakePresets.json` খুঁজেছে। `c2a4a5903cab69c6417023d32f0b74fbc7bfc352` commit-এ preset চালানোর আগে workflow `upstream` directory-তে যায়। GitHub run-এ কোনো artifact নেই; runtime archive তৈরি হয়নি। Cross-run reproducibility, Android install, model correctness, thermal/sustained qualification, license clearance বা public release—কোনোটিই প্রমাণিত নয়।
+- GitHub run [`40962133386`](https://github.com/soobujmiah/ternuxx/actions/runs/40962133386) দুই runner-এই CMake configure ধাপে fail করেছে: Ternuxx workspace root-এ `CMakePresets.json` খুঁজেছে। `c2a4a5903cab69c6417023d32f0b74fbc7bfc352` commit-এ preset চালানোর আগে workflow `upstream` directory-তে যায়। GitHub run-এ কোনো artifact নেই; runtime archive তৈরি হয়নি। পরের run [`40962919123`](https://github.com/soobujmiah/ternuxx/actions/runs/40962919123)-এ একটি runner compile ও package ধাপে পৌঁছেছে, অন্যটি compile করছে; দুই-build hash comparison ও SBOM verification শেষ না হওয়া পর্যন্ত candidate যাচাইকৃত নয়। Cross-run reproducibility, Android install, model correctness, thermal/sustained qualification, license clearance বা public release—কোনোটিই প্রমাণিত নয়।
 
 ## Native Termux-এর বর্তমান অবস্থা
 
@@ -31,6 +31,15 @@ Verify job দুই archive ও manifest আলাদাভাবে যাচ�
 - `bash tx ai devices`: Vulkan `Vulkan0`, Adreno 825 enumerate করেছে; probe-এর হিসাবে মোট ৮,৪২৫ MiB এবং free ৫,০০৩ MiB। এটি শুধু device enumeration; GPU inference workload চালানো হয়নি।
 
 এগুলো বর্তমান Native runtime observation; failed/retried CI build এবং পুরোনো inference evidence থেকে আলাদা। এগুলো নতুন build candidate, sustained performance বা thermal behavior qualify করে না।
+
+এরপর default guard রেখে inference ছাড়া নতুন thermal/resource preflight দুবার পাস হয়েছে (`cpu/gpu/htp <60 C`, battery `<45 C`, SoCD `<70 C`, `MemAvailable >=2048 MiB`); কোনো active `llama-cli` process ছিল না। দুই sample-এই `thermal_limits_ignored: false` এবং `will_start_inference: false` ছিল:
+
+| Sample (UTC) | CPU C | GPU C | HTP C | Battery C | SoCD C | MemAvailable KiB | ফল |
+|---|---:|---:|---:|---:|---:|---:|---|
+| 2026-10-29 22:09:51.615 | 48.0 | 39.2 | 41.2 | 38.68 | 12.0 | 5,707,888 | পাস |
+| 2026-10-29 22:10:03.465 | 48.8 | 39.6 | 40.8 | 38.69 | 12.0 | 5,704,104 | পাস |
+
+এই ছোট sample দুটি controlled test শুরুর জন্য চাওয়া preflight count পূরণ করে; এগুলো inference, দীর্ঘমেয়াদি thermal stability বা OEM thermal limit প্রমাণ করে না। Ternuxx-এর private Qwen3 model অনুপস্থিত, তাই controlled CPU/HTP workload এখনো pending।
 
 ## বাকি release gate
 

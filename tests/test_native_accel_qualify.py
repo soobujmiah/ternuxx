@@ -7,6 +7,7 @@ import unittest
 from tools.native_accel_qualify import (
     QUALIFICATION_CASES,
     _preflight_failure_report,
+    collect_preflight,
     active_temperature_limits,
     parse_result,
     process_snapshot,
@@ -134,6 +135,39 @@ class NativeAccelQualificationTests(unittest.TestCase):
         self.assertEqual(report["runs"], [])
         self.assertEqual(report["prompt_suite_id"], "arithmetic-operators-v1")
         self.assertEqual(report["scheduled_case_ids"], [case.case_id for case in QUALIFICATION_CASES])
+
+
+    def test_preflight_only_records_guarded_sample_without_inference(self):
+        args = Namespace(backend="npu", cpu_stop_c=60.0, gpu_stop_c=60.0, htp_stop_c=60.0,
+                         battery_stop_c=45.0, socd_stop_c=70.0, ignore_thermal_limits=False,
+                         minimum_mem_mib=2048, max_tokens=8, runs=3, idle_seconds=5.0)
+        snapshot = {"cpu": 42.0, "gpu": 39.0, "htp": 40.0,
+                    "battery": 31.0, "socd": 45.0, "memavailable_kib": 4 * 1024 * 1024}
+        from unittest.mock import patch
+        with patch("tools.native_accel_qualify._snapshot", return_value=snapshot), \
+             patch("tools.native_accel_qualify.process_snapshot", return_value={}):
+            report = collect_preflight(args)
+        self.assertTrue(report["ok"])
+        self.assertTrue(report["preflight_only"])
+        self.assertFalse(report["will_start_inference"])
+        self.assertEqual(report["snapshot"], snapshot)
+        self.assertEqual(report["issues"], [])
+        self.assertEqual(report["completed_runs"], 0)
+
+    def test_preflight_only_fails_closed_on_heat_memory_or_existing_inference(self):
+        args = Namespace(backend="npu", cpu_stop_c=60.0, gpu_stop_c=60.0, htp_stop_c=60.0,
+                         battery_stop_c=45.0, socd_stop_c=70.0, ignore_thermal_limits=False,
+                         minimum_mem_mib=2048, max_tokens=8, runs=3, idle_seconds=5.0)
+        snapshot = {"cpu": 60.1, "gpu": 39.0, "htp": 40.0,
+                    "battery": 31.0, "socd": 45.0, "memavailable_kib": 1024}
+        from unittest.mock import patch
+        with patch("tools.native_accel_qualify._snapshot", return_value=snapshot), \
+             patch("tools.native_accel_qualify.process_snapshot", return_value={123: 99}):
+            report = collect_preflight(args)
+        self.assertFalse(report["ok"])
+        self.assertFalse(report["will_start_inference"])
+        self.assertEqual(report["pids"], [123])
+        self.assertGreaterEqual(len(report["issues"]), 3)
 
     def test_htp_pass_requires_full_offload_and_no_silent_fallback(self):
         base = {"backend": "Hexagon HTP", "npu_layers": 29, "total_layers": 29,

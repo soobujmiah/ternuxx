@@ -26,6 +26,13 @@ python3 tools/native_accel_qualify.py --backend npu
 ```
 
 Defaults are three sequential calls, eight generated tokens per call, a five-second monitored idle interval between calls, and a 90-second per-call timeout. The fixed, versioned `arithmetic-operators-v1` suite cycles through addition (`2 + 2`), subtraction (`9 - 4`), and multiplication (`3 * 2`) cases. Each run accepts only the exact digit or the exact expression followed by `=` and that digit, with optional terminal punctuation. The JSON report records each `case_id`, scheduled case IDs, and `answer_verified`; it goes to stdout. Redirect it to a private, access-controlled evidence location if it must be retained. Do not place runtime credentials or model output in committed evidence.
+To record a standalone guarded thermal/resource sample without starting inference, use `--preflight-only`:
+
+```sh
+python3 tools/native_accel_qualify.py --backend npu --preflight-only
+```
+
+Each invocation returns one timestamped sample and exits 0 only when the required CPU/HTP sensors are readable, all observed temperatures remain below the configured guards, available memory meets the minimum, and no `llama-cli` process is present. Run it again for a second independent sample. The output states `will_start_inference: false`; this mode does not require the model file.
 
 Useful bounded overrides include `--runs`, `--max-tokens`, `--timeout`, and `--idle-seconds`; the tool constrains each to a documented finite range. Its CPU/GPU/HTP/battery/SoC temperature and minimum-memory thresholds are conservative stop guards for that run, not OEM-rated limits or universal safety thresholds. By default, a missing CPU/backend sensor or `MemAvailable` reading blocks inference rather than silently weakening the guard. The owner-authorized `--ignore-thermal-limits` option makes temperature readings observational for that run and removes missing-temperature-sensor preflight blocking; the minimum-memory check, timeout, existing-process refusal, and orphan detection remain active. The JSON report records this override and all available temperature samples.
 

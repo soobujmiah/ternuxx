@@ -207,6 +207,28 @@ def _preflight_failure_report(args: argparse.Namespace, reason: str,
     return report
 
 
+def collect_preflight(args: argparse.Namespace) -> dict[str, object]:
+    """Capture one guarded resource sample without launching inference."""
+    limits = active_temperature_limits(args)
+    minimum_mem_kib = args.minimum_mem_mib * 1024
+    required_sensor = {"cpu": "cpu", "vulkan": "gpu", "npu": "htp"}[args.backend]
+    snapshot = _snapshot()
+    if limits and ("cpu" not in snapshot or required_sensor not in snapshot):
+        issues = [f"required {required_sensor}/CPU thermal zone is unavailable"]
+    else:
+        issues = resource_violations(snapshot, limits, minimum_mem_kib)
+    pids = sorted(process_snapshot())
+    if pids:
+        issues.append("an existing llama-cli process is running; no inference was started")
+    report = _render_report(args, [], snapshot, limits, minimum_mem_kib)
+    report.update({"ok": not issues, "preflight_only": True,
+                   "will_start_inference": False, "snapshot": snapshot,
+                   "issues": issues, "pids": pids})
+    if issues:
+        report["error"] = "preflight checks failed; no inference started"
+    return report
+
+
 def _stop_process(proc: subprocess.Popen[str], sig: int, grace: float) -> None:
     if proc.poll() is not None:
         return
@@ -234,21 +256,11 @@ def _stop_process(proc: subprocess.Popen[str], sig: int, grace: float) -> None:
 def run(args: argparse.Namespace) -> int:
     limits = active_temperature_limits(args)
     minimum_mem_kib = args.minimum_mem_mib * 1024
-    required_sensor = {"cpu": "cpu", "vulkan": "gpu", "npu": "htp"}[args.backend]
-    preflight = _snapshot()
-    if limits and ("cpu" not in preflight or required_sensor not in preflight):
-        report = _preflight_failure_report(
-            args, f"required {required_sensor}/CPU thermal zone is unavailable", preflight,
-            limits, minimum_mem_kib)
-        print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
+    preflight_report = collect_preflight(args)
+    if not preflight_report["ok"]:
+        print(json.dumps(preflight_report, ensure_ascii=False, indent=2), flush=True)
         return 2
-    issues = resource_violations(preflight, limits, minimum_mem_kib)
-    if issues:
-        report = _preflight_failure_report(
-            args, "preflight guard failed; no inference started", preflight,
-            limits, minimum_mem_kib, issues=issues)
-        print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
-        return 2
+    preflight = preflight_report["snapshot"]
     baseline_pids = process_snapshot()
     if baseline_pids:
         report = _preflight_failure_report(
@@ -379,7 +391,9 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--socd-stop-c", type=float, default=70)
     result.add_argument("--ignore-thermal-limits", action="store_true",
                         help="continue despite temperature readings; memory, timeout, and process guards remain active")
-    result.add_argument("--preview", action="store_true", help="validate and print plan without inference")
+    result.add_argument("--preview", action="store_true", help="print the test plan without reading device telemetry or running inference")
+    result.add_argument("--preflight-only", action="store_true",
+                        help="record one thermal/memory/process sample; never launch inference")
     return result
 
 
@@ -395,6 +409,12 @@ def main(argv: list[str] | None = None) -> int:
         parser().error("--idle-seconds must be between 0 and 300")
     if not 256 <= args.minimum_mem_mib <= 65536:
         parser().error("--minimum-mem-mib must be between 256 and 65536")
+    if args.preview and args.preflight_only:
+        parser().error("--preview and --preflight-only are separate modes")
+    if args.preflight_only:
+        report = collect_preflight(args)
+        print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
+        return 0 if report["ok"] else 2
     if args.preview:
         print(json.dumps({"backend": args.backend, "prompt_suite_id": PROMPT_SUITE_ID,
                           "scheduled_case_ids": [qualification_case_for_run(index).case_id

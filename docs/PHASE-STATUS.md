@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The corrected HTP build is running; first CI attempt's CMake cwd issue is fixed on main. Local suite passes 1,339 tests, while GitHub run 40962905557 found one device-dependent Zink fixture; the test now mocks Zink explicitly and needs a CI rerun. Runtime artifact/reproducibility, Mesa provenance, and license review remain open.
+The Snapdragon HTP runtime built reproducibly in two independent CI jobs and an internal candidate with SPDX SBOM was retained; local suite passes 1,341 tests and two thermal preflight samples passed. GitHub CLI-help contract needs a rerun after the obsolete assertion fix; model inference qualification remains pending.
 
-**Next action:** Push the environment-independent fixture, verify a green GitHub test run, and inspect HTP build 40962919123 through package/SBOM/reproducibility; then plan owner-mediated device qualification and continue Mesa/license gates.
+**Next action:** Commit the CLI-help and preflight guard fixes with bilingual build evidence, obtain green repository CI, then perform owner-mediated device installation and controlled CPU/HTP inference with an approved private model; close Mesa provenance, license, sustained thermal, fallback and clean-install gates before release.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

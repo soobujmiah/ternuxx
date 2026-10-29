@@ -2,7 +2,7 @@
 
 Phase: `P12`
 
-**Status:** first GitHub Actions attempt reached pinned source checkout and source SPDX generation, then failed because CMake was invoked from the Ternuxx workspace instead of the upstream `llama.cpp` directory. No runtime artifact or reproducibility result was produced; the working-directory fix is on `main` in commit `c2a4a5903cab69c6417023d32f0b74fbc7bfc352`; the PRoot graphics fixture is being made environment-independent after GitHub exposed a no-KGSL runner case. Corrected HTP run [`40962919123`](https://github.com/soobujmiah/ternuxx/actions/runs/40962919123) is running. No candidate artifact exists yet. No public release was created.
+**Status:** first GitHub Actions attempt reached pinned source checkout and source SPDX generation, then failed because CMake was invoked from the Ternuxx workspace instead of the upstream `llama.cpp` directory. No runtime artifact or reproducibility result was produced; the working-directory fix is on `main` in commit `c2a4a5903cab69c6417023d32f0b74fbc7bfc352`; the PRoot graphics fixture is being made environment-independent after GitHub exposed a no-KGSL runner case. Corrected HTP run [`40962919123`](https://github.com/soobujmiah/ternuxx/actions/runs/40962919123) completed successfully: both independent builds compiled, packaged, generated runtime SPDX SBOMs, and produced identical deterministic archives. The verifier reported archive SHA-256 `f1a6f9ade2dd6b31503bf9b12c87c92a63ef6b043ffb318bf4a4e10692156b29`, size 49,219,753 bytes, 23 runtime files, and status `verified`. The 90-day internal Actions artifact is `ternuxx-p12-htp-reproducible-candidate-40962919123` (artifact ID `12936224523`); no public release was created. Repository run [`40963452566`](https://github.com/soobujmiah/ternuxx/actions/runs/40963452566) passed its 1,339 Python tests but its shell CLI-help contract failed on an obsolete AI command assertion; the assertion is corrected locally and awaits a rerun. No public release was created.
 
 ## Build contract
 
@@ -31,6 +31,15 @@ Read-only checks against the current device session reported:
 - `bash tx ai devices`: Vulkan enumerates `Vulkan0`, Adreno 825, with 8,425 MiB total and 5,003 MiB free as reported by that probe. This is device enumeration only; no GPU inference workload was run.
 
 These are current Native runtime observations, separate from the failed/retried CI build and from historical inference evidence. They do not qualify the newly built candidate or any sustained performance/thermal behavior.
+
+Two new no-inference thermal/resource preflights then passed with default guards (`cpu/gpu/htp <60 C`, battery `<45 C`, SoCD `<70 C`, `MemAvailable >=2048 MiB`), with no active `llama-cli` process. Both reported `thermal_limits_ignored: false` and `will_start_inference: false`:
+
+| Sample (UTC) | CPU C | GPU C | HTP C | Battery C | SoCD C | MemAvailable KiB | Result |
+|---|---:|---:|---:|---:|---:|---:|---|
+| 2026-10-29 22:09:51.615 | 48.0 | 39.2 | 41.2 | 38.68 | 12.0 | 5,707,888 | PASS |
+| 2026-10-29 22:10:03.465 | 48.8 | 39.6 | 40.8 | 38.69 | 12.0 | 5,704,104 | PASS |
+
+These short samples satisfy the requested preflight count for beginning a controlled test; they are not inference, sustained-thermal, or OEM thermal-limit evidence. The controlled CPU/HTP workload remains pending because the configured Ternuxx-private Qwen3 model is absent.
 
 ## Remaining release gates
 
