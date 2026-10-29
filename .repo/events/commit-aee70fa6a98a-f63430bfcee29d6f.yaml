@@ -1,0 +1,7 @@
+event_id: commit-aee70fa6a98a-f63430bfcee29d6f
+repository: soobujmiah/ternuxx
+commit: aee70fa6a98a7a48a23c9766ba5db5462b8f9053
+kind: commit
+occurred_at: '2026-10-29T23:34:23Z'
+status: completed
+summary: 'fix(p12): align integrity fixtures and test timeout'
