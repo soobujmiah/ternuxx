@@ -2,7 +2,7 @@
 
 Phase: `P12`
 
-**অবস্থা:** প্রথম GitHub Actions চেষ্টায় pinned source checkout ও source SPDX তৈরি হয়েছে, কিন্তু CMake ভুল করে Ternuxx workspace root থেকে চালানোয় workflow fail করেছে। কোনো runtime artifact বা reproducibility ফল তৈরি হয়নি; upstream `llama.cpp` directory থেকে চালানোর fix commit হয়েছে। Public release তৈরি করা হয়নি।
+**অবস্থা:** প্রথম GitHub Actions চেষ্টায় pinned source checkout ও source SPDX তৈরি হয়েছে, কিন্তু CMake ভুল করে Ternuxx workspace root থেকে চালানোয় workflow fail করেছে। কোনো runtime artifact বা reproducibility ফল তৈরি হয়নি; upstream `llama.cpp` directory থেকে চালানোর fix `main`-এর `c2a4a5903cab69c6417023d32f0b74fbc7bfc352` commit-এ আছে। প্রথম corrected HTP run [`40962919123`](https://github.com/soobujmiah/ternuxx/actions/runs/40962919123) চলছে; candidate artifact এখনো নেই। Public release তৈরি করা হয়নি।
 
 ## Build-এর নিয়ম
 
@@ -17,9 +17,20 @@ Verify job দুই archive ও manifest আলাদাভাবে যাচ�
 - `python3 -m unittest tests.test_package_snapdragon_release`: **৫টি পাস** (একই tar bytes তৈরি, archive tampering ধরা, file ও directory symlink প্রত্যাখ্যান, pinned-source manifest যাচাই)।
 - Clean `main`-এর প্রথম suite-এ **১,৩৩৯টি test-এর মধ্যে installer/CLI-help-এর ৪টি পুরোনো assertion fail** করেছিল। বর্তমান help/output-এর সঙ্গে শুধু ওই assertion-গুলো মিলিয়ে rerun-এ **১,৩৩৯টি test ২০১.৫৮৯ সেকেন্ডে পাস** করেছে।
 - ওই ৪টি focused test এবং `bash tests/test_cli_help.sh` পাস করেছে।
+- GitHub suite run [`40962905557`](https://github.com/soobujmiah/ternuxx/actions/runs/40962905557)-এ আরেকটি host-dependent assertion ধরা পড়ে: PRoot graphics test ধরে নিয়েছিল physical device-এ KGSL আছে, তাই সবসময় Zink বেছে নেবে। এখন test-এ প্রত্যাশিত Zink preference explicit mock করা হয়েছে; GitHub rerun বাকি।
 - `python3 -m py_compile tools/package_snapdragon_release.py tests/test_package_snapdragon_release.py`: পাস।
 - PyYAML দিয়ে workflow YAML ও pinned image/matrix গঠন যাচাই; `git diff --check` পাস।
-- GitHub run [`40962133386`](https://github.com/soobujmiah/ternuxx/actions/runs/40962133386) দুই runner-এই CMake configure ধাপে fail করেছে: Ternuxx workspace root-এ `CMakePresets.json` খুঁজেছে। follow-up-এ preset চালানোর আগে workflow `upstream` directory-তে যায়। GitHub run-এ কোনো artifact নেই; runtime archive তৈরি হয়নি। Cross-run reproducibility, Android install, model correctness, thermal/sustained qualification, license clearance বা public release—কোনোটিই প্রমাণিত নয়।
+- GitHub run [`40962133386`](https://github.com/soobujmiah/ternuxx/actions/runs/40962133386) দুই runner-এই CMake configure ধাপে fail করেছে: Ternuxx workspace root-এ `CMakePresets.json` খুঁজেছে। `c2a4a5903cab69c6417023d32f0b74fbc7bfc352` commit-এ preset চালানোর আগে workflow `upstream` directory-তে যায়। GitHub run-এ কোনো artifact নেই; runtime archive তৈরি হয়নি। Cross-run reproducibility, Android install, model correctness, thermal/sustained qualification, license clearance বা public release—কোনোটিই প্রমাণিত নয়।
+
+## Native Termux-এর বর্তমান অবস্থা
+
+বর্তমান device session-এ read-only check-এ দেখা গেছে:
+
+- `bash tx ai npu status`: SM8735-এ HTP0 available; runtime release `b11849`, এবং silent fallback বন্ধ।
+- `bash tx ai status`: Termux `llama-cpp` 0.7.0 available, কিন্তু Ternuxx-এর private model path-এ configured Qwen3 model file নেই; তাই CPU inference চালানো হয়নি।
+- `bash tx ai devices`: Vulkan `Vulkan0`, Adreno 825 enumerate করেছে; probe-এর হিসাবে মোট ৮,৪২৫ MiB এবং free ৫,০০৩ MiB। এটি শুধু device enumeration; GPU inference workload চালানো হয়নি।
+
+এগুলো বর্তমান Native runtime observation; failed/retried CI build এবং পুরোনো inference evidence থেকে আলাদা। এগুলো নতুন build candidate, sustained performance বা thermal behavior qualify করে না।
 
 ## বাকি release gate
 

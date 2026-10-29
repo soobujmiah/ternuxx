@@ -236,7 +236,7 @@
       "id": "P12",
       "title": "Qualify Native CPU, GPU and NPU acceleration",
       "status": "in_progress",
-      "summary": "First HTP CI attempt failed at CMake configure because the preset ran from the workspace root; the upstream-directory fix and stale CLI-test assertion corrections now pass the 1,339-test local suite. No runtime artifact or reproducibility proof yet. Pinned Mesa capture and dependency/license review remain open.",
+      "summary": "The corrected HTP build is running; first CI attempt's CMake cwd issue is fixed on main. Local suite passes 1,339 tests, while GitHub run 40962905557 found one device-dependent Zink fixture; the test now mocks Zink explicitly and needs a CI rerun. Runtime artifact/reproducibility, Mesa provenance, and license review remain open.",
       "evidence": [
         "docs/evidence/2026-10-24-native-acceleration-live-check.md",
         "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
@@ -269,7 +269,7 @@
         "docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.md",
         "docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md"
       ],
-      "next_action": "Commit and push the reviewed corrections, rerun the two independent build, inspect SBOM/archive evidence, continue Mesa provenance and licensing review, then device-test any candidate before installer pin changes or release."
+      "next_action": "Push the environment-independent fixture, verify a green GitHub test run, and inspect HTP build 40962919123 through package/SBOM/reproducibility; then plan owner-mediated device qualification and continue Mesa/license gates."
     }
   ]
 }

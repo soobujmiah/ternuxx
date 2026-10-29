@@ -2,7 +2,7 @@
 
 Phase: `P12`
 
-**Status:** first GitHub Actions attempt reached pinned source checkout and source SPDX generation, then failed because CMake was invoked from the Ternuxx workspace instead of the upstream `llama.cpp` directory. No runtime artifact or reproducibility result was produced; the working-directory fix is prepared for a rerun. No public release was created.
+**Status:** first GitHub Actions attempt reached pinned source checkout and source SPDX generation, then failed because CMake was invoked from the Ternuxx workspace instead of the upstream `llama.cpp` directory. No runtime artifact or reproducibility result was produced; the working-directory fix is on `main` in commit `c2a4a5903cab69c6417023d32f0b74fbc7bfc352`; the PRoot graphics fixture is being made environment-independent after GitHub exposed a no-KGSL runner case. Corrected HTP run [`40962919123`](https://github.com/soobujmiah/ternuxx/actions/runs/40962919123) is running. No candidate artifact exists yet. No public release was created.
 
 ## Build contract
 
@@ -17,13 +17,24 @@ The verify job independently validates each archive and manifest, then requires 
 - `python3 -m unittest tests.test_package_snapdragon_release`: **5 passed** (deterministic packaging, archive tamper rejection, file and directory symlink rejection, pinned-source manifest rejection).
 - Initial clean-`main` suite: **1,339 tests, 4 stale installer/CLI-help assertion failures**. Updated only those assertions to match current help/output; the rerun passed **1,339 tests in 201.589 seconds**.
 - The four focused stale tests passed; `bash tests/test_cli_help.sh` passed.
+- GitHub suite run [`40962905557`](https://github.com/soobujmiah/ternuxx/actions/runs/40962905557) found one additional host-dependent assertion: a PRoot graphics test assumed the physical device had KGSL and always selected Zink. The test now mocks the intended Zink preference explicitly; a GitHub rerun is pending.
 - `python3 -m py_compile tools/package_snapdragon_release.py tests/test_package_snapdragon_release.py`: passed.
 - Workflow YAML parsed and its pinned image/matrix structure checked with PyYAML; `git diff --check` passed.
-- GitHub run [`40962133386`](https://github.com/soobujmiah/ternuxx/actions/runs/40962133386) failed in the CMake configure step on both runners: it searched the Ternuxx workspace root for `CMakePresets.json`. The follow-up now changes into `upstream` before invoking the pinned preset. GitHub listed no run artifacts. No runtime archive was produced. No cross-run reproducibility, Android install, model correctness, thermal/sustained qualification, license clearance, or public release is claimed.
+- GitHub run [`40962133386`](https://github.com/soobujmiah/ternuxx/actions/runs/40962133386) failed in the CMake configure step on both runners: it searched the Ternuxx workspace root for `CMakePresets.json`. Commit `c2a4a5903cab69c6417023d32f0b74fbc7bfc352` changes into `upstream` before invoking the pinned preset. GitHub listed no run artifacts. No runtime archive was produced. No cross-run reproducibility, Android install, model correctness, thermal/sustained qualification, license clearance, or public release is claimed.
+
+## Current Native Termux status observation
+
+Read-only checks against the current device session reported:
+
+- `bash tx ai npu status`: HTP0 available on SM8735; runtime reports release `b11849`, and silent fallback is false.
+- `bash tx ai status`: Termux `llama-cpp` 0.7.0 is available, but the configured Ternuxx Qwen3 model file is missing at its private model path, so no CPU inference was run.
+- `bash tx ai devices`: Vulkan enumerates `Vulkan0`, Adreno 825, with 8,425 MiB total and 5,003 MiB free as reported by that probe. This is device enumeration only; no GPU inference workload was run.
+
+These are current Native runtime observations, separate from the failed/retried CI build and from historical inference evidence. They do not qualify the newly built candidate or any sustained performance/thermal behavior.
 
 ## Remaining release gates
 
-First run the manual workflow and inspect the source/runtime SPDX output and two-build comparison. Then device-test the Ternuxx-owned candidate on the pinned model with correct output, complete HTP offload, failure/restart behavior and telemetry; qualify GPU/CPU fallback and setup selection; close Mesa and full dependency-license/provenance review; resolve the Ternuxx project license and clean-install/release acceptance. The QNN SD1.5 image route has its own independent oracle and Qualcomm license-acceptance gates; this chat runtime build does not close them.
+After the corrected run completes, inspect the source/runtime SPDX output and two-build comparison. Then device-test the Ternuxx-owned candidate on the pinned model with correct output, complete HTP offload, failure/restart behavior and telemetry; qualify GPU/CPU fallback and setup selection; close Mesa and full dependency-license/provenance review; resolve the Ternuxx project license and clean-install/release acceptance. The QNN SD1.5 image route has its own independent oracle and Qualcomm license-acceptance gates; this chat runtime build does not close them.
 
 ## Evidence
 

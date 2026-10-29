@@ -902,7 +902,8 @@ class PRootVerificationFixtureTests(unittest.TestCase):
             cookie.write_bytes(b"c" * 256)
             cookie.chmod(0o600)
             source["HOME"] = home
-            args = proot_sessions._native_pulse_login_args(source)
+            with mock.patch("proot_graphics_selection.status", return_value={"backend": "zink"}):
+                args = proot_sessions._native_pulse_login_args(source)
         self.assertIn("PULSE_SERVER=tcp:127.0.0.1:4713", args)
         self.assertIn("DISPLAY=:1", args)
         self.assertIn("GALLIUM_DRIVER=zink", args)

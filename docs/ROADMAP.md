@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Commit and push the reviewed corrections, rerun the two independent build, inspect SBOM/archive evidence, continue Mesa provenance and licensing review, then device-test any candidate before installer pin changes or release.
+**Next action:** Push the environment-independent fixture, verify a green GitHub test run, and inspect HTP build 40962919123 through package/SBOM/reproducibility; then plan owner-mediated device qualification and continue Mesa/license gates.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->
