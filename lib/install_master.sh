@@ -124,7 +124,7 @@ _nt_master_apply_guest() {
 }
 
 _nt_master_workstation() {
-  local root="$1" components="$2" distros="$3" folder plan native_id distro output entry_id
+  local root="$1" components="$2" distros="$3" folder plan native_id distro output entry_id ai_npu="${5:-0}"
   local _NT_MASTER_DISTROS="$distros" _NT_MASTER_BACKEND=keep _NT_MASTER_PRESET_DESKTOP="${4:-}"
   _nt_master_prepare "$components" || return $?
   umask 077
@@ -141,14 +141,18 @@ _nt_master_workstation() {
   for distro in ${distros//,/ }; do _nt_master_guest_preview "$distro" "$root" "$folder" || return $?; done
   python3 "$root/scripts/cli_entrypoint.py" preview >"$folder/entrypoint.part.json" || return $?
   if [ "$_NT_MASTER_BACKEND" = kgsl-freedreno ]; then python3 "$root/lib/native_gpu_setup.py" preview >"$folder/gpu.part.json" || return $?; fi
-  python3 - "$folder/choices.part.json" "$components" "$distros" "$_NT_MASTER_BACKEND" <<'PY'
+  if [ "$ai_npu" = 1 ]; then
+    _nt_window_stage 'Plan | Pinned Native HTP0 runtime preview' 'No runtime download yet'
+    PYTHONPATH="$root/lib" python3 -c 'import json,npu_inference; print(json.dumps(npu_inference.preview(),sort_keys=True))' >"$folder/npu-runtime.part.json" || return $?
+  fi
+  python3 - "$folder/choices.part.json" "$components" "$distros" "$_NT_MASTER_BACKEND" "$ai_npu" <<'PY'
 import json,sys
 from pathlib import Path
 import os,hashlib
-p,components,distros,backend=sys.argv[1:]
+p,components,distros,backend,ai_npu=sys.argv[1:]
 state=Path(os.environ['TERNUXX_STATE_DIR'])
 baseline={n:hashlib.sha256((state/n).read_bytes()).hexdigest() if (state/n).exists() else None for n in ('native-graphics-prefix','native-graphics-backend')}
-Path(p).write_text(json.dumps(dict(components=components,distros=distros,native_backend=backend,gpu_baseline=baseline,management='Build/install shared GTK management and checkout-backed tx; no service/desktop activation')))
+Path(p).write_text(json.dumps(dict(components=components,distros=distros,native_backend=backend,ai_runtime_groups=[g for g in ('ai-cpu','ai-vulkan') if g in components.split(',')],install_experimental_htp=ai_npu=='1',gpu_baseline=baseline,management='Build/install shared GTK management and checkout-backed tx; no service/desktop activation')))
 PY
   plan="$(python3 "$root/lib/install_master_plan.py" build "$folder")" || return $?
   declare -g _NT_INSTALL_MASTER_ID="$plan"
@@ -173,6 +177,17 @@ PY
     nt_info 'Reviewed tx command is already current; no launcher write.'
   fi
   _nt_window_run bash "$root/scripts/install-management-center.sh" || return $?
+  if [ -f "$folder/npu-runtime.part.json" ]; then
+    _nt_master_verify "$root" "$folder" "$plan" || return $?
+    _nt_window_stage 'Apply | Pinned experimental HTP0 runtime' 'Included in the approved combined plan'
+    PYTHONPATH="$root/lib" _nt_window_run python3 - "$folder/npu-runtime.part.json" <<'PYHTPINSTALL' || return $?
+import json,sys,npu_inference
+preview=json.load(open(sys.argv[1]))
+result=npu_inference.install_runtime(plan_id=preview["plan_id"],confirmed="INSTALL")
+if result.get("installed") is not True: raise SystemExit("HTP runtime install did not verify")
+print(json.dumps(result,sort_keys=True))
+PYHTPINSTALL
+  fi
   for distro in ${distros//,/ }; do
     _nt_master_verify "$root" "$folder" "$plan" || return $?
     _nt_window_stage "Apply | $distro reviewed guest packages and account" 'Reviewed guest package transaction'

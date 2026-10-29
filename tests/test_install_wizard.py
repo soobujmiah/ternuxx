@@ -168,16 +168,19 @@ _nt_window_session scenario
         self.assertEqual(result.returncode, 2)
         self.assertIn('attached terminal', result.stderr)
 
-    def flow(self, profile):
+    def flow(self, profile, runtimes="cpu"):
         # Selectors, package tools, builds and probes are fixtures. Assert the
         # orchestration feeds only selected components to the exact-plan engine.
         script = f'''source "{ROOT}/lib/phases.sh"
 source "{ROOT}/lib/install_wizard.sh"
 nt_require_termux() {{ :; }}
+getprop() {{ [ "$1" = ro.soc.model ] && echo SM8735; }}
+_nt_gpu_probe() {{ echo supported|fixture; }}
 _nt_install_system_info() {{ echo DEVICE; }}
 _nt_pick() {{
   case "$1" in
     'Choose your workstation') echo {profile} ;;
+    'Native AI runtimes'*) echo {runtimes}; echo AI_DEFAULT=$3 >&2 ;;
     'Native desktops'*) echo mate,plasma ;;
     'Optional Native apps'*) echo browser,pdf ;;
     'Managed PRoot'*) echo debian,ubuntu ;;
@@ -186,6 +189,7 @@ _nt_pick() {{
 _nt_master_workstation() {{
  echo PREPARE
  echo PACKAGES="$2"
+ echo AI_NPU="${{5:-0}}"
  echo GUI_BUILD
  for d in ${{3//,/ }}; do echo GUEST="$d"; done
 }}
@@ -213,7 +217,9 @@ _nt_install_wizard
     def test_native_selects_multiple_desktops_apps_and_management(self):
         rc, out = self.flow('native')
         self.assertEqual(rc, 0, out)
-        self.assertIn('PACKAGES=terminal,developer,proot,audio,graphics,gui,services,gui,audio,sound-controls,graphics,mate,plasma,browser,pdf', out)
+        self.assertIn('PACKAGES=terminal,developer,proot,audio,graphics,gui,services,gui,audio,sound-controls,graphics,mate,plasma,browser,pdf,ai-cpu', out)
+        self.assertIn('AI_NPU=0', out)
+        self.assertIn('AI_DEFAULT=npu', out)
         self.assertIn('GUI_BUILD', out)
         self.assertNotIn('GUEST=', out)
 
@@ -223,8 +229,21 @@ _nt_install_wizard
         self.assertIn('GUEST=debian', out)
         self.assertIn('GUEST=ubuntu', out)
         self.assertIn(',nested', out)
-        self.assertIn('PACKAGES=terminal,developer,proot', out)
+        self.assertIn('ai-cpu,nested', out)
         self.assertLess(out.index('PACKAGES='), out.index('GUEST=debian'))
+
+    def test_install_wizard_multiselects_accelerators_and_binds_npu_to_combined_plan(self):
+        rc, out = self.flow('minimal', 'npu,vulkan')
+        self.assertEqual(rc, 0, out)
+        self.assertIn('ai-vulkan,ai-cpu', out)
+        self.assertIn('AI_NPU=1', out)
+        self.assertIn('AI_DEFAULT=npu', out)
+
+    def test_install_wizard_allows_explicit_no_ai_runtime_selection(self):
+        rc, out = self.flow('minimal', 'none')
+        self.assertEqual(rc, 0, out)
+        self.assertIn('PACKAGES=terminal,developer,proot', out)
+        self.assertIn('AI_NPU=0', out)
 
     def test_minimal_flow_works_with_real_cli_nounset_mode(self):
         script = f'''set -u

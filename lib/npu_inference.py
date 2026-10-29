@@ -201,9 +201,10 @@ def preview(*, home: Path | None = None, state_dir: str | Path | None = None) ->
     current, current_reason = _runtime_valid(runtime)
     cache_ready = _archive_is_valid(archive)
     payload = {"action": _PLAN_ACTION, "release": RELEASE, "asset": ASSET,
-               "url": URL, "sha256": ARCHIVE_SHA256, "archive_size_bytes": ARCHIVE_SIZE,
+               "url": URL, "sha256": ARCHIVE_SHA256, "license": "MIT", "archive_size_bytes": ARCHIVE_SIZE,
                "archive_path": str(archive), "runtime_path": str(runtime),
                "network_required": not cache_ready, "already_installed": current,
+               "extraction_limit_bytes": MAX_EXTRACTED_BYTES,
                "runtime_state": "ready" if current else current_reason}
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
     parent = root.parent

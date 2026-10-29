@@ -39,6 +39,24 @@ class MasterTests(unittest.TestCase):
             self.part('guest-debian.part.json',{'plan_id':'c'*64})
             with self.assertRaisesRegex(ValueError,'changed'):plans.verify(self.home,plan)
 
+    def test_htp_runtime_preview_is_in_combined_plan_and_capacity_report(self):
+        self.part('native.part.json',dict(install='already_installed'))
+        self.part('choices.part.json',dict(components='terminal,ai-cpu',ai_runtime_groups=['ai-cpu'],install_experimental_htp=True))
+        self.part('npu-runtime.part.json',dict(plan_id='c'*24,release='b11849',asset='llama-b11849.tar.gz',
+            sha256='d'*64,license='MIT',archive_size_bytes=100,extraction_limit_bytes=250,
+            network_required=True,already_installed=False))
+        with mock.patch.dict(os.environ,self.env):
+            plan=plans.build(self.home);plans.verify(self.home,plan)
+            record=json.loads((self.home/'master.json').read_text())
+            report=(self.home/'report.txt').read_text()
+            output=io.StringIO()
+            with contextlib.redirect_stdout(output):plans.summary(self.home,plan)
+        self.assertEqual(record['download_bytes_known'],100)
+        self.assertEqual(record['disk_bytes_known'],350)
+        self.assertIn('license MIT',report)
+        self.assertIn('experimental HTP0',output.getvalue())
+        self.assertIn('experimental HTP0',output.getvalue())
+
     def test_native_guest_fetch_reserves_both_cache_copies_at_peak(self):
         self.part('native.part.json',dict(install='already_installed'))
         self.part('guest-debian.part.json',dict(plan_id='b'*64,operation=dict(transaction_summary={},transaction_packages=[['fixture','1']],download_transport='native-verified',native_fetch=dict(archives=[dict(size=100)])),transaction=dict(download=dict(value=.1,unit='kB'),disk=dict(value=1,unit='kB'))))
@@ -80,7 +98,7 @@ printf '%s' "${{_NT_GUEST_APPS[debian]}}"
         expected='graphics-runtime' if os.access('/dev/kgsl-3d0',os.R_OK) else 'cpu-runtime'
         self.assertEqual(result.stdout,'music,'+expected)
 
-    def coordinator(self,approve,tamper=False):
+    def coordinator(self,approve,tamper=False,ai_npu=False):
         log=self.home/'trace'
         script=f'''set -u
 source "{ROOT}/lib/phases.sh"
@@ -104,10 +122,21 @@ python3() {{
  if [[ "$1" = */scripts/cli_entrypoint.py ]]; then
    echo ENTRY_$2 >>'{log}'
    echo '{{"ok":true,"data":{{"changed":true,"plan_id":"{'c'*64}"}}}}'
+ elif [[ "$1" = -c && "$2" = 'import json,npu_inference; print(json.dumps(npu_inference.preview(),sort_keys=True))' ]]; then
+   echo NPU_RUNTIME_PREVIEW >>'{log}'
+   echo '{{"plan_id":"{'d'*24}","release":"b11849","asset":"llama-b11849.tar.gz","sha256":"{'e'*64}","license":"MIT","archive_size_bytes":100,"extraction_limit_bytes":250,"network_required":true,"already_installed":false}}'
+ elif [[ "$1" = - ]]; then
+   script="$(cat)"
+   if [[ "$script" = *'npu_inference.install_runtime'* ]]; then
+     echo NPU_RUNTIME_APPLY >>'{log}'
+     echo '{{"installed":true}}'
+   else
+     command python3 - "$@" <<<"$script"
+   fi
  else command python3 "$@"; fi
 }}
 bash() {{ echo MANAGEMENT_APPLY >>'{log}'; }}
-_nt_master_workstation '{ROOT}' terminal debian,ubuntu
+_nt_master_workstation '{ROOT}' terminal debian,ubuntu '' '{1 if ai_npu else 0}'
 '''
         result=subprocess.run(['bash','-c',script],env=self.env,capture_output=True,text=True,timeout=15)
         return result,log.read_text()
@@ -130,6 +159,19 @@ _nt_master_workstation '{ROOT}' terminal debian,ubuntu
             self.assertLess(trace.index(marker),approval)
         for marker in ('NATIVE_apply','ENTRY_apply','MANAGEMENT_APPLY','GUEST_APPLY_debian','GUEST_APPLY_ubuntu'):
             self.assertGreater(trace.index(marker),approval)
+
+    def test_selected_htp_runtime_is_previewed_before_approval_and_applied_after(self):
+        result,trace=self.coordinator(True,ai_npu=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertLess(trace.index('NPU_RUNTIME_PREVIEW'),trace.index('REVIEW_AND_APPROVE'))
+        self.assertGreater(trace.index('NPU_RUNTIME_APPLY'),trace.index('REVIEW_AND_APPROVE'))
+        self.assertIn('NATIVE_apply',trace)
+
+    def test_rejected_htp_runtime_plan_does_not_download_or_install(self):
+        result,trace=self.coordinator(False,ai_npu=True)
+        self.assertEqual(result.returncode,130,result.stderr)
+        self.assertLess(trace.index('NPU_RUNTIME_PREVIEW'),trace.index('REVIEW_AND_REJECT'))
+        self.assertNotIn('NPU_RUNTIME_APPLY',trace)
 
     def test_changed_review_report_blocks_all_apply(self):
         result,trace=self.coordinator(True,tamper=True)

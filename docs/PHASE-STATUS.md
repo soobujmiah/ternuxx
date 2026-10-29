@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Native automatic backend routing now selects HTP0, then Vulkan, then CPU; the shared operation is covered across CLI, TUI, Web, and GTK, and the corrected full repository suite passes 1,351 tests. Live model inference, install-time runtime selection, sustained thermal qualification, and release gates remain open.
+Native AI runtime install multi-select is integrated into the preview-bound workstation plan: CPU/Vulkan use Termux packages and experimental HTP0 is installed only after approval. The exact HTP preview/apply barrier has coordinator coverage; all 1,356 repository tests pass. Clean-device acceptance and inference qualification remain open.
 
-**Next action:** Review and commit the automatic-routing change, obtain green CI, then implement preview-first install-time runtime multi-select and qualify the pinned HTP candidate against the approved model with fresh thermal preflight and complete telemetry.
+**Next action:** Run CI for the runtime-selection follow-up. After green CI, verify a fresh Native install and qualify a supported 1–2 GB chat model on CPU, Vulkan and the Ternuxx HTP candidate after fresh guarded thermal preflights.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -171,3 +171,4 @@ Evidence:
 - [docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.md](evidence/2026-10-30-p12-htp-reproducible-build-preparation.md)
 - [docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md](evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md)
 - [docs/evidence/2026-10-29-p12-auto-backend-routing.md](evidence/2026-10-29-p12-auto-backend-routing.md)
+- [docs/evidence/2026-10-29-p12-runtime-install-selection.md](evidence/2026-10-29-p12-runtime-install-selection.md)

@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Review and commit the automatic-routing change, obtain green CI, then implement preview-first install-time runtime multi-select and qualify the pinned HTP candidate against the approved model with fresh thermal preflight and complete telemetry.
+**Next action:** Run CI for the runtime-selection follow-up. After green CI, verify a fresh Native install and qualify a supported 1–2 GB chat model on CPU, Vulkan and the Ternuxx HTP candidate after fresh guarded thermal preflights.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

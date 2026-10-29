@@ -157,6 +157,8 @@ _nt_select_install_profile() {
           audio) selected+=("${_NT_AUDIO_PACKAGES[@]}") ;;
           proot) selected+=("${_NT_PROOT_PACKAGES[@]}") ;;
           graphics) selected+=("${_NT_GRAPHICS_PACKAGES[@]}") ;;
+          ai-cpu) selected+=(llama-cpp) ;;
+          ai-vulkan) selected+=(llama-cpp llama-cpp-backend-vulkan) ;;
           developer) selected+=("${_NT_DEVELOPER_PACKAGES[@]}") ;;
           mate) selected+=("${_NT_MATE_PACKAGES[@]}") ;;
           plasma) selected+=("${_NT_PLASMA_PACKAGES[@]}") ;;
@@ -181,7 +183,7 @@ _nt_select_install_profile() {
   _NT_ACTIVE_PROFILE="$profile"
   _NT_ACTIVE_COMPONENTS="$components"
   local -a omitted=()
-  for group in desktop audio proot graphics developer mate plasma terminal gui services sound-controls nested guest-display browser music images pdf editor archive video; do
+  for group in desktop audio proot graphics developer mate plasma terminal gui services sound-controls nested guest-display browser music images pdf editor archive video ai-cpu ai-vulkan; do
     case "$profile" in
       full-native) [[ "$group" == developer ]] && omitted+=("$group") ;;
       graphical) [[ "$group" == proot || "$group" == developer ]] && omitted+=("$group") ;;

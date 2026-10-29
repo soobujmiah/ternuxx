@@ -204,8 +204,8 @@ features:
     qualification: DETECTED
     evidence: [NPU-ACCELERATION.md, ../../lib/ai_backend_selection.py, ../../lib/management_service.py, ../../tests/test_ai_backend_selection.py, ../../tests/test_management_service.py]
     release_qualified: false
-    limitations: [Backend priority and fail-closed selection are fixture/service-tested; a live auto-selected model run is unqualified because the pinned model is absent. A selected inference failure is not retried on another backend. Initial installer-time runtime multi-select is not implemented.]
-    next_action: Verify auto selection on device with the same available model, then implement preview-first install-time CPU/Vulkan/HTP selection and close clean-install, thermal, and distribution gates.
+    limitations: [Backend priority and fail-closed selection are fixture/service-tested; a live auto-selected model run is unqualified because the pinned model is absent. A selected inference failure is not retried on another backend. Installer multi-select is implemented with exact combined previews; fresh-device acceptance remains pending.]
+    next_action: Verify auto selection on device with the same available model, then verify the preview-first installer multi-select on a clean device and close thermal and distribution gates.
     owner_decision_required: true
 
   - id: inference.cpu

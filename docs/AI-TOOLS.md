@@ -10,10 +10,16 @@ reported and is not silently retried on another backend. Successful results incl
 the selected backend. The separate AI provider controls in TUI, Web, and GTK include
 an automatic-priority action as well as explicit CPU/GPU/NPU actions.
 
-Runtime installation is still a separate preview-and-confirm step. The initial
-workstation install wizard does not yet offer a multi-select for CPU, Vulkan, and
-HTP inference runtimes. The pinned HTP runtime's reproducible CI candidate is
-internal-only pending device qualification and redistribution review.
+The guided workstation installer now offers a multi-select for CPU, Vulkan, and
+experimental HTP0 runtimes when the device probe supports those choices. Its default
+is HTP0 on SM8735, otherwise Vulkan when the Native GPU probe succeeds, otherwise
+CPU. Selecting HTP0 also includes the CPU runtime as the explicit fallback. The
+installer records each exact runtime preview in its combined plan and starts no
+runtime download until the user approves that plan. CPU/Vulkan runtimes are installed
+through Termux's signed package manager; HTP0 currently uses the SHA-256-pinned MIT
+upstream b11849 archive. The reproducible Ternuxx HTP candidate remains internal
+pending device qualification and redistribution review. Clean-device installer
+acceptance remains open.
 
 
 The installer offers AI **setup recipe/prerequisite** entries in the optional apps

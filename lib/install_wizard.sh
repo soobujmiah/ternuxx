@@ -121,7 +121,8 @@ except (KeyError, TypeError, ValueError) as exc:
 _nt_install_wizard() {
   [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail 'Run tx install in an attached terminal; automation uses tx install preview.'; return 2; }
   nt_require_termux || return 1
-  local profile components=terminal,developer,proot,audio,graphics,gui,services desktops apps="" distros="" distro root answer
+  local profile components=terminal,developer,proot,audio,graphics,gui,services desktops apps="" distros="" distro root answer ai_runtimes ai_default=cpu ai_npu=0 gpu_probe soc
+  local -a ai_runtime_options=('none|Do not install an AI runtime now' 'cpu|CPU runtime and automatic CPU fallback (Termux llama-cpp)')
   root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)" || return 1
   _nt_install_system_info || return $?
   profile="$(_nt_pick 'Choose your workstation' single '' \
@@ -139,13 +140,27 @@ _nt_install_wizard() {
     apps="$(_nt_choose_native_apps)" || return $?
     for answer in ${apps//,/ }; do [ "$answer" = none ] || components+=,"$answer"; done
   fi
+  soc="$(getprop ro.soc.model 2>/dev/null || true)"
+  if [ "$soc" = SM8735 ]; then
+    ai_runtime_options+=('npu|Experimental Snapdragon HTP0 runtime (SM8735; exact pinned archive)')
+    ai_default=npu
+  fi
+  gpu_probe="$(_nt_gpu_probe "$root" 2>/dev/null || true)"
+  if [[ "$gpu_probe" = supported\|* ]]; then
+    ai_runtime_options+=('vulkan|Vulkan GPU runtime (Termux llama-cpp-backend-vulkan)')
+    [ "$ai_default" != cpu ] || ai_default=vulkan
+  fi
+  ai_runtimes="$(_nt_pick 'Native AI runtimes (select one or more)' multi "$ai_default" "${ai_runtime_options[@]}")" || return $?
+  [[ ",$ai_runtimes," != *",cpu,"* ]] || components+=,ai-cpu
+  [[ ",$ai_runtimes," != *",vulkan,"* ]] || components+=,ai-vulkan
+  if [[ ",$ai_runtimes," = *",npu,"* ]]; then components+=,ai-cpu; ai_npu=1; fi
   if [ "$profile" = proot ]; then
     components+=,nested
     distros="$(_nt_pick 'Managed PRoot distributions (one or more)' multi debian \
       'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
   fi
   _nt_ai_guidance native "$apps"
-  _nt_master_workstation "$root" "$components" "$distros" || return $?
+  _nt_master_workstation "$root" "$components" "$distros" "" "$ai_npu" || return $?
   nt_ok 'Selected setup stages completed. No desktop was started.'
   nt_info 'Commands: tx tui | tx web | tx gui | tx start | tx pgui'
 

@@ -28,7 +28,8 @@ def load_parts(root):
             plan_id=details.get('plan_id')
         else:plan_id=data.get('plan_id')
         if path.name!='choices.part.json' and not (path.name=='native.part.json' and data.get('install')=='already_installed'):
-            if not isinstance(plan_id,str) or not re.fullmatch(r'[a-f0-9]{64}',plan_id):raise ValueError('exact component plan ID is missing')
+            pattern=r'[a-f0-9]{24}' if path.name=='npu-runtime.part.json' else r'[a-f0-9]{64}'
+            if not isinstance(plan_id,str) or not re.fullmatch(pattern,plan_id):raise ValueError('exact component plan ID is missing')
         result[path.name]=data
     if 'native.part.json' not in result: raise ValueError('Native plan is missing')
     return result
@@ -92,6 +93,15 @@ def build(root):
             if data.get('allow_added_system_accounts'):lines.append('Package-added non-login UID 1-999 accounts permitted before this step; existing account records and selected account identity must be unchanged.')
         elif name=='gpu.part.json':
             unknown.append('Native GPU download/unpacked size; pinned archive hashes are verified at apply')
+        elif name=='npu-runtime.part.json':
+            asset_size=data.get('archive_size_bytes'); extracted=data.get('extraction_limit_bytes')
+            if not isinstance(asset_size,int) or not isinstance(extracted,int):
+                unknown.append('Pinned HTP archive/extraction size')
+            else:
+                if data.get('network_required'): download+=asset_size; disk+=asset_size
+                if not data.get('already_installed'): disk+=extracted
+                lines.append(f'Experimental HTP runtime: {data.get("release")} / {data.get("asset")} | license {data.get("license", "unknown")} | SHA-256 {data.get("sha256")}')
+                lines.append(f'HTP download required: {data.get("network_required")}; archive {asset_size/1048576:.1f} MiB; maximum extracted payload {extracted/1048576:.1f} MiB')
     unknown.append('GTK compilation temporary space and optional guest graphics payloads')
     free=shutil.disk_usage(os.environ['PREFIX']).free
     peak=download+disk
@@ -114,6 +124,7 @@ def summary(root, plan_id):
     components=list(dict.fromkeys(choices.get('components','').split(',')))
     print('Native: '+', '.join(filter(None,components)))
     print('Graphics: CPU fallback + supported GPU; Native '+choices.get('native_backend','system'))
+    print('AI runtime selections: '+', '.join(choices.get('ai_runtime_groups',[]))+ (' + experimental HTP0' if choices.get('install_experimental_htp') else ''))
     for name,data in parts.items():
         if not name.startswith('guest-'):continue
         distro=name.removeprefix('guest-').removesuffix('.part.json');op=data.get('operation',{})

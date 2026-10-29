@@ -41,6 +41,8 @@ class NpuInferenceTests(unittest.TestCase):
         self.assertEqual(second["available_bytes"], 499_000_000)
         self.assertEqual(first["release"], "b11849")
         self.assertEqual(first["sha256"], npu_inference.ARCHIVE_SHA256)
+        self.assertEqual(first["license"], "MIT")
+        self.assertEqual(first["extraction_limit_bytes"], npu_inference.MAX_EXTRACTED_BYTES)
         self.assertTrue(first["read_only"])
         self.assertEqual(list(self.home.rglob("*")), before)
 
