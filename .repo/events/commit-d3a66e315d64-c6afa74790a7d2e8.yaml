@@ -1,0 +1,7 @@
+event_id: commit-d3a66e315d64-c6afa74790a7d2e8
+repository: soobujmiah/ternuxx
+commit: d3a66e315d6401337149b4a3ef91296ed1a426ea
+kind: commit
+occurred_at: '2026-10-29T23:13:17Z'
+status: completed
+summary: 'feat(p12): pin and qualify Qwen2.5 native model'
