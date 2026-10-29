@@ -228,3 +228,15 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NativeAutoInferenceGtkContractTests(unittest.TestCase):
+    def test_preferred_backend_action_is_wired_to_shared_auto_operation(self):
+        source = (ROOT / "apps" / "management-center" / "management-center.c").read_text()
+        bridge = (ROOT / "scripts" / "management_desktop_bridge.py").read_text()
+        catalog = (ROOT / "lib" / "management_catalog.py").read_text()
+        self.assertIn("inference.auto.local", source)
+        self.assertIn("ai_auto_run_button", source)
+        self.assertIn('"auto-run"', bridge)
+        self.assertIn('"inference.auto.run"', bridge)
+        self.assertIn('"inference.auto.local"', catalog)

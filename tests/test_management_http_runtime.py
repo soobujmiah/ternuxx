@@ -539,6 +539,8 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
         self.assertIn("ai.local.manage", page)
         self.assertEqual(page.count('if(r.id==="inference.cpu.local"){'), 1)
         self.assertIn('run("inference.cpu.run"', page)
+        self.assertIn('if(r.id==="inference.auto.local")', page)
+        self.assertIn('run("inference.auto.run"', page)
         self.assertIn('if(r.id==="inference.gpu.local"){', page)
         self.assertIn('run("inference.gpu.status"', page)
         self.assertIn('run("inference.gpu.run"', page)

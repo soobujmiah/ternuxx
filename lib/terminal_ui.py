@@ -149,6 +149,16 @@ def _software_action(screen: "curses._CursesWindow", resource: dict[str, Any]) -
                   "plan_id": report["data"]["plan_id"], "confirmation": token})
 
 
+
+def _auto_inference_action(screen: "curses._CursesWindow", resource: dict[str, Any]) -> dict[str, object]:
+    operations = set(resource.get("supported_operations", []))
+    if "inference.auto.run" not in operations:
+        return {"ok": False, "error": {"code": "action_unavailable"}}
+    prompt = _prompt(screen, "One-line prompt (max 4096 UTF-8 bytes)")
+    if not prompt or _prompt(screen, "Run on HTP0, else Vulkan, else CPU? Type RUN").strip() != "RUN":
+        return {"ok": False, "error": {"code": "cancelled"}}
+    return _call("inference.auto.run", {"prompt": prompt, "max_tokens": 64})
+
 def _gpu_inference_action(screen: "curses._CursesWindow", resource: dict[str, Any]) -> dict[str, object]:
     operations = set(resource.get("supported_operations", []))
     action = _choose(screen, "Native Vulkan inference", [
@@ -704,6 +714,9 @@ def _available_action_labels(resource: dict[str, Any]) -> list[str]:
         labels.extend(("check graphics status", "verify OpenGL", "verify GLES", "verify Vulkan"))
         if resource_id == "graphics.native" and "graphics.provider.select" in operations:
             labels.append("select backend (KGSL experimental)")
+    elif resource_id == "inference.auto.local":
+        if "inference.auto.run" in operations:
+            labels.append("run on HTP0, then Vulkan, then CPU fallback")
     elif resource_id == "inference.cpu.local":
         labels.extend(name for op, name in (("inference.cpu.status", "check CPU inference status"),
             ("inference.cpu.model.preview", "preview pinned model setup"),
@@ -1789,6 +1802,8 @@ def _run(screen: "curses._CursesWindow") -> int:
                     report = {"ok": False, "error": {"code": "cancelled"}}
             elif resource["id"] == "software.curated-apps":
                 report = _software_action(screen, resource)
+            elif resource["id"] == "inference.auto.local":
+                report = _auto_inference_action(screen, resource)
             elif resource["id"] == "inference.gpu.local":
                 report = _gpu_inference_action(screen, resource)
             elif resource["id"] == "inference.npu.local":

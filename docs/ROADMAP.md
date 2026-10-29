@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Commit the CLI-help and preflight guard fixes with bilingual build evidence, obtain green repository CI, then perform owner-mediated device installation and controlled CPU/HTP inference with an approved private model; close Mesa provenance, license, sustained thermal, fallback and clean-install gates before release.
+**Next action:** Review and commit the automatic-routing change, obtain green CI, then implement preview-first install-time runtime multi-select and qualify the pinned HTP candidate against the approved model with fresh thermal preflight and complete telemetry.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

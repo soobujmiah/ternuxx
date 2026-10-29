@@ -1,5 +1,21 @@
 # Optional AI tool setup
 
+## Ternuxx Native local inference
+
+`tx ai run` chooses a backend automatically in this priority: SM8735 HTP0, then a
+runtime-reported Vulkan inference device, then CPU. Use `--backend cpu`, `--backend
+vulkan`, or `--backend npu` to force a specific path. Automatic selection is based
+on device/runtime probes before the prompt starts. A selected backend failure is
+reported and is not silently retried on another backend. Successful results include
+the selected backend. The separate AI provider controls in TUI, Web, and GTK include
+an automatic-priority action as well as explicit CPU/GPU/NPU actions.
+
+Runtime installation is still a separate preview-and-confirm step. The initial
+workstation install wizard does not yet offer a multi-select for CPU, Vulkan, and
+HTP inference runtimes. The pinned HTP runtime's reproducible CI candidate is
+internal-only pending device qualification and redistribution review.
+
+
 The installer offers AI **setup recipe/prerequisite** entries in the optional apps
 lists. These install only the displayed package-manager prerequisites. They do not
 run a downloaded script, install an agent, collect credentials or sign in. The plan

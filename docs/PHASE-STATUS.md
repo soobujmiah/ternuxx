@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The Snapdragon HTP runtime built reproducibly in two independent CI jobs and an internal candidate with SPDX SBOM was retained; local suite passes 1,341 tests and two thermal preflight samples passed. GitHub CLI-help contract needs a rerun after the obsolete assertion fix; model inference qualification remains pending.
+Native automatic backend routing now selects HTP0, then Vulkan, then CPU; the shared operation is covered across CLI, TUI, Web, and GTK, and the corrected full repository suite passes 1,351 tests. Live model inference, install-time runtime selection, sustained thermal qualification, and release gates remain open.
 
-**Next action:** Commit the CLI-help and preflight guard fixes with bilingual build evidence, obtain green repository CI, then perform owner-mediated device installation and controlled CPU/HTP inference with an approved private model; close Mesa provenance, license, sustained thermal, fallback and clean-install gates before release.
+**Next action:** Review and commit the automatic-routing change, obtain green CI, then implement preview-first install-time runtime multi-select and qualify the pinned HTP candidate against the approved model with fresh thermal preflight and complete telemetry.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -170,3 +170,4 @@ Evidence:
 - [docs/evidence/2026-10-26-p12-mesa-generated-source-follow-up.md](evidence/2026-10-26-p12-mesa-generated-source-follow-up.md)
 - [docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.md](evidence/2026-10-30-p12-htp-reproducible-build-preparation.md)
 - [docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md](evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md)
+- [docs/evidence/2026-10-29-p12-auto-backend-routing.md](evidence/2026-10-29-p12-auto-backend-routing.md)

@@ -235,6 +235,62 @@ class ManagementServiceTests(unittest.TestCase):
         self.assertEqual(resource["supported_operations"], [
             "inference.cpu.status", "inference.cpu.model.preview",
             "inference.cpu.model.apply", "inference.cpu.run"])
+        auto = next(item for item in catalog["data"]["resources"] if item["id"] == "inference.auto.local")
+        self.assertEqual(auto["supported_operations"], ["inference.auto.run"])
+
+    def test_auto_inference_prefers_npu_then_vulkan_then_cpu(self) -> None:
+        npu = {"available": True, "device": "HTP0", "backend": "Hexagon HTP"}
+        gpu = {"available": True, "devices": [{"id": "Vulkan0", "name": "Adreno 825"}]}
+        with patch.object(management_service.npu_inference, "status", return_value=npu), \
+             patch.object(management_service.cpu_inference, "gpu_status", return_value=gpu) as gpu_probe, \
+             patch.object(management_service.npu_inference, "run_inference",
+                          return_value={"backend": "Hexagon HTP", "npu_layers": 29}) as npu_run, \
+             patch.object(management_service.cpu_inference, "run_inference") as cpu_run:
+            result = management_service.dispatch(request("inference.auto.run", {
+                "prompt": "hello", "max_tokens": 8}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(npu_run.call_args.args[0], "hello")
+        self.assertEqual(result["data"]["backend_selection"]["backend"], "npu")
+        self.assertFalse(result["data"]["backend_selection"]["retry_after_inference_failure"])
+        cpu_run.assert_not_called()
+        gpu_probe.assert_not_called()
+
+        with patch.object(management_service.npu_inference, "status", return_value={"available": False}), \
+             patch.object(management_service.cpu_inference, "gpu_status", return_value=gpu), \
+             patch.object(management_service.cpu_inference, "run_inference",
+                          return_value={"backend": "Vulkan", "gpu_layers": 29}) as gpu_run:
+            result = management_service.dispatch(request("inference.auto.run", {
+                "prompt": "hello", "max_tokens": 8}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(gpu_run.call_args.kwargs["backend"], "vulkan")
+        self.assertEqual(gpu_run.call_args.kwargs["device_id"], "Vulkan0")
+        self.assertEqual(result["data"]["backend_selection"]["backend"], "vulkan")
+
+        with patch.object(management_service.npu_inference, "status", return_value={"available": False}), \
+             patch.object(management_service.cpu_inference, "gpu_status", return_value={"available": False, "devices": []}), \
+             patch.object(management_service.cpu_inference, "run_inference",
+                          return_value={"backend": "CPU"}) as cpu_run:
+            result = management_service.dispatch(request("inference.auto.run", {
+                "prompt": "hello", "max_tokens": 8}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(cpu_run.call_args.kwargs["backend"], "cpu")
+        self.assertEqual(result["data"]["backend_selection"]["backend"], "cpu")
+
+    def test_auto_inference_does_not_retry_after_selected_backend_fails(self) -> None:
+        with patch.object(management_service.npu_inference, "status",
+                          return_value={"available": True, "device": "HTP0"}), \
+             patch.object(management_service.npu_inference, "run_inference",
+                          side_effect=management_service.npu_inference.NpuInferenceError("offload failed")), \
+             patch.object(management_service.cpu_inference, "gpu_status") as gpu_probe, \
+             patch.object(management_service.cpu_inference, "run_inference") as cpu_run:
+            result = management_service.dispatch(request("inference.auto.run", {
+                "prompt": "hello", "max_tokens": 8}), env=NATIVE_ENV)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"]["code"], "inference_failed")
+        self.assertIn("selected npu", result["error"]["message"])
+        self.assertIn("was not retried", result["error"]["message"])
+        gpu_probe.assert_not_called()
+        cpu_run.assert_not_called()
 
     def test_vulkan_inference_status_and_run_use_the_shared_fail_closed_service(self) -> None:
         inventory = {"available": True, "backend": "Vulkan", "devices": [{"id": "Vulkan0", "name": "Adreno 825"}]}

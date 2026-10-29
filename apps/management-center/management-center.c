@@ -6,7 +6,7 @@ typedef struct { gchar *id, *category, *name, *status, *availability, *descripti
 typedef struct { gchar *id, *name, *routes; } InstallDesktop;
 typedef struct { gchar *alias, *label; GPtrArray *desktops; } InstallProfile;
 typedef struct { GtkWidget *window, *category_list, *resource_list, *details, *notice, *search, *action_scroll;
-                 GtkWidget *desktop_choice, *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *boot_cron_button, *boot_helpers_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *reboot_test_prepare_button, *reboot_test_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
+                 GtkWidget *desktop_choice, *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *boot_cron_button, *boot_helpers_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *reboot_test_prepare_button, *reboot_test_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_auto_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
                  *monitor_interval, *monitor_unit, *monitor_focus, *monitor_launch,
                  *proot_box, *proot_help, *proot_setup_help, *proot_setup_button, *proot_desktop_box, *proot_distro, *proot_app_entry, *proot_shortcut_entry, *proot_sync_rollback_entry, *proot_session_entry,
                  *proot_replay_alias_entry, *proot_replay_backup_entry, *proot_replay_retire_button,
@@ -879,6 +879,8 @@ static void show_resource(Center *c, Resource *r) {
         gui_actions = "Manage scheduler and jobs · View run history";
     else if (g_strcmp0(r->id, "native.timezone") == 0)
         gui_actions = "View or change Ternuxx timezone";
+    else if (g_strcmp0(r->id, "inference.auto.local") == 0)
+        gui_actions = "Run on the highest-priority available backend: HTP0, then Vulkan, then CPU; selected backend is reported and inference errors do not silently retry";
     else if (g_strcmp0(r->id, "inference.cpu.local") == 0)
         gui_actions = "Check runtime · Preview model download/removal · Run a bounded local CPU prompt";
     else if (g_strcmp0(r->id, "inference.gpu.local") == 0)
@@ -907,6 +909,7 @@ static void show_resource(Center *c, Resource *r) {
     gboolean system_health = g_strcmp0(r->id, "native.system.health") == 0;
     gboolean cron = g_strcmp0(r->id, "automation.cron-registry") == 0;
     gboolean timezone = g_strcmp0(r->id, "native.timezone") == 0;
+    gboolean auto_inference = g_strcmp0(r->id, "inference.auto.local") == 0;
     gboolean cpu_inference = g_strcmp0(r->id, "inference.cpu.local") == 0;
     gboolean gpu_inference = g_strcmp0(r->id, "inference.gpu.local") == 0;
     gboolean npu_inference = g_strcmp0(r->id, "inference.npu.local") == 0;
@@ -946,6 +949,7 @@ static void show_resource(Center *c, Resource *r) {
     gtk_widget_set_visible(c->timezone_set_button, timezone);
     gboolean curated_software = g_strcmp0(r->id, "software.curated-apps") == 0;
     gtk_widget_set_visible(c->software_button, curated_software);
+    gtk_widget_set_visible(c->ai_auto_run_button, auto_inference);
     gtk_widget_set_visible(c->ai_model_install_button, cpu_inference);
     gtk_widget_set_visible(c->ai_model_remove_button, cpu_inference);
     gtk_widget_set_visible(c->ai_run_button, cpu_inference);
@@ -996,7 +1000,7 @@ static void show_resource(Center *c, Resource *r) {
     GtkWidget *action_buttons[] = {c->start_button, c->stop_button, c->ssh_restart_button, c->ssh_keys_button, c->ssh_enroll_button, c->ssh_revoke_button, c->ssh_rollback_button, c->ssh_generate_button, c->ssh_autostart_button, c->ssh_deploy_button, c->ssh_deploy_rollback_button, c->ssh_wakelock_button, c->boot_cron_button, c->boot_helpers_button, c->graphics_select_button,
         c->graphics_api_button, c->history_button, c->desktop_log_button, c->logs_button,
         c->audit_logs_button, c->cron_button, c->cron_history_button, c->cron_manage_button,
-        c->cron_start_button, c->cron_stop_button, c->timezone_set_button, c->software_button, c->ai_model_install_button, c->ai_model_remove_button, c->ai_run_button, c->ai_gpu_status_button, c->ai_gpu_run_button, c->ai_npu_status_button, c->ai_npu_install_button, c->ai_npu_run_button, c->terminal_service_button, c->terminal_open_button,
+        c->cron_start_button, c->cron_stop_button, c->timezone_set_button, c->software_button, c->ai_model_install_button, c->ai_model_remove_button, c->ai_run_button, c->ai_auto_run_button, c->ai_gpu_status_button, c->ai_gpu_run_button, c->ai_npu_status_button, c->ai_npu_install_button, c->ai_npu_run_button, c->terminal_service_button, c->terminal_open_button,
         c->proot_box};
     gboolean has_actions = FALSE;
     for (guint i = 0; i < G_N_ELEMENTS(action_buttons); i++)
@@ -1381,6 +1385,34 @@ static void cpu_prompt_submit(GtkButton *button, gpointer data) {
     run_bridge_input(c, "cpu-run", prompt);
     gtk_window_destroy(GTK_WINDOW(window));
 }
+static void auto_prompt_submit(GtkButton *button, gpointer data) {
+    (void)button; GtkWidget *window = GTK_WIDGET(data);
+    Center *c = g_object_get_data(G_OBJECT(window), "auto-center");
+    GtkWidget *entry = g_object_get_data(G_OBJECT(window), "auto-entry");
+    const gchar *prompt = gtk_editable_get_text(GTK_EDITABLE(entry));
+    if (!prompt || !*prompt || strlen(prompt) > 4096 || strchr(prompt, '\n') || strchr(prompt, '\r')) {
+        if (c) gtk_label_set_text(GTK_LABEL(c->notice), "Use one non-empty prompt line under 4096 UTF-8 bytes.");
+        return;
+    }
+    run_bridge_input(c, "auto-run", prompt);
+    gtk_window_destroy(GTK_WINDOW(window));
+}
+static void auto_prompt_dialog(GtkButton *button, gpointer data) {
+    (void)button; Center *c = data; GtkWidget *window = gtk_window_new();
+    gtk_window_set_title(GTK_WINDOW(window), "Run using preferred AI backend");
+    gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(c->window)); gtk_window_set_modal(GTK_WINDOW(window), TRUE);
+    gtk_window_set_default_size(GTK_WINDOW(window), 440, 180);
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+    gtk_widget_set_margin_top(box, 14); gtk_widget_set_margin_bottom(box, 14);
+    gtk_widget_set_margin_start(box, 14); gtk_widget_set_margin_end(box, 14);
+    gtk_window_set_child(GTK_WINDOW(window), box);
+    gtk_box_append(GTK_BOX(box), gtk_label_new("Selects HTP0, then Vulkan, then CPU from live runtime probes. The selected backend is returned; a failed inference is not silently retried."));
+    GtkWidget *entry = gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(entry), "One-line prompt (up to 4096 UTF-8 bytes)");
+    gtk_box_append(GTK_BOX(box), entry); GtkWidget *run = gtk_button_new_with_label("Run on preferred backend"); gtk_box_append(GTK_BOX(box), run);
+    g_object_set_data(G_OBJECT(window), "auto-center", c); g_object_set_data(G_OBJECT(window), "auto-entry", entry);
+    g_signal_connect(run, "clicked", G_CALLBACK(auto_prompt_submit), window); gtk_window_present(GTK_WINDOW(window));
+}
+
 static void cpu_prompt_dialog(GtkButton *button, gpointer data) {
     (void)button; Center *c = data;
     GtkWidget *window = gtk_window_new(); gtk_window_set_title(GTK_WINDOW(window), "Run local CPU prompt");
@@ -2261,6 +2293,7 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     c->ai_model_install_button=gtk_button_new_with_label("Preview or download pinned CPU model…"); gtk_widget_set_visible(c->ai_model_install_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_model_install_button);
     c->ai_model_remove_button=gtk_button_new_with_label("Preview model removal…"); gtk_widget_set_visible(c->ai_model_remove_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_model_remove_button);
     c->ai_run_button=gtk_button_new_with_label("Run bounded CPU prompt…"); gtk_widget_set_visible(c->ai_run_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_run_button);
+    c->ai_auto_run_button=gtk_button_new_with_label("Run using preferred AI backend…"); gtk_widget_set_visible(c->ai_auto_run_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_auto_run_button);
     c->ai_gpu_status_button=gtk_button_new_with_label("List Vulkan inference devices"); gtk_widget_set_visible(c->ai_gpu_status_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_gpu_status_button);
     c->ai_gpu_run_button=gtk_button_new_with_label("Run bounded Vulkan prompt…"); gtk_widget_set_visible(c->ai_gpu_run_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_gpu_run_button);
     c->ai_npu_status_button=gtk_button_new_with_label("Check HTP0 runtime and device"); gtk_widget_set_visible(c->ai_npu_status_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_npu_status_button);
@@ -2311,7 +2344,7 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     gtk_widget_set_halign(tagline,GTK_ALIGN_START); gtk_widget_add_css_class(tagline,"dim-label");
     GtkWidget *portfolio=gtk_link_button_new_with_label("https://soobujmiah.github.io/","soobujmiah.github.io");
     gtk_box_append(GTK_BOX(brand),tagline); gtk_box_append(GTK_BOX(brand),portfolio); gtk_box_append(GTK_BOX(root),brand);
-    g_signal_connect(c->software_button,"clicked",G_CALLBACK(software_apps),c); g_signal_connect(c->ai_model_install_button,"clicked",G_CALLBACK(cpu_model_install),c); g_signal_connect(c->ai_model_remove_button,"clicked",G_CALLBACK(cpu_model_remove),c); g_signal_connect(c->ai_run_button,"clicked",G_CALLBACK(cpu_prompt_dialog),c);
+    g_signal_connect(c->software_button,"clicked",G_CALLBACK(software_apps),c); g_signal_connect(c->ai_auto_run_button,"clicked",G_CALLBACK(auto_prompt_dialog),c); g_signal_connect(c->ai_model_install_button,"clicked",G_CALLBACK(cpu_model_install),c); g_signal_connect(c->ai_model_remove_button,"clicked",G_CALLBACK(cpu_model_remove),c); g_signal_connect(c->ai_run_button,"clicked",G_CALLBACK(cpu_prompt_dialog),c);
     g_signal_connect(c->ai_gpu_status_button,"clicked",G_CALLBACK(gpu_status_clicked),c); g_signal_connect(c->ai_gpu_run_button,"clicked",G_CALLBACK(gpu_prompt_dialog),c);
     g_signal_connect(c->ai_npu_status_button,"clicked",G_CALLBACK(npu_status_clicked),c); g_signal_connect(c->ai_npu_install_button,"clicked",G_CALLBACK(npu_install_clicked),c); g_signal_connect(c->ai_npu_run_button,"clicked",G_CALLBACK(npu_run_dialog),c);
     g_signal_connect(c->terminal_service_button,"clicked",G_CALLBACK(terminal_service_clicked),c);

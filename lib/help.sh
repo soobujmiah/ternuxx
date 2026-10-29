@@ -82,7 +82,7 @@ AI INFERENCE
   tx ai runtime preview [cpu|vulkan|opencl]	Read-only package simulation
   tx ai setup	Guided local model/runtime preflight
   tx ai model ACTION [options]	Preview/install/remove pinned model
-  tx ai run [--backend cpu|vulkan|npu]	Run bounded local inference
+  tx ai run [--backend auto|cpu|vulkan|npu]	Run local inference (auto: HTP0 > Vulkan > CPU)
   tx ai npu status	Inspect experimental HTP availability
   tx ai npu runtime preview|apply	Review/install pinned NPU runtime
 
@@ -460,7 +460,7 @@ tx ai setup — Interactive runtime preflight, model preview, and optional CPU r
 tx ai model preview — Show the exact 429 MB download, checksum, license, and target
 tx ai model install — Preview first; type DOWNLOAD to install the pinned model
 tx ai model remove-preview / tx ai model remove — Preview, then type REMOVE
-tx ai run [--backend cpu|vulkan|npu] [--device ID] [--max-tokens N] — Bounded local inference
+tx ai run [--backend auto|cpu|vulkan|npu] [--device ID] [--max-tokens N] — Bounded local inference; auto prefers HTP0, then Vulkan, then CPU
 The experimental NPU path is SM8735-only, requires full HTP0 offload, and never silently falls back to CPU.
 Review Termux-owned llama.cpp packages with `tx ai runtime preview [cpu|vulkan|opencl]`; this runs apt simulation only. Ternuxx never installs packages here.
 EOF

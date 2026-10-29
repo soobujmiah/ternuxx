@@ -198,6 +198,17 @@ class TerminalUISharedServiceTests(unittest.TestCase):
         self.assertIn("run a bounded CPU prompt", labels)
         self.assertIn("inference.cpu.status", terminal_ui.READ_WITHOUT_ARGUMENTS)
 
+    def test_auto_inference_prefers_hardware_and_uses_shared_service(self) -> None:
+        resource = next(item for item in management_service.management_catalog.RESOURCES
+                        if item["id"] == "inference.auto.local")
+        labels = terminal_ui._available_action_labels(resource)
+        self.assertIn("run on HTP0, then Vulkan, then CPU fallback", labels)
+        result = {"ok": True, "data": {"backend_selection": {"backend": "npu"}}}
+        with mock.patch.object(terminal_ui, "_prompt", side_effect=["hello", "RUN"]), \
+                mock.patch.object(terminal_ui, "_call", return_value=result) as dispatch:
+            self.assertIs(terminal_ui._auto_inference_action(object(), resource), result)
+        dispatch.assert_called_once_with("inference.auto.run", {"prompt": "hello", "max_tokens": 64})
+
     def test_vulkan_inference_actions_are_explicit_and_shared(self) -> None:
         resource = next(item for item in management_service.management_catalog.RESOURCES
                         if item["id"] == "inference.gpu.local")

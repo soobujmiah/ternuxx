@@ -1,7 +1,7 @@
 schema_version: 1
 product: Ternuxx
 scope: native_termux_host_with_optional_debian_proot
-as_of: 2026-10-24
+as_of: 2026-10-29
 authority: current source, tests, and linked direct evidence; not a commercial or release approval
 classification_values:
   - FREE_CORE
@@ -192,6 +192,21 @@ features:
     limitations: [Fixture coverage does not prove Android cold-boot delivery or owner backup completeness.]
     next_action: Complete backup/recovery acceptance for each supported state class and record rollback tests.
     owner_decision_required: false
+
+  - id: inference.auto-routing
+    name: Native local inference backend priority
+    user_value: Use HTP0 by default when available, otherwise Vulkan, then CPU fallback.
+    implementation_status: PARTIAL
+    commercial_class: NOT_READY
+    runtime: ternuxx-shared-service-native-termux
+    dependencies: [SM8735 HTP0 runtime probe, Vulkan inference-device probe, Termux llama-cpp CPU runtime]
+    validation_status: PARTIAL
+    qualification: DETECTED
+    evidence: [NPU-ACCELERATION.md, ../../lib/ai_backend_selection.py, ../../lib/management_service.py, ../../tests/test_ai_backend_selection.py, ../../tests/test_management_service.py]
+    release_qualified: false
+    limitations: [Backend priority and fail-closed selection are fixture/service-tested; a live auto-selected model run is unqualified because the pinned model is absent. A selected inference failure is not retried on another backend. Initial installer-time runtime multi-select is not implemented.]
+    next_action: Verify auto selection on device with the same available model, then implement preview-first install-time CPU/Vulkan/HTP selection and close clean-install, thermal, and distribution gates.
+    owner_decision_required: true
 
   - id: inference.cpu
     name: Native CPU inference

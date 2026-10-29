@@ -686,6 +686,9 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
   if(r.id==="software.curated-apps"){
    const refresh=document.createElement("button");refresh.className="primary";refresh.textContent="Refresh curated app status";refresh.dataset.statusAction="true";refresh.onclick=()=>loadCuratedApps();actions.append(refresh);loadCuratedApps();
   }
+  if(r.id==="inference.auto.local"){
+   const execute=document.createElement("button");execute.className="primary";execute.textContent="Run using preferred backend…";execute.onclick=()=>{const prompt=window.prompt("One-line local prompt (max 4096 UTF-8 bytes). Ternuxx chooses HTP0, then Vulkan, then CPU based on runtime probes; a failed inference will not silently retry.");if(prompt!==null&&prompt.trim()&&window.confirm("Run once using the highest-priority available backend? The selected backend is returned with the result."))run("inference.auto.run",{prompt,max_tokens:64});};actions.append(execute);
+  }
   if(r.id==="inference.cpu.local"){
    const status=document.createElement("button");status.className="primary";status.textContent="Check CPU runtime and model";status.dataset.statusAction="true";status.onclick=()=>run("inference.cpu.status");actions.append(status);
    const install=document.createElement("button");install.textContent="Preview or download pinned model…";install.onclick=()=>manageCpuModel("install");actions.append(install);

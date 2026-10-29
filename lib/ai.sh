@@ -129,7 +129,7 @@ nt_cmd_ai() {
       if [ -t 0 ]; then
         read -r -p 'Review and download the pinned Qwen3 0.6B CPU model? [y/N] ' answer || return 2
         case "$answer" in y|Y|yes|YES) nt_cmd_ai model install || return $? ;; *) return 0 ;; esac
-        read -r -p 'Run a local CPU prompt? [y/N] ' answer || return 2
+        read -r -p 'Run a local prompt using HTP0, then Vulkan, then CPU fallback? [y/N] ' answer || return 2
         case "$answer" in y|Y|yes|YES) nt_cmd_ai run ;; *) return 0 ;; esac
       else
         nt_fail "Interactive setup needs a terminal; use 'tx ai model preview' for a read-only plan."
@@ -137,7 +137,7 @@ nt_cmd_ai() {
       fi
       ;;
     run)
-      local max_tokens=64 backend=cpu device_id="" operation option prompt
+      local max_tokens=64 backend=auto device_id="" operation option prompt
       local -a inference_args=()
       while [ "$#" -gt 0 ]; do
         option="$1"; shift
@@ -148,8 +148,8 @@ nt_cmd_ai() {
           *) nt_fail "Prompt is read from stdin; unknown run option: $option"; return 2 ;;
         esac
       done
-      case "$backend" in cpu) operation=inference.cpu.run ;; vulkan) operation=inference.gpu.run ;; npu) operation=inference.npu.run ;;
-        *) nt_fail "Backend must be cpu, vulkan, or npu."; return 2 ;; esac
+      case "$backend" in auto) operation=inference.auto.run ;; cpu) operation=inference.cpu.run ;; vulkan) operation=inference.gpu.run ;; npu) operation=inference.npu.run ;;
+        *) nt_fail "Backend must be auto, cpu, vulkan, or npu."; return 2 ;; esac
       [ "$backend" = vulkan ] || [ -z "$device_id" ] || { nt_fail "--device is only valid with --backend vulkan."; return 2; }
       [ -z "$device_id" ] || inference_args+=(--device-id "$device_id")
       if [ -t 0 ]; then

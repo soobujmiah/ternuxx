@@ -75,6 +75,7 @@ OPERATION_CAPABILITIES: dict[str, str] = {
     "inference.npu.runtime.preview": "diagnostics.read",
     "inference.npu.runtime.apply": "ai.local.manage",
     "inference.npu.run": "ai.local.run",
+    "inference.auto.run": "ai.local.run",
     "inference.cpu.model.preview": "diagnostics.read",
     "inference.cpu.model.apply": "ai.local.manage",
     "inference.cpu.run": "ai.local.run",

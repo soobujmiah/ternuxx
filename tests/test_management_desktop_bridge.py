@@ -143,6 +143,12 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
             self.assertEqual(bridge.main(["catalog"]), 2)
         dispatch.assert_not_called()
 
+    def test_auto_prompt_is_sent_to_priority_routing_service(self):
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"backend_selection": {"backend": "npu"}}}) as dispatch, \
+                mock.patch("sys.stdin", StringIO("one line")), redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["auto-run"]), 0)
+        dispatch.assert_called_once_with("inference.auto.run", {"prompt": "one line", "max_tokens": 64})
+
     def test_cpu_prompt_is_sent_on_stdin_to_shared_management_service(self):
         with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"output": "ok"}}) as dispatch, \
                 mock.patch("sys.stdin", StringIO("one line")), redirect_stdout(StringIO()) as output:

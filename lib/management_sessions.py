@@ -52,6 +52,7 @@ MUTATING_OPERATIONS = frozenset({
     "inference.gpu.run",
     "inference.npu.runtime.apply",
     "inference.npu.run",
+    "inference.auto.run",
     "proot.app.launch",
     "proot.guest.verify",
     "proot.recovery.reconcile",

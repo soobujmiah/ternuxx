@@ -12,6 +12,12 @@ The verified known-answer workload uses the pinned Qwen3 0.6B Q4_0 model and ret
 
 To inspect and enable the private runtime, use `tx ai npu status`, `tx ai npu runtime preview`, then `tx ai npu runtime apply --plan-id PLAN_ID --confirm INSTALL`. In interactive mode, `tx ai npu runtime apply` guides the preview and typed confirmation. Run a bounded prompt explicitly with `tx ai run --backend npu`; never infer NPU use from Vulkan graphics or device detection alone. The same preview, explicit install confirmation, status, and run actions are available in TUI, Web, and GTK. The package is experimental; do not use it for latency or battery-sensitive work without device-specific testing.
 
+## Automatic backend priority
+
+`tx ai run` now defaults to `--backend auto`. The shared service probes HTP0 first, then Vulkan, and selects CPU only when neither accelerator probe reports a usable backend. The chosen backend and probe failures are returned with successful results. Explicit `--backend cpu|vulkan|npu` remains available. Automatic selection happens before inference; if a selected accelerator run fails or reports incomplete offload, it fails visibly and does not retry the prompt elsewhere. This avoids duplicate work and makes backend failures measurable. TUI, Web, and GTK expose the same preference as a separate bounded local inference action.
+
+The selector's priority and fail-closed behavior currently have fixture/service tests; a live default-auto inference run is still unqualified because Ternuxx's pinned Qwen3 model is absent from its private model directory. Initial installer-time multi-select for CPU/Vulkan/HTP runtime packages also remains open. The reproducible b11849 internal candidate is documented in [the P12 build evidence](../evidence/2026-10-30-p12-htp-reproducible-build-preparation.md); it is not a public release and has not been installed as a candidate on device.
+
 ## Historical feasibility review (superseded by the current implementation above)
 
 The following sections preserve the initial investigation snapshots gathered before the Native loader configuration and Ternuxx HTP integration were complete. Their `unavailable`, `not implemented`, and “do not retry” statements describe those earlier tests only; they are not the current state.

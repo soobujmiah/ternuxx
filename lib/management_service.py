@@ -45,6 +45,7 @@ import management_log_reader
 import graphics_manager
 import cpu_inference
 import npu_inference
+import ai_backend_selection
 import optional_software
 import gui_monitoring
 import hermes_adapter
@@ -81,6 +82,7 @@ OPERATIONS = {
     "inference.npu.runtime.preview": {"args": set()},
     "inference.npu.runtime.apply": {"args": {"plan_id", "confirmed"}},
     "inference.npu.run": {"args": {"prompt", "max_tokens"}},
+    "inference.auto.run": {"args": {"prompt", "max_tokens"}},
     "inference.cpu.model.preview": {"args": {"action"}},
     "inference.cpu.model.apply": {"args": {"action", "plan_id", "confirmed"}},
     "inference.cpu.run": {"args": {"prompt", "max_tokens"}},
@@ -306,7 +308,7 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             or not re.fullmatch(r"[0-9a-f]{24}", args.get("plan_id", ""))
             or args.get("confirmed") is not True):
         return _error(request_id, "confirmation_required", "NPU runtime apply requires its exact preview ID and explicit confirmation")
-    if operation in {"inference.cpu.run", "inference.gpu.run", "inference.npu.run"} and (
+    if operation in {"inference.cpu.run", "inference.gpu.run", "inference.npu.run", "inference.auto.run"} and (
             not isinstance(args.get("prompt"), str)
             or not args.get("prompt", "").strip()
             or "\n" in args.get("prompt", "") or "\r" in args.get("prompt", "")
@@ -569,20 +571,50 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             else:
                 data = cpu_inference.remove_model(plan_id=args["plan_id"], confirmed="REMOVE",
                                                   home=Path(home), state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
-        elif operation in {"inference.cpu.run", "inference.gpu.run", "inference.npu.run"}:
-            if operation == "inference.npu.run":
+        elif operation in {"inference.cpu.run", "inference.gpu.run", "inference.npu.run", "inference.auto.run"}:
+            state_path = state_dir or os.path.join(home, ".local/share/ternuxx")
+            backend = {"inference.cpu.run": "cpu", "inference.gpu.run": "vulkan",
+                       "inference.npu.run": "npu"}.get(operation)
+            selected_device = args.get("device_id")
+            selection = None
+            if operation == "inference.auto.run":
+                try:
+                    npu_status = npu_inference.status(prefix=process_env["PREFIX"], home=Path(home),
+                                                      state_dir=state_path)
+                except Exception as exc:
+                    npu_status = {}
+                    npu_probe_error = type(exc).__name__
+                else:
+                    npu_probe_error = None
+                if npu_status.get("available") is True and npu_status.get("device") == "HTP0":
+                    gpu_status = {}
+                    gpu_probe_error = None
+                else:
+                    try:
+                        gpu_status = cpu_inference.gpu_status(prefix=process_env["PREFIX"], home=Path(home),
+                                                               state_dir=state_path)
+                    except Exception as exc:
+                        gpu_status = {}
+                        gpu_probe_error = type(exc).__name__
+                    else:
+                        gpu_probe_error = None
+                selection = ai_backend_selection.select_backend(npu_status, gpu_status)
+                selection["probe_errors"] = {key: value for key, value in
+                    (("npu", npu_probe_error), ("vulkan", gpu_probe_error)) if value}
+                backend = selection["backend"]
+                selected_device = selection["device_id"] if backend == "vulkan" else None
+            if backend == "npu":
                 data = npu_inference.run_inference(args["prompt"], home=Path(home),
-                    state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
-                    prefix=process_env["PREFIX"], max_tokens=args.get("max_tokens", 64))
-                backend = None
+                    state_dir=state_path, prefix=process_env["PREFIX"],
+                    max_tokens=args.get("max_tokens", 64))
             else:
-                backend = "vulkan" if operation == "inference.gpu.run" else "cpu"
-            if backend is not None:
                 data = cpu_inference.run_inference(args["prompt"], home=Path(home),
-                                                   state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
-                                                   prefix=process_env["PREFIX"],
-                                                   max_tokens=args.get("max_tokens", 64), backend=backend,
-                                                   device_id=args.get("device_id"))
+                    state_dir=state_path, prefix=process_env["PREFIX"],
+                    max_tokens=args.get("max_tokens", 64), backend=backend or "cpu",
+                    device_id=selected_device)
+            if selection is not None:
+                data["backend_selection"] = {"requested": "auto", **selection,
+                    "retry_after_inference_failure": False}
         elif operation == "graphics.provider.status":
             provider = args.get("provider")
             if provider != "native":
@@ -1268,6 +1300,9 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
     except optional_software.SoftwareError as exc:
         return _error(request_id, "software_operation_failed", str(exc))
     except (cpu_inference.InferenceError, npu_inference.NpuInferenceError) as exc:
+        if operation == "inference.auto.run" and selection is not None:
+            return _error(request_id, "inference_failed",
+                f"Automatic routing selected {selection['backend']}; inference failed ({type(exc).__name__}) and was not retried on another backend")
         return _error(request_id, "inference_failed", str(exc))
     except boot_helpers.BootHelperError as exc:
         return _error(request_id, "boot_helper_operation_failed", str(exc))
@@ -1619,7 +1654,7 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
             return 1
         payload = {"action": args.model_action, "plan_id": args.plan_id, "confirmed": True}
-    elif args.operation in {"inference.cpu.run", "inference.gpu.run", "inference.npu.run"}:
+    elif args.operation in {"inference.cpu.run", "inference.gpu.run", "inference.npu.run", "inference.auto.run"}:
         if not args.prompt_stdin:
             response = _error(request_id, "invalid_arguments", "inference prompt must be provided with --prompt-stdin")
             print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
