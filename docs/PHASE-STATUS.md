@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Qwen2.5 is hash-verified. CPU attempts and Vulkan/HTP repeats cross unchanged thermal guards before accepted output; latest CPU and HTP repeats are recorded with runtime integrity.
+Qwen2.5 is hash-verified. CPU/Vulkan/HTP attempts still cross in-run guards; empirical pre-inference headroom gates now prevent launches when prior sensor rises could exceed those guards.
 
-**Next action:** Allow substantial cool-down after the CPU trip to 67.6°C. Resume CPU, Vulkan, and HTP tests only after two fresh passing preflights and lower starting temperatures; save each full report directly to evidence. Do not bypass guards. Then test the owner-handed-off HTP candidate, clean-install replay, provenance/licensing, and release gates.
+**Next action:** Wait until two fresh preflight samples meet the backend-specific empirical launch ceilings (CPU 40°C; Vulkan CPU/GPU 45/50°C; NPU CPU/HTP 50/40°C). Save full reports directly to evidence; do not bypass thermal limits. Then test the owner-handed-off HTP candidate, clean-install replay, provenance/licensing, and release gates.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

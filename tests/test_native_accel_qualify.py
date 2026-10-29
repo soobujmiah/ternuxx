@@ -12,6 +12,8 @@ from tools.native_accel_qualify import (
     _preflight_failure_report,
     collect_preflight,
     active_temperature_limits,
+    launch_temperature_limits,
+    launch_headroom_violations,
     model_integrity,
     runtime_integrity,
     run,
@@ -139,6 +141,27 @@ class NativeAccelQualificationTests(unittest.TestCase):
         self.assertTrue(any("MemAvailable" in item
                             for item in resource_violations(low_memory, limits, 2 * 1024 * 1024)))
 
+    def test_launch_headroom_limits_reserve_measured_thermal_rise_by_backend(self):
+        args = Namespace(backend="cpu", cpu_stop_c=60.0, gpu_stop_c=60.0,
+                         htp_stop_c=60.0, battery_stop_c=45.0, socd_stop_c=70.0,
+                         ignore_thermal_limits=False)
+        self.assertEqual(launch_temperature_limits(args), {"cpu": 40.0})
+        args.backend = "vulkan"
+        self.assertEqual(launch_temperature_limits(args), {"cpu": 45.0, "gpu": 50.0})
+        args.backend = "npu"
+        self.assertEqual(launch_temperature_limits(args), {"cpu": 50.0, "htp": 40.0})
+        args.ignore_thermal_limits = True
+        self.assertEqual(launch_temperature_limits(args), {})
+
+    def test_launch_headroom_blocks_warm_starts_even_below_stop_guard(self):
+        args = Namespace(backend="cpu", cpu_stop_c=60.0, gpu_stop_c=60.0,
+                         htp_stop_c=60.0, battery_stop_c=45.0, socd_stop_c=70.0,
+                         ignore_thermal_limits=False)
+        self.assertEqual(launch_headroom_violations({"cpu": 39.9}, args), [])
+        self.assertEqual(launch_headroom_violations({"cpu": 40.0}, args), [])
+        self.assertIn("lacks launch headroom",
+                      launch_headroom_violations({"cpu": 40.1}, args)[0])
+
     def test_temperature_limits_can_be_observed_without_blocking_explicit_run(self):
         args = Namespace(cpu_stop_c=60.0, gpu_stop_c=60.0, htp_stop_c=60.0,
                          battery_stop_c=45.0, socd_stop_c=70.0, ignore_thermal_limits=True)
@@ -241,6 +264,21 @@ class NativeAccelQualificationTests(unittest.TestCase):
         self.assertEqual(report["snapshot"], snapshot)
         self.assertEqual(report["issues"], [])
         self.assertEqual(report["completed_runs"], 0)
+
+    def test_preflight_refuses_accelerator_call_without_cpu_headroom(self):
+        args = Namespace(backend="npu", cpu_stop_c=60.0, gpu_stop_c=60.0, htp_stop_c=60.0,
+                         battery_stop_c=45.0, socd_stop_c=70.0, ignore_thermal_limits=False,
+                         minimum_mem_mib=2048, max_tokens=8, runs=3, idle_seconds=5.0)
+        snapshot = {"cpu": 52.4, "gpu": 44.0, "htp": 45.1,
+                    "battery": 41.8, "socd": 28.0, "memavailable_kib": 5_800_000}
+        from unittest.mock import patch
+        with patch("tools.native_accel_qualify._snapshot", return_value=snapshot), \
+             patch("tools.native_accel_qualify.process_snapshot", return_value={}):
+            report = collect_preflight(args)
+        self.assertFalse(report["ok"])
+        self.assertFalse(report["will_start_inference"])
+        self.assertEqual(report["launch_temperature_limits_c"], {"cpu": 50.0, "htp": 40.0})
+        self.assertTrue(any("cpu=52.4 C lacks launch headroom" in item for item in report["issues"]))
 
     def test_preflight_only_fails_closed_on_heat_memory_or_existing_inference(self):
         args = Namespace(backend="npu", cpu_stop_c=60.0, gpu_stop_c=60.0, htp_stop_c=60.0,

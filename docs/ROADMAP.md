@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Allow substantial cool-down after the CPU trip to 67.6°C. Resume CPU, Vulkan, and HTP tests only after two fresh passing preflights and lower starting temperatures; save each full report directly to evidence. Do not bypass guards. Then test the owner-handed-off HTP candidate, clean-install replay, provenance/licensing, and release gates.
+**Next action:** Wait until two fresh preflight samples meet the backend-specific empirical launch ceilings (CPU 40°C; Vulkan CPU/GPU 45/50°C; NPU CPU/HTP 50/40°C). Save full reports directly to evidence; do not bypass thermal limits. Then test the owner-handed-off HTP candidate, clean-install replay, provenance/licensing, and release gates.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

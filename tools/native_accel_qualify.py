@@ -175,6 +175,36 @@ def active_temperature_limits(args: argparse.Namespace) -> dict[str, float]:
             "battery": args.battery_stop_c, "socd": args.socd_stop_c}
 
 
+def launch_temperature_limits(args: argparse.Namespace) -> dict[str, float]:
+    """Require observed headroom before a qualification call can start.
+
+    Historical guarded attempts rose by as much as 19.1 C on CPU, 15.5 C on HTP,
+    and 9.5 C on Vulkan GPU sensors between launch and sampled peak. These ceilings
+    reserve margin for those observed rises and are test policy, not OEM limits.
+    They do not alter the in-run stop limits.
+    """
+    if getattr(args, "ignore_thermal_limits", False):
+        return {}
+    margins = {"cpu": 20.0}
+    if args.backend == "vulkan":
+        margins["cpu"] = 15.0
+        margins["gpu"] = 10.0
+    elif args.backend == "npu":
+        margins["cpu"] = 10.0
+        margins["htp"] = 20.0
+    defaults = {"cpu": 60.0, "gpu": 60.0, "htp": 60.0}
+    return {name: getattr(args, f"{name}_stop_c", defaults[name]) - margin
+            for name, margin in margins.items()}
+
+
+def launch_headroom_violations(snapshot: dict[str, float | int | None],
+                               args: argparse.Namespace) -> list[str]:
+    limits = launch_temperature_limits(args)
+    return [f"{name}={snapshot[name]} C lacks launch headroom; start ceiling is {limit:g} C"
+            for name, limit in limits.items()
+            if snapshot.get(name) is not None and float(snapshot[name]) > limit]
+
+
 def _render_report(args: argparse.Namespace, rows: list[dict[str, object]],
                    preflight: dict[str, float | int | None], limits: dict[str, float],
                    minimum_mem_kib: int) -> dict[str, object]:
@@ -190,7 +220,9 @@ def _render_report(args: argparse.Namespace, rows: list[dict[str, object]],
                                 for index in range(1, args.runs + 1)],
         "max_tokens": args.max_tokens,
         "guards": {**limits, "minimum_memavailable_mib": minimum_mem_kib // 1024,
-                   "note": "Conservative test guards selected for this run; not OEM-rated limits."},
+                   "note": "Conservative in-run test guards selected for this run; not OEM-rated limits."},
+        "launch_temperature_limits_c": launch_temperature_limits(args),
+        "launch_headroom_note": "Empirical pre-inference ceilings reserve margin for observed rapid temperature rise; not OEM limits.",
         "thermal_limits_ignored": bool(getattr(args, "ignore_thermal_limits", False)),
         "preflight": preflight,
         "completed_runs": sum(row["status"] == "passed" for row in rows),
@@ -223,6 +255,7 @@ def collect_preflight(args: argparse.Namespace) -> dict[str, object]:
         issues = [f"required {required_sensor}/CPU thermal zone is unavailable"]
     else:
         issues = resource_violations(snapshot, limits, minimum_mem_kib)
+        issues.extend(launch_headroom_violations(snapshot, args))
     pids = sorted(process_snapshot())
     if pids:
         issues.append("an existing llama-cli process is running; no inference was started")
@@ -357,6 +390,7 @@ def run(args: argparse.Namespace) -> int:
         case = qualification_case_for_run(index)
         before = _snapshot()
         issues = resource_violations(before, limits, minimum_mem_kib)
+        issues.extend(launch_headroom_violations(before, args))
         if issues:
             rows.append({"run": index, "case_id": case.case_id, "status": "guard_blocked",
                          "issues": issues, "before": before})
@@ -444,6 +478,7 @@ def run(args: argparse.Namespace) -> int:
             while time.monotonic() < idle_end:
                 sample = _snapshot()
                 issues = resource_violations(sample, limits, minimum_mem_kib)
+                issues.extend(launch_headroom_violations(sample, args))
                 if issues:
                     rows.append({"run": index + 1,
                                  "case_id": qualification_case_for_run(index + 1).case_id,

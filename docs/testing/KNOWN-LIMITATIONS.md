@@ -9,6 +9,10 @@
 - The pinned Qwen2.5 model passed one Vulkan0 run with 29/29 layers, then a repeat was cancelled at CPU 60.4°C. The experimental Mesa/Freedreno ICD does not have an audited, repeatable clean-install path; sustained performance and general GPU support remain unqualified. OpenCL has no usable platform in the observed Native session. See [GPU qualification](GPU-ACCELERATION.md) and [P12 result](../evidence/2026-10-30-p12-native-qualification.md).
 - The pinned Qwen2.5 model passed one HTP0 b11849 call with 29/29 layers, then two repeat attempts were cancelled, first at HTP 61.0°C and later at CPU 60.8°C. This exact model has no repeated/sustained qualification or same-model CPU speed comparison. Broader model/operator correctness, memory pressure, and clean-device installation remain open. See [NPU qualification](NPU-ACCELERATION.md) and [P12 result](../evidence/2026-10-30-p12-native-qualification.md).
 
+## Qualification launch headroom
+
+The native accelerator qualification runner now requires empirical start margins below its in-run stop guards: CPU launch at or below 40°C, Vulkan CPU/GPU at or below 45°C/50°C, and HTP CPU/HTP at or below 50°C/40°C. These values are derived from observed short-run sensor increases and are test policy, not OEM limits. A 2026-10-29 preflight at CPU 52.8°C was refused before inference. Do not bypass this gate with `--ignore-thermal-limits`.
+
 ## Lifecycle and recovery
 
 - Debian PRoot support and the installed Trixie guest are present. Automated fixture coverage and the one-device live checks do not equal clean-device installation qualification. Fresh setup runs in an attached Native Termux terminal; it supports hidden-password and guest-only passwordless sudo modes.
