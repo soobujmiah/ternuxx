@@ -1,0 +1,7 @@
+event_id: commit-e0a2ecdd76ce-4634f8f844569aa9
+repository: soobujmiah/ternuxx
+commit: e0a2ecdd76cec43d992118ec72d10bfaf66de901
+kind: commit
+occurred_at: '2026-10-29T23:54:41Z'
+status: completed
+summary: 'fix(p12): require empirical launch thermal headroom'
