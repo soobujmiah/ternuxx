@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Qwen2.5 is hash-verified; CPU/Vulkan repeat runs and HTP repeat run cross test thermal guards. Runner now captures exact output and model/runtime integrity.
+Qwen2.5 is hash-verified. CPU attempts and Vulkan/HTP repeats cross unchanged thermal guards before accepted output; latest CPU and HTP repeats are recorded with runtime integrity.
 
-**Next action:** Repeat three-case CPU, Vulkan, and HTP qualification with the integrity-aware runner only when fresh guarded samples and device headroom support it. Then complete clean-install replay, artifact provenance/licensing, and release checks; do not bypass thermal limits.
+**Next action:** Allow substantial cool-down after the CPU trip to 67.6°C. Resume CPU, Vulkan, and HTP tests only after two fresh passing preflights and lower starting temperatures; save each full report directly to evidence. Do not bypass guards. Then test the owner-handed-off HTP candidate, clean-install replay, provenance/licensing, and release gates.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

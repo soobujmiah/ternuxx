@@ -1,0 +1,407 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-29T23:39:50.151333+00:00",
+  "platform": {
+    "system": "Android",
+    "release": "16",
+    "machine": "aarch64",
+    "prefix": "/data/data/com.termux/files/usr"
+  },
+  "provider": "native-termux",
+  "backend": "npu",
+  "prompt_suite_id": "arithmetic-operators-v1",
+  "scheduled_case_ids": [
+    "addition-2-plus-2-v1",
+    "subtraction-9-minus-4-v1",
+    "multiplication-3-times-2-v1"
+  ],
+  "max_tokens": 8,
+  "guards": {
+    "cpu": 60,
+    "gpu": 60,
+    "htp": 60,
+    "battery": 45,
+    "socd": 70,
+    "minimum_memavailable_mib": 2048,
+    "note": "Conservative test guards selected for this run; not OEM-rated limits."
+  },
+  "thermal_limits_ignored": false,
+  "preflight": {
+    "cpu": 49.7,
+    "gpu": 44.4,
+    "htp": 44.8,
+    "battery": 42.42,
+    "socd": 26.0,
+    "memavailable_kib": 5992320
+  },
+  "completed_runs": 0,
+  "requested_runs": 3,
+  "runs": [
+    {
+      "run": 1,
+      "case_id": "addition-2-plus-2-v1",
+      "status": "guard_cancelled",
+      "elapsed_seconds": 8.894,
+      "exit_code": 1,
+      "peak_llama_cli_rss_kib": 86464,
+      "minimum_memavailable_kib": 5479488,
+      "thermal_samples": [
+        {
+          "cpu": 51.3,
+          "gpu": 45.9,
+          "htp": 47.1,
+          "battery": 42.42,
+          "socd": 27.0,
+          "memavailable_kib": 5991904
+        },
+        {
+          "cpu": 54.8,
+          "gpu": 45.9,
+          "htp": 47.9,
+          "battery": 42.42,
+          "socd": 27.0,
+          "memavailable_kib": 5953364
+        },
+        {
+          "cpu": 52.8,
+          "gpu": 45.9,
+          "htp": 47.5,
+          "battery": 42.41,
+          "socd": 27.0,
+          "memavailable_kib": 5953596
+        },
+        {
+          "cpu": 53.2,
+          "gpu": 45.9,
+          "htp": 47.9,
+          "battery": 42.41,
+          "socd": 27.0,
+          "memavailable_kib": 5954204
+        },
+        {
+          "cpu": 53.6,
+          "gpu": 46.7,
+          "htp": 47.9,
+          "battery": 42.42,
+          "socd": 27.0,
+          "memavailable_kib": 5954724
+        },
+        {
+          "cpu": 54.4,
+          "gpu": 46.7,
+          "htp": 48.7,
+          "battery": 42.42,
+          "socd": 27.0,
+          "memavailable_kib": 5956300
+        },
+        {
+          "cpu": 54.4,
+          "gpu": 46.7,
+          "htp": 48.7,
+          "battery": 42.41,
+          "socd": 27.0,
+          "memavailable_kib": 5958320
+        },
+        {
+          "cpu": 54.4,
+          "gpu": 47.1,
+          "htp": 48.3,
+          "battery": 42.41,
+          "socd": 27.0,
+          "memavailable_kib": 5958320
+        },
+        {
+          "cpu": 54.8,
+          "gpu": 47.1,
+          "htp": 49.1,
+          "battery": 42.42,
+          "socd": 27.0,
+          "memavailable_kib": 5958320
+        },
+        {
+          "cpu": 55.2,
+          "gpu": 47.1,
+          "htp": 49.1,
+          "battery": 42.42,
+          "socd": 27.0,
+          "memavailable_kib": 5956768
+        },
+        {
+          "cpu": 53.6,
+          "gpu": 47.5,
+          "htp": 49.9,
+          "battery": 42.43,
+          "socd": 27.0,
+          "memavailable_kib": 5890432
+        },
+        {
+          "cpu": 60.8,
+          "gpu": 47.9,
+          "htp": 51.1,
+          "battery": 42.43,
+          "socd": 27.0,
+          "memavailable_kib": 5479488
+        }
+      ],
+      "before": {
+        "cpu": 51.6,
+        "gpu": 45.5,
+        "htp": 47.1,
+        "battery": 42.43,
+        "socd": 27.0,
+        "memavailable_kib": 5992156
+      },
+      "after": {
+        "cpu": 50.5,
+        "gpu": 47.1,
+        "htp": 47.9,
+        "battery": 42.62,
+        "socd": 27.0,
+        "memavailable_kib": 5999376
+      },
+      "new_llama_cli_pids_remaining": [],
+      "error": "cpu=60.8 C reached guard 60 C"
+    }
+  ],
+  "model_integrity_before": {
+    "model_id": "qwen2.5-1.5b-instruct-q4_k_m",
+    "license": "Apache-2.0",
+    "path": "/data/data/com.termux/files/home/.local/share/ternuxx/models/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "expected_size_bytes": 1117320736,
+    "observed_size_bytes": 1117320736,
+    "expected_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "observed_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "regular_file": true,
+    "mode": "0o600",
+    "valid": true
+  },
+  "model_integrity_after": {
+    "model_id": "qwen2.5-1.5b-instruct-q4_k_m",
+    "license": "Apache-2.0",
+    "path": "/data/data/com.termux/files/home/.local/share/ternuxx/models/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "expected_size_bytes": 1117320736,
+    "observed_size_bytes": 1117320736,
+    "expected_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "observed_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "regular_file": true,
+    "mode": "0o600",
+    "valid": true
+  },
+  "model_integrity_unchanged": true,
+  "runtime_integrity_before": {
+    "backend": "Hexagon HTP",
+    "runtime": "b11849",
+    "path": "/data/data/com.termux/files/home/.local/share/ternuxx/artifacts/llama.cpp-snapdragon-b11849/runtime/llama-b11849",
+    "archive_sha256": "2d0f1a989a8f0c4329839c3bb85b6fb70edb03e0b017fee0be4cf55b7ece8f6c",
+    "license": "MIT",
+    "verified_manifest_files": {
+      "LICENSE": {
+        "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+        "size_bytes": 1078
+      },
+      "bin/llama-cli": {
+        "sha256": "2dc86fc0cb486ce4eb0e0b082f28f5c420d23badc8cae447e96db33fb8f6742d",
+        "size_bytes": 7472
+      },
+      "lib/libggml-base.so": {
+        "sha256": "987442e594acf350a38a8d288ad6365a1704db2fa2cf7aa5e105091ffda23759",
+        "size_bytes": 7788912
+      },
+      "lib/libggml-cpu.so": {
+        "sha256": "323ecafee25968121fcc9160f5b33cd46fdc2bd4017d6837978f44071093cab1",
+        "size_bytes": 4206392
+      },
+      "lib/libggml-hexagon.so": {
+        "sha256": "55c41894882cf36f2e0ace9709fc9487726629b02a772af8b20de7b141ef5ca3",
+        "size_bytes": 7724272
+      },
+      "lib/libggml-htp-v73.so": {
+        "sha256": "4626482c06682f8b104d60bdcc9f38ebbd9db9682a7e145c8f89180e9e163c73",
+        "size_bytes": 838080
+      },
+      "lib/libggml-htp-v75.so": {
+        "sha256": "87780623e814652968bb205169faee20c03e723993f1895b52fb80dc5da022ea",
+        "size_bytes": 838016
+      },
+      "lib/libggml-htp-v79.so": {
+        "sha256": "ba9178352e7af80a1538dcb9459c180fe7d8284cb8e484a124f5cb4271de7e03",
+        "size_bytes": 854496
+      },
+      "lib/libggml-htp-v81.so": {
+        "sha256": "d9df9aa8809e6e08afd870ac4d26f07b0941dd29577f7ccae8a3a101fe44fe51",
+        "size_bytes": 866912
+      },
+      "lib/libggml-htp-v85.so": {
+        "sha256": "cc003661a4687c28166977785649707e4cfc60f79d9cf29ec50661d6584e7741",
+        "size_bytes": 866912
+      },
+      "lib/libggml-opencl.so": {
+        "sha256": "1182195b2636dcd474bc8ae72c0307b37e5911a1766666fe7850fb74db7718dd",
+        "size_bytes": 13814232
+      },
+      "lib/libggml-rpc.so": {
+        "sha256": "d13c81706cd67b86085a53551e2c02bb59398fcd2ef391c3f64d57e6851757db",
+        "size_bytes": 7029880
+      },
+      "lib/libggml.so": {
+        "sha256": "43ad7f481f06b6fce95b58c3e2610a2afc7eb0294805b0b5d14edf589b8eabf2",
+        "size_bytes": 389000
+      },
+      "lib/libllama-batched-bench-impl.so": {
+        "sha256": "a8be0182237444f9f4b24b4dfd94cc36abf51095e844b190f7df1206d5e21358",
+        "size_bytes": 608504
+      },
+      "lib/libllama-bench-impl.so": {
+        "sha256": "fe8a02cdb9bf0ff1bb9c4369f0c58bfda4942c9910b9e2f7756c0c14a0c65613",
+        "size_bytes": 3734936
+      },
+      "lib/libllama-cli-impl.so": {
+        "sha256": "976ac8cbc39ff36d5e0ffcff9d678be18335056232e7cec278bb6af4e570f5a5",
+        "size_bytes": 2519304
+      },
+      "lib/libllama-common.so": {
+        "sha256": "71a404c5bb30e889fc1ab12af0b3eaec86bbe374fff6b1d6bb4d8b93bf481528",
+        "size_bytes": 69189864
+      },
+      "lib/libllama-completion-impl.so": {
+        "sha256": "cd1df8671764e4828902f3e02b598ac54a80b357ca6ddad97ad19a0af1adbd34",
+        "size_bytes": 1281640
+      },
+      "lib/libllama-fit-params-impl.so": {
+        "sha256": "9579c54ed832637ad83190c48050cb7ddb33d7814bb12dd6c21f3435db406393",
+        "size_bytes": 547736
+      },
+      "lib/libllama-perplexity-impl.so": {
+        "sha256": "9a28ea39d1e4a9cfe0e59f4702bc683d1742fd95c33341065003eb5320dc0887",
+        "size_bytes": 1624104
+      },
+      "lib/libllama-quantize-impl.so": {
+        "sha256": "a7d835c56300271d93216e4bcfa798b93c6c62c5081093f57332b20cd3134781",
+        "size_bytes": 1011664
+      },
+      "lib/libllama-server-impl.so": {
+        "sha256": "945637c0548e6860c53b51dcf882b3ce5ad7841878488eeb4539f541a16e7a33",
+        "size_bytes": 53981504
+      },
+      "lib/libllama.so": {
+        "sha256": "c7f92bd59cc4feba988006c9fcced4f835910c328af7788448e71487a2a1fc00",
+        "size_bytes": 39130344
+      },
+      "lib/libmtmd.so": {
+        "sha256": "eae6356b43d3ed8cbc7184ae0176ec81e1802c917880dec3f0d82cbb5328b732",
+        "size_bytes": 14399568
+      }
+    },
+    "valid": true,
+    "reason": "verified upstream llama.cpp Android Snapdragon release b11849"
+  },
+  "runtime_integrity_after": {
+    "backend": "Hexagon HTP",
+    "runtime": "b11849",
+    "path": "/data/data/com.termux/files/home/.local/share/ternuxx/artifacts/llama.cpp-snapdragon-b11849/runtime/llama-b11849",
+    "archive_sha256": "2d0f1a989a8f0c4329839c3bb85b6fb70edb03e0b017fee0be4cf55b7ece8f6c",
+    "license": "MIT",
+    "verified_manifest_files": {
+      "LICENSE": {
+        "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+        "size_bytes": 1078
+      },
+      "bin/llama-cli": {
+        "sha256": "2dc86fc0cb486ce4eb0e0b082f28f5c420d23badc8cae447e96db33fb8f6742d",
+        "size_bytes": 7472
+      },
+      "lib/libggml-base.so": {
+        "sha256": "987442e594acf350a38a8d288ad6365a1704db2fa2cf7aa5e105091ffda23759",
+        "size_bytes": 7788912
+      },
+      "lib/libggml-cpu.so": {
+        "sha256": "323ecafee25968121fcc9160f5b33cd46fdc2bd4017d6837978f44071093cab1",
+        "size_bytes": 4206392
+      },
+      "lib/libggml-hexagon.so": {
+        "sha256": "55c41894882cf36f2e0ace9709fc9487726629b02a772af8b20de7b141ef5ca3",
+        "size_bytes": 7724272
+      },
+      "lib/libggml-htp-v73.so": {
+        "sha256": "4626482c06682f8b104d60bdcc9f38ebbd9db9682a7e145c8f89180e9e163c73",
+        "size_bytes": 838080
+      },
+      "lib/libggml-htp-v75.so": {
+        "sha256": "87780623e814652968bb205169faee20c03e723993f1895b52fb80dc5da022ea",
+        "size_bytes": 838016
+      },
+      "lib/libggml-htp-v79.so": {
+        "sha256": "ba9178352e7af80a1538dcb9459c180fe7d8284cb8e484a124f5cb4271de7e03",
+        "size_bytes": 854496
+      },
+      "lib/libggml-htp-v81.so": {
+        "sha256": "d9df9aa8809e6e08afd870ac4d26f07b0941dd29577f7ccae8a3a101fe44fe51",
+        "size_bytes": 866912
+      },
+      "lib/libggml-htp-v85.so": {
+        "sha256": "cc003661a4687c28166977785649707e4cfc60f79d9cf29ec50661d6584e7741",
+        "size_bytes": 866912
+      },
+      "lib/libggml-opencl.so": {
+        "sha256": "1182195b2636dcd474bc8ae72c0307b37e5911a1766666fe7850fb74db7718dd",
+        "size_bytes": 13814232
+      },
+      "lib/libggml-rpc.so": {
+        "sha256": "d13c81706cd67b86085a53551e2c02bb59398fcd2ef391c3f64d57e6851757db",
+        "size_bytes": 7029880
+      },
+      "lib/libggml.so": {
+        "sha256": "43ad7f481f06b6fce95b58c3e2610a2afc7eb0294805b0b5d14edf589b8eabf2",
+        "size_bytes": 389000
+      },
+      "lib/libllama-batched-bench-impl.so": {
+        "sha256": "a8be0182237444f9f4b24b4dfd94cc36abf51095e844b190f7df1206d5e21358",
+        "size_bytes": 608504
+      },
+      "lib/libllama-bench-impl.so": {
+        "sha256": "fe8a02cdb9bf0ff1bb9c4369f0c58bfda4942c9910b9e2f7756c0c14a0c65613",
+        "size_bytes": 3734936
+      },
+      "lib/libllama-cli-impl.so": {
+        "sha256": "976ac8cbc39ff36d5e0ffcff9d678be18335056232e7cec278bb6af4e570f5a5",
+        "size_bytes": 2519304
+      },
+      "lib/libllama-common.so": {
+        "sha256": "71a404c5bb30e889fc1ab12af0b3eaec86bbe374fff6b1d6bb4d8b93bf481528",
+        "size_bytes": 69189864
+      },
+      "lib/libllama-completion-impl.so": {
+        "sha256": "cd1df8671764e4828902f3e02b598ac54a80b357ca6ddad97ad19a0af1adbd34",
+        "size_bytes": 1281640
+      },
+      "lib/libllama-fit-params-impl.so": {
+        "sha256": "9579c54ed832637ad83190c48050cb7ddb33d7814bb12dd6c21f3435db406393",
+        "size_bytes": 547736
+      },
+      "lib/libllama-perplexity-impl.so": {
+        "sha256": "9a28ea39d1e4a9cfe0e59f4702bc683d1742fd95c33341065003eb5320dc0887",
+        "size_bytes": 1624104
+      },
+      "lib/libllama-quantize-impl.so": {
+        "sha256": "a7d835c56300271d93216e4bcfa798b93c6c62c5081093f57332b20cd3134781",
+        "size_bytes": 1011664
+      },
+      "lib/libllama-server-impl.so": {
+        "sha256": "945637c0548e6860c53b51dcf882b3ce5ad7841878488eeb4539f541a16e7a33",
+        "size_bytes": 53981504
+      },
+      "lib/libllama.so": {
+        "sha256": "c7f92bd59cc4feba988006c9fcced4f835910c328af7788448e71487a2a1fc00",
+        "size_bytes": 39130344
+      },
+      "lib/libmtmd.so": {
+        "sha256": "eae6356b43d3ed8cbc7184ae0176ec81e1802c917880dec3f0d82cbb5328b732",
+        "size_bytes": 14399568
+      }
+    },
+    "valid": true,
+    "reason": "verified upstream llama.cpp Android Snapdragon release b11849"
+  },
+  "runtime_integrity_unchanged": true,
+  "ok": false
+}
