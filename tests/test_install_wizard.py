@@ -108,7 +108,9 @@ _nt_gpu_setup "{ROOT}"
         self.assertEqual(rc, 0, out)
         self.assertIn('system|', options)
         self.assertNotIn('termux-zink|', options)
-        self.assertIn('No accelerated backend is advertised', out)
+        self.assertIn('Native Termux Zink not selected:', out)
+        self.assertIn('Stock Vulkan ICD enumeration is required', out)
+        self.assertNotIn('no longer qualified backend is available', out)
 
     def test_entrypoint_uses_real_preview_envelope_and_handles_reinstall(self):
         with tempfile.TemporaryDirectory() as tmp:

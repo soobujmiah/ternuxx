@@ -294,7 +294,10 @@ nt_cmd_gui
         self.assertIn("tx install proot [DISTRO] [DE]", result.stdout)
         self.assertIn("tx install gpu", result.stdout)
         self.assertLess(result.stdout.index("SETUP AND SOFTWARE"), result.stdout.index("DESKTOP AND GUI"))
-        self.assertIn("tx db [--user NAME] (Debian), tx ub [--user NAME] (Ubuntu)", result.stdout)
+        self.assertIn("tx db [--user NAME]", result.stdout)
+        self.assertIn("tx ub [--user NAME]", result.stdout)
+        self.assertIn("Open Debian in current terminal", result.stdout)
+        self.assertIn("Open Ubuntu in current terminal", result.stdout)
 
     def test_native_management_alias_and_proot_help(self):
         result = self.cli("mng", "--help")
@@ -306,7 +309,8 @@ nt_cmd_gui
         self.assertIn("shortcuts sync preview", proot_help.stdout)
         self.assertIn("shortcuts rollback list", proot_help.stdout)
         self.assertIn("tx proot setup catalog", proot_help.stdout)
-        self.assertIn("offers desktop and software choices (arrow keys/Space; XFCE default)", proot_help.stdout)
+        self.assertIn("choices (arrows/Space)", proot_help.stdout)
+        self.assertIn("XFCE is the default in non-interactive preview flows", proot_help.stdout)
         self.assertIn("tx proot setup fresh-install --yes --plan-id ID", proot_help.stdout)
         self.assertIn("tx proot setup icd-migrate-preview --alias debian", proot_help.stdout)
         self.assertIn("hidden prompts", proot_help.stdout)
@@ -334,10 +338,11 @@ nt_cmd_gui
         self.assertEqual({item["package_manager"] for item in profiles}, {"apt"})
         self.assertEqual(next(item for item in profiles if item["distro"] == "ubuntu")["desktops"][0]["id"], "xfce")
 
-    def test_distro_named_debian_install_requests_account_before_guest_preview(self):
+    def test_distro_named_guest_install_routes_to_guided_or_explicit_preview_flow(self):
         result = self.cli("install", "debian", "preview")
         self.assertEqual(result.returncode, 2)
-        self.assertIn("Choose a Debian Trixie guest account with --user NAME", result.stderr)
+        self.assertIn("tx install proot debian [DE]", result.stderr)
+        self.assertIn("tx proot setup fresh-preview --user NAME", result.stderr)
         self.assertNotIn("Unknown install option", result.stderr)
 
 

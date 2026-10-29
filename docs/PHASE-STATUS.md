@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Added a source- and toolchain-digest-pinned internal Snapdragon HTP build candidate workflow with deterministic packaging and two-run archive comparison; CI and device qualification remain open. The independent pinned Mesa capture and dependency/license review also remain open.
+First HTP CI attempt failed at CMake configure because the preset ran from the workspace root; the upstream-directory fix and stale CLI-test assertion corrections now pass the 1,339-test local suite. No runtime artifact or reproducibility proof yet. Pinned Mesa capture and dependency/license review remain open.
 
-**Next action:** Run the two independent GitHub Actions builds, inspect SPDX and byte-identical archive evidence, and continue the pinned Mesa capture and dependency/license review; then device-test the candidate before considering runtime pin changes or release.
+**Next action:** Commit and push the reviewed corrections, rerun the two independent build, inspect SBOM/archive evidence, continue Mesa provenance and licensing review, then device-test any candidate before installer pin changes or release.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

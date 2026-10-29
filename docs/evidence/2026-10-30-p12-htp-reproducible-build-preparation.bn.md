@@ -2,7 +2,7 @@
 
 Phase: `P12`
 
-**অবস্থা:** বাস্তবায়ন প্রস্তুত; GitHub Actions workflow এখনো চালানো হয়নি, তাই কোনো build artifact বা reproducibility ফল নেই। Public release তৈরি করা হয়নি।
+**অবস্থা:** প্রথম GitHub Actions চেষ্টায় pinned source checkout ও source SPDX তৈরি হয়েছে, কিন্তু CMake ভুল করে Ternuxx workspace root থেকে চালানোয় workflow fail করেছে। কোনো runtime artifact বা reproducibility ফল তৈরি হয়নি; upstream `llama.cpp` directory থেকে চালানোর fix commit হয়েছে। Public release তৈরি করা হয়নি।
 
 ## Build-এর নিয়ম
 
@@ -15,14 +15,15 @@ Verify job দুই archive ও manifest আলাদাভাবে যাচ�
 ## Local যাচাই ও সীমা
 
 - `python3 -m unittest tests.test_package_snapdragon_release`: **৫টি পাস** (একই tar bytes তৈরি, archive tampering ধরা, file ও directory symlink প্রত্যাখ্যান, pinned-source manifest যাচাই)।
-- `python3 -m unittest discover -s tests`: remote `main`-এর clean worktree-তে **১,৩৩৯টি test, ৪টি failure**। চারটিই পুরোনো installer/CLI-help assertion (Native GPU help এবং Debian/PRoot command/help wording); কোনোটিই P12 packager-এর নয়।
+- Clean `main`-এর প্রথম suite-এ **১,৩৩৯টি test-এর মধ্যে installer/CLI-help-এর ৪টি পুরোনো assertion fail** করেছিল। বর্তমান help/output-এর সঙ্গে শুধু ওই assertion-গুলো মিলিয়ে rerun-এ **১,৩৩৯টি test ২০১.৫৮৯ সেকেন্ডে পাস** করেছে।
+- ওই ৪টি focused test এবং `bash tests/test_cli_help.sh` পাস করেছে।
 - `python3 -m py_compile tools/package_snapdragon_release.py tests/test_package_snapdragon_release.py`: পাস।
 - PyYAML দিয়ে workflow YAML ও pinned image/matrix গঠন যাচাই; `git diff --check` পাস।
-- GitHub build এখনো চালানো হয়নি। Cross-run reproducibility, Android install, model correctness, thermal/sustained qualification, license clearance বা public release—কোনোটিই প্রমাণিত নয়।
+- GitHub run [`40962133386`](https://github.com/soobujmiah/ternuxx/actions/runs/40962133386) দুই runner-এই CMake configure ধাপে fail করেছে: Ternuxx workspace root-এ `CMakePresets.json` খুঁজেছে। follow-up-এ preset চালানোর আগে workflow `upstream` directory-তে যায়। GitHub run-এ কোনো artifact নেই; runtime archive তৈরি হয়নি। Cross-run reproducibility, Android install, model correctness, thermal/sustained qualification, license clearance বা public release—কোনোটিই প্রমাণিত নয়।
 
 ## বাকি release gate
 
-প্রথমে manual workflow চালিয়ে source/runtime SPDX output ও দুই-build comparison পর্যালোচনা করতে হবে। তারপর নির্দিষ্ট model দিয়ে Ternuxx-owned candidate device test: সঠিক output, সম্পূর্ণ HTP offload, failure/restart এবং telemetry; GPU/CPU fallback ও setup selection qualify; Mesa এবং সম্পূর্ণ dependency-license/provenance review শেষ; Ternuxx project license ও clean-install/release acceptance মীমাংসা করতে হবে। QNN SD1.5 image route-এর independent oracle ও Qualcomm license acceptance আলাদা gate; এই chat runtime build সেগুলো বন্ধ করে না।
+সংশোধিত manual workflow আবার চালিয়ে source/runtime SPDX output ও দুই-build comparison পর্যালোচনা করতে হবে। তারপর নির্দিষ্ট model দিয়ে Ternuxx-owned candidate device test: সঠিক output, সম্পূর্ণ HTP offload, failure/restart এবং telemetry; GPU/CPU fallback ও setup selection qualify; Mesa এবং সম্পূর্ণ dependency-license/provenance review শেষ; Ternuxx project license ও clean-install/release acceptance মীমাংসা করতে হবে। QNN SD1.5 image route-এর independent oracle ও Qualcomm license acceptance আলাদা gate; এই chat runtime build সেগুলো বন্ধ করে না।
 
 ## Evidence
 

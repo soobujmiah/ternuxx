@@ -72,11 +72,13 @@ jobs:
           set -euo pipefail
           export SOURCE_DATE_EPOCH="$(cat "$SOURCE_DATE_EPOCH_FILE")"
           cp upstream/docs/backend/snapdragon/CMakeUserPresets.json upstream/CMakeUserPresets.json
-          cmake --preset arm64-android-snapdragon-release -B upstream/build \
+          cd upstream
+          cmake --preset arm64-android-snapdragon-release -B build \
             -DCMAKE_INSTALL_RPATH='$ORIGIN;$ORIGIN/../lib' \
             -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
-          cmake --build upstream/build -j "$(nproc)"
-          cmake --install upstream/build --prefix "$GITHUB_WORKSPACE/build-output/install"
+          cmake --build build -j "$(nproc)"
+          cmake --install build --prefix "$GITHUB_WORKSPACE/build-output/install"
+          cd "$GITHUB_WORKSPACE"
           {
             printf 'cmake: '; cmake --version | head -n 1
             printf 'ninja: '; ninja --version

@@ -2,7 +2,7 @@
 
 Phase: `P12`
 
-**Status:** implementation prepared; the GitHub Actions workflow has not been run, so no build artifact or reproducibility result exists. No public release was created.
+**Status:** first GitHub Actions attempt reached pinned source checkout and source SPDX generation, then failed because CMake was invoked from the Ternuxx workspace instead of the upstream `llama.cpp` directory. No runtime artifact or reproducibility result was produced; the working-directory fix is prepared for a rerun. No public release was created.
 
 ## Build contract
 
@@ -15,10 +15,11 @@ The verify job independently validates each archive and manifest, then requires 
 ## Local validation and limits
 
 - `python3 -m unittest tests.test_package_snapdragon_release`: **5 passed** (deterministic packaging, archive tamper rejection, file and directory symlink rejection, pinned-source manifest rejection).
-- `python3 -m unittest discover -s tests`: **1,339 tests, 4 failures** on clean remote `main`. All four are stale assertions in existing installer/CLI-help tests (Native GPU help wording and Debian/PRoot command/help wording); none touch the P12 packager.
+- Initial clean-`main` suite: **1,339 tests, 4 stale installer/CLI-help assertion failures**. Updated only those assertions to match current help/output; the rerun passed **1,339 tests in 201.589 seconds**.
+- The four focused stale tests passed; `bash tests/test_cli_help.sh` passed.
 - `python3 -m py_compile tools/package_snapdragon_release.py tests/test_package_snapdragon_release.py`: passed.
 - Workflow YAML parsed and its pinned image/matrix structure checked with PyYAML; `git diff --check` passed.
-- The GitHub build itself was not run. No cross-run reproducibility, Android install, model correctness, thermal/sustained qualification, license clearance, or public release is claimed.
+- GitHub run [`40962133386`](https://github.com/soobujmiah/ternuxx/actions/runs/40962133386) failed in the CMake configure step on both runners: it searched the Ternuxx workspace root for `CMakePresets.json`. The follow-up now changes into `upstream` before invoking the pinned preset. GitHub listed no run artifacts. No runtime archive was produced. No cross-run reproducibility, Android install, model correctness, thermal/sustained qualification, license clearance, or public release is claimed.
 
 ## Remaining release gates
 
