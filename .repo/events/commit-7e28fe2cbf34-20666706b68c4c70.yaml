@@ -1,0 +1,7 @@
+event_id: commit-7e28fe2cbf34-20666706b68c4c70
+repository: soobujmiah/ternuxx
+commit: 7e28fe2cbf3416c2fb69fa18caafa1c4b04e5273
+kind: commit
+occurred_at: '2026-10-29T22:07:53Z'
+status: completed
+summary: 'test: isolate PRoot graphics selection fixtures'
