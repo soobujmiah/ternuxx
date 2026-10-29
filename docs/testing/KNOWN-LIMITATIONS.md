@@ -1,13 +1,13 @@
 # Known limitations
 
-**Reviewed:** 2026-10-24. This document lists support and release limits; the live session state is recorded in [CURRENT_STATE.md](../../CURRENT_STATE.md), and phase gates in [PHASE-STATUS.md](../PHASE-STATUS.md).
+**Reviewed:** 2026-10-30. This document lists support and release limits; the live session state is recorded in [CURRENT_STATE.md](../../CURRENT_STATE.md), and phase gates in [PHASE-STATUS.md](../PHASE-STATUS.md).
 
 ## Device and workload coverage
 
 - Direct device qualification covers one Redmi Turbo 4 Pro / SM8735 profile with Android 16 and Termux `0.119.0-beta.3`. It does not establish compatibility with other devices, Android releases, or Termux builds.
-- CPU inference is implemented and bounded, but broader model correctness, clean installation, network isolation, and sustained memory/thermal behavior remain unqualified. See [CPU baseline](CPU-BASELINE.md).
-- Vulkan inference passes short Adreno 825 workloads with full layer-offload proof using an experimental Mesa/Freedreno ICD. The ICD does not yet have an audited, repeatable clean-install path; the result does not qualify sustained performance or general GPU support. OpenCL has no usable platform in the observed Native session. See [GPU qualification](GPU-ACCELERATION.md).
-- Experimental HTP0 inference is integrated for SM8735 using a pinned llama.cpp Snapdragon runtime. Tested short prompts are slower than CPU. Broader model/operator correctness, memory pressure, sustained thermal behavior, and clean-device installation remain open. See [NPU qualification](NPU-ACCELERATION.md).
+- The pinned Qwen2.5 1.5B Q4_K_M CPU attempt was cancelled at 61.2°C before accepting output. It is not a baseline. Broader model correctness, clean installation, network isolation, and sustained memory/thermal behavior remain unqualified. See the [CPU baseline](CPU-BASELINE.md) and [P12 result](../evidence/2026-10-30-p12-native-qualification.md).
+- The pinned Qwen2.5 model passed one Vulkan0 run with 29/29 layers, then a repeat was cancelled at CPU 60.4°C. The experimental Mesa/Freedreno ICD does not have an audited, repeatable clean-install path; sustained performance and general GPU support remain unqualified. OpenCL has no usable platform in the observed Native session. See [GPU qualification](GPU-ACCELERATION.md) and [P12 result](../evidence/2026-10-30-p12-native-qualification.md).
+- The pinned Qwen2.5 model passed one HTP0 b11849 call with 29/29 layers, then a repeat was cancelled at HTP 61.0°C. This exact model has no repeated/sustained qualification or same-model CPU speed comparison. Broader model/operator correctness, memory pressure, and clean-device installation remain open. See [NPU qualification](NPU-ACCELERATION.md) and [P12 result](../evidence/2026-10-30-p12-native-qualification.md).
 
 ## Lifecycle and recovery
 

@@ -31,6 +31,7 @@ class NativeAccelQualificationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             model = Path(directory) / "model.gguf"
             model.write_bytes(b"verified test model")
+            model.chmod(0o600)
             digest = hashlib.sha256(model.read_bytes()).hexdigest()
             module = __import__("tools.native_accel_qualify", fromlist=["cpu_inference"])
             model_spec = module.cpu_inference.ModelSpec("test-model", "model.gguf", "https://example.invalid/model",

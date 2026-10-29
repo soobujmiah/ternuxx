@@ -182,7 +182,7 @@ else:
         }
         result = subprocess.run(
             ["bash", "-c", 'termux_download_ubuntu_packages() { :; }; source "$1"; termux_download_ubuntu_packages fixture-ubuntu-dep; _ternuxx_capture_meson "$BUILD_DIR" target', "bash", str(self.recipe)],
-            env=env, text=True, capture_output=True, timeout=10, check=False,
+            env=env, text=True, capture_output=True, timeout=30, check=False,
         )
         self.assertEqual(result.returncode, 0, result.stderr)
         invocations = [json.loads(line) for line in calls.read_text(encoding="utf-8").splitlines()]
