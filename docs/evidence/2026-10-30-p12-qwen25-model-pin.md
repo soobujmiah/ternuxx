@@ -35,7 +35,7 @@ The three machine-readable runner reports are [CPU](2026-10-30-p12-cpu-qualifica
 
 The app's single pinned model spec now names this exact Qwen2.5 artifact. Model download continues to require a current exact preview plus `DOWNLOAD`; the file will stay in Ternuxx's private model directory. CPU/GPU/NPU documentation and the third-party notice now distinguish this new, unqualified Q4_K_M artifact from historical Qwen3 Q4_0 and Qwen2.5 Q4_0 workload results.
 
-`tests.test_cpu_inference`, `tests.test_npu_inference`, `tests.test_management_service`, `tests.test_management_catalog`, and `tests.test_terminal_ui`: **168 passed** (focused local suite). `tests.test_native_accel_qualify`: **13 passed** after adding retained output to future report rows. Full repository suite: `bash scripts/repo_test.sh` passed **1,357 tests** in **243.802 seconds**. Repo knowledge verification reported 0 findings, strict README bridge check passed, and `git diff --check` passed. These are code/repository checks and do not qualify device runtime stability.
+`tests.test_cpu_inference`, `tests.test_npu_inference`, `tests.test_management_service`, `tests.test_management_catalog`, and `tests.test_terminal_ui`: **168 passed** (focused local suite). `tests.test_native_accel_qualify`: **18 passed** after adding exact-output retention, model/runtime integrity snapshots, and fail-closed verification coverage. Full repository suite: `bash scripts/repo_test.sh` passed **1,362 tests** in **245.137 seconds** after integrity-report hardening. Repo knowledge verification reported 0 findings, strict README bridge check passed, and `git diff --check` passed. These are code/repository checks and do not qualify device runtime stability.
 
 ## Primary sources
 

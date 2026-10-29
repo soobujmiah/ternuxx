@@ -3,13 +3,16 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
 import platform
 import re
 import signal
+import stat
 import subprocess
+import sys
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -17,6 +20,9 @@ from datetime import datetime, timezone
 ROOT = Path(__file__).resolve().parents[1]
 TX = ROOT / "tx"
 BACKENDS = {"cpu", "vulkan", "npu"}
+sys.path.insert(0, str(ROOT / "lib"))
+import cpu_inference  # noqa: E402
+import npu_inference  # noqa: E402
 
 
 @dataclass(frozen=True)
@@ -229,6 +235,71 @@ def collect_preflight(args: argparse.Namespace) -> dict[str, object]:
     return report
 
 
+def _hash_file(path: Path) -> tuple[int, str]:
+    digest = hashlib.sha256()
+    size = 0
+    with path.open("rb") as stream:
+        while chunk := stream.read(1024 * 1024):
+            size += len(chunk)
+            digest.update(chunk)
+    return size, digest.hexdigest()
+
+
+def model_integrity() -> dict[str, object]:
+    path = cpu_inference.model_path()
+    try:
+        cpu_inference._check_owned_path(path, allow_missing=False)
+        info = path.lstat()
+        size, digest = _hash_file(path)
+        regular = stat.S_ISREG(info.st_mode)
+        valid = (regular and info.st_uid == os.getuid() and size == cpu_inference.MODEL.size_bytes
+                 and info.st_mode & 0o077 == 0 and digest == cpu_inference.MODEL.sha256)
+        return {"model_id": cpu_inference.MODEL.model_id, "license": cpu_inference.MODEL.license,
+                "path": str(path), "expected_size_bytes": cpu_inference.MODEL.size_bytes,
+                "observed_size_bytes": size, "expected_sha256": cpu_inference.MODEL.sha256,
+                "observed_sha256": digest, "regular_file": regular,
+                "mode": oct(info.st_mode & 0o777), "valid": valid}
+    except (OSError, cpu_inference.InferenceError) as exc:
+        return {"model_id": cpu_inference.MODEL.model_id, "path": str(path), "valid": False,
+                "error": type(exc).__name__}
+
+
+def runtime_integrity(backend: str) -> dict[str, object]:
+    if backend == "npu":
+        root = npu_inference.runtime_path()
+        valid, reason = npu_inference._runtime_valid(root)
+        manifest = npu_inference._read_manifest(root.parent.parent)
+        return {"backend": "Hexagon HTP", "runtime": npu_inference.RELEASE,
+                "path": str(root), "archive_sha256": npu_inference.ARCHIVE_SHA256,
+                "license": "MIT", "verified_manifest_files": manifest.get("files") if manifest else None,
+                "valid": valid, "reason": reason}
+
+    runtime = cpu_inference.status()["runtime"]
+    path_value = runtime.get("path") if isinstance(runtime, dict) else None
+    version = runtime.get("version") if isinstance(runtime, dict) else None
+    if not isinstance(path_value, str):
+        return {"backend": "Termux llama-cpp", "path": path_value,
+                "version": version, "valid": False, "verification_scope": "runtime executable unavailable"}
+    path = Path(path_value)
+    try:
+        actual_path = path.resolve(strict=True)
+        info = actual_path.stat()
+        size, digest = _hash_file(actual_path)
+        regular = actual_path.is_file()
+        return {"backend": "Termux llama-cpp", "path": str(path),
+                "resolved_path": str(actual_path), "version": version,
+                "size_bytes": size, "sha256": digest, "regular_file": regular,
+                "valid": regular and bool(info.st_mode & 0o111),
+                "verification_scope": "measured executable hash; package-manager provenance not independently pinned"}
+    except OSError as exc:
+        return {"backend": "Termux llama-cpp", "path": path_value,
+                "version": version, "valid": False, "error": type(exc).__name__}
+
+
+def _same_integrity(before: dict[str, object], after: dict[str, object]) -> bool:
+    return before == after and before.get("valid") is True
+
+
 def _stop_process(proc: subprocess.Popen[str], sig: int, grace: float) -> None:
     if proc.poll() is not None:
         return
@@ -266,6 +337,18 @@ def run(args: argparse.Namespace) -> int:
         report = _preflight_failure_report(
             args, "an existing llama-cli process is running; refusing to interfere", preflight,
             limits, minimum_mem_kib, pids=sorted(baseline_pids))
+        print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
+        return 2
+
+    model_before = model_integrity()
+    runtime_before = runtime_integrity(args.backend)
+    if model_before.get("valid") is not True or runtime_before.get("valid") is not True:
+        report = _preflight_failure_report(
+            args, "pinned model or selected runtime integrity verification failed; no inference was started",
+            preflight, limits, minimum_mem_kib)
+        report.update({"model_integrity_before": model_before,
+                       "runtime_integrity_before": runtime_before,
+                       "inference_started": False})
         print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
         return 2
 
@@ -371,8 +454,20 @@ def run(args: argparse.Namespace) -> int:
             if rows[-1].get("status") == "guard_blocked_after_idle":
                 break
 
+    model_after = model_integrity()
+    runtime_after = runtime_integrity(args.backend)
     report = _render_report(args, rows, preflight, limits, minimum_mem_kib)
-    report["ok"] = all(row.get("status") == "passed" for row in rows) and len(rows) == args.runs
+    report.update({"model_integrity_before": model_before,
+                   "model_integrity_after": model_after,
+                   "model_integrity_unchanged": _same_integrity(model_before, model_after),
+                   "runtime_integrity_before": runtime_before,
+                   "runtime_integrity_after": runtime_after,
+                   "runtime_integrity_unchanged": _same_integrity(runtime_before, runtime_after)})
+    integrity_ok = report["model_integrity_unchanged"] is True and report["runtime_integrity_unchanged"] is True
+    if not integrity_ok:
+        report["integrity_error"] = "model or selected runtime changed or failed verification during qualification"
+    report["ok"] = (all(row.get("status") == "passed" for row in rows)
+                    and len(rows) == args.runs and integrity_ok)
     print(json.dumps(report, ensure_ascii=False, indent=2), flush=True)
     return 0 if report["ok"] else 1
 

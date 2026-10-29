@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The exact Qwen2.5 model and b11849 HTP path are verified; one HTP call passed, a repeated call crossed the thermal guard, and CPU/Vulkan also stopped under guards.
+Qwen2.5 is hash-verified; CPU/Vulkan repeat runs and HTP repeat run cross test thermal guards. Runner now captures exact output and model/runtime integrity.
 
-**Next action:** Thermal headroom is a device gate: repeat guarded CPU/Vulkan/HTP qualification only when samples support it; no overrides. Complete exact-output/model/runtime-integrity evidence, clean-install replay, and runtime/artifact licensing/provenance before any release decision.
+**Next action:** Repeat three-case CPU, Vulkan, and HTP qualification with the integrity-aware runner only when fresh guarded samples and device headroom support it. Then complete clean-install replay, artifact provenance/licensing, and release checks; do not bypass thermal limits.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

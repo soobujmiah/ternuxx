@@ -1,14 +1,21 @@
+import hashlib
+import io
 import json
 from argparse import Namespace
 from pathlib import Path
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 
 from tools.native_accel_qualify import (
     QUALIFICATION_CASES,
     _preflight_failure_report,
     collect_preflight,
     active_temperature_limits,
+    model_integrity,
+    runtime_integrity,
+    run,
+    _same_integrity,
     parse_result,
     process_snapshot,
     qualification_case_for_run,
@@ -19,6 +26,85 @@ from tools.native_accel_qualify import (
 
 
 class NativeAccelQualificationTests(unittest.TestCase):
+    def test_model_integrity_report_records_expected_and_observed_digest(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            model = Path(directory) / "model.gguf"
+            model.write_bytes(b"verified test model")
+            digest = hashlib.sha256(model.read_bytes()).hexdigest()
+            module = __import__("tools.native_accel_qualify", fromlist=["cpu_inference"])
+            model_spec = module.cpu_inference.ModelSpec("test-model", "model.gguf", "https://example.invalid/model",
+                                                        len(b"verified test model"), digest, "Apache-2.0")
+            with patch("tools.native_accel_qualify.cpu_inference.model_path", return_value=model), \
+                 patch("tools.native_accel_qualify.cpu_inference.MODEL", model_spec), \
+                 patch("tools.native_accel_qualify.cpu_inference._check_owned_path"), \
+                 patch("tools.native_accel_qualify.cpu_inference._valid_model", return_value=True):
+                report = model_integrity()
+            self.assertTrue(report["valid"])
+            self.assertEqual(report["observed_size_bytes"], len(b"verified test model"))
+            self.assertEqual(report["observed_sha256"], digest)
+            self.assertTrue(report["regular_file"])
+
+    def test_npu_runtime_integrity_report_includes_verified_manifest(self):
+        from unittest.mock import patch
+        expected_files = {"bin/llama-cli": {"size_bytes": 10, "sha256": "a" * 64}}
+        with patch("tools.native_accel_qualify.npu_inference.runtime_path",
+                   return_value=Path("/private/runtime/llama-b11849")), \
+             patch("tools.native_accel_qualify.npu_inference._runtime_valid",
+                   return_value=(True, "verified")), \
+             patch("tools.native_accel_qualify.npu_inference._read_manifest",
+                   return_value={"files": expected_files}):
+            report = runtime_integrity("npu")
+        self.assertTrue(report["valid"])
+        self.assertEqual(report["verified_manifest_files"], expected_files)
+        self.assertEqual(report["archive_sha256"],
+                         "2d0f1a989a8f0c4329839c3bb85b6fb70edb03e0b017fee0be4cf55b7ece8f6c")
+
+    def test_cpu_runtime_integrity_report_hashes_resolved_executable(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            runtime = Path(directory) / "llama-cli"
+            runtime.write_bytes(b"test executable")
+            runtime.chmod(0o755)
+            expected = hashlib.sha256(runtime.read_bytes()).hexdigest()
+            status = {"runtime": {"path": str(runtime), "version": "test runtime"}}
+            with patch("tools.native_accel_qualify.cpu_inference.status", return_value=status):
+                report = runtime_integrity("cpu")
+            self.assertTrue(report["valid"])
+            self.assertEqual(report["sha256"], expected)
+            self.assertEqual(report["version"], "test runtime")
+            self.assertIn("not independently pinned", report["verification_scope"])
+
+    def test_integrity_comparison_requires_valid_unchanged_identity(self):
+        valid = {"sha256": "a" * 64, "valid": True}
+        self.assertTrue(_same_integrity(valid, dict(valid)))
+        self.assertFalse(_same_integrity(valid, {"sha256": "b" * 64, "valid": True}))
+        invalid = {"sha256": "a" * 64, "valid": False}
+        self.assertFalse(_same_integrity(invalid, dict(invalid)))
+
+    def test_runner_refuses_inference_when_model_integrity_is_invalid(self):
+        from unittest.mock import patch
+        args = Namespace(backend="cpu", runs=1, max_tokens=8, timeout=90, idle_seconds=0.0,
+                         minimum_mem_mib=2048, cpu_stop_c=60.0, gpu_stop_c=60.0,
+                         htp_stop_c=60.0, battery_stop_c=45.0, socd_stop_c=70.0,
+                         ignore_thermal_limits=False)
+        thermal = {"cpu": 40.0, "gpu": 40.0, "htp": 40.0, "battery": 30.0,
+                   "socd": 40.0, "memavailable_kib": 4 * 1024 * 1024}
+        output = io.StringIO()
+        with patch("tools.native_accel_qualify.collect_preflight",
+                   return_value={"ok": True, "snapshot": thermal}), \
+             patch("tools.native_accel_qualify.process_snapshot", return_value={}), \
+             patch("tools.native_accel_qualify.model_integrity", return_value={"valid": False}), \
+             patch("tools.native_accel_qualify.runtime_integrity", return_value={"valid": True}), \
+             patch("tools.native_accel_qualify.subprocess.Popen") as start_inference, \
+             redirect_stdout(output):
+            self.assertEqual(run(args), 2)
+        start_inference.assert_not_called()
+        report = json.loads(output.getvalue())
+        self.assertFalse(report["ok"])
+        self.assertFalse(report["inference_started"])
+        self.assertIn("integrity verification failed", report["error"])
+
     def test_temperature_zones_are_grouped_and_millidegrees_normalized(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

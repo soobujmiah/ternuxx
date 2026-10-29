@@ -2,7 +2,11 @@
 
 # Current Ternuxx state
 
-**Reviewed:** 2026-10-28. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
+**Reviewed:** 2026-10-30. Ternuxx uses Native Termux as its host and control plane, with managed Debian and Ubuntu PRoot profiles as optional isolated workload providers. Current phase status and accepted gates are maintained in [phase status](docs/PHASE-STATUS.md); this page records only the current runtime, active work, and release boundary.
+
+## Native AI P12 model and guarded accelerator checks — 2026-10-30
+
+The app now pins Qwen2.5-1.5B-Instruct Q4_K_M (1,117,320,736 bytes, Apache-2.0) and the exact file is present in Ternuxx private model storage with its pinned SHA-256. On this device, the controlled CPU call was cancelled at 61.2°C, Vulkan passed one full 29/29-layer call before a repeat was cancelled at 60.4°C, and b11849 HTP passed one 29/29-layer call before a repeat was cancelled at 61.0°C. No thermal limits were bypassed; no backend is stable/release-qualified. Machine-readable run and current model/runtime integrity evidence are linked from [the P12 qualification report](docs/evidence/2026-10-30-p12-native-qualification.md). The reusable runner now records exact output and model/runtime fingerprints and refuses to start on integrity failure. The pinned b11849 reproducible builder retains a 90-day internal Actions candidate only; it has no permanent public runtime release asset. Public distribution stays blocked by unresolved repository license/provenance, Mesa component licensing, and clean-install qualification. Current P12 next actions and evidence are in [phase status](docs/PHASE-STATUS.md).
 
 ## Blender Native GUI authoring and GPU MCP — 2026-10-28
 

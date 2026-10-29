@@ -35,7 +35,7 @@ Hugging Face-এর বর্তমান ফাইল-তথ্যে সাম
 
 অ্যাপের একক নির্দিষ্ট মডেল-পরিচয় এখন এই Qwen2.5 ফাইলকে নির্দেশ করে। মডেল নামাতে বর্তমান সুনির্দিষ্ট preview এবং `DOWNLOAD` নিশ্চিতকরণ লাগবে; ফাইলটি Ternuxx-এর ব্যক্তিগত মডেল ডিরেক্টরিতেই থাকবে। CPU/GPU/NPU নথি এবং তৃতীয়-পক্ষ বিজ্ঞপ্তিতে এই নতুন, অযোগ্যতাপ্রাপ্ত Q4_K_M ফাইলকে আগের Qwen3 Q4_0 ও Qwen2.5 Q4_0 পরীক্ষার ফল থেকে আলাদা করা হয়েছে।
 
-`tests.test_cpu_inference`, `tests.test_npu_inference`, `tests.test_management_service`, `tests.test_management_catalog`, এবং `tests.test_terminal_ui`: **নির্বাচিত স্থানীয় পরীক্ষায় ১৬৮টি পাস**। `tests.test_native_accel_qualify`: প্রতিবেদন-পরিবর্তনের পর **১৩টি পাস**। সম্পূর্ণ repository suite `bash scripts/repo_test.sh`: **১,৩৫৭টি পরীক্ষা পাস**, সময় **২৪৩.৮০২ সেকেন্ড**। Repo knowledge verify-তে ০টি সমস্যা, কঠোর README bridge পরীক্ষা ও `git diff --check` পাস করেছে। এগুলো repository-র কোড পরীক্ষা; যন্ত্রে runtime-এর স্থিতিশীলতা প্রমাণ নয়।
+`tests.test_cpu_inference`, `tests.test_npu_inference`, `tests.test_management_service`, `tests.test_management_catalog`, এবং `tests.test_terminal_ui`: **নির্বাচিত স্থানীয় পরীক্ষায় ১৬৮টি পাস**। `tests.test_native_accel_qualify`: হুবহু উত্তর, মডেল/runtime অখণ্ডতা-তথ্য এবং integrity ব্যর্থ হলে inference না-শুরুর যাচাই যোগ করে **১৮টি পাস**। integrity report শক্ত করার পর সম্পূর্ণ repository suite `bash scripts/repo_test.sh`: **১,৩৬২টি পরীক্ষা পাস**, সময় **২৪৫.১৩৭ সেকেন্ড**। Repo knowledge verify-তে ০টি সমস্যা, কঠোর README bridge পরীক্ষা ও `git diff --check` পাস করেছে। এগুলো repository-র কোড পরীক্ষা; যন্ত্রে runtime-এর স্থিতিশীলতা প্রমাণ নয়।
 
 ## মূল উৎস
 

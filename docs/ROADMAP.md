@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Thermal headroom is a device gate: repeat guarded CPU/Vulkan/HTP qualification only when samples support it; no overrides. Complete exact-output/model/runtime-integrity evidence, clean-install replay, and runtime/artifact licensing/provenance before any release decision.
+**Next action:** Repeat three-case CPU, Vulkan, and HTP qualification with the integrity-aware runner only when fresh guarded samples and device headroom support it. Then complete clean-install replay, artifact provenance/licensing, and release checks; do not bypass thermal limits.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->
