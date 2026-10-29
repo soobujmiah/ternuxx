@@ -1,0 +1,7 @@
+event_id: commit-c1d32d4f99a4-ca3a201283a5b79f
+repository: soobujmiah/ternuxx
+commit: c1d32d4f99a4ff9e5561bcdc6492fdf106192779
+kind: commit
+occurred_at: '2026-10-29T23:41:55Z'
+status: completed
+summary: 'docs(p12): record additional thermal cancellations'
