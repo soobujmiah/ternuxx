@@ -236,7 +236,7 @@
       "id": "P12",
       "title": "Qualify Native CPU, GPU and NPU acceleration",
       "status": "in_progress",
-      "summary": "Two independent reproducible builds and the 24-file notice-bearing candidate verify, but the latest guarded preflight at 06:41:28 UTC failed CPU and HTP ceilings; device qualification and distribution clearance remain open.",
+      "summary": "Two independent reproducible builds and the 24-file notice-bearing candidate verify, but the latest guarded preflight at 06:45:04 UTC failed CPU and HTP ceilings as temperatures rose; device qualification and distribution clearance remain open.",
       "evidence": [
         "docs/evidence/2026-10-24-native-acceleration-live-check.md",
         "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
