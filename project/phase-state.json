@@ -273,7 +273,7 @@
         "docs/evidence/2026-10-30-p12-native-qualification.md",
         "docs/evidence/2026-10-30-p12-cross-run-build-variance.md"
       ],
-      "next_action": "Wait for two fresh passing backend-specific thermal preflights. Then record a same-model CPU baseline; after adequate recovery, qualify the exact self-built HTP candidate with output correctness, full offload, model/runtime integrity and telemetry; compare Vulkan and CPU; verify runtime selection, rollback and clean install. Resolve project/dependency licenses and full provenance before any public release asset."
+      "next_action": "Pause preflight polling until passive cooling measurably changes the gate result; then require two fresh passing backend-specific samples. Record a same-model CPU baseline; after adequate recovery, qualify the exact self-built HTP candidate with output correctness, full offload, model/runtime integrity and telemetry; compare Vulkan and CPU; verify runtime selection, rollback and clean install. Resolve project/dependency licenses and full provenance before any public release asset."
     }
   ]
 }
