@@ -19,9 +19,9 @@ Manifest-এর runtime তালিকায় একটি file অমিল: `l
 
 ## সংশোধিত build নিয়ম
 
-Reproducible workflow এখন CLI-শুধু package চায়: `LLAMA_BUILD_SERVER=OFF`, `LLAMA_BUILD_UI=OFF` এবং `LLAMA_USE_PREBUILT_UI=OFF`। Ternuxx inference path-এ `llama-cli` চলে; `llama-server` ডাকা হয় না। Server/UI বন্ধ রাখলে পরিবর্তনশীল web-asset ডাউনলোড বাদ যায় এবং package থেকে অপ্রয়োজনীয় server library সরে যায়। Manifest-এ এই নির্দিষ্ট flag লেখা হয় এবং verifier তা বাধ্যতামূলক করে। Test নিশ্চিত করে workflow-এ অনির্দিষ্ট asset path আবার চালু না হয়।
+Reproducible workflow-এ প্রথমে CLI-শুধু package-এর জন্য `LLAMA_BUILD_SERVER=OFF`, `LLAMA_BUILD_UI=OFF` এবং `LLAMA_USE_PREBUILT_UI=OFF` দেওয়া হয়। প্রথম post-change run [`40986902773`](https://github.com/soobujmiah/ternuxx/actions/runs/40986902773) দুই Android build-এই ব্যর্থ হয়: upstream-এ `LLAMA_BUILD_TESTS` চালু থাকায় server বন্ধ করার পরও server test target compile হয়; `mtmd.h` না পাওয়ার চারটি compile error আসে। কোনো candidate artifact তৈরি হয়নি।
 
-এই পরিবর্তন এখনো পৃথক run-এর মধ্যে যোগ্যতা পায়নি। প্রয়োজনীয় প্রমাণ: পরিবর্তনের পর main branch-এ আলাদা দুইটি সফল workflow run-এর যাচাইকৃত archive SHA-256 একই হতে হবে। প্রত্যেক run-এ দুই স্বাধীন builder-এর মিল এবং সম্পূর্ণ candidate verifier-ও pass করতে হবে।
+এখন workflow-এ আরও `LLAMA_BUILD_TESTS=OFF`, `LLAMA_BUILD_EXAMPLES=OFF` এবং `LLAMA_BUILD_APP=OFF` যোগ হয়েছে। Ternuxx inference-এ `llama-cli` চলে; `llama-server`, test, example বা unified app লাগে না। ছয়টি নির্দিষ্ট flag manifest-এ থাকে, verifier সেগুলো বাধ্যতামূলক করে এবং test দিয়ে পরিবর্তন ঠেকানো হয়। সফল rebuild এখনো হয়নি। প্রয়োজনীয় প্রমাণ: সব correction-সহ main branch-এর আলাদা দুই run সফল হতে হবে এবং দুই archive-এর যাচাইকৃত SHA-256 মিলতে হবে; প্রত্যেক run-এ ভেতরের দুই builder-এর তুলনা ও candidate verifier pass করতে হবে।
 
 ## Release অবস্থা
 
