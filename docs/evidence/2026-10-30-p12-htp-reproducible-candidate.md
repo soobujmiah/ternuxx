@@ -17,7 +17,20 @@ The source SPDX scan contains 227 packages and 102 files with unresolved license
 
 ## Thermal preflight
 
-Four NPU preflight samples were taken without `--ignore-thermal-limits`. None started inference. The latest sample (05:56:55 UTC) read CPU 54.4°C, HTP 48.7°C, and battery 44.19°C. The launch ceilings for this check are CPU 50°C and HTP 40°C, so this sample failed. The earlier three samples also failed. No thermal guard was relaxed, and no inference or new backend test was run.
+Eight NPU preflight samples were taken without `--ignore-thermal-limits`. None started inference. Every sample failed at least one empirical launch ceiling (CPU 50°C, HTP 40°C):
+
+| Time (UTC) | CPU °C | GPU °C | HTP °C | Battery °C |
+|---|---:|---:|---:|---:|
+| 05:52:25 | 61.2 | 50.7 | 52.7 | 44.30 |
+| 05:53:31 | 54.8 | 47.1 | 49.1 | 44.55 |
+| 05:54:49 | 51.6 | 45.1 | 46.7 | 44.30 |
+| 05:55:32 | 52.0 | 45.1 | 46.7 | 44.13 |
+| 05:56:55 | 54.4 | 47.1 | 48.7 | 44.19 |
+| 06:05:22 | 50.4 | 43.2 | 44.8 | 42.44 |
+| 06:06:44 | 49.6 | 42.4 | 43.6 | 42.05 |
+| 06:07:40 | 50.0 | 42.4 | 43.6 | 41.86 |
+
+The latest sample still fails because HTP is above its launch ceiling. No thermal guard was relaxed, and no inference or new backend test was run.
 
 ## Decision and next work
 
