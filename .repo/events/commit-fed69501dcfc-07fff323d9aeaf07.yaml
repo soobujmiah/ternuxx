@@ -1,0 +1,7 @@
+event_id: commit-fed69501dcfc-07fff323d9aeaf07
+repository: soobujmiah/ternuxx
+commit: fed69501dcfc54653c233a778dc9871cc53f5789
+kind: commit
+occurred_at: '2026-10-30T00:00:49Z'
+status: completed
+summary: 'docs(p12): add third NPU headroom sample'
