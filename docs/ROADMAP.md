@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Pass PR CI, rebuild and compare two independent candidates with the notice file, then verify the exact new artifact. Keep distribution blocked until linked binary licenses, Snapdragon toolchain redistribution terms, and Ternuxx project license are resolved; resume device qualification only after two independent thermal preflight samples pass.
+**Next action:** Resume exact-candidate CPU/Vulkan/HTP inference only after two independent thermal preflight samples pass. Qualify the normal selected-runtime installation and rollback path. Resolve binary/source license conclusions, Snapdragon toolchain redistribution terms, and the Ternuxx project license before any public release.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->
