@@ -5195,10 +5195,10 @@
     {
       "path": "docs/readiness/LEGAL-IP.md",
       "kind": "narrative",
-      "sha256": "f10d1001d9c10ac73ad51f3e06211302f828c5415750cad0749449037338706c",
+      "sha256": "91e3bed9d11d8d261a2107c0bac1f9b6a7706575266a75e9a9e22887c1855849",
       "lines": 59,
       "read_status": "read",
-      "read_sha256": "f10d1001d9c10ac73ad51f3e06211302f828c5415750cad0749449037338706c"
+      "read_sha256": "91e3bed9d11d8d261a2107c0bac1f9b6a7706575266a75e9a9e22887c1855849"
     },
     {
       "path": "docs/readiness/PREMIUM-DISTRIBUTION.md",
