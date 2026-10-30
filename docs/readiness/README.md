@@ -21,5 +21,7 @@ These are proposals and dated evidence, requiring individual claim/source review
 - [Threat model](THREAT-MODEL.md)
 - [Free-core and premium design](PREMIUM-DISTRIBUTION.md)
 - [Decision register](DECISIONS-AND-PLAN.md)
+- [Third-party artifact notices (English)](THIRD-PARTY-NOTICES.md)
+- [তৃতীয় পক্ষের সফটওয়্যার উপাদানের লাইসেন্স ও উৎসতালিকা](THIRD-PARTY-NOTICES.bn.md)
 
 I preserved the [original 2026-10-17 overview](history/2026-10-22-readiness-overview.md) as historical context. Its old checkout command, migration/CI statements and implementation classifications are not current status. The remaining research documents are still part of the full document audit.

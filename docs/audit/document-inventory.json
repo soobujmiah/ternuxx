@@ -3,11 +3,19 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 597,
-  "read_count": 194,
+  "document_count": 672,
+  "read_count": 182,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
+    {
+      "path": ".github/workflows/p12-htp-reproducible-build.yml",
+      "kind": "structured",
+      "sha256": "15d416cfde1ad009eb73cf47fada5d0e4b9ab2ededa2f817b223e1c0e76bfa0a",
+      "lines": 226,
+      "read_status": "pending",
+      "read_sha256": null
+    },
     {
       "path": ".github/workflows/p12-mesa-build-evidence.yml",
       "kind": "structured",
@@ -43,10 +51,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "e364784767f644b67914092bc64edde3b11c5e05df94ff7c53676da6325153d2",
-      "lines": 347,
+      "sha256": "04d909cd78d00515df1959480f22b81046a784f1a1dbbd156d70838040ef8bc8",
+      "lines": 465,
       "read_status": "read",
-      "read_sha256": "e364784767f644b67914092bc64edde3b11c5e05df94ff7c53676da6325153d2"
+      "read_sha256": "04d909cd78d00515df1959480f22b81046a784f1a1dbbd156d70838040ef8bc8"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -67,10 +75,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "c37d6c489722cf4af0d6194bd8412e4ffe586632c7a346f3a9a44a81a7813dc9",
-      "lines": 159,
-      "read_status": "read",
-      "read_sha256": "c37d6c489722cf4af0d6194bd8412e4ffe586632c7a346f3a9a44a81a7813dc9"
+      "sha256": "4530f43cb279018b3027123573891ea7761fa8c996a765a5f330f87421312bd8",
+      "lines": 157,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "SECURITY.md",
@@ -91,10 +99,10 @@
     {
       "path": "bn/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "3c92ebba7dc75c1a537ad30a8d402705a7b8d4bef211dda996f253cbc667b1df",
+      "sha256": "78ad6b51a762ad2bd8eeaf63738e1bb518537f7fec45d9e68ee1915887b0bb9a",
       "lines": 91,
-      "read_status": "read",
-      "read_sha256": "3c92ebba7dc75c1a537ad30a8d402705a7b8d4bef211dda996f253cbc667b1df"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "bn/README.md",
@@ -115,26 +123,26 @@
     {
       "path": "config/proot/debian-trixie.json",
       "kind": "structured",
-      "sha256": "4898fe51a260e7530603e54ec940965b4229003080b5ef44b0a813afe5df8a86",
-      "lines": 154,
+      "sha256": "3d5124c6c53e57ab23611c5055f1370b959a8d01fbc1c7fca4c874549ef43c56",
+      "lines": 156,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "config/proot/ubuntu-noble.json",
       "kind": "structured",
-      "sha256": "1bedbd61e0f459ddc6947f9cbd32a810c17c2f11d1831d81a56cdb7a60f1a66c",
-      "lines": 143,
+      "sha256": "5403a2e3dbde15c527e9b9299cfb5c274e6574c8ec69870038395b3cb806e636",
+      "lines": 145,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/AI-TOOLS.md",
       "kind": "narrative",
-      "sha256": "64c2a4281aac9061431b2ad7e0d1bf459318397291fe9bf9ae8c5a841170fce7",
-      "lines": 85,
-      "read_status": "read",
-      "read_sha256": "64c2a4281aac9061431b2ad7e0d1bf459318397291fe9bf9ae8c5a841170fce7"
+      "sha256": "acd55d22d3617b225c4692fa360431ae8a703ce9f877129798fd7a384a45025a",
+      "lines": 107,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/ARCHITECTURE.md",
@@ -143,6 +151,14 @@
       "lines": 27,
       "read_status": "read",
       "read_sha256": "578e9072d7ff6137567355e219513d1262ee40b062ab3ec797b05b3b63ce1335"
+    },
+    {
+      "path": "docs/BLENDER-NATIVE-ANIMATION-PIPELINE.md",
+      "kind": "narrative",
+      "sha256": "935a4a3bfdac0cf8d19f9e4dd8831ade5fdaf1661f2acdcda16ba57072d25e3a",
+      "lines": 34,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/DEPENDENCY-FALLBACK-MATRIX.md",
@@ -163,10 +179,10 @@
     {
       "path": "docs/INSTALLATION.md",
       "kind": "narrative",
-      "sha256": "f0e543cba2259e4be2502fc8d0f3481f8425a42000a2315e83ff19448f9e00d0",
-      "lines": 490,
-      "read_status": "read",
-      "read_sha256": "f0e543cba2259e4be2502fc8d0f3481f8425a42000a2315e83ff19448f9e00d0"
+      "sha256": "440415bf2f6b595f68f994ab02256b7c2dff13e039187c1c146db3c46c992288",
+      "lines": 499,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/KNOWLEDGE-SYNC.md",
@@ -179,34 +195,34 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "ba3ccc55797e633bf34f54c96904e4fd8238926c00b8dc98eec03827edbf85d7",
-      "lines": 81,
-      "read_status": "read",
-      "read_sha256": "ba3ccc55797e633bf34f54c96904e4fd8238926c00b8dc98eec03827edbf85d7"
+      "sha256": "64aff24e38b63d62f9cca4347f2727af6b259815604b959fccb62caddd0e3c95",
+      "lines": 85,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/OPTIMIZATION.md",
       "kind": "narrative",
-      "sha256": "c3f0c271cc58d4d75dda68e88124ecfdd9ee658a5f0416e8e06e8907040c86ce",
+      "sha256": "6860c574ee4c069ff755d9a8a70b7dfb1ff9e007c2a7fad6159ef4273d656b13",
       "lines": 22,
-      "read_status": "read",
-      "read_sha256": "c3f0c271cc58d4d75dda68e88124ecfdd9ee658a5f0416e8e06e8907040c86ce"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "5afc0e101c6db0d0639eab951a89a015fad1e6966b31b6267946c63f685faa85",
-      "lines": 170,
+      "sha256": "8d5b4edc20ff46dceb476c47cfa7cde919e8c1345797e912077ff12fe21182dd",
+      "lines": 175,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/PRODUCT-VISION.md",
       "kind": "narrative",
-      "sha256": "188b4b55192c611c23d5c9155d6e97dab9742c23241cf8e09b4568cb7e5625a1",
+      "sha256": "cea0b5ebc74c1814e5052abb9da42de7658060bcaf6caa6b95eb8f89c0fdb746",
       "lines": 9,
-      "read_status": "read",
-      "read_sha256": "188b4b55192c611c23d5c9155d6e97dab9742c23241cf8e09b4568cb7e5625a1"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/PROOT-GPU.md",
@@ -235,10 +251,10 @@
     {
       "path": "docs/README.md",
       "kind": "narrative",
-      "sha256": "a8b671c080a18c0c08f79c5807c0568def2eea6a7663fd1cb1c125828133e7fd",
-      "lines": 62,
+      "sha256": "19123b93abce438d1710fd3425c22f73c4e50e5d2bde6404e65d9d76ba1558c5",
+      "lines": 63,
       "read_status": "read",
-      "read_sha256": "a8b671c080a18c0c08f79c5807c0568def2eea6a7663fd1cb1c125828133e7fd"
+      "read_sha256": "19123b93abce438d1710fd3425c22f73c4e50e5d2bde6404e65d9d76ba1558c5"
     },
     {
       "path": "docs/RESEARCH.md",
@@ -251,18 +267,18 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "ec6cbd0cf4f6388cf9c4822bb0743dd77707ba407d6f783c7f12c5a60744333e",
+      "sha256": "9dd0a3d92e740689569377c7972e4901cb35a074b07b736739e5b2bdf654fb6f",
       "lines": 69,
-      "read_status": "read",
-      "read_sha256": "ec6cbd0cf4f6388cf9c4822bb0743dd77707ba407d6f783c7f12c5a60744333e"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
       "kind": "narrative",
-      "sha256": "8d5e0a2c27e16b9f54dc93c6d034af339c3cfce2a0522e97f251b70776860188",
-      "lines": 81,
-      "read_status": "read",
-      "read_sha256": "8d5e0a2c27e16b9f54dc93c6d034af339c3cfce2a0522e97f251b70776860188"
+      "sha256": "c1be9e0cb6bb241fd01aef6edf7c84c48eeb522b848b1f09f10f95b22e478f08",
+      "lines": 86,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/WINE-NATIVE.md",
@@ -379,7 +395,7 @@
     {
       "path": "docs/architecture/UNIFIED-WORKSTATION.md",
       "kind": "narrative",
-      "sha256": "5ca781b01126bcea51a53a46e2c707a064ebe3be39f43eeb7191737e44cb7cfc",
+      "sha256": "4fe844d58c81085b243c7eecb494cf22b43971c62d1b2c785a8c513d24c33b50",
       "lines": 251,
       "read_status": "pending",
       "read_sha256": null
@@ -3785,6 +3801,550 @@
       "read_sha256": "b478f5a607b20800d5e76eaee3643063ceaa18babf0531be610b5b99926b1cb1"
     },
     {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/fresh-kgsl/kgsl_gui_probe.json",
+      "kind": "structured",
+      "sha256": "3e39c3554e21b6d14660640004a7b9d1d601eb68874fba8bb645a72b20ea464a",
+      "lines": 12,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/fresh-kgsl/native45-kgsl-gui-probe.json",
+      "kind": "structured",
+      "sha256": "7e6761ee1b17e51af91c2bc59cc2de3c00730abd65fa915d83010aaf2356d594",
+      "lines": 16,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/fresh-kgsl/native45-zink-crash.txt",
+      "kind": "narrative",
+      "sha256": "f83fe469653c845c020c8ea5af5b7403ff7184745dbc9667bd5736819755b073",
+      "lines": 27,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/fresh-kgsl/proot4-graphics-verify.txt",
+      "kind": "narrative",
+      "sha256": "af0119028d2b30c8a6097a7a596af24548640aede7a67b4574631c6f683862c4",
+      "lines": 29,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/fresh-kgsl/proot4-gui-probe.json",
+      "kind": "structured",
+      "sha256": "514e1db1292e5305b1b37b6a78843988b6cd78645276a764112b68b26dc68a5a",
+      "lines": 12,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/fresh-kgsl/proot4-orbit.json",
+      "kind": "structured",
+      "sha256": "1abae1b8cbf7de3fabee3ebcc5af8cddadb6e1c35f6f9b3c196b4e618caaf78d",
+      "lines": 7,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/fresh-kgsl/proot4-pgui-status.txt",
+      "kind": "narrative",
+      "sha256": "629bc5c1e3d587b8b3995216078ad3ef715d334ae75d47c8f2929d8428466480",
+      "lines": 3,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/fresh-kgsl/zink-sysmem_gui_probe.json",
+      "kind": "structured",
+      "sha256": "57b4ab9e2679ef4d9ac93e92e7ff4135da03575982f1afe7107469178d3529d7",
+      "lines": 17,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/fresh-kgsl/zink_gui_probe.json",
+      "kind": "structured",
+      "sha256": "4169e15bc91f6a2330c4211a89d5a290a718a2a729f3c43562d94c608351dcf6",
+      "lines": 11,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-capability.json",
+      "kind": "structured",
+      "sha256": "48a04d3b285f1f91b246158e681da9b947030948d577a959836fcad33d553a79",
+      "lines": 17,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-current-status.json",
+      "kind": "structured",
+      "sha256": "4dbb4f9e860c747877934a907c469f23ed6c30145a9175ae67156a9c811c2a08",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-diagnostic-gpu.json",
+      "kind": "structured",
+      "sha256": "d1075e6660a9ea20c809e3c5694de7d5a3fe1391f1804e2b946f43b5c0f97dec",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-diagnostic-status.json",
+      "kind": "structured",
+      "sha256": "7f3f4b41fac1a799920d032ddc591d6d2cfe5e3ff6033f2c67d25966d2336d56",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-dirty-probe-submit.json",
+      "kind": "structured",
+      "sha256": "9d894a0d4fcadcdcff90146ea75ff4044e372601be315cc7b92bce91d9cc4f65",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-dirty-state.json",
+      "kind": "structured",
+      "sha256": "d7fcdc300661f6ece71328922984d99abcbba9bb52d30575066b153fd4528839",
+      "lines": 5,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-open-existing-project-status.json",
+      "kind": "structured",
+      "sha256": "7f3f4b41fac1a799920d032ddc591d6d2cfe5e3ff6033f2c67d25966d2336d56",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-open-existing-project-submit.json",
+      "kind": "structured",
+      "sha256": "040ae7c0ebc2893cf2f60f858288fcea9fb5ed58bdfd1a8a649cbb15ceeefdf7",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-preview-state.json",
+      "kind": "structured",
+      "sha256": "276d740e6e5b9d6e18652a5dfda2570df466374de4837de3324cd60e6932b2f8",
+      "lines": 10,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-redraw-enums.json",
+      "kind": "structured",
+      "sha256": "f6f4c23ade043d03d7bb25af7c005c53e42f7054425cfcdc42481deb2bf08054",
+      "lines": 9,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-redraw-kgsl-direct.json",
+      "kind": "structured",
+      "sha256": "5b9d07e3a1425a92b778106a3eae2cace8bae8ec4822d153322e4106e1cd2234",
+      "lines": 45,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-redraw-zink-status.json",
+      "kind": "structured",
+      "sha256": "651026b16c0dc68121666491d802457c4701230c6e939a9a283205b4bd0b6d27",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-redraw-zink-submit.json",
+      "kind": "structured",
+      "sha256": "da6c3d065ed09df96a027e03b3a774b471f7e19dd9f4775d1ec962cd288cb296",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-redraw-zink.json",
+      "kind": "structured",
+      "sha256": "571a6e947859bbb7863a2593f0b725f830ae7f075e59804326b9ffc8a154a435",
+      "lines": 44,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-rendered-redraw-kgsl-direct.json",
+      "kind": "structured",
+      "sha256": "6cdc0292c33f8dea77fdf85196f80f58fbf363e6346c7ce0211e6398b4338b8c",
+      "lines": 44,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-rendered-redraw-zink-turnip.json",
+      "kind": "structured",
+      "sha256": "ecd2e4f86d984d2b0f4247410c6873729e19c1b7a27e8a3ab662ca804ae52038",
+      "lines": 49,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-runtime-probe-submit.json",
+      "kind": "structured",
+      "sha256": "a2ca25dffc157b1b43126722ecdfe8d245dfde3c7e694285fae41e01f557164c",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-runtime-probe.json",
+      "kind": "structured",
+      "sha256": "8213d4663b5a2abf6f3ecc91add4c51ee1e2e261e3dc8ed5bb441e587e9e3dac",
+      "lines": 33,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-screenshot-operator.json",
+      "kind": "structured",
+      "sha256": "6d2ea25700a1dba3fca42f566ec02c91ad42dc32af34471326564845071f0517",
+      "lines": 30,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-set-solid-preview-status.json",
+      "kind": "structured",
+      "sha256": "7e54ec0757453a5fcb48e00f2aaec42e758cce5a128c897dd34f4e913a63fd07",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-set-solid-preview-submit.json",
+      "kind": "structured",
+      "sha256": "ae0f03ba6f9fef7d417da81f595a59249d0861aeff4b19b1dd0f7b3cecece0b7",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-status-after-preview.json",
+      "kind": "structured",
+      "sha256": "3e85206a15bc71a0939c40a327bd899acd2bd13d78253b0641239627fd9c5cd7",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-status-preflight.json",
+      "kind": "structured",
+      "sha256": "8ac67238df1a32e51d712a7bf7e3cd99f5103ea8d4ac6b3dddc2f360a1ac1e6f",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/gui-status-probe.json",
+      "kind": "structured",
+      "sha256": "eabb8f88033ade17640d6f4cf7077b0f55044d3641aeed3fd76d39c6dfb025fd",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/native-gpu-preflight.json",
+      "kind": "structured",
+      "sha256": "d1075e6660a9ea20c809e3c5694de7d5a3fe1391f1804e2b946f43b5c0f97dec",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/native-zink-gui-probe.json",
+      "kind": "structured",
+      "sha256": "50bdd423e07186ff43fcf5346f3f9b2d789b03ce022905527c51b66c16bdf29e",
+      "lines": 9,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/native-zink-gui-status.json",
+      "kind": "structured",
+      "sha256": "ad500e890237c2b5815b6c8c59c2b80f9faaddbb80ce0b7b5fa8357c02ce9948",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/camera-state.json",
+      "kind": "structured",
+      "sha256": "e5355a0a005062a99468ce30429b8e3f216948df18c7643bc4869c2daa2daf54",
+      "lines": 67,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/kgsl-capture-result.json",
+      "kind": "structured",
+      "sha256": "baed7591468deaf5dc2793fd1366a7356eef78429bb5cf6869d24d4260a0b6bf",
+      "lines": 7,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/kgsl-direct-rendered-info.json",
+      "kind": "structured",
+      "sha256": "092b6d998fccf24d8f96249f9fa917e79024a0afb9e5b8eb1083468bd1a092da",
+      "lines": 15,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/kgsl-rendered-clean-info.json",
+      "kind": "structured",
+      "sha256": "2763ad298fd58af9c41057c09c1c96fbf678724671af1dece8036d946b177674",
+      "lines": 12,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/zink-camera-info.json",
+      "kind": "structured",
+      "sha256": "164e2be5cb96713c808a11b502f803c91d9b5a9f88857e0dcb6414f4f1587770",
+      "lines": 7,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/zink-capture-result.json",
+      "kind": "structured",
+      "sha256": "e5f734cae390d7615eb463842bbf182d9f297820401946a14700055e1a986301",
+      "lines": 7,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/zink-rendered-clean-info.json",
+      "kind": "structured",
+      "sha256": "ecd2e4f86d984d2b0f4247410c6873729e19c1b7a27e8a3ab662ca804ae52038",
+      "lines": 49,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/screenshots/zink-rendered-info.json",
+      "kind": "structured",
+      "sha256": "f038d090cd28d3997d3d4a1de1a55e9144702fe8f4dcbcaf3c9abef955205f78",
+      "lines": 12,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-60s-ternux-benchmark/workload-manifest.json",
+      "kind": "structured",
+      "sha256": "221429957ecf241c9feafa5f548f9b745f33db03443b63555ecdcc5e3f1c481a",
+      "lines": 35,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-native-gpu/gui-bridge-mcp-results.json",
+      "kind": "structured",
+      "sha256": "70cc6aa6fb4284bcbc70cf91625250e7db0e366d6fd23ee8b5410daa0c8c8571",
+      "lines": 722,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-native-gpu/mcp-results-initial-failure.json",
+      "kind": "structured",
+      "sha256": "075b2c908b5bf3f666d8fe8445d63b7f57fbd542200218181aec8f226c94c066",
+      "lines": 66,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-blender-native-gpu/mcp-results.json",
+      "kind": "structured",
+      "sha256": "69608d4bf34ebfbec47af7145acb0cc4e24b7c8ce1766d6c353ac98dcabd868a",
+      "lines": 66,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-mithyar-mic-native45/manifest.json",
+      "kind": "structured",
+      "sha256": "88cae7fddae238f12562d74b9db70bfe7037b0ef5b855c1638e8cd80d7506fe4",
+      "lines": 31,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-28-proot-x11-endpoint-loss-recovery.md",
+      "kind": "narrative",
+      "sha256": "df5a57d6a8323e1739db43b9a50acc1ccdad932b42696209f4c37b97a5a58a86",
+      "lines": 38,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-29-p12-auto-backend-routing.bn.md",
+      "kind": "narrative",
+      "sha256": "817ac384aef6bdefaadf726cbb676cb0e672403f65e674c6b0041acc7d85f210",
+      "lines": 41,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-29-p12-auto-backend-routing.md",
+      "kind": "narrative",
+      "sha256": "3105715348cb127703e94aa057254de8e17ffa37bccf9a49f22ae0f786bfcd67",
+      "lines": 45,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-29-p12-runtime-install-selection.bn.md",
+      "kind": "narrative",
+      "sha256": "4319fd3946269a36541b836c8686197608546323e56e755a44a9d59b702686f4",
+      "lines": 29,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-29-p12-runtime-install-selection.md",
+      "kind": "narrative",
+      "sha256": "c636a23e009348238eecb669c64c67029e598ba1ad1b88b24a7255705550dd71",
+      "lines": 29,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-cpu-qualification.json",
+      "kind": "structured",
+      "sha256": "b24a8c329e457bc47eb1dc2145ea2cccc2fa6e4070a4f724c679e1e37c0398c5",
+      "lines": 151,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-htp-qualification.json",
+      "kind": "structured",
+      "sha256": "ad0e44166c79ecebebb22328fe068f2a57632695717915a409bc08e150a6e10b",
+      "lines": 268,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-htp-repeat-2-qualification.json",
+      "kind": "structured",
+      "sha256": "bdbe1075f09b3b4331c95b8d79b79b364af4962dcf5426aee5c0128bd3b41759",
+      "lines": 407,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-htp-repeat-qualification.json",
+      "kind": "structured",
+      "sha256": "23dcde52297ef7c26823910b0814689ae4353b50cf2d085e8b97126ab711f819",
+      "lines": 237,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md",
+      "kind": "narrative",
+      "sha256": "b5d1a7f166158ce0c981b13e7f889d33e179a02a018cbb25e97b1da9e5af777d",
+      "lines": 53,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.md",
+      "kind": "narrative",
+      "sha256": "35c5028284774e2b93deb5b76dae44a009930970a455106b853e2b4175065094",
+      "lines": 57,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-integrity-snapshot.json",
+      "kind": "structured",
+      "sha256": "95c4a75ec634e9cbd21931d0ff23d9787b36a0b513769c16331824c8a797a020",
+      "lines": 148,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-launch-headroom-preflight.json",
+      "kind": "structured",
+      "sha256": "9a0d1a6ff706445d421182f9a3163cfcafdf2a9b7306e378b9cf852edb84d4db",
+      "lines": 60,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-native-qualification.bn.md",
+      "kind": "narrative",
+      "sha256": "6a4e34ae93b2b1f45bdfb198a7f49a8b5316633285558a647c19bce990e19102",
+      "lines": 27,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-native-qualification.md",
+      "kind": "narrative",
+      "sha256": "34827c98a3c10f9d4477ab3d213aae191af38a6266b7aa43bcce8b0e0e86750a",
+      "lines": 27,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-npu-headroom-recheck.json",
+      "kind": "structured",
+      "sha256": "08592f8b6beb8f926bdac7207d97e46655a2d111aa9991625bb6c210cd688cc2",
+      "lines": 112,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-qwen25-model-pin.bn.md",
+      "kind": "narrative",
+      "sha256": "5727f20422d09b3734793ca26f09c3898998ad608e445f643315e88b7198aead",
+      "lines": 48,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-qwen25-model-pin.md",
+      "kind": "narrative",
+      "sha256": "e21e4ea050d51fad53c6703ea5b4b55fa10b70ad277808a4a824616b9b9b0fd5",
+      "lines": 48,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-vulkan-qualification.json",
+      "kind": "structured",
+      "sha256": "8776be0c608f2ad927888781b675e0588c7e697d3af09746f52b20c1850dad00",
+      "lines": 311,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/P0-foundation.md",
       "kind": "narrative",
       "sha256": "ff55b2aa3b0096dc0d44cc2223a8c47f29eac36d9efab6290882c00d635cfbd4",
@@ -4227,10 +4787,10 @@
     {
       "path": "docs/readiness/LEGAL-IP.md",
       "kind": "narrative",
-      "sha256": "066f94ea7ad6bdde02aa847b9d017b0c9a13fe8b105dd67d4b57f99499523fd1",
+      "sha256": "5d430b6195c224b5540261ef5431647da803565c1cb895602bf55113a3adde57",
       "lines": 59,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "5d430b6195c224b5540261ef5431647da803565c1cb895602bf55113a3adde57"
     },
     {
       "path": "docs/readiness/PREMIUM-DISTRIBUTION.md",
@@ -4259,10 +4819,10 @@
     {
       "path": "docs/readiness/README.md",
       "kind": "narrative",
-      "sha256": "d629e5348d04d710265f5df86cd9433cf7c1a41a1dbce8632c9755403e47e61d",
-      "lines": 25,
+      "sha256": "45f896373d222297287c02fac9019c6e67843a6f3e83c7d6d90f5409c079e6d7",
+      "lines": 27,
       "read_status": "read",
-      "read_sha256": "d629e5348d04d710265f5df86cd9433cf7c1a41a1dbce8632c9755403e47e61d"
+      "read_sha256": "45f896373d222297287c02fac9019c6e67843a6f3e83c7d6d90f5409c079e6d7"
     },
     {
       "path": "docs/readiness/REPOSITORY-AUDIT.md",
@@ -4273,12 +4833,20 @@
       "read_sha256": null
     },
     {
+      "path": "docs/readiness/THIRD-PARTY-NOTICES.bn.md",
+      "kind": "narrative",
+      "sha256": "419d2e4fd12014d697650cfb8c6577b9f8d86c853cda673a368f1b28b5829a3e",
+      "lines": 19,
+      "read_status": "read",
+      "read_sha256": "419d2e4fd12014d697650cfb8c6577b9f8d86c853cda673a368f1b28b5829a3e"
+    },
+    {
       "path": "docs/readiness/THIRD-PARTY-NOTICES.md",
       "kind": "narrative",
-      "sha256": "37f465232a679235e3f7b51c9cf7de829f830dbc4992f1f6ddd731f508584a3c",
-      "lines": 17,
+      "sha256": "59932aa31701f22e2e678dc943a3190ff600ad0f73865bf44bb5e818bff68581",
+      "lines": 20,
       "read_status": "read",
-      "read_sha256": "37f465232a679235e3f7b51c9cf7de829f830dbc4992f1f6ddd731f508584a3c"
+      "read_sha256": "59932aa31701f22e2e678dc943a3190ff600ad0f73865bf44bb5e818bff68581"
     },
     {
       "path": "docs/readiness/THREAT-MODEL.md",
@@ -4323,58 +4891,58 @@
     {
       "path": "docs/testing/CPU-BASELINE.md",
       "kind": "narrative",
-      "sha256": "114ddc7a6c0c49a50ce87c215c69300e0abb70d708b76e506710e4162fb3d1ed",
+      "sha256": "11aad0b586545a4a5c77e994690d799c7fb23bddab8ac8d50518ade9cc16f157",
       "lines": 23,
-      "read_status": "read",
-      "read_sha256": "114ddc7a6c0c49a50ce87c215c69300e0abb70d708b76e506710e4162fb3d1ed"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/testing/DEVICE-COMPATIBILITY.md",
       "kind": "narrative",
-      "sha256": "d32b30a7faf8bcb39a5854488fe7dc2ea1ac046017c53563e20ad0499501af59",
+      "sha256": "3b99ce1ef1541bfffa1dca8d4fe09b4828da634d888d7979c1663f942570c7ea",
       "lines": 26,
-      "read_status": "read",
-      "read_sha256": "d32b30a7faf8bcb39a5854488fe7dc2ea1ac046017c53563e20ad0499501af59"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/testing/FEATURE-MATRIX.yaml",
       "kind": "structured",
-      "sha256": "9b2f9ec75f685561cb97ff5e976a3fbb14d18ca9a520d26981d05af7c6c8600f",
-      "lines": 239,
-      "read_status": "read",
-      "read_sha256": "9b2f9ec75f685561cb97ff5e976a3fbb14d18ca9a520d26981d05af7c6c8600f"
+      "sha256": "3f027d2794f52722072ba2905d4743ff41c4769a5d948b85a3b2711c74076e1a",
+      "lines": 254,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/testing/GPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "5c72118ae42dd05d3e1af956b5a8f048ad48ca1e3d31e9080625292a7e5aada1",
+      "sha256": "6979921ee512a7b0f08e24d0b6a9cae76e7c98e16b89dbb089f92e09dea843ca",
       "lines": 36,
-      "read_status": "read",
-      "read_sha256": "5c72118ae42dd05d3e1af956b5a8f048ad48ca1e3d31e9080625292a7e5aada1"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/testing/KNOWN-LIMITATIONS.md",
       "kind": "narrative",
-      "sha256": "d4ad8d8d519b78ede29322098cad98f03d001bd10bf801210d82f93bc21ed23c",
-      "lines": 25,
+      "sha256": "5a730c6a107ab8a692a07284ae46317bc2ffc660249b4780ff105f410cc8132e",
+      "lines": 29,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/testing/NATIVE-ACCEL-QUALIFICATION.md",
       "kind": "narrative",
-      "sha256": "3c6dddca042f2f20b4087887fe72cd67e359779a57dbba874880f0b41742af7d",
-      "lines": 48,
+      "sha256": "90d1373df09a991d1b379dd29f525f62d3d521b006b2a473dace950c341c418d",
+      "lines": 55,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "118c4d0af7f98490d4b48ce14b38a115fc71d864eb6f58ec7d196628acd61c53",
-      "lines": 54,
-      "read_status": "read",
-      "read_sha256": "118c4d0af7f98490d4b48ce14b38a115fc71d864eb6f58ec7d196628acd61c53"
+      "sha256": "917ae91189aaf1eb1d67299fba14a9ebf91476f0e33e734071fa715012249991",
+      "lines": 60,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/testing/README.md",
@@ -4401,10 +4969,42 @@
       "read_sha256": null
     },
     {
+      "path": "docs/testing/reports/2026-10-28-blender-native-gpu-mcp.md",
+      "kind": "narrative",
+      "sha256": "8beee27015405de88267e3c0a42db5582332f88abc118e7a78a8718fb6e32deb",
+      "lines": 81,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/testing/reports/2026-10-28-blender-native-viewport-backends.md",
+      "kind": "narrative",
+      "sha256": "51fdc2e6c221a7db511002565f81ddefb4bce6d766e4e715fdf105ef93a004ab",
+      "lines": 61,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/testing/reports/2026-10-28-mithyar-mic-native-animation.md",
+      "kind": "narrative",
+      "sha256": "f275261b75058a2e3ff7795bef3ba02ab6e75f14669ab224d26e31d63da9e2db",
+      "lines": 66,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/testing/reports/2026-10-28-native-glmark2-kgsl-zink-ab.md",
+      "kind": "narrative",
+      "sha256": "7d3d1cc24b4ea9f13533fb13591abede0e6564afb975d5efe192ff5f40127586",
+      "lines": 46,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/testing/reports/README.md",
       "kind": "narrative",
-      "sha256": "96960dc224c0602e85fbb9fedd50c74753b436f8bf0e048fb572f5aef7ad30df",
-      "lines": 5,
+      "sha256": "961598e17aedfe3a9198bef52afedac08912c70d1b5d30fc50e21732600c06aa",
+      "lines": 6,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -4419,8 +5019,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "71eb6a740e3493d7916e7cb238210cca705bf874b4be8f6ef0a33701b6246b1d",
-      "lines": 273,
+      "sha256": "61344e47c84b5748e50230146ebaff1a04e6730b6b884d7a04cee7d16f1cbd07",
+      "lines": 278,
       "read_status": "pending",
       "read_sha256": null
     },

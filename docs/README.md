@@ -59,4 +59,5 @@ Older design-only references remain historical: [hybrid integration](HYBRID-INTE
 - [Knowledge synchronization](KNOWLEDGE-SYNC.md)
 - [Security policy](../SECURITY.md)
 - [License and release readiness](readiness/README.md)
-- [Third-party artifact notices](readiness/THIRD-PARTY-NOTICES.md)
+- [Third-party artifact notices (English)](readiness/THIRD-PARTY-NOTICES.md)
+- [তৃতীয় পক্ষের সফটওয়্যার উপাদানের লাইসেন্স ও উৎসতালিকা](readiness/THIRD-PARTY-NOTICES.bn.md)
