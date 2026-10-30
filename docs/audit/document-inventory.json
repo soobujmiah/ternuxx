@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 697,
+  "document_count": 698,
   "read_count": 179,
   "reading_complete": false,
   "broken_local_links": [],
@@ -4363,7 +4363,7 @@
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.md",
       "kind": "narrative",
-      "sha256": "d485711ab3ba729c4c9bd45014310d871f9e9a5361152f134f846408b3f4d568",
+      "sha256": "824660059a5e9e02c502e30da6dc3f10f0b3dbe809e9a63a28f8279fcc007c59",
       "lines": 32,
       "read_status": "pending",
       "read_sha256": null
@@ -4493,6 +4493,14 @@
       "kind": "structured",
       "sha256": "7c846c615818cdd7963696563420f27cdabbcea6b39049c106fa8b0805f94005",
       "lines": 61,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-npu-candidate-preflight-5.json",
+      "kind": "structured",
+      "sha256": "bc53f60514d56da24846f396510f0ca2b0bfd9c35fe42a066391eda07b634372",
+      "lines": 25,
       "read_status": "pending",
       "read_sha256": null
     },
