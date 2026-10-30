@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Pause preflight polling until passive cooling measurably changes the gate result; then require two fresh passing backend-specific samples. Record a same-model CPU baseline; after adequate recovery, qualify the exact self-built HTP candidate with output correctness, full offload, model/runtime integrity and telemetry; compare Vulkan and CPU; verify runtime selection, rollback and clean install. Resolve project/dependency licenses and full provenance before any public release asset.
+**Next action:** Pause thermal preflight polling until passive cooling measurably changes the gate result; then require two fresh passing backend-specific samples, record same-model CPU baseline, and qualify the exact self-built HTP candidate with output correctness, full offload, integrity and telemetry; compare Vulkan and CPU; verify install, rollback and clean install. Separately resolve Qualcomm AAR license and Android app/provider integration for the image-generation route; qualify the full image pipeline before any image-NPU support claim. Resolve all project/dependency licenses and provenance before public release.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

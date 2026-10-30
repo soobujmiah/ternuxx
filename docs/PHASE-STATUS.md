@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Two corrected independent HTP candidate builds now produce byte-identical, locally verified archives. Device CPU, Vulkan and HTP paths remain unqualified after repeated thermal guard cancellations and failed launch preflights.
+The reproducible HTP candidate is verified, but device CPU/Vulkan/HTP qualification remains thermally blocked. QNN image generation is a separate unresolved integration and license gate; QNN API 2.29 maps to QAIRT 2.39.0 AAR, which is not a drop-in Native shell runtime.
 
-**Next action:** Pause preflight polling until passive cooling measurably changes the gate result; then require two fresh passing backend-specific samples. Record a same-model CPU baseline; after adequate recovery, qualify the exact self-built HTP candidate with output correctness, full offload, model/runtime integrity and telemetry; compare Vulkan and CPU; verify runtime selection, rollback and clean install. Resolve project/dependency licenses and full provenance before any public release asset.
+**Next action:** Pause thermal preflight polling until passive cooling measurably changes the gate result; then require two fresh passing backend-specific samples, record same-model CPU baseline, and qualify the exact self-built HTP candidate with output correctness, full offload, integrity and telemetry; compare Vulkan and CPU; verify install, rollback and clean install. Separately resolve Qualcomm AAR license and Android app/provider integration for the image-generation route; qualify the full image pipeline before any image-NPU support claim. Resolve all project/dependency licenses and provenance before public release.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -174,3 +174,5 @@ Evidence:
 - [docs/evidence/2026-10-29-p12-runtime-install-selection.md](evidence/2026-10-29-p12-runtime-install-selection.md)
 - [docs/evidence/2026-10-30-p12-native-qualification.md](evidence/2026-10-30-p12-native-qualification.md)
 - [docs/evidence/2026-10-30-p12-cross-run-build-variance.md](evidence/2026-10-30-p12-cross-run-build-variance.md)
+- [docs/evidence/2026-10-30-p12-qnn-image-route-audit.md](evidence/2026-10-30-p12-qnn-image-route-audit.md)
+- [docs/evidence/2026-10-30-p12-qnn-image-route-audit.bn.md](evidence/2026-10-30-p12-qnn-image-route-audit.bn.md)

@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 700,
-  "read_count": 179,
+  "document_count": 702,
+  "read_count": 182,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -307,8 +307,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "d56b072b7f9094396b401d9545ed8d2e54ee30c72532d8c15c656c4a320e8706",
-      "lines": 176,
+      "sha256": "b54ae1e4d5706b0daab9452fc4ea9a3afb63ece8072786c63d30f3a5387fd7ad",
+      "lines": 178,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -363,7 +363,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "fab3930580648592e3e7995960d76271c36210cda75a13da5bda183c7f34599e",
+      "sha256": "bb49824cf3284fbedcd1f179a898a09e2746eaca69cc9414bfeb639e5f57fa08",
       "lines": 69,
       "read_status": "pending",
       "read_sha256": null
@@ -4545,6 +4545,22 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-30-p12-qnn-image-route-audit.bn.md",
+      "kind": "narrative",
+      "sha256": "185107166977b2ddda27f2f7264369962fb5523a5506385b631e631d30d1edc2",
+      "lines": 38,
+      "read_status": "read",
+      "read_sha256": "185107166977b2ddda27f2f7264369962fb5523a5506385b631e631d30d1edc2"
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-qnn-image-route-audit.md",
+      "kind": "narrative",
+      "sha256": "5805762946e4564f8ab8aa40c35b91138ebf1f4232fd59be0fcd677b6c191d12",
+      "lines": 38,
+      "read_status": "read",
+      "read_sha256": "5805762946e4564f8ab8aa40c35b91138ebf1f4232fd59be0fcd677b6c191d12"
+    },
+    {
       "path": "docs/evidence/2026-10-30-p12-qwen25-model-pin.bn.md",
       "kind": "narrative",
       "sha256": "5727f20422d09b3734793ca26f09c3898998ad608e445f643315e88b7198aead",
@@ -5163,10 +5179,10 @@
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "917ae91189aaf1eb1d67299fba14a9ebf91476f0e33e734071fa715012249991",
-      "lines": 60,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "f2b6b6bd4364c4b64028953bc9d95ce0b18d44b6d290f8e7b19a3fa23273e226",
+      "lines": 68,
+      "read_status": "read",
+      "read_sha256": "f2b6b6bd4364c4b64028953bc9d95ce0b18d44b6d290f8e7b19a3fa23273e226"
     },
     {
       "path": "docs/testing/README.md",
@@ -5243,8 +5259,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "74de4075e249c5d26ce33c1c15801bd8762ea36328596c865db659d306273d57",
-      "lines": 279,
+      "sha256": "2fc85cb34376d772aee7c1c5172299288c6993191cfa7d32c948e430259d7c4b",
+      "lines": 281,
       "read_status": "pending",
       "read_sha256": null
     },
