@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 674,
-  "read_count": 185,
+  "read_count": 182,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -51,10 +51,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "64a89bcdce4d183a09a23a87889e866ecee1243f4a2be7ae906a2ac77ca290ad",
-      "lines": 473,
-      "read_status": "read",
-      "read_sha256": "64a89bcdce4d183a09a23a87889e866ecee1243f4a2be7ae906a2ac77ca290ad"
+      "sha256": "232bdc26a5f3d38b5db159946f87d71fa1d61a775f0068091bf52a90987c6d47",
+      "lines": 477,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -4851,18 +4851,18 @@
     {
       "path": "docs/readiness/THIRD-PARTY-NOTICES.bn.md",
       "kind": "narrative",
-      "sha256": "419d2e4fd12014d697650cfb8c6577b9f8d86c853cda673a368f1b28b5829a3e",
-      "lines": 19,
-      "read_status": "read",
-      "read_sha256": "419d2e4fd12014d697650cfb8c6577b9f8d86c853cda673a368f1b28b5829a3e"
+      "sha256": "5f4a0141b652ccb00690a23998e2c3a6c9968d3e0e6530330d76eda6b73a9d7a",
+      "lines": 20,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/readiness/THIRD-PARTY-NOTICES.md",
       "kind": "narrative",
-      "sha256": "59932aa31701f22e2e678dc943a3190ff600ad0f73865bf44bb5e818bff68581",
-      "lines": 20,
-      "read_status": "read",
-      "read_sha256": "59932aa31701f22e2e678dc943a3190ff600ad0f73865bf44bb5e818bff68581"
+      "sha256": "ab16be92649ac887b1c7757233164477bd9e2c84493cf40e208f3c265706acb7",
+      "lines": 21,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/readiness/THREAT-MODEL.md",
