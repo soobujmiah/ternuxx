@@ -312,6 +312,73 @@ class ManagementServiceTests(unittest.TestCase):
         self.assertFalse(invalid["ok"])
         self.assertEqual(invalid["error"]["code"], "invalid_arguments")
 
+    def test_auto_inference_prefers_npu_when_all_three_runtimes_are_ready(self) -> None:
+        with patch.object(management_service.npu_inference, "status", return_value={"available": True, "device": "HTP0"}), \
+             patch.object(management_service.cpu_inference, "gpu_status", return_value={"available": True, "devices": [{"id": "Vulkan0", "name": "Adreno 825"}]}), \
+             patch.object(management_service.cpu_inference, "status", return_value={"runtime": {"available": True}}), \
+             patch.object(management_service.npu_inference, "run_inference", return_value={
+                 "backend": "Hexagon HTP", "npu_layers": 29, "total_layers": 29}) as run:
+            result = management_service.dispatch(request("inference.auto.run", {
+                "prompt": "hello", "max_tokens": 16}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"]["backend"], "Hexagon HTP")
+        self.assertEqual(result["data"]["requested_backend"], "auto")
+        self.assertEqual(result["data"]["routing_policy"], ["npu", "vulkan", "cpu"])
+        run.assert_called_once()
+        self.assertIsNone(run.call_args.kwargs.get("model_id"))
+
+    def test_auto_inference_passes_the_allowlisted_model_id_to_the_selected_backend(self) -> None:
+        with patch.object(management_service.npu_inference, "status", return_value={"available": True, "device": "HTP0"}), \
+             patch.object(management_service.cpu_inference, "gpu_status", return_value={"available": True, "devices": [{"id": "Vulkan0", "name": "Adreno 825"}]}), \
+             patch.object(management_service.cpu_inference, "status", return_value={"runtime": {"available": True}}), \
+             patch.object(management_service.npu_inference, "run_inference", return_value={
+                 "backend": "Hexagon HTP", "model_id": "qwen2.5-1.5b-instruct-q4_0"}) as run:
+            result = management_service.dispatch(request("inference.auto.run", {
+                "prompt": "hello", "model_id": "qwen2.5-1.5b-instruct-q4_0"}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(run.call_args.kwargs["model_id"], "qwen2.5-1.5b-instruct-q4_0")
+        invalid = management_service.dispatch(request("inference.auto.run", {
+            "prompt": "hello", "model_id": "../model.gguf"}), env=NATIVE_ENV)
+        self.assertFalse(invalid["ok"])
+        self.assertEqual(invalid["error"]["code"], "invalid_arguments")
+
+    def test_auto_inference_does_not_retry_on_cpu_when_selected_npu_run_fails(self) -> None:
+        with patch.object(management_service.npu_inference, "status", return_value={"available": True, "device": "HTP0"}), \
+             patch.object(management_service.cpu_inference, "gpu_status", return_value={"available": True, "devices": [{"id": "Vulkan0", "name": "Adreno 825"}]}), \
+             patch.object(management_service.cpu_inference, "status", return_value={"runtime": {"available": True}}), \
+             patch.object(management_service.npu_inference, "run_inference",
+                          side_effect=management_service.npu_inference.NpuInferenceError("bad HTP output")) as npu_run, \
+             patch.object(management_service.cpu_inference, "run_inference") as cpu_run:
+            result = management_service.dispatch(request("inference.auto.run", {
+                "prompt": "hello", "max_tokens": 16}), env=NATIVE_ENV)
+        self.assertFalse(result["ok"])
+        self.assertEqual(result["error"]["code"], "inference_failed")
+        npu_run.assert_called_once()
+        cpu_run.assert_not_called()
+
+    def test_auto_inference_uses_gpu_then_cpu_as_readiness_fallbacks(self) -> None:
+        with patch.object(management_service.npu_inference, "status", return_value={"available": False}), \
+             patch.object(management_service.cpu_inference, "gpu_status", return_value={"available": True, "devices": [{"id": "Vulkan0", "name": "Adreno 825"}]}), \
+             patch.object(management_service.cpu_inference, "status", return_value={"runtime": {"available": True}}), \
+             patch.object(management_service.cpu_inference, "run_inference", return_value={"backend": "Vulkan", "gpu_layers": 29}) as run:
+            result = management_service.dispatch(request("inference.auto.run", {
+                "prompt": "hello", "max_tokens": 16}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"]["backend"], "Vulkan")
+        run.assert_called_once()
+        self.assertEqual(run.call_args.kwargs["backend"], "vulkan")
+
+        with patch.object(management_service.npu_inference, "status", return_value={"available": False}), \
+             patch.object(management_service.cpu_inference, "gpu_status", return_value={"available": False, "devices": []}), \
+             patch.object(management_service.cpu_inference, "status", return_value={"runtime": {"available": True}}), \
+             patch.object(management_service.cpu_inference, "run_inference", return_value={"backend": "CPU"}) as run:
+            result = management_service.dispatch(request("inference.auto.run", {
+                "prompt": "hello", "max_tokens": 16}), env=NATIVE_ENV)
+        self.assertTrue(result["ok"])
+        self.assertEqual(result["data"]["backend"], "CPU")
+        run.assert_called_once()
+        self.assertEqual(run.call_args.kwargs["backend"], "cpu")
+
     def test_terminal_broker_service_controls_use_fixed_deployment_provider(self) -> None:
         status = {"service_id": "ternuxx-terminal-broker", "installed": True, "status": "stopped"}
         preview = {"service_id": "ternuxx-terminal-broker", "plan_id": "a" * 64, "read_only": True}
@@ -444,6 +511,9 @@ class ManagementServiceTests(unittest.TestCase):
         self.assertIn('--operation inference.cpu.model.apply', source)
         self.assertIn('operation=inference.cpu.run', source)
         self.assertIn('operation=inference.gpu.run', source)
+        self.assertIn('operation=inference.auto.run', source)
+        self.assertIn('backend=auto', source)
+        self.assertIn('--model)', source)
         self.assertNotIn('cpu_inference.py', source)
 
     def test_ssh_key_inventory_is_a_separate_read_only_shared_operation(self) -> None:

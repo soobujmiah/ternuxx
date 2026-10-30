@@ -24,8 +24,12 @@ nt_cmd_ai() {
       apt-get -s install $package
       ;;
     status)
-      [ "$#" -eq 0 ] || { nt_fail "Usage: tx ai status"; return 2; }
-      python3 "$service" --operation inference.cpu.status --json
+      local status_args=()
+      if [ "$#" -gt 0 ]; then
+        [ "$#" -eq 2 ] && [ "$1" = --model ] || { nt_fail "Usage: tx ai status [--model MODEL_ID]"; return 2; }
+        status_args=(--model-id "$2")
+      fi
+      python3 "$service" --operation inference.cpu.status "${status_args[@]}" --json
       ;;
     devices)
       [ "$#" -eq 0 ] || { nt_fail "Usage: tx ai devices"; return 2; }
@@ -137,14 +141,15 @@ nt_cmd_ai() {
       fi
       ;;
     run)
-      local max_tokens=64 backend=auto device_id="" operation option prompt
+      local max_tokens=64 backend=auto device_id="" model_id="" operation option prompt
       local -a inference_args=()
       while [ "$#" -gt 0 ]; do
         option="$1"; shift
         case "$option" in
           --max-tokens) [ "$#" -gt 0 ] || { nt_fail "--max-tokens needs a number"; return 2; }; max_tokens="$1"; shift ;;
-          --backend) [ "$#" -gt 0 ] || { nt_fail "--backend needs cpu, vulkan, or npu"; return 2; }; backend="$1"; shift ;;
+          --backend) [ "$#" -gt 0 ] || { nt_fail "--backend needs auto, cpu, vulkan, or npu"; return 2; }; backend="$1"; shift ;;
           --device) [ "$#" -gt 0 ] || { nt_fail "--device needs the exact listed Vulkan device ID"; return 2; }; device_id="$1"; shift ;;
+          --model) [ "$#" -gt 0 ] || { nt_fail "--model needs a supported model ID"; return 2; }; model_id="$1"; shift ;;
           *) nt_fail "Prompt is read from stdin; unknown run option: $option"; return 2 ;;
         esac
       done
@@ -152,6 +157,7 @@ nt_cmd_ai() {
         *) nt_fail "Backend must be auto, cpu, vulkan, or npu."; return 2 ;; esac
       [ "$backend" = vulkan ] || [ -z "$device_id" ] || { nt_fail "--device is only valid with --backend vulkan."; return 2; }
       [ -z "$device_id" ] || inference_args+=(--device-id "$device_id")
+      [ -z "$model_id" ] || inference_args+=(--model-id "$model_id")
       if [ -t 0 ]; then
         read -r -p 'Local one-line prompt (max 4096 bytes): ' prompt || return 2
         printf '%s' "$prompt" | python3 "$service" --operation "$operation" --prompt-stdin \

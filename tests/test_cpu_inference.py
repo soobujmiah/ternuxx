@@ -49,6 +49,15 @@ class CpuInferenceTests(unittest.TestCase):
         self.addCleanup(self.home_patch.stop)
         self.addCleanup(self.temporary.cleanup)
 
+    def test_owner_model_allowlist_resolves_only_to_the_existing_external_file(self):
+        spec = cpu_inference.resolve_model("qwen2.5-1.5b-instruct-q4_0")
+        self.assertEqual(spec.size_bytes, 1_066_227_232)
+        self.assertEqual(spec.sha256, "dcd819ff094852c38faba6873d8ff0c9d51eadb2844539e52042ae5d647bbfdb")
+        self.assertEqual(cpu_inference.model_path(model_id=spec.model_id),
+                         Path("/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf"))
+        with self.assertRaisesRegex(cpu_inference.InferenceError, "allowlist"):
+            cpu_inference.resolve_model("/sdcard/private-model.gguf")
+
     def test_preview_is_deterministic_read_only_and_names_exact_download(self):
         before = list(self.home.rglob("*"))
         first = cpu_inference.preview(home=self.home, state_dir=self.state, spec=self.spec)

@@ -823,6 +823,8 @@ static void run_bridge_input_full(Center *c, const gchar *action, const gchar *i
         G_SUBPROCESS_FLAGS_STDOUT_PIPE | G_SUBPROCESS_FLAGS_STDERR_PIPE, &error);
     gtk_label_set_text(GTK_LABEL(c->notice), g_strcmp0(action, "gpu-run") == 0
         ? "Running bounded Vulkan inference with offload verification…"
+        : g_strcmp0(action, "auto-run") == 0
+        ? "Selecting HTP, Vulkan, or CPU for bounded inference…"
         : "Running bounded local CPU inference…");
     if (!process) {
         gtk_label_set_text(GTK_LABEL(c->notice), error ? error->message : "Could not start local inference");
@@ -953,6 +955,7 @@ static void show_resource(Center *c, Resource *r) {
     gtk_widget_set_visible(c->ai_model_install_button, cpu_inference);
     gtk_widget_set_visible(c->ai_model_remove_button, cpu_inference);
     gtk_widget_set_visible(c->ai_run_button, cpu_inference);
+    gtk_widget_set_visible(c->ai_auto_run_button, auto_inference);
     gtk_widget_set_visible(c->ai_gpu_status_button, gpu_inference);
     gtk_widget_set_visible(c->ai_gpu_run_button, gpu_inference);
     gtk_widget_set_visible(c->ai_npu_status_button, npu_inference);
@@ -1385,34 +1388,6 @@ static void cpu_prompt_submit(GtkButton *button, gpointer data) {
     run_bridge_input(c, "cpu-run", prompt);
     gtk_window_destroy(GTK_WINDOW(window));
 }
-static void auto_prompt_submit(GtkButton *button, gpointer data) {
-    (void)button; GtkWidget *window = GTK_WIDGET(data);
-    Center *c = g_object_get_data(G_OBJECT(window), "auto-center");
-    GtkWidget *entry = g_object_get_data(G_OBJECT(window), "auto-entry");
-    const gchar *prompt = gtk_editable_get_text(GTK_EDITABLE(entry));
-    if (!prompt || !*prompt || strlen(prompt) > 4096 || strchr(prompt, '\n') || strchr(prompt, '\r')) {
-        if (c) gtk_label_set_text(GTK_LABEL(c->notice), "Use one non-empty prompt line under 4096 UTF-8 bytes.");
-        return;
-    }
-    run_bridge_input(c, "auto-run", prompt);
-    gtk_window_destroy(GTK_WINDOW(window));
-}
-static void auto_prompt_dialog(GtkButton *button, gpointer data) {
-    (void)button; Center *c = data; GtkWidget *window = gtk_window_new();
-    gtk_window_set_title(GTK_WINDOW(window), "Run using preferred AI backend");
-    gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(c->window)); gtk_window_set_modal(GTK_WINDOW(window), TRUE);
-    gtk_window_set_default_size(GTK_WINDOW(window), 440, 180);
-    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
-    gtk_widget_set_margin_top(box, 14); gtk_widget_set_margin_bottom(box, 14);
-    gtk_widget_set_margin_start(box, 14); gtk_widget_set_margin_end(box, 14);
-    gtk_window_set_child(GTK_WINDOW(window), box);
-    gtk_box_append(GTK_BOX(box), gtk_label_new("Selects HTP0, then Vulkan, then CPU from live runtime probes. The selected backend is returned; a failed inference is not silently retried."));
-    GtkWidget *entry = gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(entry), "One-line prompt (up to 4096 UTF-8 bytes)");
-    gtk_box_append(GTK_BOX(box), entry); GtkWidget *run = gtk_button_new_with_label("Run on preferred backend"); gtk_box_append(GTK_BOX(box), run);
-    g_object_set_data(G_OBJECT(window), "auto-center", c); g_object_set_data(G_OBJECT(window), "auto-entry", entry);
-    g_signal_connect(run, "clicked", G_CALLBACK(auto_prompt_submit), window); gtk_window_present(GTK_WINDOW(window));
-}
-
 static void cpu_prompt_dialog(GtkButton *button, gpointer data) {
     (void)button; Center *c = data;
     GtkWidget *window = gtk_window_new(); gtk_window_set_title(GTK_WINDOW(window), "Run local CPU prompt");
@@ -1427,6 +1402,44 @@ static void cpu_prompt_dialog(GtkButton *button, gpointer data) {
     gtk_box_append(GTK_BOX(box), entry); GtkWidget *run = gtk_button_new_with_label("Run on CPU"); gtk_box_append(GTK_BOX(box), run);
     g_object_set_data(G_OBJECT(window), "cpu-center", c); g_object_set_data(G_OBJECT(window), "cpu-entry", entry);
     g_signal_connect(run, "clicked", G_CALLBACK(cpu_prompt_submit), window); gtk_window_present(GTK_WINDOW(window));
+}
+
+static void auto_prompt_submit(GtkButton *button, gpointer data) {
+    (void)button; GtkWidget *window = GTK_WIDGET(data);
+    Center *c = g_object_get_data(G_OBJECT(window), "auto-center");
+    GtkWidget *entry = g_object_get_data(G_OBJECT(window), "auto-entry");
+    GtkWidget *model = g_object_get_data(G_OBJECT(window), "auto-model");
+    const gchar *prompt = gtk_editable_get_text(GTK_EDITABLE(entry));
+    const gchar *models[] = {"qwen2.5-1.5b-instruct-q4_k_m", "qwen2.5-1.5b-instruct-q4_0"};
+    guint selected = gtk_drop_down_get_selected(GTK_DROP_DOWN(model));
+    if (!prompt || !*prompt || strlen(prompt) > 4096 || strchr(prompt, '\n') || strchr(prompt, '\r')) {
+        if (c) gtk_label_set_text(GTK_LABEL(c->notice), "Use one non-empty prompt line under 4096 UTF-8 bytes.");
+        return;
+    }
+    if (selected >= G_N_ELEMENTS(models)) {
+        if (c) gtk_label_set_text(GTK_LABEL(c->notice), "Choose a supported local model.");
+        return;
+    }
+    run_bridge_input_full(c, "auto-run", prompt, models[selected]);
+    gtk_window_destroy(GTK_WINDOW(window));
+}
+static void auto_prompt_dialog(GtkButton *button, gpointer data) {
+    (void)button; Center *c = data; GtkWidget *window = gtk_window_new();
+    gtk_window_set_title(GTK_WINDOW(window), "Run automatic local inference");
+    gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(c->window)); gtk_window_set_modal(GTK_WINDOW(window), TRUE);
+    gtk_window_set_default_size(GTK_WINDOW(window), 460, 230);
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+    gtk_widget_set_margin_top(box, 14); gtk_widget_set_margin_bottom(box, 14);
+    gtk_widget_set_margin_start(box, 14); gtk_widget_set_margin_end(box, 14);
+    gtk_window_set_child(GTK_WINDOW(window), box);
+    gtk_box_append(GTK_BOX(box), gtk_label_new("Select a local model. Routing prefers configured HTP, then Vulkan, then CPU; the actual backend is reported."));
+    const char *models[] = {"qwen2.5-1.5b-instruct-q4_k_m", "qwen2.5-1.5b-instruct-q4_0", NULL};
+    GtkWidget *model = gtk_drop_down_new_from_strings(models); gtk_box_append(GTK_BOX(box), model);
+    GtkWidget *entry = gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(entry), "One-line prompt (up to 4096 UTF-8 bytes)"); gtk_box_append(GTK_BOX(box), entry);
+    GtkWidget *run = gtk_button_new_with_label("Run automatically"); gtk_box_append(GTK_BOX(box), run);
+    g_object_set_data(G_OBJECT(window), "auto-center", c); g_object_set_data(G_OBJECT(window), "auto-entry", entry);
+    g_object_set_data(G_OBJECT(window), "auto-model", model);
+    g_signal_connect(run, "clicked", G_CALLBACK(auto_prompt_submit), window); gtk_window_present(GTK_WINDOW(window));
 }
 
 static void gpu_prompt_submit(GtkButton *button, gpointer data) {

@@ -139,6 +139,8 @@ Qwen2.5 is hash-verified. CPU/Vulkan/HTP attempts still cross in-run guards; emp
 
 **Next action:** Wait until two fresh preflight samples meet the backend-specific empirical launch ceilings (CPU 40°C; Vulkan CPU/GPU 45/50°C; NPU CPU/HTP 50/40°C). Save full reports directly to evidence; do not bypass thermal limits. Then test the owner-handed-off HTP candidate, clean-install replay, provenance/licensing, and release gates.
 
+Owner-provided Qwen2.5 Q4_0 model-routing implementation and fixture results: [English report](evidence/2026-10-30-p12-owner-model-routing-integration.md) · [বাংলা প্রতিবেদন](evidence/2026-10-30-p12-owner-model-routing-integration.bn.md). This source/test evidence does not qualify a live device backend.
+
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
 - [docs/evidence/2026-10-24-p12-ternux-htp-path-review.md](evidence/2026-10-24-p12-ternux-htp-path-review.md)

@@ -48,6 +48,7 @@ MUTATING_OPERATIONS = frozenset({
     "graphics.provider.select",
     "graphics.provider.verify",
     "inference.cpu.model.apply",
+    "inference.auto.run",
     "inference.cpu.run",
     "inference.gpu.run",
     "inference.npu.runtime.apply",
