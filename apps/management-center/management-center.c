@@ -6,7 +6,7 @@ typedef struct { gchar *id, *category, *name, *status, *availability, *descripti
 typedef struct { gchar *id, *name, *routes; } InstallDesktop;
 typedef struct { gchar *alias, *label; GPtrArray *desktops; } InstallProfile;
 typedef struct { GtkWidget *window, *category_list, *resource_list, *details, *notice, *search, *action_scroll;
-                 GtkWidget *desktop_choice, *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *boot_cron_button, *boot_helpers_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *reboot_test_prepare_button, *reboot_test_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_auto_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
+                 GtkWidget *desktop_choice, *start_button, *stop_button, *ssh_restart_button, *ssh_keys_button, *ssh_enroll_button, *ssh_revoke_button, *ssh_rollback_button, *ssh_generate_button, *ssh_autostart_button, *ssh_deploy_button, *ssh_deploy_rollback_button, *ssh_wakelock_button, *boot_cron_button, *boot_helpers_button, *graphics_select_button, *graphics_api_button, *history_button, *logs_button, *audit_logs_button, *desktop_log_button, *cron_button, *cron_history_button, *cron_manage_button, *cron_start_button, *cron_stop_button, *cron_target_entry, *cron_inspect_button, *cron_next_button, *cron_execution_button, *recovery_target_entry, *backup_list_button, *recovery_status_button, *continuity_status_button, *continuity_prepare_button, *continuity_verify_button, *reboot_test_prepare_button, *reboot_test_verify_button, *backup_inspect_button, *restore_preview_button, *backup_create_button, *restore_apply_button, *operation_inspect_button, *rollback_preview_button, *rollback_apply_button, *recovery_resolve_button, *timezone_set_button, *software_button, *ai_model_install_button, *ai_model_remove_button, *ai_run_button, *ai_auto_run_button, *ai_gpu_status_button, *ai_gpu_run_button, *ai_npu_status_button, *ai_npu_install_button, *ai_npu_remove_button, *ai_npu_run_button, *terminal_service_button, *terminal_open_button, *monitor_box, *monitor_enabled,
                  *monitor_interval, *monitor_unit, *monitor_focus, *monitor_launch,
                  *proot_box, *proot_help, *proot_setup_help, *proot_setup_button, *proot_desktop_box, *proot_distro, *proot_app_entry, *proot_shortcut_entry, *proot_sync_rollback_entry, *proot_session_entry,
                  *proot_replay_alias_entry, *proot_replay_backup_entry, *proot_replay_retire_button,
@@ -55,7 +55,7 @@ static void confirmed_action(GObject *source, GAsyncResult *result, gpointer use
 static void install_profile_changed(GObject *object, GParamSpec *pspec, gpointer user_data);
 static void ask_recovery_confirmation(Center *c, const gchar *action, const gchar *resource_id, const gchar *plan_id, const gchar *summary);
 static void ask_cpu_model_confirmation(Center *c, const gchar *action, const gchar *plan_id, const gchar *summary);
-static void show_npu_install_confirmation(Center *c, const gchar *plan_id, const gchar *summary);
+static void show_npu_install_confirmation(Center *c, const gchar *plan_id, const gchar *summary, const gchar *action);
 static void show_management_log(GtkButton *button, gpointer data);
 static void show_ssh_keys(GtkButton *button, gpointer data);
 static void enroll_ssh_key(GtkButton *button, gpointer data);
@@ -375,10 +375,10 @@ static void request_done(GObject *source, GAsyncResult *result, gpointer user_da
                 g_strchomp(f[2]); ask_cpu_model_confirmation(c, request->resource_id, f[1], f[2]);
             } else gtk_label_set_text(GTK_LABEL(c->notice), "CPU model preview was invalid; no change was made.");
             g_strfreev(f);
-        } else if (g_strcmp0(request->action, "npu-runtime-preview") == 0 && stdout_text && g_str_has_prefix(stdout_text, "P\t")) {
+        } else if ((g_strcmp0(request->action, "npu-runtime-preview") == 0 || g_strcmp0(request->action, "npu-runtime-remove-preview") == 0) && stdout_text && g_str_has_prefix(stdout_text, "P\t")) {
             gchar **f = g_strsplit(stdout_text, "\t", 3);
             if (f[1] && strlen(f[1]) == 24 && g_regex_match_simple("^[0-9a-f]{24}$", f[1], 0, 0) && f[2]) {
-                g_strchomp(f[2]); show_npu_install_confirmation(c, f[1], f[2]);
+                g_strchomp(f[2]); show_npu_install_confirmation(c, f[1], f[2], g_strcmp0(request->action, "npu-runtime-remove-preview") == 0 ? "remove" : "install");
             } else gtk_label_set_text(GTK_LABEL(c->notice), "NPU runtime preview was invalid; no change was made.");
             g_strfreev(f);
         } else if (g_strcmp0(request->action, "cron-preview") == 0 && stdout_text && g_str_has_prefix(stdout_text, "P\t")) {
@@ -960,6 +960,7 @@ static void show_resource(Center *c, Resource *r) {
     gtk_widget_set_visible(c->ai_gpu_run_button, gpu_inference);
     gtk_widget_set_visible(c->ai_npu_status_button, npu_inference);
     gtk_widget_set_visible(c->ai_npu_install_button, npu_inference);
+    gtk_widget_set_visible(c->ai_npu_remove_button, npu_inference);
     gtk_widget_set_visible(c->ai_npu_run_button, npu_inference);
     gtk_widget_set_visible(c->terminal_service_button, terminal_broker);
     gtk_widget_set_visible(c->terminal_open_button, terminal_broker);
@@ -1003,7 +1004,7 @@ static void show_resource(Center *c, Resource *r) {
     GtkWidget *action_buttons[] = {c->start_button, c->stop_button, c->ssh_restart_button, c->ssh_keys_button, c->ssh_enroll_button, c->ssh_revoke_button, c->ssh_rollback_button, c->ssh_generate_button, c->ssh_autostart_button, c->ssh_deploy_button, c->ssh_deploy_rollback_button, c->ssh_wakelock_button, c->boot_cron_button, c->boot_helpers_button, c->graphics_select_button,
         c->graphics_api_button, c->history_button, c->desktop_log_button, c->logs_button,
         c->audit_logs_button, c->cron_button, c->cron_history_button, c->cron_manage_button,
-        c->cron_start_button, c->cron_stop_button, c->timezone_set_button, c->software_button, c->ai_model_install_button, c->ai_model_remove_button, c->ai_run_button, c->ai_auto_run_button, c->ai_gpu_status_button, c->ai_gpu_run_button, c->ai_npu_status_button, c->ai_npu_install_button, c->ai_npu_run_button, c->terminal_service_button, c->terminal_open_button,
+        c->cron_start_button, c->cron_stop_button, c->timezone_set_button, c->software_button, c->ai_model_install_button, c->ai_model_remove_button, c->ai_run_button, c->ai_auto_run_button, c->ai_gpu_status_button, c->ai_gpu_run_button, c->ai_npu_status_button, c->ai_npu_install_button, c->ai_npu_remove_button, c->ai_npu_run_button, c->terminal_service_button, c->terminal_open_button,
         c->proot_box};
     gboolean has_actions = FALSE;
     for (guint i = 0; i < G_N_ELEMENTS(action_buttons); i++)
@@ -1486,6 +1487,9 @@ static void npu_status_clicked(GtkButton *button, gpointer data) {
 static void npu_install_clicked(GtkButton *button, gpointer data) {
     (void)button; run_bridge(data, "npu-runtime-preview", NULL, NULL, NULL, NULL, NULL);
 }
+static void npu_remove_clicked(GtkButton *button, gpointer data) {
+    (void)button; run_bridge(data, "npu-runtime-remove-preview", NULL, NULL, NULL, NULL, NULL);
+}
 static void npu_run_submit(GtkButton *button, gpointer data) {
     (void)button; GtkWidget *window = GTK_WIDGET(data);
     Center *c = g_object_get_data(G_OBJECT(window), "npu-center");
@@ -1520,27 +1524,31 @@ static void npu_install_submit(GtkButton *button, gpointer data) {
     GtkWidget *entry = g_object_get_data(G_OBJECT(window), "npu-install-entry");
     const gchar *confirmation = gtk_editable_get_text(GTK_EDITABLE(entry));
     const gchar *plan_id = g_object_get_data(G_OBJECT(window), "npu-plan-id");
-    if (!confirmation || g_strcmp0(confirmation, "INSTALL") != 0 || !plan_id) {
-        if (c) gtk_label_set_text(GTK_LABEL(c->notice), "Type INSTALL exactly to apply this preview; no change was made.");
+    const gchar *runtime_action = g_object_get_data(G_OBJECT(window), "npu-runtime-action");
+    const gchar *expected = g_strcmp0(runtime_action, "remove") == 0 ? "REMOVE" : "INSTALL";
+    if (!confirmation || g_strcmp0(confirmation, expected) != 0 || !plan_id) {
+        if (c) gtk_label_set_text(GTK_LABEL(c->notice), "Type the exact action confirmation to apply this preview; no change was made.");
         return;
     }
-    run_bridge(c, "npu-runtime-apply", plan_id, "INSTALL", NULL, NULL, NULL);
+    run_bridge(c, "npu-runtime-apply", plan_id, expected, NULL, NULL, NULL);
     gtk_window_destroy(GTK_WINDOW(window));
 }
-static void show_npu_install_confirmation(Center *c, const gchar *plan_id, const gchar *summary) {
-    GtkWidget *window = gtk_window_new(); gtk_window_set_title(GTK_WINDOW(window), "Review experimental Snapdragon runtime");
+static void show_npu_install_confirmation(Center *c, const gchar *plan_id, const gchar *summary, const gchar *action) {
+    gboolean removing = g_strcmp0(action, "remove") == 0;
+    GtkWidget *window = gtk_window_new(); gtk_window_set_title(GTK_WINDOW(window), removing ? "Review Snapdragon runtime removal" : "Review experimental Snapdragon runtime");
     gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(c->window)); gtk_window_set_modal(GTK_WINDOW(window), TRUE);
     gtk_window_set_default_size(GTK_WINDOW(window), 480, 300);
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
     gtk_widget_set_margin_top(box, 14); gtk_widget_set_margin_bottom(box, 14);
     gtk_widget_set_margin_start(box, 14); gtk_widget_set_margin_end(box, 14);
     GtkWidget *help = gtk_label_new(NULL);
-    gchar *message = g_strdup_printf("Review this exact pinned MIT Snapdragon runtime preview. It is stored only in Ternuxx private app storage. No Android system/vendor files are copied or changed.\n\n%s", summary);
+    gchar *message = g_strdup_printf(removing ? "Review this exact removal plan. It removes only verified Ternuxx runtime files; the pinned archive and all models are retained.\n\n%s" : "Review this exact pinned MIT Snapdragon runtime preview. It is stored only in Ternuxx private app storage. No Android system/vendor files are copied or changed.\n\n%s", summary);
     gtk_label_set_text(GTK_LABEL(help), message); gtk_label_set_wrap(GTK_LABEL(help), TRUE); gtk_label_set_xalign(GTK_LABEL(help), 0.0f); gtk_box_append(GTK_BOX(box), help);
-    GtkWidget *entry = gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(entry), "Type INSTALL exactly to apply this preview"); gtk_box_append(GTK_BOX(box), entry);
+    GtkWidget *entry = gtk_entry_new(); gtk_entry_set_placeholder_text(GTK_ENTRY(entry), removing ? "Type REMOVE exactly to apply this preview" : "Type INSTALL exactly to apply this preview"); gtk_box_append(GTK_BOX(box), entry);
     GtkWidget *apply = gtk_button_new_with_label("Apply exact preview"); gtk_box_append(GTK_BOX(box), apply);
     g_object_set_data(G_OBJECT(window), "npu-center", c); g_object_set_data_full(G_OBJECT(window), "npu-plan-id", g_strdup(plan_id), g_free);
     g_object_set_data(G_OBJECT(window), "npu-install-entry", entry);
+    g_object_set_data_full(G_OBJECT(window), "npu-runtime-action", g_strdup(action), g_free);
     g_signal_connect(apply, "clicked", G_CALLBACK(npu_install_submit), window);
     gtk_window_set_child(GTK_WINDOW(window), box); gtk_window_present(GTK_WINDOW(window));
     gtk_label_set_text(GTK_LABEL(c->notice), "Reviewing exact pinned experimental NPU runtime preview");
@@ -2311,6 +2319,7 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     c->ai_gpu_run_button=gtk_button_new_with_label("Run bounded Vulkan prompt…"); gtk_widget_set_visible(c->ai_gpu_run_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_gpu_run_button);
     c->ai_npu_status_button=gtk_button_new_with_label("Check HTP0 runtime and device"); gtk_widget_set_visible(c->ai_npu_status_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_npu_status_button);
     c->ai_npu_install_button=gtk_button_new_with_label("Preview or install pinned Snapdragon runtime…"); gtk_widget_set_visible(c->ai_npu_install_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_npu_install_button);
+    c->ai_npu_remove_button=gtk_button_new_with_label("Preview or remove pinned Snapdragon runtime…"); gtk_widget_set_visible(c->ai_npu_remove_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_npu_remove_button);
     c->ai_npu_run_button=gtk_button_new_with_label("Run bounded experimental HTP prompt…"); gtk_widget_set_visible(c->ai_npu_run_button,FALSE); gtk_box_append(GTK_BOX(actions),c->ai_npu_run_button);
     c->terminal_service_button=gtk_button_new_with_label("Check or start terminal broker…"); gtk_widget_set_visible(c->terminal_service_button,FALSE); gtk_box_append(GTK_BOX(actions),c->terminal_service_button);
     c->terminal_open_button=gtk_button_new_with_label("Open Debian terminal"); gtk_widget_set_visible(c->terminal_open_button,FALSE); gtk_box_append(GTK_BOX(actions),c->terminal_open_button);
@@ -2359,7 +2368,7 @@ static gboolean active(GtkApplication *app, gpointer user_data) {
     gtk_box_append(GTK_BOX(brand),tagline); gtk_box_append(GTK_BOX(brand),portfolio); gtk_box_append(GTK_BOX(root),brand);
     g_signal_connect(c->software_button,"clicked",G_CALLBACK(software_apps),c); g_signal_connect(c->ai_auto_run_button,"clicked",G_CALLBACK(auto_prompt_dialog),c); g_signal_connect(c->ai_model_install_button,"clicked",G_CALLBACK(cpu_model_install),c); g_signal_connect(c->ai_model_remove_button,"clicked",G_CALLBACK(cpu_model_remove),c); g_signal_connect(c->ai_run_button,"clicked",G_CALLBACK(cpu_prompt_dialog),c);
     g_signal_connect(c->ai_gpu_status_button,"clicked",G_CALLBACK(gpu_status_clicked),c); g_signal_connect(c->ai_gpu_run_button,"clicked",G_CALLBACK(gpu_prompt_dialog),c);
-    g_signal_connect(c->ai_npu_status_button,"clicked",G_CALLBACK(npu_status_clicked),c); g_signal_connect(c->ai_npu_install_button,"clicked",G_CALLBACK(npu_install_clicked),c); g_signal_connect(c->ai_npu_run_button,"clicked",G_CALLBACK(npu_run_dialog),c);
+    g_signal_connect(c->ai_npu_status_button,"clicked",G_CALLBACK(npu_status_clicked),c); g_signal_connect(c->ai_npu_install_button,"clicked",G_CALLBACK(npu_install_clicked),c); g_signal_connect(c->ai_npu_remove_button,"clicked",G_CALLBACK(npu_remove_clicked),c); g_signal_connect(c->ai_npu_run_button,"clicked",G_CALLBACK(npu_run_dialog),c);
     g_signal_connect(c->terminal_service_button,"clicked",G_CALLBACK(terminal_service_clicked),c);
     g_signal_connect(c->terminal_open_button,"clicked",G_CALLBACK(open_debian_terminal),c);
     g_signal_connect(c->proot_setup_button,"clicked",G_CALLBACK(open_debian_setup),c);

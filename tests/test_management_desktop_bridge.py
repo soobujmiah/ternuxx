@@ -183,6 +183,12 @@ class ManagementDesktopBridgeTests(unittest.TestCase):
         with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"installed": True}}) as dispatch, redirect_stdout(StringIO()):
             self.assertEqual(bridge.main(["npu-runtime-apply", "a" * 24, "INSTALL"]), 0)
         dispatch.assert_called_once_with("inference.npu.runtime.apply", {"plan_id": "a" * 24, "confirmed": True})
+        with mock.patch.object(bridge, "call", return_value=preview) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["npu-runtime-remove-preview"]), 0)
+        dispatch.assert_called_once_with("inference.npu.runtime.preview", {"action": "remove"})
+        with mock.patch.object(bridge, "call", return_value={"ok": True, "data": {"removed": True}}) as dispatch, redirect_stdout(StringIO()):
+            self.assertEqual(bridge.main(["npu-runtime-apply", "a" * 24, "REMOVE"]), 0)
+        dispatch.assert_called_once_with("inference.npu.runtime.apply", {"plan_id": "a" * 24, "confirmed": True, "action": "remove"})
         with mock.patch.object(bridge, "call", side_effect=[{"ok": True, "data": {"available": False, "reason": "HTP absent"}}]) as dispatch, \
                 mock.patch("sys.stdin", StringIO("one line")), redirect_stdout(StringIO()):
             self.assertEqual(bridge.main(["npu-run"]), 1)
