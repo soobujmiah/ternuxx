@@ -84,7 +84,7 @@ AI INFERENCE
   tx ai model ACTION [options]	Preview/install/remove pinned model
   tx ai run [--model MODEL_ID] [--backend auto|cpu|vulkan|npu]	Run local inference (auto prefers HTP0, then Vulkan, then CPU)
   tx ai npu status	Inspect experimental HTP availability
-  tx ai npu runtime preview|apply	Review/install pinned NPU runtime
+  tx ai npu runtime preview [install|remove] | apply OPTIONS	Manage pinned NPU runtime safely
 
 SYSTEM, RECOVERY, AND ACCESS
   tx check	Run Native prerequisite checks
@@ -454,7 +454,8 @@ EOF
 tx ai status — Inspect llama.cpp runtime and pinned local model state
 tx ai devices — List llama.cpp Vulkan inference devices
 tx ai npu status — Check pinned HTP0 runtime and SM8735 availability
-tx ai npu runtime preview|apply — Preview or install the pinned experimental NPU runtime
+tx ai npu runtime preview [install|remove] — Review pinned runtime install/removal
+tx ai npu runtime apply --action install|remove --plan-id ID --confirm INSTALL|REMOVE — Apply the exact runtime preview
 tx ai runtime preview [cpu|vulkan|opencl] — Run a read-only Termux apt simulation
 tx ai setup — Interactive runtime preflight, model preview, and optional CPU run
 tx ai model preview — Show the exact pinned model download size, checksum, license, and target

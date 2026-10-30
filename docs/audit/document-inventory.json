@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 720,
-  "read_count": 201,
+  "read_count": 200,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -339,7 +339,7 @@
     {
       "path": "docs/OPERATIONS.md",
       "kind": "narrative",
-      "sha256": "64aff24e38b63d62f9cca4347f2727af6b259815604b959fccb62caddd0e3c95",
+      "sha256": "6088b73e4edec596ee583aa995024b86ff9559d7a9021296746b0adf828f960e",
       "lines": 85,
       "read_status": "pending",
       "read_sha256": null
@@ -5323,10 +5323,10 @@
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "d7c4a518d5eba727d9d9c1ce586bdfdc04b73ccfcdb427e76838c8f10e3d416f",
+      "sha256": "9e7225af5b33cd130686267d1502905de64978ff141a9d6a4f03090a5e37006f",
       "lines": 72,
-      "read_status": "read",
-      "read_sha256": "d7c4a518d5eba727d9d9c1ce586bdfdc04b73ccfcdb427e76838c8f10e3d416f"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/testing/README.md",
