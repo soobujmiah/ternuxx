@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Pause thermal preflight polling until passive cooling measurably changes the gate result; then require two fresh passing backend-specific samples, record same-model CPU baseline, and qualify the exact self-built HTP candidate with output correctness, full offload, integrity and telemetry; compare Vulkan and CPU; verify install, rollback and clean install. Separately resolve Qualcomm AAR license and Android app/provider integration for the image-generation route; qualify the full image pipeline before any image-NPU support claim. Resolve all project/dependency licenses and provenance before public release.
+**Next action:** Do not download/use the QNN AAR until the licensee reviews and accepts the AI Model Hub License; its published grant excludes standalone runtime/AAR distribution, so legal review must confirm any Android app packaging. Implement and qualify an app/provider route and full image workload before claiming image NPU support. Independently pause thermal preflight polling until passive cooling changes the gate, then obtain two passing samples and qualify CPU/Vulkan/HTP, exact runtime install/rollback, and full project/dependency provenance before public release.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The reproducible HTP candidate is verified, but device CPU/Vulkan/HTP qualification remains thermally blocked. QNN image generation is a separate unresolved integration and license gate; QNN API 2.29 maps to QAIRT 2.39.0 AAR, which is not a drop-in Native shell runtime.
+The QNN AAR's published AI Model Hub License allows distribution only as object code incorporated into the licensee's software application, excludes standalone distribution, and requires accepting the terms; no AAR was downloaded. Ternuxx has no Android app module, and image qualification remains open alongside thermally blocked CPU/Vulkan/HTP chat qualification.
 
-**Next action:** Pause thermal preflight polling until passive cooling measurably changes the gate result; then require two fresh passing backend-specific samples, record same-model CPU baseline, and qualify the exact self-built HTP candidate with output correctness, full offload, integrity and telemetry; compare Vulkan and CPU; verify install, rollback and clean install. Separately resolve Qualcomm AAR license and Android app/provider integration for the image-generation route; qualify the full image pipeline before any image-NPU support claim. Resolve all project/dependency licenses and provenance before public release.
+**Next action:** Do not download/use the QNN AAR until the licensee reviews and accepts the AI Model Hub License; its published grant excludes standalone runtime/AAR distribution, so legal review must confirm any Android app packaging. Implement and qualify an app/provider route and full image workload before claiming image NPU support. Independently pause thermal preflight polling until passive cooling changes the gate, then obtain two passing samples and qualify CPU/Vulkan/HTP, exact runtime install/rollback, and full project/dependency provenance before public release.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
