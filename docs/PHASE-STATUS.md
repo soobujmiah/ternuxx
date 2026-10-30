@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The internal HTP candidate is reproducible and integrity-verified, but its runtime SPDX leaves binary licenses unasserted and the pinned builder embeds Hexagon SDK 6.7.0.0; distribution and device qualification remain blocked.
+Owner selected GPL-3.0-or-later for original Ternuxx source; candidate artifact redistribution remains uncleared pending third-party/toolchain rights and device qualification.
 
-**Next action:** Resume exact-candidate CPU/Vulkan/HTP inference only after two independent passing thermal preflight samples. Qualify the normal selected-runtime installation and rollback path. Obtain an authorized project-license decision and written rights review for the Hexagon SDK/toolchain-derived runtime before any public release.
+**Next action:** Complete third-party binary/toolchain license review and wait for two passing guarded thermal preflights before controlled CPU/Vulkan/HTP qualification.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)

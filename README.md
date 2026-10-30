@@ -143,7 +143,7 @@ If the Native package preview reports a missing X11 index, install the official 
 [Roadmap and active work](docs/ROADMAP.md) · [Phase status and evidence](docs/PHASE-STATUS.md)
 <!-- generated:phase-status:end -->
 
-The 2026-10-25 clean-room rebuild tracker records the current Native installation, test baseline, unverified guest/UI/SSH/graphics paths, and next acceptance steps. Passing repository tests alone does not prove a rendered desktop, fresh guest, authenticated SSH connection, or hardware acceleration. The project has no selected license; public redistribution is not authorized by visibility alone.
+The 2026-10-25 clean-room rebuild tracker records the current Native installation, test baseline, unverified guest/UI/SSH/graphics paths, and next acceptance steps. Passing repository tests alone does not prove a rendered desktop, fresh guest, authenticated SSH connection, or hardware acceleration. Original Ternuxx project source is licensed under GPL-3.0-or-later; see [LICENSE](LICENSE). This project license does not clear third-party runtime, model, SDK, firmware, or artifact redistribution. Public releases remain gated on applicable provenance and component-license review.
 
 ## Development
 

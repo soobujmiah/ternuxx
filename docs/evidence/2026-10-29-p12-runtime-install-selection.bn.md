@@ -20,7 +20,7 @@ HTP0 নির্বাচিত হলে installer একক approval-এর �
 
 ## বাকি যাচাই
 
-নতুন Native install-এ প্রতিটি runtime selection চালিয়ে actual Termux package transaction, HTP archive integrity, backend probe এবং rollback/recovery যাচাই করতে হবে। এরপর controlled model inference-এর আগে নতুন করে দুইটি thermal preflight sample পাস করতে হবে। Internal Ternuxx HTP build candidate-এ device qualification এখনো বাকি; public distribution-এর আগে project license ও provenance review-ও প্রয়োজন।
+নতুন Native install-এ প্রতিটি runtime selection চালিয়ে actual Termux package transaction, HTP archive integrity, backend probe এবং rollback/recovery যাচাই করতে হবে। এরপর controlled model inference-এর আগে নতুন করে দুইটি thermal preflight sample পাস করতে হবে। Internal Ternuxx HTP build candidate-এ device qualification এখনো বাকি; Ternuxx-এর নিজস্ব source-এর license হিসেবে owner GPL-3.0-or-later বেছে নিয়েছেন; third-party runtime redistribution, provenance ও device qualification এখনো বাকি।
 
 ## প্রমাণ
 

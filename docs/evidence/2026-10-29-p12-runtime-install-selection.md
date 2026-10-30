@@ -20,7 +20,7 @@ If HTP0 is selected, the installer stores the exact pinned runtime preview in th
 
 ## Remaining gates
 
-A fresh Native install must exercise each selected runtime combination and prove the actual Termux package transaction, HTP archive integrity, backend probes, and rollback/recovery behavior. Then run controlled model inference after two fresh thermal preflight samples. The internal Ternuxx HTP build candidate still needs device qualification; public distribution also remains behind project license and provenance review.
+A fresh Native install must exercise each selected runtime combination and prove the actual Termux package transaction, HTP archive integrity, backend probes, and rollback/recovery behavior. Then run controlled model inference after two fresh thermal preflight samples. The internal Ternuxx HTP build candidate still needs device qualification; the owner has selected GPL-3.0-or-later for original project source; third-party runtime redistribution, provenance, and device qualification remain open.
 
 ## Evidence
 
