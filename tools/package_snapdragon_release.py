@@ -285,6 +285,106 @@ def _spdx_summary(path: Path) -> dict[str, object]:
             "unresolved_file_license_assertions": unresolved_files}
 
 
+def _runtime_manifest_hashes(manifest_path: Path) -> dict[str, dict[str, object]]:
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise PackageError(f"cannot read runtime manifest: {exc}") from exc
+    files = manifest.get("runtime_files") if isinstance(manifest, dict) else None
+    if not isinstance(files, dict) or "LICENSE" not in files:
+        raise PackageError("runtime manifest has no file inventory or LICENSE entry")
+    normalized: dict[str, dict[str, object]] = {}
+    for name, record in files.items():
+        if (not isinstance(name, str) or not isinstance(record, dict)
+                or type(record.get("size_bytes")) is not int or record["size_bytes"] <= 0
+                or not isinstance(record.get("sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", record["sha256"])):
+            raise PackageError("runtime manifest contains a malformed file record")
+        normalized[name] = {"size_bytes": record["size_bytes"], "sha256": record["sha256"]}
+    return normalized
+
+
+def normalize_runtime_spdx(args: argparse.Namespace) -> dict[str, object]:
+    """Replace scanner placeholder hashes with verified manifest SHA-256 values."""
+    manifest_files = _runtime_manifest_hashes(args.manifest)
+    try:
+        data = json.loads(args.spdx.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise PackageError(f"cannot read runtime SPDX document: {exc}") from exc
+    if (not isinstance(data, dict) or data.get("spdxVersion") not in {"SPDX-2.2", "SPDX-2.3"}
+            or not isinstance(data.get("packages"), list) or not data["packages"]
+            or not isinstance(data.get("files"), list)):
+        raise PackageError("runtime SPDX document is malformed")
+    by_name: dict[str, dict[str, object]] = {}
+    for record in data["files"]:
+        if not isinstance(record, dict) or not isinstance(record.get("fileName"), str):
+            raise PackageError("runtime SPDX contains a malformed file record")
+        name = record["fileName"]
+        if name in by_name:
+            raise PackageError(f"runtime SPDX contains a duplicate file: {name}")
+        if name not in manifest_files:
+            raise PackageError(f"runtime SPDX contains a file outside the package manifest: {name}")
+        by_name[name] = record
+    missing = set(manifest_files) - set(by_name)
+    if missing - {"LICENSE"}:
+        raise PackageError("runtime SPDX is missing packaged file(s): " + ", ".join(sorted(missing - {"LICENSE"})))
+    if "LICENSE" in missing:
+        license_id = "SPDXRef-File-LICENSE-" + hashlib.sha256(b"LICENSE").hexdigest()[:16]
+        by_name["LICENSE"] = {
+            "SPDXID": license_id,
+            "fileName": "LICENSE",
+            "checksums": [],
+            "licenseConcluded": "MIT",
+            "licenseInfoInFiles": ["MIT"],
+            "copyrightText": "NOASSERTION",
+        }
+        root_package = data["packages"][0].get("SPDXID")
+        if not isinstance(root_package, str):
+            raise PackageError("runtime SPDX root package has no SPDXID")
+        relationships = data.setdefault("relationships", [])
+        if not isinstance(relationships, list):
+            raise PackageError("runtime SPDX relationships are malformed")
+        relationships.append({"spdxElementId": root_package,
+                              "relatedSpdxElement": license_id,
+                              "relationshipType": "CONTAINS"})
+    for name, record in by_name.items():
+        record["checksums"] = [{"algorithm": "SHA256",
+                                "checksumValue": manifest_files[name]["sha256"]}]
+    data["files"] = sorted(by_name.values(), key=lambda item: item["fileName"])
+    relationships = data.get("relationships", [])
+    if isinstance(relationships, list):
+        data["relationships"] = sorted(relationships, key=lambda item: (
+            str(item.get("spdxElementId", "")), str(item.get("relatedSpdxElement", "")),
+            str(item.get("relationshipType", ""))))
+    args.spdx.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return {"file_count": len(data["files"]), "sha256_file_checksums": len(data["files"]),
+            "license_assertions_changed": False}
+
+
+def _verify_runtime_spdx(path: Path, manifest_path: Path) -> dict[str, object]:
+    expected = _runtime_manifest_hashes(manifest_path)
+    summary = _spdx_summary(path)
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise PackageError(f"cannot read runtime SPDX document: {exc}") from exc
+    file_records = data.get("files", [])
+    actual_names = [record.get("fileName") for record in file_records if isinstance(record, dict)]
+    if len(actual_names) != len(file_records) or len(set(actual_names)) != len(actual_names):
+        raise PackageError("runtime SPDX file inventory is malformed or duplicated")
+    if set(actual_names) != set(expected):
+        missing, extra = sorted(set(expected) - set(actual_names)), sorted(set(actual_names) - set(expected))
+        raise PackageError(f"runtime SPDX file inventory does not match manifest (missing={missing}, extra={extra})")
+    for record in file_records:
+        name = record["fileName"]
+        checksums = record.get("checksums", [])
+        sha256_values = [item.get("checksumValue") for item in checksums
+                         if isinstance(item, dict) and item.get("algorithm") == "SHA256"]
+        if sha256_values != [expected[name]["sha256"]]:
+            raise PackageError(f"runtime SPDX SHA-256 does not match manifest: {name}")
+    return summary
+
+
 def verify_candidate(args: argparse.Namespace) -> dict[str, object]:
     """Verify a complete owner-handed-off candidate bundle without changing it."""
     directory = args.candidate_dir
@@ -368,8 +468,8 @@ def verify_candidate(args: argparse.Namespace) -> dict[str, object]:
     if not (directory / "upstream-LICENSE.txt").read_text(encoding="utf-8").strip():
         raise PackageError("candidate upstream license text is empty")
 
-    sbom = [_spdx_summary(directory / name)
-            for name in ("upstream-source.spdx.json", "runtime.spdx.json")]
+    sbom = [_spdx_summary(directory / "upstream-source.spdx.json"),
+            _verify_runtime_spdx(directory / "runtime.spdx.json", manifest_path)]
     result.update({"candidate_status": "integrity_verified_internal_candidate",
                    "actions_run_id": str(run_id),
                    "sbom": sbom,
@@ -396,12 +496,17 @@ def main() -> int:
     check.add_argument("--manifest", type=Path, required=True)
     candidate = commands.add_parser("verify-candidate")
     candidate.add_argument("--candidate-dir", type=Path, required=True)
+    sbom = commands.add_parser("normalize-runtime-spdx")
+    sbom.add_argument("--manifest", type=Path, required=True)
+    sbom.add_argument("--spdx", type=Path, required=True)
     args = parser.parse_args()
     try:
         if args.command == "package":
             result = package(args)
         elif args.command == "verify":
             result = verify(args)
+        elif args.command == "normalize-runtime-spdx":
+            result = normalize_runtime_spdx(args)
         else:
             result = verify_candidate(args)
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:

@@ -62,15 +62,24 @@ class SnapdragonPackageTests(unittest.TestCase):
             "packages": [{"SPDXID": "SPDXRef-Package", "name": "llama.cpp",
                           "licenseDeclared": "MIT", "licenseConcluded": "MIT"}],
             "files": []}), encoding="utf-8")
+        runtime_files = []
+        for index, (name, record) in enumerate(sorted(manifest["runtime_files"].items())):
+            is_license = name == "LICENSE"
+            runtime_files.append({
+                "SPDXID": f"SPDXRef-File-{index}",
+                "fileName": name,
+                "checksums": [{"algorithm": "SHA256", "checksumValue": record["sha256"]}],
+                "licenseConcluded": "MIT" if is_license else "NOASSERTION",
+                "licenseInfoInFiles": ["MIT" if is_license else "NOASSERTION"],
+                "copyrightText": "NOASSERTION",
+            })
         (output / "runtime.spdx.json").write_text(json.dumps({
             "spdxVersion": "SPDX-2.3", "dataLicense": "CC0-1.0",
             "SPDXID": "SPDXRef-DOCUMENT", "name": "runtime",
             "documentNamespace": "https://example.invalid/runtime",
             "packages": [{"SPDXID": "SPDXRef-Package", "name": "llama.cpp-runtime",
                           "licenseDeclared": "NOASSERTION", "licenseConcluded": "NOASSERTION"}],
-            "files": [{"SPDXID": "SPDXRef-File", "fileName": "libggml.so",
-                       "licenseConcluded": "NOASSERTION", "licenseInfoInFiles": ["NOASSERTION"]}]}),
-            encoding="utf-8")
+            "files": runtime_files}), encoding="utf-8")
         (output / "toolchain-versions.txt").write_text("clang: test\n", encoding="utf-8")
         (output / "cmake-user-preset.sha256").write_text("a" * 64 + "  preset.json\n", encoding="ascii")
         (output / "packager.sha256").write_text("b" * 64 + "  packager.py\n", encoding="ascii")
@@ -108,7 +117,38 @@ class SnapdragonPackageTests(unittest.TestCase):
             self.assertEqual(result["runtime_file_count"], 6)
             self.assertFalse(result["distribution_cleared"])
             self.assertEqual(result["unresolved_package_license_assertions"], 2)
-            self.assertEqual(result["sbom"][1]["unresolved_file_license_assertions"], 2)
+            self.assertEqual(result["sbom"][1]["file_count"], 6)
+            self.assertEqual(result["sbom"][1]["unresolved_file_license_assertions"], 10)
+
+    def test_runtime_sbom_normalizer_adds_license_file_and_manifest_sha256(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            candidate = self._candidate(Path(temporary))
+            sbom_path = candidate / "runtime.spdx.json"
+            sbom = json.loads(sbom_path.read_text(encoding="utf-8"))
+            sbom["files"] = [record for record in sbom["files"] if record["fileName"] != "LICENSE"]
+            for record in sbom["files"]:
+                record["checksums"] = [{"algorithm": "SHA1", "checksumValue": "0" * 40}]
+            sbom_path.write_text(json.dumps(sbom), encoding="utf-8")
+            result = packager.normalize_runtime_spdx(SimpleNamespace(
+                manifest=candidate / "manifest.json", spdx=sbom_path))
+            self.assertEqual(result["file_count"], 6)
+            normalized = json.loads(sbom_path.read_text(encoding="utf-8"))
+            self.assertEqual({record["fileName"] for record in normalized["files"]},
+                             set(json.loads((candidate / "manifest.json").read_text())["runtime_files"]))
+            license_record = next(record for record in normalized["files"] if record["fileName"] == "LICENSE")
+            self.assertEqual(license_record["licenseConcluded"], "MIT")
+            self.assertEqual(license_record["checksums"][0]["algorithm"], "SHA256")
+
+    def test_candidate_verifier_rejects_runtime_sbom_checksum_mismatch(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            candidate = self._candidate(Path(temporary))
+            sbom_path = candidate / "runtime.spdx.json"
+            sbom = json.loads(sbom_path.read_text(encoding="utf-8"))
+            sbom["files"][0]["checksums"][0]["checksumValue"] = "0" * 64
+            sbom_path.write_text(json.dumps(sbom), encoding="utf-8")
+            self._reseal_candidate(candidate)
+            with self.assertRaisesRegex(packager.PackageError, "SHA-256 does not match manifest"):
+                packager.verify_candidate(SimpleNamespace(candidate_dir=candidate))
 
     def test_candidate_verifier_rejects_missing_or_unexpected_sidecars(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
