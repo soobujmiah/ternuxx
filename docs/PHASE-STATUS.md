@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Two independent builds produced internal candidate SHA-256 677cc34b02d8f1521c55449532100d2cc15627bfd4916a31faa7dc91e5981f09; 24 file hashes, third-party notices, and isolated extraction verify, while thermal device qualification and distribution clearance remain open.
+Two independent reproducible builds and the 24-file notice-bearing candidate verify, but the latest guarded preflight at 06:41:28 UTC failed CPU and HTP ceilings; device qualification and distribution clearance remain open.
 
-**Next action:** Resume exact-candidate CPU/Vulkan/HTP inference only after two independent thermal preflight samples pass. Qualify the normal selected-runtime installation and rollback path. Resolve binary/source license conclusions, Snapdragon toolchain redistribution terms, and the Ternuxx project license before any public release.
+**Next action:** Resume exact-candidate CPU/Vulkan/HTP inference only after two independent passing thermal preflight samples. Qualify the normal selected-runtime installation and rollback path. Resolve binary/source license conclusions, Snapdragon toolchain redistribution terms, and the Ternuxx project license before any public release.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
