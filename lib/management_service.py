@@ -79,8 +79,8 @@ OPERATIONS = {
     "inference.gpu.status": {"args": set()},
     "inference.gpu.run": {"args": {"prompt", "max_tokens", "device_id", "model_id"}},
     "inference.npu.status": {"args": set()},
-    "inference.npu.runtime.preview": {"args": set()},
-    "inference.npu.runtime.apply": {"args": {"plan_id", "confirmed"}},
+    "inference.npu.runtime.preview": {"args": {"action"}},
+    "inference.npu.runtime.apply": {"args": {"action", "plan_id", "confirmed"}},
     "inference.npu.run": {"args": {"prompt", "max_tokens", "model_id"}},
     "inference.auto.run": {"args": {"prompt", "max_tokens", "model_id"}},
     "inference.cpu.model.preview": {"args": {"action"}},
@@ -306,6 +306,10 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             or not re.fullmatch(r"[0-9a-f]{24}", args.get("plan_id", ""))
             or args.get("confirmed") is not True):
         return _error(request_id, "confirmation_required", "model apply requires its exact preview ID and explicit confirmation")
+    if operation in {"inference.npu.runtime.preview", "inference.npu.runtime.apply"} and (
+            not isinstance(args.get("action", "install"), str)
+            or args.get("action", "install") not in {"install", "remove"}):
+        return _error(request_id, "invalid_arguments", "NPU runtime action must be install or remove")
     if operation == "inference.npu.runtime.apply" and (
             not isinstance(args.get("plan_id"), str)
             or not re.fullmatch(r"[0-9a-f]{24}", args.get("plan_id", ""))
@@ -558,12 +562,16 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             data = npu_inference.status(prefix=process_env["PREFIX"], home=Path(home),
                                         state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
         elif operation == "inference.npu.runtime.preview":
-            data = npu_inference.preview(home=Path(home),
+            data = npu_inference.preview(args.get("action", "install"), home=Path(home),
                                          state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
         elif operation == "inference.npu.runtime.apply":
-            data = npu_inference.install_runtime(plan_id=args["plan_id"], confirmed="INSTALL",
-                                                 home=Path(home),
-                                                 state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
+            runtime_action = args.get("action", "install")
+            apply_runtime = (npu_inference.install_runtime if runtime_action == "install"
+                             else npu_inference.remove_runtime)
+            data = apply_runtime(plan_id=args["plan_id"],
+                                 confirmed="INSTALL" if runtime_action == "install" else "REMOVE",
+                                 home=Path(home),
+                                 state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
         elif operation == "inference.cpu.model.preview":
             data = cpu_inference.preview(args.get("action", "install"), home=Path(home),
                                          state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
@@ -1455,7 +1463,9 @@ def _parser() -> argparse.ArgumentParser:
                         help="CPU model action for inference.cpu.model.preview/apply")
     parser.add_argument("--model-confirm", choices=("DOWNLOAD", "REMOVE"),
                         help="exact CPU model confirmation token bound to the selected action")
-    parser.add_argument("--runtime-confirm", choices=("INSTALL",),
+    parser.add_argument("--runtime-action", choices=("install", "remove"), default="install",
+                        help="action for the pinned Snapdragon HTP runtime")
+    parser.add_argument("--runtime-confirm", choices=("INSTALL", "REMOVE"),
                         help="exact confirmation for the pinned Snapdragon HTP runtime")
     parser.add_argument("--app-id", help="curated Native software app ID")
     parser.add_argument("--shortcut-action", choices=("add", "remove"),
@@ -1642,13 +1652,14 @@ def main(argv: list[str] | None = None) -> int:
                    "plan_id": args.plan_id, "confirmation": args.app_confirm}
     elif args.operation in {"inference.cpu.status", "inference.gpu.status", "inference.npu.status",
                             "inference.npu.runtime.preview"}:
-        payload = {"model_id": args.model_id} if args.operation == "inference.cpu.status" and args.model_id else {}
+        payload = {"action": args.runtime_action} if args.operation == "inference.npu.runtime.preview" else ({"model_id": args.model_id} if args.operation == "inference.cpu.status" and args.model_id else {})
     elif args.operation == "inference.npu.runtime.apply":
-        if not args.plan_id or args.runtime_confirm != "INSTALL" or args.model_action or args.model_confirm or args.yes:
-            response = _error(request_id, "confirmation_required", "NPU runtime apply requires an exact --plan-id and --runtime-confirm INSTALL")
+        expected_confirm = "INSTALL" if args.runtime_action == "install" else "REMOVE"
+        if not args.plan_id or args.runtime_confirm != expected_confirm or args.model_action or args.model_confirm or args.yes:
+            response = _error(request_id, "confirmation_required", f"NPU runtime apply requires an exact --plan-id and --runtime-confirm {expected_confirm}")
             print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
             return 1
-        payload = {"plan_id": args.plan_id, "confirmed": True}
+        payload = {"action": args.runtime_action, "plan_id": args.plan_id, "confirmed": True}
     elif args.operation == "inference.cpu.model.preview":
         if not args.model_action or args.plan_id or args.yes or args.model_confirm:
             response = _error(request_id, "invalid_arguments", "model preview requires --model-action install|remove and accepts no apply flags")

@@ -15,6 +15,7 @@ import tarfile
 import tempfile
 import time
 import urllib.request
+from contextlib import contextmanager
 from typing import Callable
 
 import cpu_inference
@@ -29,8 +30,7 @@ ROOT_NAME = "llama-b11849"
 RUNTIME_TIMEOUT_SECONDS = 120
 INSTALL_TIMEOUT_SECONDS = 120
 MAX_EXTRACTED_BYTES = 260_000_000
-_PLAN_ACTION = "install"
-_PLAN_CONFIRMATION = "INSTALL"
+_PLAN_CONFIRMATIONS = {"install": "INSTALL", "remove": "REMOVE"}
 _OFFLOAD = re.compile(r"offloaded\s+(\d+)\s*/\s*(\d+)\s+layers?\s+to GPU", re.I)
 
 
@@ -198,16 +198,114 @@ def _runtime_valid(root: Path) -> tuple[bool, str]:
     return True, "verified upstream llama.cpp Android Snapdragon release b11849"
 
 
-def preview(*, home: Path | None = None, state_dir: str | Path | None = None) -> dict[str, object]:
+def _runtime_removal_state(root: Path, runtime: Path) -> tuple[bool, str, int, str | None]:
+    marker = root / "install-manifest.json"
+    manifest = _read_manifest(root)
+    if manifest is None or not isinstance(manifest.get("files"), dict):
+        return False, "a verified runtime install manifest is not present", 0, None
+    expected: dict[str, dict[str, object]] = manifest["files"]
+    expected_directories = {""}
+    total_remaining = 0
+    expected_paths = set()
+    for relative, entry in expected.items():
+        path = PurePosixPath(relative)
+        if (path.is_absolute() or not path.parts or ".." in path.parts
+                or path.as_posix() != relative or not isinstance(entry, dict)
+                or type(entry.get("size_bytes")) is not int
+                or not isinstance(entry.get("sha256"), str)
+                or not re.fullmatch(r"[0-9a-f]{64}", entry["sha256"])):
+            return False, "runtime manifest contains unsafe or invalid file metadata; runtime was preserved", 0, None
+        expected_paths.add(relative)
+        for depth in range(1, len(path.parts)):
+            expected_directories.add("/".join(path.parts[:depth]))
+    actual_files: set[str] = set()
+    actual_directories = {""}
+    if runtime.exists():
+        try:
+            root_info = runtime.lstat()
+            if not stat.S_ISDIR(root_info.st_mode) or root_info.st_uid != os.getuid():
+                return False, "runtime root is unsafe; runtime was preserved", 0, None
+            for current, dirs, files in os.walk(runtime, followlinks=False):
+                current_path = Path(current)
+                relative_dir = current_path.relative_to(runtime).as_posix()
+                actual_directories.add("" if relative_dir == "." else relative_dir)
+                for name in dirs:
+                    item = current_path / name
+                    info = item.lstat()
+                    if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
+                        return False, "runtime contains an unsafe directory; runtime was preserved", 0, None
+                    actual_directories.add(item.relative_to(runtime).as_posix())
+                for name in files:
+                    item = current_path / name
+                    relative = item.relative_to(runtime).as_posix()
+                    info = item.lstat()
+                    if (relative not in expected or not stat.S_ISREG(info.st_mode)
+                            or info.st_uid != os.getuid() or info.st_mode & 0o022):
+                        return False, "runtime contains unrecorded or unsafe files; runtime was preserved", 0, None
+                    fd = os.open(item, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
+                    with os.fdopen(fd, "rb") as stream:
+                        opened = os.fstat(stream.fileno())
+                        size, digest = _digest_stream(stream)
+                    entry = expected[relative]
+                    if (not stat.S_ISREG(opened.st_mode) or opened.st_uid != os.getuid()
+                            or size != entry["size_bytes"] or digest != entry["sha256"]):
+                        return False, "runtime files differ from their verified manifest; runtime was preserved", 0, None
+                    total_remaining += size
+                    actual_files.add(relative)
+        except OSError:
+            return False, "runtime could not be inventoried safely; runtime was preserved", 0, None
+    if not actual_files <= expected_paths or not actual_directories <= expected_directories:
+        return False, "runtime contains unrecorded files or directories; runtime was preserved", 0, None
+    try:
+        marker_hash = hashlib.sha256(marker.read_bytes()).hexdigest()
+    except OSError:
+        return False, "runtime manifest could not be read safely; runtime was preserved", 0, None
+    return True, "verified runtime files can be removed; pinned download cache will be retained", total_remaining, marker_hash
+
+
+def _active_runtime_processes(runtime: Path) -> list[int] | None:
+    """Return matching CLI PIDs; None means the process table could not be checked safely."""
+    proc = Path("/proc")
+    expected = str(runtime / "bin/llama-cli")
+    matches = []
+    try:
+        entries = list(proc.iterdir())
+    except OSError:
+        return None
+    for entry in entries:
+        if not entry.name.isdigit():
+            continue
+        try:
+            if (entry / "comm").read_text(encoding="ascii").strip() != "llama-cli":
+                continue
+            executable = os.readlink(entry / "exe").removesuffix(" (deleted)")
+            if executable == expected:
+                matches.append(int(entry.name))
+        except FileNotFoundError:
+            continue
+        except OSError:
+            return None
+    return sorted(matches)
+
+
+def preview(action: str = "install", *, home: Path | None = None,
+            state_dir: str | Path | None = None) -> dict[str, object]:
+    if action not in _PLAN_CONFIRMATIONS:
+        raise NpuInferenceError("NPU runtime action must be install or remove")
     root = artifact_root(home=home, state_dir=state_dir)
     archive = archive_path(home=home, state_dir=state_dir)
     runtime = runtime_path(home=home, state_dir=state_dir)
     current, current_reason = _runtime_valid(runtime)
     cache_ready = _archive_is_valid(archive)
-    payload = {"action": _PLAN_ACTION, "release": RELEASE, "asset": ASSET,
+    removable, remove_reason, runtime_size, manifest_hash = _runtime_removal_state(root, runtime)
+    payload = {"action": action, "release": RELEASE, "asset": ASSET,
                "url": URL, "sha256": ARCHIVE_SHA256, "license": "MIT", "archive_size_bytes": ARCHIVE_SIZE,
                "archive_path": str(archive), "runtime_path": str(runtime),
-               "network_required": not cache_ready, "already_installed": current,
+               "network_required": action == "install" and not cache_ready,
+               "already_installed": current, "removable": removable,
+               "remove_reason": remove_reason, "runtime_size_bytes": runtime_size,
+               "archive_retained_on_remove": action == "remove" and cache_ready,
+               "runtime_manifest_sha256": manifest_hash,
                "extraction_limit_bytes": MAX_EXTRACTED_BYTES,
                "runtime_state": "ready" if current else current_reason}
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
@@ -218,7 +316,7 @@ def preview(*, home: Path | None = None, state_dir: str | Path | None = None) ->
         free = shutil.disk_usage(parent).free
     except OSError:
         free = None
-    required = ARCHIVE_SIZE + MAX_EXTRACTED_BYTES
+    required = ARCHIVE_SIZE + MAX_EXTRACTED_BYTES if action == "install" else 0
     return {**payload, "plan_id": hashlib.sha256(encoded).hexdigest()[:24],
             "read_only": True, "available_bytes": free,
             "space_check": ("sufficient" if free is not None and free >= required
@@ -232,6 +330,31 @@ def _private_directory(path: Path) -> None:
     if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.getuid():
         raise NpuInferenceError("NPU artifact directory is unsafe")
     os.chmod(path, 0o700)
+
+
+@contextmanager
+def _runtime_operation_lock(root: Path, *, shared: bool):
+    _private_directory(root)
+    lock_path = root / ".runtime-operation.lock"
+    try:
+        fd = os.open(lock_path, os.O_CREAT | os.O_RDWR | getattr(os, "O_NOFOLLOW", 0), 0o600)
+        info = os.fstat(fd)
+        if not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid():
+            raise NpuInferenceError("NPU runtime operation lock is unsafe")
+        os.fchmod(fd, 0o600)
+        mode = fcntl.LOCK_SH if shared else fcntl.LOCK_EX
+        try:
+            fcntl.flock(fd, mode | fcntl.LOCK_NB)
+        except BlockingIOError as exc:
+            raise NpuInferenceError("another NPU runtime operation is active") from exc
+        try:
+            yield
+        finally:
+            os.close(fd)
+    except NpuInferenceError:
+        raise
+    except OSError as exc:
+        raise NpuInferenceError("cannot safely lock the private NPU runtime") from exc
 
 
 def _download_archive(path: Path, *, opener: Callable = urllib.request.urlopen,
@@ -285,8 +408,8 @@ def install_runtime(*, plan_id: str, confirmed: str, home: Path | None = None,
                     state_dir: str | Path | None = None,
                     opener: Callable = urllib.request.urlopen,
                     progress: Callable[[int, int], None] | None = None) -> dict[str, object]:
-    plan = preview(home=home, state_dir=state_dir)
-    if confirmed != _PLAN_CONFIRMATION or plan_id != plan["plan_id"]:
+    plan = preview("install", home=home, state_dir=state_dir)
+    if confirmed != _PLAN_CONFIRMATIONS["install"] or plan_id != plan["plan_id"]:
         raise NpuInferenceError("NPU runtime installation requires the exact current preview and INSTALL confirmation")
     if plan["space_check"] == "insufficient":
         raise NpuInferenceError("insufficient free storage for the pinned Snapdragon runtime")
@@ -367,6 +490,35 @@ def install_runtime(*, plan_id: str, confirmed: str, home: Path | None = None,
         raise NpuInferenceError(reason)
     return {"installed": True, "release": RELEASE, "runtime_path": str(runtime),
             "sha256": ARCHIVE_SHA256, "network_used": plan["network_required"]}
+
+
+def remove_runtime(*, plan_id: str, confirmed: str, home: Path | None = None,
+                   state_dir: str | Path | None = None) -> dict[str, object]:
+    plan = preview("remove", home=home, state_dir=state_dir)
+    if confirmed != _PLAN_CONFIRMATIONS["remove"] or plan_id != plan["plan_id"]:
+        raise NpuInferenceError("NPU runtime removal requires the exact current preview and REMOVE confirmation")
+    if plan["removable"] is not True:
+        raise NpuInferenceError(str(plan["remove_reason"]))
+    root = artifact_root(home=home, state_dir=state_dir)
+    runtime = runtime_path(home=home, state_dir=state_dir)
+    with _runtime_operation_lock(root, shared=False):
+        current = preview("remove", home=home, state_dir=state_dir)
+        if current["plan_id"] != plan_id or current["removable"] is not True:
+            raise NpuInferenceError("NPU runtime changed after preview; it was preserved")
+        if current["runtime_manifest_sha256"] != plan["runtime_manifest_sha256"]:
+            raise NpuInferenceError("NPU runtime manifest changed after preview; it was preserved")
+        pids = _active_runtime_processes(runtime)
+        if pids is None or pids:
+            raise NpuInferenceError("cannot verify that the NPU runtime is idle; runtime was preserved")
+        allowed, reason, reclaimed, _ = _runtime_removal_state(root, runtime)
+        if not allowed:
+            raise NpuInferenceError(reason)
+        if runtime.exists():
+            shutil.rmtree(runtime)
+        (root / "install-manifest.json").unlink(missing_ok=True)
+    return {"removed": True, "runtime_path": str(runtime),
+            "reclaimed_bytes": reclaimed, "archive_retained": archive_path(
+                home=home, state_dir=state_dir).is_file()}
 
 
 def _runtime_env(runtime: Path, *, prefix: str | None = None) -> dict[str, str]:
@@ -515,10 +667,15 @@ def run_inference(prompt: str, *, home: Path | None = None,
                 "-ngl", "all", "-t", "4", "-tb", "4", "-c", "512", "-n", str(max_tokens),
                 "--seed", "42", "--temp", "0", "--reasoning", "off", "--single-turn",
                 "--simple-io", "--no-display-prompt", "--no-warmup", "-p", formatted_prompt, "-lv", "4"]
-        started = time.monotonic()
-        completed = _execute(argv, timeout=timeout,
-                             env=_runtime_env(runtime, prefix=prefix))
-        elapsed = time.monotonic() - started
+        root = artifact_root(home=home, state_dir=state_dir)
+        with _runtime_operation_lock(root, shared=True):
+            valid, reason = _runtime_valid(runtime)
+            if not valid:
+                raise NpuInferenceError(reason)
+            started = time.monotonic()
+            completed = _execute(argv, timeout=timeout,
+                                 env=_runtime_env(runtime, prefix=prefix))
+            elapsed = time.monotonic() - started
         if completed.returncode != 0:
             detail = " ".join((completed.stderr or completed.stdout).split())[:500]
             raise NpuInferenceError(f"HTP inference failed with exit {completed.returncode}: {detail}")

@@ -197,19 +197,26 @@ def _npu_inference_action(screen: "curses._CursesWindow", resource: dict[str, An
     action = _choose(screen, "Native Hexagon HTP inference", [
         ("status", "Check HTP0 runtime and device"),
         ("install", "Preview or install pinned Snapdragon runtime"),
+        ("remove", "Preview or remove pinned Snapdragon runtime"),
         ("run", "Run experimental bounded HTP prompt (no CPU fallback)"),
     ])
     if action == "status" and "inference.npu.status" in operations:
         return _call("inference.npu.status")
-    if action == "install" and {"inference.npu.runtime.preview", "inference.npu.runtime.apply"} <= operations:
-        preview = _call("inference.npu.runtime.preview")
+    if action in {"install", "remove"} and {"inference.npu.runtime.preview", "inference.npu.runtime.apply"} <= operations:
+        preview = _call("inference.npu.runtime.preview", {"action": action})
         if not preview.get("ok"):
             return preview
         _show_details(screen, preview)
-        if _prompt(screen, "Type INSTALL to download and verify this exact MIT release").strip() != "INSTALL":
+        plan = preview.get("data", {})
+        if action == "remove" and not plan.get("removable"):
+            return {"ok": False, "error": {"code": "runtime_not_removable",
+                    "message": plan.get("remove_reason", "Runtime failed safe-removal verification.")}}
+        confirmation = "INSTALL" if action == "install" else "REMOVE"
+        verb = "download and verify" if action == "install" else "remove verified runtime files while retaining the cached archive and models"
+        if _prompt(screen, f"Type {confirmation} to {verb}").strip() != confirmation:
             return {"ok": False, "error": {"code": "cancelled"}}
         return _call("inference.npu.runtime.apply", {
-            "plan_id": preview.get("data", {}).get("plan_id"), "confirmed": True})
+            "action": action, "plan_id": plan.get("plan_id"), "confirmed": True})
     if action != "run" or "inference.npu.run" not in operations:
         return {"ok": False, "error": {"code": "cancelled"}}
     inventory = _call("inference.npu.status")

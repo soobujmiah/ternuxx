@@ -46,6 +46,51 @@ class NpuInferenceTests(unittest.TestCase):
         self.assertTrue(first["read_only"])
         self.assertEqual(list(self.home.rglob("*")), before)
 
+    def _make_removable_runtime(self):
+        root = npu_inference.artifact_root(home=self.home, state_dir=self.state)
+        runtime = npu_inference.runtime_path(home=self.home, state_dir=self.state)
+        binary = runtime / "bin/llama-cli"
+        binary.parent.mkdir(parents=True)
+        binary.write_bytes(b"runtime-fixture")
+        os.chmod(binary, 0o600)
+        npu_inference._write_manifest(root, {"bin/llama-cli": {
+            "size_bytes": len(b"runtime-fixture"),
+            "sha256": hashlib.sha256(b"runtime-fixture").hexdigest()}})
+        return root, runtime
+
+    def test_remove_runtime_requires_exact_preview_and_preserves_cached_archive(self):
+        root, runtime = self._make_removable_runtime()
+        archive = npu_inference.archive_path(home=self.home, state_dir=self.state)
+        archive.write_bytes(b"cached archive")
+        plan = npu_inference.preview("remove", home=self.home, state_dir=self.state)
+        self.assertTrue(plan["removable"])
+        with patch.object(npu_inference, "_active_runtime_processes", return_value=[]):
+            with self.assertRaisesRegex(npu_inference.NpuInferenceError, "exact current preview"):
+                npu_inference.remove_runtime(plan_id="stale", confirmed="REMOVE", home=self.home, state_dir=self.state)
+            result = npu_inference.remove_runtime(plan_id=plan["plan_id"], confirmed="REMOVE",
+                                                  home=self.home, state_dir=self.state)
+        self.assertTrue(result["removed"])
+        self.assertTrue(result["archive_retained"])
+        self.assertTrue(archive.is_file())
+        self.assertFalse(runtime.exists())
+        self.assertFalse((root / "install-manifest.json").exists())
+
+    def test_remove_runtime_preserves_tampered_or_in_use_tree(self):
+        root, runtime = self._make_removable_runtime()
+        (runtime / "extra.txt").write_text("owner file")
+        plan = npu_inference.preview("remove", home=self.home, state_dir=self.state)
+        self.assertFalse(plan["removable"])
+        with self.assertRaisesRegex(npu_inference.NpuInferenceError, "unrecorded"):
+            npu_inference.remove_runtime(plan_id=plan["plan_id"], confirmed="REMOVE",
+                                         home=self.home, state_dir=self.state)
+        (runtime / "extra.txt").unlink()
+        plan = npu_inference.preview("remove", home=self.home, state_dir=self.state)
+        with patch.object(npu_inference, "_active_runtime_processes", return_value=[123]):
+            with self.assertRaisesRegex(npu_inference.NpuInferenceError, "idle"):
+                npu_inference.remove_runtime(plan_id=plan["plan_id"], confirmed="REMOVE",
+                                             home=self.home, state_dir=self.state)
+        self.assertTrue(runtime.exists())
+
     def test_install_requires_exact_plan_and_install_confirmation_before_download(self):
         plan = npu_inference.preview(home=self.home, state_dir=self.state)
         with patch.object(npu_inference, "_download_archive") as download:
@@ -151,6 +196,7 @@ class NpuInferenceTests(unittest.TestCase):
         with patch.object(npu_inference, "status", return_value={"available": True}), \
                 patch.object(npu_inference.cpu_inference, "_valid_model", return_value=True), \
                 patch.object(npu_inference.cpu_inference, "_model_lock"), \
+                patch.object(npu_inference, "_runtime_valid", return_value=(True, "verified")), \
                 patch.object(npu_inference, "_execute", return_value=completed) as execute:
             result = npu_inference.run_inference("What is 2 + 2?", home=self.home,
                                                  state_dir=self.state, max_tokens=8)
@@ -173,6 +219,7 @@ class NpuInferenceTests(unittest.TestCase):
         with patch.object(npu_inference, "status", return_value={"available": True}), \
                 patch.object(npu_inference.cpu_inference, "_valid_model", return_value=True), \
                 patch.object(npu_inference.cpu_inference, "_model_lock"), \
+                patch.object(npu_inference, "_runtime_valid", return_value=(True, "verified")), \
                 patch.object(npu_inference, "_execute", return_value=completed):
             with self.assertRaisesRegex(npu_inference.NpuInferenceError, "complete HTP layer"):
                 npu_inference.run_inference("hello", home=self.home, state_dir=self.state)
@@ -185,6 +232,7 @@ class NpuInferenceTests(unittest.TestCase):
         with patch.object(npu_inference, "status", return_value={"available": True}), \
                 patch.object(npu_inference.cpu_inference, "_valid_model", return_value=True), \
                 patch.object(npu_inference.cpu_inference, "_model_lock"), \
+                patch.object(npu_inference, "_runtime_valid", return_value=(True, "verified")), \
                 patch.object(npu_inference, "_execute", return_value=completed):
             with self.assertRaisesRegex(npu_inference.NpuInferenceError, "complete HTP layer"):
                 npu_inference.run_inference("hello", home=self.home, state_dir=self.state)

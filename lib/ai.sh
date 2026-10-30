@@ -44,34 +44,37 @@ nt_cmd_ai() {
           python3 "$service" --operation inference.npu.status --json
           ;;
         runtime)
-          local runtime_action="${1:-}"
-          [ "$#" -gt 0 ] && shift || true
+          local runtime_action="${1:-}"; [ "$#" -gt 0 ] && shift || true
           case "$runtime_action" in
             preview)
-              [ "$#" -eq 0 ] || { nt_fail "Usage: tx ai npu runtime preview"; return 2; }
-              python3 "$service" --operation inference.npu.runtime.preview --json
+              local action="${1:-install}"
+              [ "$#" -le 1 ] && [[ "$action" =~ ^(install|remove)$ ]] || { nt_fail "Usage: tx ai npu runtime preview [install|remove]"; return 2; }
+              python3 "$service" --operation inference.npu.runtime.preview --runtime-action "$action" --json
               ;;
             apply)
-              local plan_id="" confirm=""
+              local action="install" plan_id="" confirm=""
               while [ "$#" -gt 0 ]; do
                 case "$1" in
+                  --action) [ "$#" -ge 2 ] || { nt_fail "--action requires install or remove"; return 2; }; action="$2"; shift 2 ;;
                   --plan-id) [ "$#" -ge 2 ] || { nt_fail "--plan-id requires a preview ID"; return 2; }; plan_id="$2"; shift 2 ;;
-                  --confirm) [ "$#" -ge 2 ] || { nt_fail "--confirm requires INSTALL"; return 2; }; confirm="$2"; shift 2 ;;
+                  --confirm) [ "$#" -ge 2 ] || { nt_fail "--confirm requires INSTALL or REMOVE"; return 2; }; confirm="$2"; shift 2 ;;
                   *) nt_fail "Unknown NPU runtime option: $1"; return 2 ;;
                 esac
               done
+              [[ "$action" =~ ^(install|remove)$ ]] || { nt_fail "--action must be install or remove"; return 2; }
+              local expected="INSTALL"; [ "$action" = install ] || expected="REMOVE"
               if [ -z "$plan_id" ] && [ -t 0 ]; then
                 local preview_json
-                preview_json="$(python3 "$service" --operation inference.npu.runtime.preview --json)" || return $?
+                preview_json="$(python3 "$service" --operation inference.npu.runtime.preview --runtime-action "$action" --json)" || return $?
                 printf '%s\n' "$preview_json"
                 plan_id="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["data"]["plan_id"])' <<<"$preview_json")" || return 2
-                read -r -p 'Type INSTALL to fetch and verify this exact runtime: ' confirm
+                read -r -p "Type $expected to apply this exact runtime plan: " confirm
               fi
-              [ -n "$plan_id" ] || { nt_fail "Run 'tx ai npu runtime preview' and pass its --plan-id."; return 2; }
-              python3 "$service" --operation inference.npu.runtime.apply --plan-id "$plan_id" \
-                --runtime-confirm "$confirm" --json
+              [ -n "$plan_id" ] || { nt_fail "Run 'tx ai npu runtime preview $action' and pass its --plan-id."; return 2; }
+              [ "$confirm" = "$expected" ] || { nt_fail "--confirm must exactly match $expected for --action $action"; return 2; }
+              python3 "$service" --operation inference.npu.runtime.apply --runtime-action "$action" --plan-id "$plan_id" --runtime-confirm "$confirm" --json
               ;;
-            *) nt_fail "Usage: tx ai npu runtime {preview|apply}"; return 2 ;;
+            *) nt_fail "Usage: tx ai npu runtime {preview [install|remove]|apply --action install|remove}"; return 2 ;;
           esac
           ;;
         *) nt_fail "Usage: tx ai npu {status|runtime preview|runtime apply}"; return 2 ;;
