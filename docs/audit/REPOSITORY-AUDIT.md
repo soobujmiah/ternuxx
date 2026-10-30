@@ -40,7 +40,11 @@ The generated document inventory contains 543 documents; 174 are marked read aft
 
 - P12 remains active: sustained CPU/Vulkan/HTP memory and thermal qualification; a reproducible experimental Vulkan ICD clean-install path; and broader HTP model/operator coverage. The earlier six-run check establishes short repeatability only; the newer one-case checks do not replace it.
 - The full per-operation client-reach review, clean-device PRoot setup replay, visual/accessibility acceptance, cold-boot behavior, and SSH exposure decision remain open as described by the [capability matrix](../architecture/CAPABILITY-MATRIX.md) and [known limitations](../testing/KNOWN-LIMITATIONS.md). Operation authorization and Web-session read-only/CSRF classification are exhaustive and covered by regression tests; actual client action reach remains a separate audit.
-- No project license is selected. Provenance review, SBOM, signing, and release approval remain open; internal phase progress does not authorize publication.
+- At this 2026-10-24 review, no project license had been selected. Since then, GPL-3.0-or-later was selected for original Ternuxx source; source provenance, third-party license review, SBOM, signing, and release approval remain open. Internal phase progress does not authorize publication.
+
+## Deltas after this checkpoint
+
+This audit snapshot was last reviewed on 2026-10-24 and predates the 2026-10-30 owner license decision. GPL-3.0-or-later is now selected for original Ternuxx source; third-party rights remain open. P12 accelerator/device gates and current release status are tracked in [phase status](../PHASE-STATUS.md) and [known limitations](../testing/KNOWN-LIMITATIONS.md). The document inventory and test counts above describe that dated audit, not the current repository.
 
 ## Audit references
 
