@@ -1,0 +1,7 @@
+event_id: commit-1153992af0be-a8b563b0e2a3045e
+repository: soobujmiah/ternuxx
+commit: 1153992af0be201b5e1128a896fc383677bdd05b
+kind: commit
+occurred_at: '2026-10-30T05:34:38Z'
+status: completed
+summary: 'docs(p12): audit QNN image runtime route (#18)'
