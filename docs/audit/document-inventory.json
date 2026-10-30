@@ -355,7 +355,7 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "c2e5703a03ac4ac1901c0b0593fd1b38dc2ffe951801a93abcb209343c73e3ad",
+      "sha256": "23ce8314098b15c6d0bab6febb0d76adef53219aeef8af78fbb0a528c88863ed",
       "lines": 186,
       "read_status": "pending",
       "read_sha256": null
@@ -4443,18 +4443,18 @@
     {
       "path": "docs/evidence/2026-10-30-p12-htp-notice-candidate.bn.md",
       "kind": "narrative",
-      "sha256": "8e3dbf87dea57788ab500373abd48241360a03700718b04d0bcb6be36b77d4cf",
+      "sha256": "fd2ffda87a26efd2348a799d753bf66d12aa7185d95ab5e66e62ff32de834559",
       "lines": 34,
       "read_status": "read",
-      "read_sha256": "8e3dbf87dea57788ab500373abd48241360a03700718b04d0bcb6be36b77d4cf"
+      "read_sha256": "fd2ffda87a26efd2348a799d753bf66d12aa7185d95ab5e66e62ff32de834559"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-notice-candidate.md",
       "kind": "narrative",
-      "sha256": "e31f9d7aa90af481ad2f2c5b7fa72e1b596700a0d70ce086b213bc821a2d5793",
+      "sha256": "5b882861466163f969c8b1500dccbf341041fa6d2f8d89ed91e94c26cb1444c6",
       "lines": 32,
       "read_status": "read",
-      "read_sha256": "e31f9d7aa90af481ad2f2c5b7fa72e1b596700a0d70ce086b213bc821a2d5793"
+      "read_sha256": "5b882861466163f969c8b1500dccbf341041fa6d2f8d89ed91e94c26cb1444c6"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-qualification.json",
@@ -5371,10 +5371,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "347e5ed3751f03bffb83578eba79cc3093a65f07be46e3ecdca8b660adc644b5",
+      "sha256": "acd9f8e9962ae21e629595cd9c3a0ce4ec5687a28879c63525b5a00c032f4d47",
       "lines": 289,
       "read_status": "read",
-      "read_sha256": "347e5ed3751f03bffb83578eba79cc3093a65f07be46e3ecdca8b660adc644b5"
+      "read_sha256": "acd9f8e9962ae21e629595cd9c3a0ce4ec5687a28879c63525b5a00c032f4d47"
     },
     {
       "path": "requirements-dev.txt",

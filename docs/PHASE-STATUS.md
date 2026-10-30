@@ -135,7 +135,7 @@ Evidence:
 
 **Status:** in_progress
 
-Two independent reproducible builds and the 24-file notice-bearing candidate verify, but the latest guarded preflight at 06:41:28 UTC failed CPU and HTP ceilings; device qualification and distribution clearance remain open.
+Two independent reproducible builds and the 24-file notice-bearing candidate verify, but the latest guarded preflight at 06:45:04 UTC failed CPU and HTP ceilings as temperatures rose; device qualification and distribution clearance remain open.
 
 **Next action:** Resume exact-candidate CPU/Vulkan/HTP inference only after two independent passing thermal preflight samples. Qualify the normal selected-runtime installation and rollback path. Resolve binary/source license conclusions, Snapdragon toolchain redistribution terms, and the Ternuxx project license before any public release.
 
