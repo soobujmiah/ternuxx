@@ -16,9 +16,9 @@ Qualcomm's [Hexagon SDK page](https://www.qualcomm.com/developer/software/hexago
 
 ## Candidate license metadata
 
-The candidate includes llama.cpp's MIT `LICENSE` and `THIRD_PARTY_NOTICES.txt` for nine identified vendored components. The packaged runtime SPDX file still reports `NOASSERTION` for the package and for the built CLI/shared-library file entries; its automated scan is not a license conclusion. The builder inventory records SDK versions and paths, but no Hexagon SDK or toolchain license text or redistribution grant. The Ternuxx repository has no root `LICENSE` file.
+The candidate includes llama.cpp's MIT `LICENSE` and `THIRD_PARTY_NOTICES.txt` for nine identified vendored components. The packaged runtime SPDX file still reports `NOASSERTION` for the package and for the built CLI/shared-library file entries; its automated scan is not a license conclusion. The builder inventory records SDK versions and paths, but no Hexagon SDK or toolchain license text or redistribution grant. The repository now has a root `LICENSE` recording GPL-3.0-or-later for original project source; that choice does not license or clear the candidate binaries or Qualcomm toolchain.
 
-Therefore this audit does not establish a public distribution right for the toolchain, Hexagon SDK-derived outputs, or Ternuxx itself. Keep `distribution_cleared=false`; do not publish or pin this candidate in the public installer until the exact applicable terms are reviewed, the owner selects the project license, and release permission is recorded. This report does not accept any terms.
+Therefore this audit does not establish a public distribution right for the toolchain, Hexagon SDK-derived outputs, or Ternuxx itself. Keep `distribution_cleared=false`; do not publish or pin this candidate in the public installer until the exact applicable terms are reviewed and release permission is recorded; the owner-selected GPL-3.0-or-later applies only to original project source. This report does not accept any terms.
 
 ## Next work
 

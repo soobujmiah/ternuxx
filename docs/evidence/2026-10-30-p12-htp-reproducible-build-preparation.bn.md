@@ -43,7 +43,7 @@ Verify job দুই archive ও manifest আলাদাভাবে যাচ�
 
 ## বাকি release gate
 
-সংশোধিত manual workflow আবার চালিয়ে source/runtime SPDX output ও দুই-build comparison পর্যালোচনা করতে হবে। তারপর নির্দিষ্ট model দিয়ে Ternuxx-owned candidate device test: সঠিক output, সম্পূর্ণ HTP offload, failure/restart এবং telemetry; GPU/CPU fallback ও setup selection qualify; Mesa এবং সম্পূর্ণ dependency-license/provenance review শেষ; Ternuxx project license ও clean-install/release acceptance মীমাংসা করতে হবে। QNN SD1.5 image route-এর independent oracle ও Qualcomm license acceptance আলাদা gate; এই chat runtime build সেগুলো বন্ধ করে না।
+সংশোধিত manual workflow আবার চালিয়ে source/runtime SPDX output ও দুই-build comparison পর্যালোচনা করতে হবে। তারপর নির্দিষ্ট model দিয়ে Ternuxx-owned candidate device test: সঠিক output, সম্পূর্ণ HTP offload, failure/restart এবং telemetry; GPU/CPU fallback ও setup selection qualify; Mesa এবং সম্পূর্ণ dependency-license/provenance review শেষ; Ternuxx-এর নিজস্ব source-এর জন্য owner-selected GPL-3.0-or-later scope প্রয়োগ করতে হবে এবং clean-install/release acceptance সম্পন্ন করতে হবে। QNN SD1.5 image route-এর independent oracle ও Qualcomm license acceptance আলাদা gate; এই chat runtime build সেগুলো বন্ধ করে না।
 
 ## Evidence
 

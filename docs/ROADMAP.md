@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Resume exact-candidate CPU/Vulkan/HTP inference only after two independent passing thermal preflight samples. Qualify the normal selected-runtime installation and rollback path. Obtain an authorized project-license decision and written rights review for the Hexagon SDK/toolchain-derived runtime before any public release.
+**Next action:** Complete third-party binary/toolchain license review and wait for two passing guarded thermal preflights before controlled CPU/Vulkan/HTP qualification.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

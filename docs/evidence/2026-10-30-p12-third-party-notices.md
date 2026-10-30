@@ -20,7 +20,7 @@ A deterministic notice collector reads those license texts and attributions from
 - 31 targeted tests passed across notice collection, package construction/SPDX normalization, and Native NPU runtime integrity.
 - The new two-builder candidate has not yet been produced. The retained 23-file candidate predates this notice change and does not satisfy the new package requirement.
 - Device inference remains blocked until two independent thermal preflight samples pass. The latest preflight (06:19:40 UTC) read CPU 49.2°C and HTP 43.2°C, failing the 40°C HTP launch ceiling. No runtime inference was run for this audit.
-- This change does not resolve the project root license, Snapdragon toolchain terms, binary `NOASSERTION` findings, or release/device qualification.
+- This change does not apply the selected project root license to original project material; separately resolve Snapdragon toolchain terms, binary `NOASSERTION` findings, or release/device qualification.
 
 ## Evidence
 

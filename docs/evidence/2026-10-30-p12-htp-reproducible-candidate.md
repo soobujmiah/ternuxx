@@ -13,7 +13,7 @@ The verifier reports `candidate_status=integrity_verified_internal_candidate` an
 
 ## License evidence limits
 
-The source SPDX scan contains 227 packages and 102 files with unresolved license assertions. This scan covers the full upstream source tree, including build workflows, sample model metadata, and other non-runtime material; the 227 entries cannot be treated as 227 runtime dependencies. Every one of the 23 packaged runtime file SHA-256 values matches the package manifest. Binary license conclusions remain `NOASSERTION`; before distribution, the license review must establish the scope of components actually linked into the artifact. The Ternuxx project license is also still undecided.
+The source SPDX scan contains 227 packages and 102 files with unresolved license assertions. This scan covers the full upstream source tree, including build workflows, sample model metadata, and other non-runtime material; the 227 entries cannot be treated as 227 runtime dependencies. Every one of the 23 packaged runtime file SHA-256 values matches the package manifest. Binary license conclusions remain `NOASSERTION`; before distribution, the license review must establish the scope of components actually linked into the artifact. The owner selected GPL-3.0-or-later for original Ternuxx source on 2026-10-30; this does not resolve runtime binary or SDK redistribution rights.
 
 ## Isolated installer smoke check
 
@@ -44,7 +44,7 @@ The latest sample (06:12:47 UTC) still fails because HTP is above its launch cei
 
 - This internal candidate passed reproducibility and file-integrity verification.
 - It is not yet stable, production-ready, or approved for release.
-- Review licenses against the components actually built and packaged, separately from the full source-tree SBOM; resolve binary `NOASSERTION` values and select the project license.
+- Review licenses against the components actually built and packaged, separately from the full source-tree SBOM; resolve binary `NOASSERTION` values; keep the owner-selected project license scope separate from these findings.
 - Do not run CPU/Vulkan/HTP inference until two independent thermal preflight samples pass. Then use this exact archive to qualify CPU/GPU/HTP output, telemetry, model integrity, installation, and rollback.
 - The Qualcomm QNN image route remains separate and unresolved pending applicable license acceptance, app integration, and device qualification.
 
