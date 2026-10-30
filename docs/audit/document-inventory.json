@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 699,
+  "document_count": 700,
   "read_count": 179,
   "reading_complete": false,
   "broken_local_links": [],
@@ -51,7 +51,7 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "c33ed015fb3fed46a4b4fc2b64c8e3145f1c243a0f2b24f5bf5350b936e64168",
+      "sha256": "d6c4550b45fb40308d41085b1aee729632883edd7b694d7957f9f7d754c95b1b",
       "lines": 481,
       "read_status": "pending",
       "read_sha256": null
@@ -307,7 +307,7 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "a1ca1a51c47246d5c2f4195eeeefc1c57c89210219184b5e417d61a8971fefa1",
+      "sha256": "d56b072b7f9094396b401d9545ed8d2e54ee30c72532d8c15c656c4a320e8706",
       "lines": 176,
       "read_status": "pending",
       "read_sha256": null
@@ -363,7 +363,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "8654b1cfe6df064bf7a8eb3dfc184167db2c70a0af65f128aeae8485e81dad0d",
+      "sha256": "fab3930580648592e3e7995960d76271c36210cda75a13da5bda183c7f34599e",
       "lines": 69,
       "read_status": "pending",
       "read_sha256": null
@@ -4355,7 +4355,7 @@
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.bn.md",
       "kind": "narrative",
-      "sha256": "e4730fa62dddbacb7d789a4843b29e7a517eca267802dba118cb74138ac3b2b4",
+      "sha256": "e8e5307a671f026db18979449b16313e366e0fe24435076b13d9f903c8e3c6ad",
       "lines": 34,
       "read_status": "pending",
       "read_sha256": null
@@ -4363,7 +4363,7 @@
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.md",
       "kind": "narrative",
-      "sha256": "38812808a72e4fdce07f5ba73c14dee82ec355c1145f77e35b2498b957bd7b28",
+      "sha256": "c89141021139b5b3beafeb17bca4f44ef09ad7d930cac97ef08863318cb24f11",
       "lines": 41,
       "read_status": "pending",
       "read_sha256": null
@@ -4509,6 +4509,14 @@
       "kind": "structured",
       "sha256": "d14a63082398a7abf48ae77c7bcdc8b5db7b694bacfa7ca3f6625d5b12860b64",
       "lines": 25,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-npu-candidate-preflight-7.json",
+      "kind": "structured",
+      "sha256": "d110c3a95141cc91f130e27f22fa3368f66e1d60369cbf6a3247f2204225399e",
+      "lines": 61,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -5235,7 +5243,7 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "f14bf8132b562284a8bbccb0ddf1cc8e02f741203ea81e50c273a624c5e6ff58",
+      "sha256": "74de4075e249c5d26ce33c1c15801bd8762ea36328596c865db659d306273d57",
       "lines": 279,
       "read_status": "pending",
       "read_sha256": null
