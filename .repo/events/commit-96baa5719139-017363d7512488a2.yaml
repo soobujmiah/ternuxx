@@ -1,0 +1,7 @@
+event_id: commit-96baa5719139-017363d7512488a2
+repository: soobujmiah/ternuxx
+commit: 96baa571913977127e7b76f3f1dbedf008321b32
+kind: commit
+occurred_at: '2026-10-30T05:42:58Z'
+status: completed
+summary: 'docs(licensing): record Qualcomm QNN runtime terms (#20)'
