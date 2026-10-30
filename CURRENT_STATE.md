@@ -10,6 +10,8 @@ The app now pins Qwen2.5-1.5B-Instruct Q4_K_M (1,117,320,736 bytes, Apache-2.0) 
 
 The latest NPU preflight pair failed its empirical launch headroom gate: HTP measured 45.1°C and 46.3°C against the 40°C ceiling; CPU rose from 48.5°C to 54.4°C and also exceeded its 50°C ceiling in the second sample. No inference process started. The recorded CPU rise means further accelerator testing should wait for fresh passing samples. See the [NPU headroom recheck](docs/evidence/2026-10-30-p12-npu-headroom-recheck.json).
 
+A third no-inference NPU sample at 00:00:31Z showed CPU 52.4°C and HTP 45.9°C. CPU cooled by 2°C from the prior sample but both launch ceilings still fail; no inference started.
+
 ## Blender Native GUI authoring and GPU MCP — 2026-10-28
 
 The open Native Blender 5.2.2 GUI on `:1` now has a startup `bpy` bridge and

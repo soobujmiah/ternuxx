@@ -16,6 +16,8 @@ The read-only current integrity snapshot records the model and CPU/Vulkan/HTP ru
 
 A fresh NPU headroom recheck recorded two samples at 2026-10-29 23:56:36Z and 23:57:47Z. Neither passed: HTP was 45.1°C then 46.3°C against the 40°C launch ceiling; CPU was 48.5°C then 54.4°C, with the second sample also exceeding the 50°C CPU ceiling. Battery remained below its 45°C test guard. Both reports had no active inference PID and `will_start_inference=false`; no model inference ran. The second sample showed rising CPU temperature, so stop qualification and wait for fresh passing samples. Full machine-readable report: [NPU headroom recheck](2026-10-30-p12-npu-headroom-recheck.json).
 
+A third no-inference sample at 2026-10-30 00:00:31Z measured CPU 52.4°C and HTP 45.9°C, with battery at 42.09°C and no active inference PID. CPU had come down from the second sample but remained above the 50°C NPU launch ceiling; HTP remained above 40°C. The launch gate still fails. The complete three-sample record is in the linked JSON evidence.
+
 **Decision:** no backend is stable or release-qualified. P12 remains in progress. The new runner now captures exact output and model/runtime integrity. The latest CPU and HTP repeats both hit the unchanged CPU 60°C test guard before accepting output, even after passing fresh preflights. Do not run another inference until the device has substantial thermal headroom; capture the next full report directly to an evidence file. No guard override is permitted. Then repeat qualification and complete clean-install/provenance gates. Clean-install and provenance gates also remain open.
 
 Bengali version: [2026-10-30-p12-native-qualification.bn.md](2026-10-30-p12-native-qualification.bn.md).
