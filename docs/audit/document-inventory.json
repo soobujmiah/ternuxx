@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 672,
-  "read_count": 182,
+  "read_count": 185,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -51,10 +51,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "04d909cd78d00515df1959480f22b81046a784f1a1dbbd156d70838040ef8bc8",
-      "lines": 465,
+      "sha256": "8f27b97b81d14d059660d4264f2d6f0f805267928d56418848d71d0140a13761",
+      "lines": 467,
       "read_status": "read",
-      "read_sha256": "04d909cd78d00515df1959480f22b81046a784f1a1dbbd156d70838040ef8bc8"
+      "read_sha256": "8f27b97b81d14d059660d4264f2d6f0f805267928d56418848d71d0140a13761"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -4299,26 +4299,26 @@
     {
       "path": "docs/evidence/2026-10-30-p12-native-qualification.bn.md",
       "kind": "narrative",
-      "sha256": "6a4e34ae93b2b1f45bdfb198a7f49a8b5316633285558a647c19bce990e19102",
-      "lines": 27,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "2070f5f2c39852cfcd27c5a6aa2784f33f6d39bd430e787707483ab64b7d1682",
+      "lines": 29,
+      "read_status": "read",
+      "read_sha256": "2070f5f2c39852cfcd27c5a6aa2784f33f6d39bd430e787707483ab64b7d1682"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-native-qualification.md",
       "kind": "narrative",
-      "sha256": "34827c98a3c10f9d4477ab3d213aae191af38a6266b7aa43bcce8b0e0e86750a",
-      "lines": 27,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "3da22a022d2e613cbd4952c12874734c92507dfdc76a79bd6fb7cd66e94b27aa",
+      "lines": 29,
+      "read_status": "read",
+      "read_sha256": "3da22a022d2e613cbd4952c12874734c92507dfdc76a79bd6fb7cd66e94b27aa"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-npu-headroom-recheck.json",
       "kind": "structured",
-      "sha256": "08592f8b6beb8f926bdac7207d97e46655a2d111aa9991625bb6c210cd688cc2",
-      "lines": 112,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "e3ec5717d53a7c9a1a1faac07616447ccfd0550f9f4a77628053f3e405a5ade6",
+      "lines": 130,
+      "read_status": "read",
+      "read_sha256": "e3ec5717d53a7c9a1a1faac07616447ccfd0550f9f4a77628053f3e405a5ade6"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-qwen25-model-pin.bn.md",
