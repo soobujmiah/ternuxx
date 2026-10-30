@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 718,
-  "read_count": 198,
+  "read_count": 199,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -4419,10 +4419,10 @@
     {
       "path": "docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.bn.md",
       "kind": "narrative",
-      "sha256": "36d72a0f0cb7948362f548e084e960e94f7cc23e1d5bd2389175e2cf53327d57",
+      "sha256": "9d386f0a1ba7e2009318c60f3fa111e985812e0cac6a0c0294fbb5481a08f95d",
       "lines": 35,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "9d386f0a1ba7e2009318c60f3fa111e985812e0cac6a0c0294fbb5481a08f95d"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.md",
@@ -4691,10 +4691,10 @@
     {
       "path": "docs/evidence/2026-10-30-p12-third-party-notices.bn.md",
       "kind": "narrative",
-      "sha256": "0619e702181eefb9c023d249f60d5d2036dbccb5628496c721412cf52dba7630",
+      "sha256": "c1af64042f54f4e498a5f7396af3400fd8a62b41dac9f6164e9c26e9055be3ea",
       "lines": 29,
       "read_status": "read",
-      "read_sha256": "0619e702181eefb9c023d249f60d5d2036dbccb5628496c721412cf52dba7630"
+      "read_sha256": "c1af64042f54f4e498a5f7396af3400fd8a62b41dac9f6164e9c26e9055be3ea"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-third-party-notices.md",
