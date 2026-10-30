@@ -25,7 +25,7 @@ Reproducible workflow-এ প্রথমে CLI-শুধু package-এর জ
 
 সংশোধিত workflow PR [#10](https://github.com/soobujmiah/ternuxx/pull/10) হিসেবে `5e3ff398d4fcf6dcd34fa86eab7f982ced03f194` commit-এ main branch-এ মিশেছে। main branch-এর run [`40989392795`](https://github.com/soobujmiah/ternuxx/actions/runs/40989392795)-এ দুই স্বাধীন build, একই run-এর দুই archive-এর byte-সমতা এবং candidate যাচাই সফল হয়েছে। ডাউনলোড করা archive-টিও স্থানীয়ভাবে সম্পূর্ণ যাচাই হয়েছে: SHA-256 `fde7c7c4643f4df8b38a437231c59dad4516ce7c7bb986971b110a7494b9e356`, আকার ৪৫,৮৯৬,৯৩৮ byte, runtime file ২৩টি। source ও runtime SPDX নথিতে মোট ৪৫৬টি package-license দাবির নিষ্পত্তি হয়নি; verifier যথাযথভাবে `distribution_cleared=false` দেখিয়েছে।
 
-দ্বিতীয়, পৃথক main-branch run [`41004311539`](https://github.com/soobujmiah/ternuxx/actions/runs/41004311539) এখন চলছে। ওই run-ও সফল হয়ে ডাউনলোড করা যাচাইকৃত archive-এর SHA-256 প্রথমটির সঙ্গে না মেলা পর্যন্ত একাধিক run-এ পুনরুৎপাদনযোগ্যতা প্রমাণিত হবে না। এটি build পুনরুৎপাদনযোগ্যতার প্রমাণ; যন্ত্রে inference যোগ্যতার প্রমাণ নয়।
+দ্বিতীয়, পৃথক main-branch run [`41004311539`](https://github.com/soobujmiah/ternuxx/actions/runs/41004311539)-এও দুই স্বাধীন নির্মাণ, একই run-এর archive তুলনা এবং candidate-এর সম্পূর্ণ যাচাই সফল হয়েছে। ডাউনলোড করা archive-এর SHA-256 প্রথমটির সমান (`fde7c7c4643f4df8b38a437231c59dad4516ce7c7bb986971b110a7494b9e356`) এবং আকারও সমান (৪৫,৮৯৬,৯৩৮ byte)। দুই পৃথক run-এর archive স্থানীয় verifier দিয়ে যাচাই করা হয়েছে। এই নির্দিষ্ট source, workflow ও নির্মাণ-সরঞ্জামের জন্য পৃথক run-এ পুনরুৎপাদনযোগ্যতা প্রমাণিত; এতে যন্ত্রে inference-এর যোগ্যতা বা বিতরণের অনুমোদন প্রমাণিত হয় না।
 
 ## Release অবস্থা
 
