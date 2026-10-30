@@ -355,7 +355,7 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "f9c471706009a38f4d6a6342f825a433fe683c74a23627df356d460ff02397d7",
+      "sha256": "c2e5703a03ac4ac1901c0b0593fd1b38dc2ffe951801a93abcb209343c73e3ad",
       "lines": 186,
       "read_status": "pending",
       "read_sha256": null
@@ -411,7 +411,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "09f54b492a48d40e34198dc406841a117f8a7f67e77004fa2a440de5a1afa351",
+      "sha256": "d02308938e866b77a1d72461ae029d3335ab4a450709ba9b08459b8d5553dead",
       "lines": 69,
       "read_status": "pending",
       "read_sha256": null
@@ -4443,18 +4443,18 @@
     {
       "path": "docs/evidence/2026-10-30-p12-htp-notice-candidate.bn.md",
       "kind": "narrative",
-      "sha256": "c32b400792de7bdf1726d4b43cca9d2dfa77b92d14fc7df98fd34be5d53ee009",
+      "sha256": "8e3dbf87dea57788ab500373abd48241360a03700718b04d0bcb6be36b77d4cf",
       "lines": 34,
       "read_status": "read",
-      "read_sha256": "c32b400792de7bdf1726d4b43cca9d2dfa77b92d14fc7df98fd34be5d53ee009"
+      "read_sha256": "8e3dbf87dea57788ab500373abd48241360a03700718b04d0bcb6be36b77d4cf"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-notice-candidate.md",
       "kind": "narrative",
-      "sha256": "b7b1ab264c14424ce2aa159b33447dfb20c5d0a0ca0bad06f355f78260176089",
+      "sha256": "e31f9d7aa90af481ad2f2c5b7fa72e1b596700a0d70ce086b213bc821a2d5793",
       "lines": 32,
       "read_status": "read",
-      "read_sha256": "b7b1ab264c14424ce2aa159b33447dfb20c5d0a0ca0bad06f355f78260176089"
+      "read_sha256": "e31f9d7aa90af481ad2f2c5b7fa72e1b596700a0d70ce086b213bc821a2d5793"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-qualification.json",
@@ -5371,10 +5371,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "3bb1a660d12c7a8054ebde9b39a321bb557c5bdc8897e0054f28fef90fa76ad5",
+      "sha256": "347e5ed3751f03bffb83578eba79cc3093a65f07be46e3ecdca8b660adc644b5",
       "lines": 289,
       "read_status": "read",
-      "read_sha256": "3bb1a660d12c7a8054ebde9b39a321bb557c5bdc8897e0054f28fef90fa76ad5"
+      "read_sha256": "347e5ed3751f03bffb83578eba79cc3093a65f07be46e3ecdca8b660adc644b5"
     },
     {
       "path": "requirements-dev.txt",

@@ -16,7 +16,7 @@ The exact archive was installed through `npu_inference.install_runtime` into a p
 
 ## Thermal and release gates
 
-The preceding NPU preflight (06:35:03 UTC) read CPU 49.2°C, GPU 41.6°C, HTP 43.6°C, and battery 40.55°C. A fresh guarded preflight at 06:36:54 UTC read CPU 49.2°C, GPU 40.8°C, HTP 43.2°C, and battery 40.48°C. The empirical launch ceilings for this check are CPU 50°C and HTP 40°C; both samples failed on HTP and did not start inference.
+The preceding NPU preflight (06:35:03 UTC) read CPU 49.2°C, GPU 41.6°C, HTP 43.6°C, and battery 40.55°C. A fresh guarded preflight at 06:36:54 UTC read CPU 49.2°C, GPU 40.8°C, HTP 43.2°C, and battery 40.48°C. The 06:41:28 UTC sample read CPU 50.8°C, GPU 41.2°C, HTP 43.6°C, and battery 41.22°C. The empirical launch ceilings for this check are CPU 50°C and HTP 40°C; all three samples failed at least the HTP limit, and the latest also failed the CPU limit. None started inference.
 
 The candidate source SBOM still has 227 package and 102 file records with unresolved license assertions; the runtime SBOM has unresolved binary assertions. The source-tree scan includes build and sample metadata, so it is not a list of 227 shipped dependencies. The new notice file preserves the identified vendored notices, but it does not settle each binary's license conclusion, Qualcomm Snapdragon toolchain redistribution terms, or the Ternuxx project license. Device CPU/Vulkan/HTP qualification, normal fresh installation, and rollback remain open. The separate QNN image route also remains unqualified and requires its own license and Android-app integration review.
 
@@ -29,4 +29,4 @@ The candidate source SBOM still has 227 package and 102 file records with unreso
 
 ## Evidence
 
-The authoritative run is [GitHub Actions 41013772891](https://github.com/soobujmiah/ternuxx/actions/runs/41013772891). The downloaded candidate passed `python3 tools/package_snapdragon_release.py verify-candidate --candidate-dir artifacts/incoming/run-41013772891`. A direct manifest/SPDX comparison found 24 of 24 paths and SHA-256 values equal. An isolated installer exercise verified 24 files and rejected same-size notice tampering. The fresh guarded preflight at 06:36:54 UTC returned `ok=false` and `will_start_inference=false`; the earlier sample is recorded in the same report.
+The authoritative run is [GitHub Actions 41013772891](https://github.com/soobujmiah/ternuxx/actions/runs/41013772891). The downloaded candidate passed `python3 tools/package_snapdragon_release.py verify-candidate --candidate-dir artifacts/incoming/run-41013772891`. A direct manifest/SPDX comparison found 24 of 24 paths and SHA-256 values equal. An isolated installer exercise verified 24 files and rejected same-size notice tampering. The latest guarded preflight at 06:41:28 UTC returned `ok=false` and `will_start_inference=false`; each of the three recorded samples failed its gate.
