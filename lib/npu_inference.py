@@ -87,6 +87,7 @@ def _required_members(archive: tarfile.TarFile) -> list[tarfile.TarInfo]:
         relative = path.relative_to(ROOT_NAME)
         selected = (relative == PurePosixPath("bin/llama-cli")
                     or relative == PurePosixPath("LICENSE")
+                    or relative == PurePosixPath("THIRD_PARTY_NOTICES.txt")
                     or (len(relative.parts) == 2 and relative.parts[0] == "lib"
                         and relative.name.endswith(".so")))
         if selected:
@@ -169,8 +170,11 @@ def _runtime_valid(root: Path) -> tuple[bool, str]:
     if manifest is None:
         return False, "pinned Snapdragon runtime has not been verified by the Ternuxx installer"
     recorded = manifest["files"]
-    for relative in ("bin/llama-cli", "lib/libggml-hexagon.so", "lib/libggml-htp-v73.so",
-                     "lib/libggml-opencl.so", "LICENSE"):
+    required_files = ["bin/llama-cli", "lib/libggml-hexagon.so", "lib/libggml-htp-v73.so",
+                      "lib/libggml-opencl.so", "LICENSE"]
+    if "THIRD_PARTY_NOTICES.txt" in recorded:
+        required_files.append("THIRD_PARTY_NOTICES.txt")
+    for relative in required_files:
         entry = recorded.get(relative)
         target = root / relative
         expected_size = entry.get("size_bytes") if isinstance(entry, dict) else None

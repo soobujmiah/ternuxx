@@ -23,6 +23,7 @@ REQUIRED = {
     "lib/libggml-htp-v73.so",
     "lib/libggml-opencl.so",
     "LICENSE",
+    "THIRD_PARTY_NOTICES.txt",
 }
 MAX_EXTRACTED_BYTES = 260_000_000
 PINNED_BUILD_FLAGS = [
@@ -57,7 +58,7 @@ def _selected_files(prefix: Path) -> list[tuple[Path, str, int, str]]:
     bindir = prefix / "bin"
     if not bindir.is_dir() or bindir.is_symlink():
         raise PackageError("install prefix is missing a regular bin directory")
-    candidates = [bindir / "llama-cli", prefix / "LICENSE"]
+    candidates = [bindir / "llama-cli", prefix / "LICENSE", prefix / "THIRD_PARTY_NOTICES.txt"]
     libdir = prefix / "lib"
     if not libdir.is_dir() or libdir.is_symlink():
         raise PackageError("install prefix is missing a regular lib directory")
@@ -66,7 +67,10 @@ def _selected_files(prefix: Path) -> list[tuple[Path, str, int, str]]:
     total = 0
     for path in candidates:
         relative = path.relative_to(prefix).as_posix()
-        info = path.lstat()
+        try:
+            info = path.lstat()
+        except FileNotFoundError as exc:
+            raise PackageError(f"missing required runtime file: {relative}") from exc
         if not stat.S_ISREG(info.st_mode) or path.is_symlink():
             raise PackageError(f"runtime file must be regular and not a symlink: {relative}")
         if relative not in REQUIRED and not (relative.startswith("lib/") and relative.endswith(".so")):
@@ -326,8 +330,8 @@ def normalize_runtime_spdx(args: argparse.Namespace) -> dict[str, object]:
             raise PackageError(f"runtime SPDX contains a file outside the package manifest: {name}")
         by_name[name] = record
     missing = set(manifest_files) - set(by_name)
-    if missing - {"LICENSE"}:
-        raise PackageError("runtime SPDX is missing packaged file(s): " + ", ".join(sorted(missing - {"LICENSE"})))
+    if missing - {"LICENSE", "THIRD_PARTY_NOTICES.txt"}:
+        raise PackageError("runtime SPDX is missing packaged file(s): " + ", ".join(sorted(missing - {"LICENSE", "THIRD_PARTY_NOTICES.txt"})))
     if "LICENSE" in missing:
         license_id = "SPDXRef-File-LICENSE-" + hashlib.sha256(b"LICENSE").hexdigest()[:16]
         by_name["LICENSE"] = {
@@ -346,6 +350,25 @@ def normalize_runtime_spdx(args: argparse.Namespace) -> dict[str, object]:
             raise PackageError("runtime SPDX relationships are malformed")
         relationships.append({"spdxElementId": root_package,
                               "relatedSpdxElement": license_id,
+                              "relationshipType": "CONTAINS"})
+    if "THIRD_PARTY_NOTICES.txt" in missing:
+        notice_id = "SPDXRef-File-THIRD-PARTY-NOTICES-" + hashlib.sha256(b"THIRD_PARTY_NOTICES.txt").hexdigest()[:16]
+        by_name["THIRD_PARTY_NOTICES.txt"] = {
+            "SPDXID": notice_id,
+            "fileName": "THIRD_PARTY_NOTICES.txt",
+            "checksums": [],
+            "licenseConcluded": "NOASSERTION",
+            "licenseInfoInFiles": ["NOASSERTION"],
+            "copyrightText": "NOASSERTION",
+        }
+        root_package = data["packages"][0].get("SPDXID")
+        if not isinstance(root_package, str):
+            raise PackageError("runtime SPDX root package has no SPDXID")
+        relationships = data.setdefault("relationships", [])
+        if not isinstance(relationships, list):
+            raise PackageError("runtime SPDX relationships are malformed")
+        relationships.append({"spdxElementId": root_package,
+                              "relatedSpdxElement": notice_id,
                               "relationshipType": "CONTAINS"})
     for name, record in by_name.items():
         record["checksums"] = [{"algorithm": "SHA256",

@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Two independent CPU/OpenCL/HTP runtime builds produced identical SHA-256 archives; all 23 packaged runtime file checksums match the SPDX manifest, while device qualification and distribution clearance remain open.
+The pinned build links nine vendored components whose notices were absent from the runtime archive; a deterministic notice collector and installer preservation/hash verification are implemented, with 31 targeted tests passing. New build and device qualification remain open.
 
-**Next action:** Review actual linked and packaged component licensing separately from the full source-tree SPDX; resolve binary NOASSERTION and the Ternuxx project license. Resume device qualification only after two independent thermal preflight samples pass, then qualify this exact artifact on CPU/Vulkan/HTP and verify clean installation and rollback.
+**Next action:** Pass PR CI, rebuild and compare two independent candidates with the notice file, then verify the exact new artifact. Keep distribution blocked until linked binary licenses, Snapdragon toolchain redistribution terms, and Ternuxx project license are resolved; resume device qualification only after two independent thermal preflight samples pass.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -180,3 +180,5 @@ Evidence:
 - [docs/evidence/2026-10-30-p12-runtime-sbom-integrity.bn.md](evidence/2026-10-30-p12-runtime-sbom-integrity.bn.md)
 - [docs/evidence/2026-10-30-p12-htp-reproducible-candidate.md](evidence/2026-10-30-p12-htp-reproducible-candidate.md)
 - [docs/evidence/2026-10-30-p12-htp-reproducible-candidate.bn.md](evidence/2026-10-30-p12-htp-reproducible-candidate.bn.md)
+- [docs/evidence/2026-10-30-p12-third-party-notices.md](evidence/2026-10-30-p12-third-party-notices.md)
+- [docs/evidence/2026-10-30-p12-third-party-notices.bn.md](evidence/2026-10-30-p12-third-party-notices.bn.md)

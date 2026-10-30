@@ -3,16 +3,16 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 709,
-  "read_count": 189,
+  "document_count": 711,
+  "read_count": 191,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
     {
       "path": ".github/workflows/p12-htp-reproducible-build.yml",
       "kind": "structured",
-      "sha256": "1c2b9f9b42a51da0ea6ea231235e8f30098bd5f0580adcae14be8bf61bc89112",
-      "lines": 249,
+      "sha256": "cd4305112921a527355e4bc0d7428b4b107c1021c0b25a99577a50b4eef3c2a8",
+      "lines": 252,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -331,8 +331,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "6f93ddf9c1f2907458cdd9e22bdd1d19e81ae00d657c61e41d09bc2fff12745d",
-      "lines": 182,
+      "sha256": "dbee9306dc01d86174dbd2221e8c6b63c1de2d1f4bf0c4ab9fffd9b98e9349fc",
+      "lines": 184,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -387,7 +387,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "e97eb56aab3dd636b2ec5f23f12654f7aa244fb64ab497752b6d6f6d567fe56d",
+      "sha256": "8b6e9b572abdab100b47b6a70818b6a5425a80b1092da9d81858cfcd2d978ce7",
       "lines": 69,
       "read_status": "pending",
       "read_sha256": null
@@ -4633,6 +4633,22 @@
       "read_sha256": "f2e2ba34d276e181a23e35ce37735f12381c8ad66916e433eb0a312c75ad25fb"
     },
     {
+      "path": "docs/evidence/2026-10-30-p12-third-party-notices.bn.md",
+      "kind": "narrative",
+      "sha256": "a6e3fba8428a605f13debbd8186b26308d41cc11b5be64ae7b9360adf24b4324",
+      "lines": 27,
+      "read_status": "read",
+      "read_sha256": "a6e3fba8428a605f13debbd8186b26308d41cc11b5be64ae7b9360adf24b4324"
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-third-party-notices.md",
+      "kind": "narrative",
+      "sha256": "18ac946649809f2e3299c0e7732be202fa2a98b2acc670a4f51fb75254c36a26",
+      "lines": 27,
+      "read_status": "read",
+      "read_sha256": "18ac946649809f2e3299c0e7732be202fa2a98b2acc670a4f51fb75254c36a26"
+    },
+    {
       "path": "docs/evidence/2026-10-30-p12-vulkan-qualification.json",
       "kind": "structured",
       "sha256": "8776be0c608f2ad927888781b675e0588c7e697d3af09746f52b20c1850dad00",
@@ -5235,10 +5251,10 @@
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "f2b6b6bd4364c4b64028953bc9d95ce0b18d44b6d290f8e7b19a3fa23273e226",
+      "sha256": "df9ff548fd89ba8efbfec11242c098c683835b3f0534e6d0609b49f40a60c5bc",
       "lines": 68,
       "read_status": "read",
-      "read_sha256": "f2b6b6bd4364c4b64028953bc9d95ce0b18d44b6d290f8e7b19a3fa23273e226"
+      "read_sha256": "df9ff548fd89ba8efbfec11242c098c683835b3f0534e6d0609b49f40a60c5bc"
     },
     {
       "path": "docs/testing/README.md",
@@ -5315,10 +5331,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "9218a8c1840680f0f9254f2cdfaa7df604d167c2ecda03fc0fabc2aa01213169",
-      "lines": 285,
+      "sha256": "0f48047a6eb6f7be372495462e895ed64fc031dc592021ba1366f58209fa4497",
+      "lines": 287,
       "read_status": "read",
-      "read_sha256": "9218a8c1840680f0f9254f2cdfaa7df604d167c2ecda03fc0fabc2aa01213169"
+      "read_sha256": "0f48047a6eb6f7be372495462e895ed64fc031dc592021ba1366f58209fa4497"
     },
     {
       "path": "requirements-dev.txt",

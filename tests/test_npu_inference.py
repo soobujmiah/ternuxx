@@ -76,6 +76,36 @@ class NpuInferenceTests(unittest.TestCase):
                     with self.assertRaises(npu_inference.NpuInferenceError):
                         npu_inference._required_members(archive)
 
+    def test_archive_member_validation_keeps_older_archive_compatible_without_notice(self):
+        required = ("bin/llama-cli", "LICENSE", "lib/libggml-hexagon.so",
+                    "lib/libggml-htp-v73.so", "lib/libggml-opencl.so")
+        with tempfile.TemporaryFile() as stream:
+            with tarfile.open(fileobj=stream, mode="w:gz") as archive:
+                for relative in required:
+                    member = tarfile.TarInfo(f"{npu_inference.ROOT_NAME}/{relative}")
+                    member.size = 1
+                    archive.addfile(member, io.BytesIO(b"x"))
+            stream.seek(0)
+            with tarfile.open(fileobj=stream, mode="r:gz") as archive:
+                selected = npu_inference._required_members(archive)
+        self.assertNotIn("llama-b11849/THIRD_PARTY_NOTICES.txt", {item.name for item in selected})
+
+    def test_archive_member_validation_preserves_third_party_notices(self):
+        required = ("bin/llama-cli", "LICENSE", "lib/libggml-hexagon.so",
+                    "lib/libggml-htp-v73.so", "lib/libggml-opencl.so",
+                    "THIRD_PARTY_NOTICES.txt")
+        with tempfile.TemporaryFile() as stream:
+            with tarfile.open(fileobj=stream, mode="w:gz") as archive:
+                for relative in required:
+                    body = b"notice" if relative == "THIRD_PARTY_NOTICES.txt" else b"x"
+                    member = tarfile.TarInfo(f"{npu_inference.ROOT_NAME}/{relative}")
+                    member.size = len(body)
+                    archive.addfile(member, io.BytesIO(body))
+            stream.seek(0)
+            with tarfile.open(fileobj=stream, mode="r:gz") as archive:
+                selected = npu_inference._required_members(archive)
+        self.assertIn("llama-b11849/THIRD_PARTY_NOTICES.txt", {item.name for item in selected})
+
     def test_runtime_env_is_fixed_and_drops_inherited_loader_injection(self):
         runtime = self.home / "runtime"
         with patch.dict(os.environ, {"LD_LIBRARY_PATH": "/untrusted/lib", "LD_PRELOAD": "/tmp/injected.so",
@@ -175,7 +205,7 @@ class NpuInferenceTests(unittest.TestCase):
                     "sha256": npu_inference.ARCHIVE_SHA256,
                     "files": {}}
         for relative in ("bin/llama-cli", "lib/libggml-hexagon.so", "lib/libggml-htp-v73.so",
-                         "lib/libggml-opencl.so", "LICENSE"):
+                         "lib/libggml-opencl.so", "LICENSE", "THIRD_PARTY_NOTICES.txt"):
             target = root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(b"x")
@@ -192,6 +222,12 @@ class NpuInferenceTests(unittest.TestCase):
         tampered.write_bytes(b"x")
         tampered.unlink()
         self.assertFalse(npu_inference._runtime_valid(root)[0])
+        tampered.write_bytes(b"x")
+        notice = root / "THIRD_PARTY_NOTICES.txt"
+        notice.write_bytes(b"y")
+        self.assertFalse(npu_inference._runtime_valid(root)[0])
+        notice.write_bytes(b"x")
+        tampered.unlink()
         outside = self.home / "replacement.so"
         outside.write_bytes(b"x")
         tampered.symlink_to(outside)
