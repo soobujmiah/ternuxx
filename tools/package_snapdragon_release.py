@@ -214,6 +214,157 @@ def verify(args: argparse.Namespace) -> dict[str, object]:
             "builder_image": manifest.get("builder_image")}
 
 
+
+CANDIDATE_FILES = {
+    f"llama-b11849-bin-android-arm64-snapdragon.tar.gz",
+    "SHA256SUMS",
+    "manifest.json",
+    "upstream-source.spdx.json",
+    "runtime.spdx.json",
+    "toolchain-versions.txt",
+    "cmake-user-preset.sha256",
+    "packager.sha256",
+    "submodules.txt",
+    "upstream-LICENSE.txt",
+    "reproducibility-verification.json",
+    "CANDIDATE.SHA256SUMS",
+}
+
+
+def _spdx_summary(path: Path) -> dict[str, object]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise PackageError(f"cannot read SPDX document {path.name}: {exc}") from exc
+    if (not isinstance(data, dict) or data.get("spdxVersion") not in {"SPDX-2.2", "SPDX-2.3"}
+            or data.get("dataLicense") != "CC0-1.0"
+            or not isinstance(data.get("documentNamespace"), str)
+            or not isinstance(data.get("packages"), list) or not data["packages"]):
+        raise PackageError(f"{path.name} is not a populated SPDX 2.2/2.3 document")
+    identifiers: set[str] = set()
+    unresolved_packages = unresolved_files = 0
+    for package in data["packages"]:
+        if not isinstance(package, dict):
+            raise PackageError(f"{path.name} has a malformed package record")
+        for field in ("licenseDeclared", "licenseConcluded"):
+            value = package.get(field)
+            if isinstance(value, str):
+                identifiers.add(value)
+                if value in {"NOASSERTION", "NONE"}:
+                    unresolved_packages += 1
+    files = data.get("files", [])
+    if not isinstance(files, list):
+        raise PackageError(f"{path.name} has a malformed file inventory")
+    for file_record in files:
+        if not isinstance(file_record, dict):
+            raise PackageError(f"{path.name} has a malformed file record")
+        values = file_record.get("licenseInfoInFiles", [])
+        if not isinstance(values, list):
+            raise PackageError(f"{path.name} has malformed per-file license data")
+        concluded = file_record.get("licenseConcluded")
+        for value in values + ([concluded] if isinstance(concluded, str) else []):
+            if isinstance(value, str):
+                identifiers.add(value)
+                if value in {"NOASSERTION", "NONE"}:
+                    unresolved_files += 1
+    return {"document": path.name, "package_count": len(data["packages"]),
+            "file_count": len(files), "license_identifiers": sorted(identifiers),
+            "unresolved_package_license_assertions": unresolved_packages,
+            "unresolved_file_license_assertions": unresolved_files}
+
+
+def verify_candidate(args: argparse.Namespace) -> dict[str, object]:
+    """Verify a complete owner-handed-off candidate bundle without changing it."""
+    directory = args.candidate_dir
+    if directory.is_symlink() or not directory.is_dir():
+        raise PackageError("candidate directory must be a real directory")
+    members = list(directory.iterdir())
+    names = {path.name for path in members}
+    if names != CANDIDATE_FILES:
+        missing, unexpected = sorted(CANDIDATE_FILES - names), sorted(names - CANDIDATE_FILES)
+        details = []
+        if missing:
+            details.append("missing: " + ", ".join(missing))
+        if unexpected:
+            details.append("unexpected: " + ", ".join(unexpected))
+        raise PackageError("candidate file set is not exact (" + "; ".join(details) + ")")
+    for path in members:
+        info = path.lstat()
+        if not stat.S_ISREG(info.st_mode) or path.is_symlink() or info.st_size <= 0:
+            raise PackageError(f"candidate entry must be a non-empty regular file: {path.name}")
+    checkfile = directory / "CANDIDATE.SHA256SUMS"
+    try:
+        lines = checkfile.read_text(encoding="ascii").splitlines()
+    except (OSError, UnicodeDecodeError) as exc:
+        raise PackageError(f"candidate checksum envelope is unreadable: {exc}") from exc
+    checksums: dict[str, str] = {}
+    for line in lines:
+        match = re.fullmatch(r"([0-9a-f]{64})  ([^/\\\x00]+)", line)
+        if not match or match.group(2) in checksums:
+            raise PackageError("candidate checksum envelope is malformed or duplicated")
+        checksums[match.group(2)] = match.group(1)
+    expected_names = CANDIDATE_FILES - {"CANDIDATE.SHA256SUMS"}
+    if set(checksums) != expected_names:
+        raise PackageError("candidate checksum envelope does not cover the exact sidecar set")
+    for name, expected_hash in checksums.items():
+        _size, actual_hash = _sha256(directory / name)
+        if actual_hash != expected_hash:
+            raise PackageError(f"candidate checksum mismatch: {name}")
+
+    archive = directory / f"llama-b11849-bin-android-arm64-snapdragon.tar.gz"
+    manifest_path = directory / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    result = verify(argparse.Namespace(archive=archive, manifest=manifest_path))
+    if (not isinstance(manifest.get("ternuxx_workflow_commit"), str)
+            or not re.fullmatch(r"[0-9a-f]{40}", manifest["ternuxx_workflow_commit"])
+            or manifest.get("distribution_state") != "internal CI candidate; not a public release asset"):
+        raise PackageError("manifest does not identify a pinned internal candidate")
+
+    sums = (directory / "SHA256SUMS").read_text(encoding="ascii")
+    expected_sums = f"{result['artifact_sha256']}  {archive.name}\n"
+    if sums != expected_sums:
+        raise PackageError("SHA256SUMS does not exactly match the verified archive")
+
+    record = json.loads((directory / "reproducibility-verification.json").read_text(encoding="utf-8"))
+    if (not isinstance(record, dict) or record.get("schema_version") != 1
+            or record.get("status") != "two independent clean builds produced byte-identical package archives"
+            or record.get("identical") is not True
+            or record.get("license_and_device_release_gates_closed") is not False
+            or record.get("publication") != "not published; internal Actions candidate only"
+            or record.get("artifact_sha256_attempt_1") != result["artifact_sha256"]
+            or record.get("artifact_sha256_attempt_2") != result["artifact_sha256"]
+            or record.get("source_commit") != result["source_commit"]
+            or record.get("builder_image") != result["builder_image"]
+            or record.get("ternuxx_workflow_commit") != manifest["ternuxx_workflow_commit"]):
+        raise PackageError("reproducibility record does not match the verified candidate manifest")
+    run_id = record.get("workflow_run_id")
+    if not (type(run_id) is int and run_id > 0 or isinstance(run_id, str) and re.fullmatch(r"[1-9][0-9]*", run_id)):
+        raise PackageError("reproducibility record has an invalid Actions run ID")
+
+    preset_line = (directory / "cmake-user-preset.sha256").read_text(encoding="ascii").strip()
+    packager_line = (directory / "packager.sha256").read_text(encoding="ascii").strip()
+    digest_line = re.compile(r"^[0-9a-f]{64}  \S.*$")
+    if not digest_line.fullmatch(preset_line) or not digest_line.fullmatch(packager_line):
+        raise PackageError("candidate source-input checksum sidecar is malformed")
+    submodules = (directory / "submodules.txt").read_text(encoding="utf-8").splitlines()
+    if not submodules or any(not re.match(r"^ [0-9a-f]{40}(?: .+)?$", line) for line in submodules):
+        raise PackageError("candidate submodule inventory is empty or not at the recorded commits")
+    if not (directory / "toolchain-versions.txt").read_text(encoding="utf-8").strip():
+        raise PackageError("candidate toolchain inventory is empty")
+    if not (directory / "upstream-LICENSE.txt").read_text(encoding="utf-8").strip():
+        raise PackageError("candidate upstream license text is empty")
+
+    sbom = [_spdx_summary(directory / name)
+            for name in ("upstream-source.spdx.json", "runtime.spdx.json")]
+    result.update({"candidate_status": "integrity_verified_internal_candidate",
+                   "actions_run_id": str(run_id),
+                   "sbom": sbom,
+                   "unresolved_package_license_assertions": sum(
+                       int(item["unresolved_package_license_assertions"]) for item in sbom),
+                   "distribution_cleared": False,
+                   "distribution_note": "This verifier checks integrity and build records only; owner/legal review, exact candidate device qualification, and release acceptance remain open."})
+    return result
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -229,9 +380,16 @@ def main() -> int:
     check = commands.add_parser("verify")
     check.add_argument("--archive", type=Path, required=True)
     check.add_argument("--manifest", type=Path, required=True)
+    candidate = commands.add_parser("verify-candidate")
+    candidate.add_argument("--candidate-dir", type=Path, required=True)
     args = parser.parse_args()
     try:
-        result = package(args) if args.command == "package" else verify(args)
+        if args.command == "package":
+            result = package(args)
+        elif args.command == "verify":
+            result = verify(args)
+        else:
+            result = verify_candidate(args)
     except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
         parser.exit(1, f"error: {exc}\n")
     print(json.dumps(result, indent=2, sort_keys=True))
