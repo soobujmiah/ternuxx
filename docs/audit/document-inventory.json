@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 704,
+  "document_count": 709,
   "read_count": 189,
   "reading_complete": false,
   "broken_local_links": [],
@@ -169,6 +169,30 @@
       "read_sha256": null
     },
     {
+      "path": "artifacts/incoming/run-41010520625/submodules.txt",
+      "kind": "narrative",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lines": 0,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "artifacts/incoming/run-41010520625/toolchain-versions.txt",
+      "kind": "narrative",
+      "sha256": "0144039c77db517e3d4b2145b649a66f9d4c061902984f49d08ef9bdffb4d88d",
+      "lines": 6,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "artifacts/incoming/run-41010520625/upstream-LICENSE.txt",
+      "kind": "narrative",
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+      "lines": 21,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "artifacts/incoming/submodules.txt",
       "kind": "narrative",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
@@ -307,10 +331,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "a4df2be62e15861c45d4b51afb77659766399d13f057f6dfead0a93b754a21c9",
-      "lines": 180,
-      "read_status": "read",
-      "read_sha256": "a4df2be62e15861c45d4b51afb77659766399d13f057f6dfead0a93b754a21c9"
+      "sha256": "6f93ddf9c1f2907458cdd9e22bdd1d19e81ae00d657c61e41d09bc2fff12745d",
+      "lines": 182,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -363,10 +387,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "a0427353999427b149e14cb475c4427f05eae50eba382423f1506559daeaa34c",
+      "sha256": "e97eb56aab3dd636b2ec5f23f12654f7aa244fb64ab497752b6d6f6d567fe56d",
       "lines": 69,
-      "read_status": "read",
-      "read_sha256": "a0427353999427b149e14cb475c4427f05eae50eba382423f1506559daeaa34c"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -4433,6 +4457,22 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-30-p12-htp-reproducible-candidate.bn.md",
+      "kind": "narrative",
+      "sha256": "0cb417a1c1b10872003bb67a65f854efab862b833ea95bf555284e4a5c6a8279",
+      "lines": 47,
+      "read_status": "read",
+      "read_sha256": "0cb417a1c1b10872003bb67a65f854efab862b833ea95bf555284e4a5c6a8279"
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-htp-reproducible-candidate.md",
+      "kind": "narrative",
+      "sha256": "0ab29151a1e2f35ee165cca16f8190665bf15f78a6b5ab1cda3fe9de3e957f8c",
+      "lines": 47,
+      "read_status": "read",
+      "read_sha256": "0ab29151a1e2f35ee165cca16f8190665bf15f78a6b5ab1cda3fe9de3e957f8c"
+    },
+    {
       "path": "docs/evidence/2026-10-30-p12-integrity-snapshot.json",
       "kind": "structured",
       "sha256": "95c4a75ec634e9cbd21931d0ff23d9787b36a0b513769c16331824c8a797a020",
@@ -5275,10 +5315,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "06fc2814cd6e8df733a3281a96f2186c8262f34c1f18b3c3ab5c8cca22cc37d7",
-      "lines": 283,
+      "sha256": "9218a8c1840680f0f9254f2cdfaa7df604d167c2ecda03fc0fabc2aa01213169",
+      "lines": 285,
       "read_status": "read",
-      "read_sha256": "06fc2814cd6e8df733a3281a96f2186c8262f34c1f18b3c3ab5c8cca22cc37d7"
+      "read_sha256": "9218a8c1840680f0f9254f2cdfaa7df604d167c2ecda03fc0fabc2aa01213169"
     },
     {
       "path": "requirements-dev.txt",

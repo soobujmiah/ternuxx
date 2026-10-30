@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Run pull-request CI, merge the SBOM integrity fix only after gates pass, then perform a fresh independent two-build candidate workflow and verify all 23 runtime files/checksums. Keep distribution blocked until the source NOASSERTION license inventory and Ternuxx project license are resolved. Resume backend qualification only after the thermal preflight gate passes twice; then test CPU/Vulkan/HTP, install/rollback, and candidate integrity.
+**Next action:** Review actual linked and packaged component licensing separately from the full source-tree SPDX; resolve binary NOASSERTION and the Ternuxx project license. Resume device qualification only after two independent thermal preflight samples pass, then qualify this exact artifact on CPU/Vulkan/HTP and verify clean installation and rollback.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

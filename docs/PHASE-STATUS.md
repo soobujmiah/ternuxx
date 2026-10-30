@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The HTP builder now produces a runtime SPDX inventory whose file set and SHA-256 values are bound to the verified package manifest; the old retained candidate remains unchanged and not release-cleared. Source licensing remains unresolved, and device CPU/Vulkan/HTP qualification remains thermally blocked.
+Two independent CPU/OpenCL/HTP runtime builds produced identical SHA-256 archives; all 23 packaged runtime file checksums match the SPDX manifest, while device qualification and distribution clearance remain open.
 
-**Next action:** Run pull-request CI, merge the SBOM integrity fix only after gates pass, then perform a fresh independent two-build candidate workflow and verify all 23 runtime files/checksums. Keep distribution blocked until the source NOASSERTION license inventory and Ternuxx project license are resolved. Resume backend qualification only after the thermal preflight gate passes twice; then test CPU/Vulkan/HTP, install/rollback, and candidate integrity.
+**Next action:** Review actual linked and packaged component licensing separately from the full source-tree SPDX; resolve binary NOASSERTION and the Ternuxx project license. Resume device qualification only after two independent thermal preflight samples pass, then qualify this exact artifact on CPU/Vulkan/HTP and verify clean installation and rollback.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -178,3 +178,5 @@ Evidence:
 - [docs/evidence/2026-10-30-p12-qnn-image-route-audit.bn.md](evidence/2026-10-30-p12-qnn-image-route-audit.bn.md)
 - [docs/evidence/2026-10-30-p12-runtime-sbom-integrity.md](evidence/2026-10-30-p12-runtime-sbom-integrity.md)
 - [docs/evidence/2026-10-30-p12-runtime-sbom-integrity.bn.md](evidence/2026-10-30-p12-runtime-sbom-integrity.bn.md)
+- [docs/evidence/2026-10-30-p12-htp-reproducible-candidate.md](evidence/2026-10-30-p12-htp-reproducible-candidate.md)
+- [docs/evidence/2026-10-30-p12-htp-reproducible-candidate.bn.md](evidence/2026-10-30-p12-htp-reproducible-candidate.bn.md)
