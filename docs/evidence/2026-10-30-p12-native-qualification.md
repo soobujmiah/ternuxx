@@ -20,6 +20,8 @@ A third no-inference sample at 2026-10-30 00:00:31Z measured CPU 52.4°C and HTP
 
 A fourth no-inference sample at 2026-10-30 00:03:10Z measured CPU 52.4°C and HTP 45.1°C, with battery at 41.98°C and no active inference PID. Both backend-specific launch ceilings still fail; no inference ran.
 
+A fifth no-inference sample at 2026-10-30 00:08:58Z remained above both NPU launch ceilings: CPU 52.8°C and HTP 45.9°C. No inference PID was active. The device had not reached the two-sample start gate, so pause further preflight polling until it has had time to cool.
+
 **Decision:** no backend is stable or release-qualified. P12 remains in progress. The new runner now captures exact output and model/runtime integrity. The latest CPU and HTP repeats both hit the unchanged CPU 60°C test guard before accepting output, even after passing fresh preflights. Do not run another inference until the device has substantial thermal headroom; capture the next full report directly to an evidence file. No guard override is permitted. Then repeat qualification and complete clean-install/provenance gates. Clean-install and provenance gates also remain open.
 
 Bengali version: [2026-10-30-p12-native-qualification.bn.md](2026-10-30-p12-native-qualification.bn.md).
