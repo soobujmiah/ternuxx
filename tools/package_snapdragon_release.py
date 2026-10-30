@@ -25,6 +25,13 @@ REQUIRED = {
     "LICENSE",
 }
 MAX_EXTRACTED_BYTES = 260_000_000
+PINNED_BUILD_FLAGS = [
+    "CMAKE_INSTALL_RPATH=$ORIGIN;$ORIGIN/../lib",
+    "CMAKE_BUILD_WITH_INSTALL_RPATH=ON",
+    "LLAMA_BUILD_SERVER=OFF",
+    "LLAMA_BUILD_UI=OFF",
+    "LLAMA_USE_PREBUILT_UI=OFF",
+]
 
 
 class PackageError(ValueError):
@@ -174,7 +181,7 @@ def package(args: argparse.Namespace) -> dict[str, object]:
             "source_date_epoch": args.source_epoch,
             "ternuxx_workflow_commit": args.workflow_commit,
             "build_system": "CMake arm64-android-snapdragon-release",
-            "build_flags": ["CMAKE_INSTALL_RPATH=$ORIGIN;$ORIGIN/../lib", "CMAKE_BUILD_WITH_INSTALL_RPATH=ON"],
+            "build_flags": PINNED_BUILD_FLAGS,
             "builder_image": args.builder_image,
             "packager_sha256": args.packager_sha256,
             "runtime_files": inventory,
@@ -200,6 +207,8 @@ def verify(args: argparse.Namespace) -> dict[str, object]:
         raise PackageError("package manifest does not identify the pinned b11849 source")
     if manifest.get("builder_image") != PINNED_BUILDER_IMAGE:
         raise PackageError("package manifest does not identify the pinned Snapdragon toolchain")
+    if manifest.get("build_flags") != PINNED_BUILD_FLAGS:
+        raise PackageError("package manifest does not identify the pinned server/UI-free CLI build")
     if args.archive.name != manifest.get("artifact"):
         raise PackageError("archive filename does not match manifest")
     size, digest = _sha256(args.archive)

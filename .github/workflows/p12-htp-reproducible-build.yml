@@ -64,7 +64,7 @@ jobs:
           upload-artifact: false
           upload-release-assets: false
 
-      - name: Build pinned Android ARM64 CPU, Vulkan and HTP runtime
+      - name: Build pinned Android ARM64 CPU, OpenCL and HTP runtime
         env:
           SOURCE_DATE_EPOCH_FILE: source-date-epoch.txt
           ZERO_AR_DATE: "1"
@@ -75,7 +75,10 @@ jobs:
           cd upstream
           cmake --preset arm64-android-snapdragon-release -B build \
             -DCMAKE_INSTALL_RPATH='$ORIGIN;$ORIGIN/../lib' \
-            -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
+            -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON \
+            -DLLAMA_BUILD_SERVER=OFF \
+            -DLLAMA_BUILD_UI=OFF \
+            -DLLAMA_USE_PREBUILT_UI=OFF
           cmake --build build -j "$(nproc)"
           cmake --install build --prefix "$GITHUB_WORKSPACE/build-output/install"
           cd "$GITHUB_WORKSPACE"
