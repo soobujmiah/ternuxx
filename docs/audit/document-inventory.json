@@ -3,16 +3,16 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 702,
-  "read_count": 184,
+  "document_count": 704,
+  "read_count": 189,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
     {
       "path": ".github/workflows/p12-htp-reproducible-build.yml",
       "kind": "structured",
-      "sha256": "9981cc3a409eb4fe35af395f4af527acbbb92c84f5086877e6b7a951935ee091",
-      "lines": 243,
+      "sha256": "1c2b9f9b42a51da0ea6ea231235e8f30098bd5f0580adcae14be8bf61bc89112",
+      "lines": 249,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -307,10 +307,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "a2bdcce789f8d670895d09699dfeca673ff9ce1d14dc865a1107365bb3feb5cc",
-      "lines": 178,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "a4df2be62e15861c45d4b51afb77659766399d13f057f6dfead0a93b754a21c9",
+      "lines": 180,
+      "read_status": "read",
+      "read_sha256": "a4df2be62e15861c45d4b51afb77659766399d13f057f6dfead0a93b754a21c9"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -363,10 +363,10 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "aa93c184c0517556021386b17a27a5bdbfd7d06f61548a6bed901adb1e6d78e9",
+      "sha256": "a0427353999427b149e14cb475c4427f05eae50eba382423f1506559daeaa34c",
       "lines": 69,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "a0427353999427b149e14cb475c4427f05eae50eba382423f1506559daeaa34c"
     },
     {
       "path": "docs/SOFTWARE-CATALOG.md",
@@ -4577,6 +4577,22 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-30-p12-runtime-sbom-integrity.bn.md",
+      "kind": "narrative",
+      "sha256": "ab8246b255a6348f4ec24ca9035e7643ac128e8334970fd5a3504e1eaf6822ae",
+      "lines": 27,
+      "read_status": "read",
+      "read_sha256": "ab8246b255a6348f4ec24ca9035e7643ac128e8334970fd5a3504e1eaf6822ae"
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-runtime-sbom-integrity.md",
+      "kind": "narrative",
+      "sha256": "f2e2ba34d276e181a23e35ce37735f12381c8ad66916e433eb0a312c75ad25fb",
+      "lines": 27,
+      "read_status": "read",
+      "read_sha256": "f2e2ba34d276e181a23e35ce37735f12381c8ad66916e433eb0a312c75ad25fb"
+    },
+    {
       "path": "docs/evidence/2026-10-30-p12-vulkan-qualification.json",
       "kind": "structured",
       "sha256": "8776be0c608f2ad927888781b675e0588c7e697d3af09746f52b20c1850dad00",
@@ -5259,10 +5275,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "d728d3243ee6f1745c746762f36c7ea512d197cb69b8708f65474f076f803834",
-      "lines": 281,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "06fc2814cd6e8df733a3281a96f2186c8262f34c1f18b3c3ab5c8cca22cc37d7",
+      "lines": 283,
+      "read_status": "read",
+      "read_sha256": "06fc2814cd6e8df733a3281a96f2186c8262f34c1f18b3c3ab5c8cca22cc37d7"
     },
     {
       "path": "requirements-dev.txt",

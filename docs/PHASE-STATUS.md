@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The QNN AAR's published AI Model Hub License allows distribution only as object code incorporated into the licensee's software application, excludes standalone distribution, and requires accepting the terms; no AAR was downloaded. Ternuxx has no Android app module, and image qualification remains open alongside thermally blocked CPU/Vulkan/HTP chat qualification.
+The HTP builder now produces a runtime SPDX inventory whose file set and SHA-256 values are bound to the verified package manifest; the old retained candidate remains unchanged and not release-cleared. Source licensing remains unresolved, and device CPU/Vulkan/HTP qualification remains thermally blocked.
 
-**Next action:** Do not download/use the QNN AAR until the licensee reviews and accepts the AI Model Hub License; its published grant excludes standalone runtime/AAR distribution, so legal review must confirm any Android app packaging. Implement and qualify an app/provider route and full image workload before claiming image NPU support. Independently pause thermal preflight polling until passive cooling changes the gate, then obtain two passing samples and qualify CPU/Vulkan/HTP, exact runtime install/rollback, and full project/dependency provenance before public release.
+**Next action:** Run pull-request CI, merge the SBOM integrity fix only after gates pass, then perform a fresh independent two-build candidate workflow and verify all 23 runtime files/checksums. Keep distribution blocked until the source NOASSERTION license inventory and Ternuxx project license are resolved. Resume backend qualification only after the thermal preflight gate passes twice; then test CPU/Vulkan/HTP, install/rollback, and candidate integrity.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -176,3 +176,5 @@ Evidence:
 - [docs/evidence/2026-10-30-p12-cross-run-build-variance.md](evidence/2026-10-30-p12-cross-run-build-variance.md)
 - [docs/evidence/2026-10-30-p12-qnn-image-route-audit.md](evidence/2026-10-30-p12-qnn-image-route-audit.md)
 - [docs/evidence/2026-10-30-p12-qnn-image-route-audit.bn.md](evidence/2026-10-30-p12-qnn-image-route-audit.bn.md)
+- [docs/evidence/2026-10-30-p12-runtime-sbom-integrity.md](evidence/2026-10-30-p12-runtime-sbom-integrity.md)
+- [docs/evidence/2026-10-30-p12-runtime-sbom-integrity.bn.md](evidence/2026-10-30-p12-runtime-sbom-integrity.bn.md)
