@@ -4459,18 +4459,18 @@
     {
       "path": "docs/evidence/2026-10-30-p12-htp-reproducible-candidate.bn.md",
       "kind": "narrative",
-      "sha256": "58e4aca92e3ec0f958850d1e842f180ca932d4d4aa02b13e16324c922b22dfba",
+      "sha256": "93c930193e456f46d04087fecdcba460f0f419b1a0aceeb568419e04b2344f8d",
       "lines": 34,
       "read_status": "read",
-      "read_sha256": "58e4aca92e3ec0f958850d1e842f180ca932d4d4aa02b13e16324c922b22dfba"
+      "read_sha256": "93c930193e456f46d04087fecdcba460f0f419b1a0aceeb568419e04b2344f8d"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-reproducible-candidate.md",
       "kind": "narrative",
-      "sha256": "4a298d05a52333cce50a1f6de0ca2ad535a0a88a5a15207a34b5956a0c115a37",
+      "sha256": "0e77daca68e014a10075817722fc105a5687e89b57b11cb25a24d7846aec320e",
       "lines": 34,
       "read_status": "read",
-      "read_sha256": "4a298d05a52333cce50a1f6de0ca2ad535a0a88a5a15207a34b5956a0c115a37"
+      "read_sha256": "0e77daca68e014a10075817722fc105a5687e89b57b11cb25a24d7846aec320e"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-integrity-snapshot.json",
