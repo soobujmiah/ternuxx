@@ -24,10 +24,10 @@ BRANDING_TAGLINE = "Workstation in your pocket — by Sobuj Miah"
 BRANDING_URL = "soobujmiah.github.io"
 
 
-READ_WITHOUT_ARGUMENTS = {
+READ_WITHOUT_ARGUMENTS = ({
     op for op, spec in management_service.OPERATIONS.items()
     if not spec["args"] and op in management_sessions.READ_ONLY_OPERATIONS
-}
+} | {"inference.cpu.status"})
 
 
 def _call(operation: str, args: dict[str, object] | None = None) -> dict[str, object]:
@@ -154,10 +154,14 @@ def _auto_inference_action(screen: "curses._CursesWindow", resource: dict[str, A
     operations = set(resource.get("supported_operations", []))
     if "inference.auto.run" not in operations:
         return {"ok": False, "error": {"code": "action_unavailable"}}
+    model_specs = management_service.cpu_inference.MODEL_SPECS
+    model_id = _choose(screen, "Choose local model", [(key, key) for key in model_specs])
+    if not model_id or model_id not in model_specs:
+        return {"ok": False, "error": {"code": "cancelled"}}
     prompt = _prompt(screen, "One-line prompt (max 4096 UTF-8 bytes)")
     if not prompt or _prompt(screen, "Run on HTP0, else Vulkan, else CPU? Type RUN").strip() != "RUN":
         return {"ok": False, "error": {"code": "cancelled"}}
-    return _call("inference.auto.run", {"prompt": prompt, "max_tokens": 64})
+    return _call("inference.auto.run", {"prompt": prompt, "max_tokens": 64, "model_id": model_id})
 
 def _gpu_inference_action(screen: "curses._CursesWindow", resource: dict[str, Any]) -> dict[str, object]:
     operations = set(resource.get("supported_operations", []))

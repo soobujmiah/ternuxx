@@ -75,17 +75,17 @@ OPERATIONS = {
     "graphics.provider.status": {"args": {"provider"}},
     "graphics.provider.verify": {"args": {"provider", "api", "display"}},
     "graphics.provider.select": {"args": {"provider", "backend", "confirmed"}},
-    "inference.cpu.status": {"args": set()},
+    "inference.cpu.status": {"args": {"model_id"}},
     "inference.gpu.status": {"args": set()},
-    "inference.gpu.run": {"args": {"prompt", "max_tokens", "device_id"}},
+    "inference.gpu.run": {"args": {"prompt", "max_tokens", "device_id", "model_id"}},
     "inference.npu.status": {"args": set()},
     "inference.npu.runtime.preview": {"args": set()},
     "inference.npu.runtime.apply": {"args": {"plan_id", "confirmed"}},
-    "inference.npu.run": {"args": {"prompt", "max_tokens"}},
-    "inference.auto.run": {"args": {"prompt", "max_tokens"}},
+    "inference.npu.run": {"args": {"prompt", "max_tokens", "model_id"}},
+    "inference.auto.run": {"args": {"prompt", "max_tokens", "model_id"}},
     "inference.cpu.model.preview": {"args": {"action"}},
     "inference.cpu.model.apply": {"args": {"action", "plan_id", "confirmed"}},
-    "inference.cpu.run": {"args": {"prompt", "max_tokens"}},
+    "inference.cpu.run": {"args": {"prompt", "max_tokens", "model_id"}},
     "software.apps.list": {"args": set()},
     "software.app.preview": {"args": {"app_id", "action"}},
     "software.app.apply": {"args": {"app_id", "action", "plan_id", "confirmation"}},
@@ -295,6 +295,9 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             or not re.fullmatch(r"[0-9a-f]{64}", args.get("plan_id", ""))
             or args.get("confirmation") != args.get("action", "").upper()):
         return _error(request_id, "confirmation_required", "app apply requires its exact preview ID and typed action confirmation")
+    if "model_id" in args and (not isinstance(args["model_id"], str)
+                                or args["model_id"] not in cpu_inference.MODEL_SPECS):
+        return _error(request_id, "invalid_arguments", "model_id is not in the supported local model allowlist")
     if operation == "inference.cpu.model.preview" and args.get("action", "install") not in {"install", "remove"}:
         return _error(request_id, "invalid_arguments", "model action must be install or remove")
     if operation == "inference.cpu.model.apply" and (
@@ -547,7 +550,7 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 env=dict(process_env), prefix=process_env["PREFIX"])
         elif operation == "inference.cpu.status":
             data = cpu_inference.status(home=Path(home), state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"),
-                                       prefix=process_env["PREFIX"])
+                                       prefix=process_env["PREFIX"], model_id=args.get("model_id"))
         elif operation == "inference.gpu.status":
             data = cpu_inference.gpu_status(prefix=process_env["PREFIX"], home=Path(home),
                                             state_dir=state_dir or os.path.join(home, ".local/share/ternuxx"))
@@ -606,15 +609,18 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
             if backend == "npu":
                 data = npu_inference.run_inference(args["prompt"], home=Path(home),
                     state_dir=state_path, prefix=process_env["PREFIX"],
-                    max_tokens=args.get("max_tokens", 64))
+                    max_tokens=args.get("max_tokens", 64), model_id=args.get("model_id"))
             else:
                 data = cpu_inference.run_inference(args["prompt"], home=Path(home),
                     state_dir=state_path, prefix=process_env["PREFIX"],
                     max_tokens=args.get("max_tokens", 64), backend=backend or "cpu",
-                    device_id=selected_device)
+                    device_id=selected_device, model_id=args.get("model_id"))
             if selection is not None:
                 data["backend_selection"] = {"requested": "auto", **selection,
                     "retry_after_inference_failure": False}
+                data["requested_backend"] = "auto"
+                data["routing_policy"] = ["npu", "vulkan", "cpu"]
+                data["selection_reason"] = f"highest-priority configured runtime: {selection['backend']}"
         elif operation == "graphics.provider.status":
             provider = args.get("provider")
             if provider != "native":
@@ -1464,6 +1470,8 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--max-tokens", type=int, default=64,
                         help="maximum inference output tokens (1-128)")
     parser.add_argument("--device-id", help="exact Vulkan inference device ID reported by inference.gpu.status")
+    parser.add_argument("--model-id", choices=tuple(cpu_inference.MODEL_SPECS),
+                        help="allowlisted local model ID; owner-provided models are read-only and never copied")
     parser.add_argument("--yes", action="store_true")
     parser.add_argument("--persistent", action="store_true")
     ssh_wakelock_toggle = parser.add_mutually_exclusive_group()
@@ -1634,7 +1642,7 @@ def main(argv: list[str] | None = None) -> int:
                    "plan_id": args.plan_id, "confirmation": args.app_confirm}
     elif args.operation in {"inference.cpu.status", "inference.gpu.status", "inference.npu.status",
                             "inference.npu.runtime.preview"}:
-        payload = {}
+        payload = {"model_id": args.model_id} if args.operation == "inference.cpu.status" and args.model_id else {}
     elif args.operation == "inference.npu.runtime.apply":
         if not args.plan_id or args.runtime_confirm != "INSTALL" or args.model_action or args.model_confirm or args.yes:
             response = _error(request_id, "confirmation_required", "NPU runtime apply requires an exact --plan-id and --runtime-confirm INSTALL")
@@ -1669,6 +1677,8 @@ def main(argv: list[str] | None = None) -> int:
             if prompt.endswith("\r"):
                 prompt = prompt[:-1]
         payload = {"prompt": prompt, "max_tokens": args.max_tokens}
+        if args.model_id:
+            payload["model_id"] = args.model_id
         if args.device_id:
             payload["device_id"] = args.device_id
     elif args.operation == "cron.scheduler.start":

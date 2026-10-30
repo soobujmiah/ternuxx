@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import argparse
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 import fcntl
 import hashlib
 import json
@@ -40,6 +40,24 @@ MODEL = ModelSpec(
     sha256="6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
     license="Apache-2.0",
 )
+
+OWNER_QWEN25 = ModelSpec(
+    model_id="qwen2.5-1.5b-instruct-q4_0",
+    filename="qwen2.5-1.5b-instruct-q4-0.gguf",
+    url="",
+    size_bytes=1_066_227_232,
+    sha256="dcd819ff094852c38faba6873d8ff0c9d51eadb2844539e52042ae5d647bbfdb",
+    license="owner-provided; distribution terms not verified",
+)
+EXTERNAL_MODEL_DIR = Path("/sdcard/LAI/models")
+MODEL_SPECS = {MODEL.model_id: MODEL, OWNER_QWEN25.model_id: OWNER_QWEN25}
+
+def resolve_model(model_id: str | None = None) -> ModelSpec:
+    selected = MODEL.model_id if model_id is None else model_id
+    try:
+        return MODEL_SPECS[selected]
+    except (KeyError, TypeError) as exc:
+        raise InferenceError("model_id is not in the supported local model allowlist") from exc
 MAX_PROMPT_BYTES = 4096
 MAX_OUTPUT_TOKENS = 128
 DEFAULT_OUTPUT_TOKENS = 64
@@ -62,7 +80,24 @@ def _state_dir(home: Path, state_dir: str | Path | None) -> Path:
 
 
 def _check_owned_path(path: Path, *, allow_missing: bool = True) -> None:
-    """Reject symlinked or foreign-owned existing components below the home root."""
+    """Validate private model state or the one owner-authorized read-only model."""
+    external = EXTERNAL_MODEL_DIR / OWNER_QWEN25.filename
+    if path.absolute() == external.absolute():
+        try:
+            resolved_storage = Path("/sdcard").resolve(strict=True)
+            resolved_expected = resolved_storage / "LAI" / "models" / OWNER_QWEN25.filename
+            info = path.lstat()
+            if (not stat.S_ISREG(info.st_mode)
+                    or path.resolve(strict=True) != resolved_expected
+                    or not os.access(path, os.R_OK)):
+                raise InferenceError("owner model is not a readable regular file at its fixed path")
+        except FileNotFoundError as exc:
+            if allow_missing:
+                return
+            raise InferenceError("owner model file is missing") from exc
+        except OSError as exc:
+            raise InferenceError("cannot safely inspect the owner model") from exc
+        return
     home = Path.home()
     try:
         relative = path.absolute().relative_to(home.absolute())
@@ -86,7 +121,10 @@ def _check_owned_path(path: Path, *, allow_missing: bool = True) -> None:
 
 
 def model_path(*, home: Path | None = None, state_dir: str | Path | None = None,
-               spec: ModelSpec = MODEL) -> Path:
+               spec: ModelSpec = MODEL, model_id: str | None = None) -> Path:
+    spec = resolve_model(model_id) if model_id is not None else spec
+    if spec.model_id == OWNER_QWEN25.model_id:
+        return EXTERNAL_MODEL_DIR / OWNER_QWEN25.filename
     base_home = home or Path.home()
     models = _state_dir(base_home, state_dir)
     return models / spec.filename
@@ -103,9 +141,11 @@ def _sha256(path: Path) -> str:
 def _valid_model(path: Path, spec: ModelSpec = MODEL) -> bool:
     try:
         _check_owned_path(path, allow_missing=False)
-        info = path.stat()
+        info = path.lstat()
+        private_permissions_ok = (spec.model_id == OWNER_QWEN25.model_id
+                                  or info.st_mode & 0o077 == 0)
         return (stat.S_ISREG(info.st_mode) and info.st_size == spec.size_bytes
-                and info.st_mode & 0o077 == 0 and _sha256(path) == spec.sha256)
+                and private_permissions_ok and _sha256(path) == spec.sha256)
     except (OSError, InferenceError):
         return False
 
@@ -130,9 +170,10 @@ def _runtime_env(prefix: str | None = None) -> dict[str, str]:
 
 
 def status(*, home: Path | None = None, state_dir: str | Path | None = None,
-           prefix: str | None = None) -> dict[str, object]:
+           prefix: str | None = None, model_id: str | None = None) -> dict[str, object]:
     home = home or Path.home()
-    path = model_path(home=home, state_dir=state_dir)
+    spec = resolve_model(model_id)
+    path = model_path(home=home, state_dir=state_dir, spec=spec)
     runtime = _runtime(prefix)
     version = "unavailable"
     if runtime:
@@ -150,9 +191,9 @@ def status(*, home: Path | None = None, state_dir: str | Path | None = None,
             model_state = "unsafe"
         elif not info:
             model_state = "missing"
-        elif info.st_size != MODEL.size_bytes:
+        elif info.st_size != spec.size_bytes:
             model_state = "invalid-size"
-        elif info.st_mode & 0o077:
+        elif (spec.model_id != OWNER_QWEN25.model_id and info.st_mode & 0o077):
             model_state = "unsafe-permissions"
         else:
             model_state = "present-unverified"
@@ -162,9 +203,10 @@ def status(*, home: Path | None = None, state_dir: str | Path | None = None,
         "runtime": {"available": bool(runtime), "path": runtime, "version": version,
                     "package": "llama-cpp", "package_preview_command": "apt-get -s install llama-cpp",
                     "package_install_command": "pkg install llama-cpp"},
-        "model": {"id": MODEL.model_id, "path": str(path), "available": present,
-                  "state": model_state, "size_bytes": MODEL.size_bytes,
-                  "sha256": MODEL.sha256, "license": MODEL.license},
+        "model": {"id": spec.model_id, "path": str(path), "available": present,
+                  "state": model_state, "size_bytes": spec.size_bytes,
+                  "sha256": spec.sha256, "license": spec.license,
+                  "managed_by": "owner-read-only" if spec.model_id == OWNER_QWEN25.model_id else "ternuxx"},
         "execution": {"backend": "CPU", "gpu_layers": 0, "max_output_tokens": MAX_OUTPUT_TOKENS},
     }
 
@@ -414,7 +456,7 @@ def _response_text(stdout: str, prompt: str) -> str:
 def run_inference(prompt: str, *, home: Path | None = None, state_dir: str | Path | None = None,
                   prefix: str | None = None, max_tokens: int = DEFAULT_OUTPUT_TOKENS,
                   timeout: int = RUN_TIMEOUT_SECONDS, backend: str = "cpu",
-                  device_id: str | None = None) -> dict[str, object]:
+                  device_id: str | None = None, model_id: str | None = None) -> dict[str, object]:
     if (not isinstance(prompt, str) or not prompt.strip() or "\n" in prompt or "\r" in prompt
             or len(prompt.encode("utf-8")) > MAX_PROMPT_BYTES):
         raise InferenceError("prompt must be one line of 1 to 4096 UTF-8 bytes")
@@ -437,17 +479,19 @@ def run_inference(prompt: str, *, home: Path | None = None, state_dir: str | Pat
             raise InferenceError(inventory["reason"] or "select one exact Vulkan device from inference.gpu.status")
     elif device_id is not None:
         raise InferenceError("device_id is only valid with the Vulkan backend")
+    spec = resolve_model(model_id)
     prompt = prompt.strip()
     executable = _runtime(prefix)
     if not executable:
         raise InferenceError("llama-cli is unavailable; install the reviewed Termux llama-cpp package")
-    model = model_path(home=home, state_dir=state_dir)
+    model = model_path(home=home, state_dir=state_dir, spec=spec)
     _check_owned_path(model, allow_missing=True)
     if not model.exists():
         raise InferenceError("pinned model is missing, unsafe, or failed SHA-256 verification")
-    with _model_lock(model.parent):
-        if not _valid_model(model):
-            raise InferenceError("pinned model is missing, unsafe, or failed SHA-256 verification")
+    lock = nullcontext() if spec.model_id == OWNER_QWEN25.model_id else _model_lock(model.parent)
+    with lock:
+        if not _valid_model(model, spec):
+            raise InferenceError("selected model is missing, unsafe, or failed SHA-256 verification")
         argv = [executable, "-m", str(model), "-ngl", "all" if backend == "vulkan" else "0",
                 "--device", selected_device if selected_device else "none", "-t", "4", "-tb", "4",
                 "-c", "512", "-n", str(max_tokens), "--seed", "42", "--temp", "0",
@@ -476,7 +520,7 @@ def run_inference(prompt: str, *, home: Path | None = None, state_dir: str | Pat
             gpu_total_layers = 0
         return {"backend": "CPU" if backend == "cpu" else "Vulkan", "device_id": selected_device,
                 "gpu_layers": gpu_layers, "gpu_total_layers": gpu_total_layers,
-                "elapsed_seconds": round(elapsed, 3), "model_id": MODEL.model_id,
+                "elapsed_seconds": round(elapsed, 3), "model_id": spec.model_id,
                 "output": _response_text(completed.stdout, prompt), "exit_code": completed.returncode,
                 "max_output_tokens": max_tokens}
 
@@ -533,6 +577,7 @@ def main(argv: list[str] | None = None) -> int:
     run_parser = commands.add_parser("run")
     run_parser.add_argument("--max-tokens", type=int, default=DEFAULT_OUTPUT_TOKENS)
     run_parser.add_argument("--backend", choices=("cpu", "vulkan"), default="cpu")
+    run_parser.add_argument("--model-id", choices=tuple(MODEL_SPECS), default=MODEL.model_id)
     run_parser.add_argument("--device", help="exact Vulkan device ID from --list-devices")
     run_parser.add_argument("--stdin", action="store_true")
     args = parser.parse_args(argv)
@@ -553,7 +598,8 @@ def main(argv: list[str] | None = None) -> int:
             result = remove_model(plan_id=args.plan_id, confirmed=args.confirm)
         else:
             prompt = sys.stdin.read(MAX_PROMPT_BYTES + 1) if args.stdin else ""
-            result = run_inference(prompt, max_tokens=args.max_tokens, backend=args.backend, device_id=args.device)
+            result = run_inference(prompt, max_tokens=args.max_tokens, backend=args.backend, device_id=args.device,
+                                   model_id=args.model_id)
         print(json.dumps({"ok": True, "data": result}, ensure_ascii=False))
         return 0
     except InferenceError as exc:

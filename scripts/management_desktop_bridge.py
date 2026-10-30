@@ -104,9 +104,14 @@ def main(argv: list[str]) -> int:
                                              "confirmation": argv[4]})
         print(management_presentation.format_report(result))
         return 0 if result.get("ok") else 1
-    if action == "auto-run" and len(argv) == 1:
+    if action == "auto-run" and len(argv) in {1, 2}:
+        model_id = argv[1] if len(argv) == 2 else None
+        if model_id is not None and model_id not in management_service.cpu_inference.MODEL_SPECS:
+            print("Unknown allowlisted model ID.", file=sys.stderr); return 2
         prompt = sys.stdin.read(management_service.cpu_inference.MAX_PROMPT_BYTES + 1)
-        result = call("inference.auto.run", {"prompt": prompt, "max_tokens": 64})
+        payload = {"prompt": prompt, "max_tokens": 64}
+        if model_id: payload["model_id"] = model_id
+        result = call("inference.auto.run", payload)
         print(management_presentation.format_report(result))
         return 0 if result.get("ok") else 1
     if action == "cpu-run" and len(argv) == 1:

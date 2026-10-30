@@ -482,7 +482,8 @@ def _execute(argv: list[str], *, timeout: int, env: dict[str, str]) -> subproces
 def run_inference(prompt: str, *, home: Path | None = None,
                   state_dir: str | Path | None = None, prefix: str | None = None,
                   max_tokens: int = cpu_inference.DEFAULT_OUTPUT_TOKENS,
-                  timeout: int = RUNTIME_TIMEOUT_SECONDS) -> dict[str, object]:
+                  timeout: int = RUNTIME_TIMEOUT_SECONDS,
+                  model_id: str | None = None) -> dict[str, object]:
     if (not isinstance(prompt, str) or not prompt.strip() or "\n" in prompt or "\r" in prompt
             or len(prompt.encode("utf-8")) > cpu_inference.MAX_PROMPT_BYTES):
         raise NpuInferenceError("prompt must be one line of 1 to 4096 UTF-8 bytes")
@@ -493,14 +494,16 @@ def run_inference(prompt: str, *, home: Path | None = None,
     inventory = status(home=home, state_dir=state_dir, prefix=prefix)
     if inventory.get("available") is not True:
         raise NpuInferenceError(str(inventory.get("reason") or "HTP0 is unavailable"))
-    model = cpu_inference.model_path(home=home, state_dir=state_dir)
+    spec = cpu_inference.resolve_model(model_id)
+    model = cpu_inference.model_path(home=home, state_dir=state_dir, spec=spec)
     cpu_inference._check_owned_path(model, allow_missing=False)
-    if not cpu_inference._valid_model(model):
-        raise NpuInferenceError("pinned model is missing, unsafe, or failed SHA-256 verification")
-    models = model.parent
-    with cpu_inference._model_lock(models):
-        if not cpu_inference._valid_model(model):
-            raise NpuInferenceError("pinned model is missing, unsafe, or failed SHA-256 verification")
+    if not cpu_inference._valid_model(model, spec):
+        raise NpuInferenceError("selected model is missing, unsafe, or failed SHA-256 verification")
+    lock = (cpu_inference.nullcontext() if spec.model_id == cpu_inference.OWNER_QWEN25.model_id
+            else cpu_inference._model_lock(model.parent))
+    with lock:
+        if not cpu_inference._valid_model(model, spec):
+            raise NpuInferenceError("selected model is missing, unsafe, or failed SHA-256 verification")
         runtime = runtime_path(home=home, state_dir=state_dir)
         formatted_prompt = (f"<|im_start|>user\n{prompt.strip()}<|im_end|>\n"
                             "<|im_start|>assistant\n")
@@ -525,7 +528,7 @@ def run_inference(prompt: str, *, home: Path | None = None,
                 "npu_layers": int(match.group(1)), "total_layers": int(match.group(2)),
                 "npu_model_buffer_mib": round(float(buffer.group(1)), 2),
                 "gpu_layers": 0, "elapsed_seconds": round(elapsed, 3),
-                "model_id": cpu_inference.MODEL.model_id,
+                "model_id": spec.model_id,
                 "output": _response_text(completed.stdout or "", prompt),
                 "exit_code": completed.returncode, "max_output_tokens": max_tokens,
                 "experimental": True, "silent_fallback": False}
