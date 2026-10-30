@@ -47,7 +47,7 @@ The earlier live observations above are dated snapshots. A newer Qwen2.5 1.5B Q4
 
 ## Remaining release gates
 
-The successful builder already recorded the source/runtime SPDX output and byte-identical two-build comparison. The remaining runtime gate is for the owner to retrieve the internal artifact into the approved incoming handoff path; then verify its archive and manifest and device-test that exact Ternuxx-owned candidate on the pinned model with correct output, complete HTP offload, failure/restart behavior and telemetry; qualify GPU/CPU fallback and setup selection; close Mesa and full dependency-license/provenance review; resolve the Ternuxx project license and clean-install/release acceptance. The QNN SD1.5 image route has its own independent oracle and Qualcomm license-acceptance gates; this chat runtime build does not close them.
+The successful builder already recorded the source/runtime SPDX output and byte-identical two-build comparison. The remaining runtime gate is for the owner to retrieve the internal artifact into the approved incoming handoff path; then verify its archive and manifest and device-test that exact Ternuxx-owned candidate on the pinned model with correct output, complete HTP offload, failure/restart behavior and telemetry; qualify GPU/CPU fallback and setup selection; close Mesa and full dependency-license/provenance review; apply the owner-selected GPL-3.0-or-later scope to original Ternuxx source and complete clean-install/release acceptance. The QNN SD1.5 image route has its own independent oracle and Qualcomm license-acceptance gates; this chat runtime build does not close them.
 
 ## Evidence
 

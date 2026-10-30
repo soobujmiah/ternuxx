@@ -16,7 +16,7 @@ Distribution status changed on 2026-10-26: Ternuxx has a public experimental Mes
 
 Before promoting the Mesa pre-release to stable support or distributing a build that bundles any additional item, create a version-specific SBOM, include all required license texts and attribution notices, verify the exact model revision and upstream source notices, and review all transitive runtime dependencies. The runtime Mesa pre-release is already publicly downloadable; its publication is not evidence of license clearance or production qualification. The links above point to upstream pages and may change; the configured mirror URL, pinned model hash, and installed package version recorded in dated evidence identify the artifacts tested for this feature. The package version was selected from a signed local APT index, but this audit did not compare the installed `.deb` byte-for-byte with the primary-host artifact.
 
-Ternuxx itself has no selected repository license. Public repository visibility does not authorize redistribution. Choosing a project license and resolving source provenance remain owner/legal review gates documented in [LEGAL-IP.md](LEGAL-IP.md).
+Original Ternuxx project source is licensed under GPL-3.0-or-later; see the root [LICENSE](../../LICENSE). This does not license third-party artifacts or establish that the project has redistribution rights to them. Binary/component provenance and applicable runtime/SDK/model terms remain open release gates documented in [LEGAL-IP.md](LEGAL-IP.md).
 
 
 Bangla version: [THIRD-PARTY-NOTICES.bn.md](THIRD-PARTY-NOTICES.bn.md).

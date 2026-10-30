@@ -8,7 +8,7 @@
 
 Ternuxx is a Native Termux Android workstation manager with optional managed PRoot workload providers. Native remains the host/control plane. The current pinned, tested distro profiles are Debian Trixie and Ubuntu Noble; additional proot-distro families must use Ternuxx-owned distro-specific package/configuration adapters and stay unavailable until their install, desktop, graphics/audio, lifecycle, and recovery paths are implemented and qualified. On 2026-10-24 the owner reauthorized PRoot after an earlier retirement. Do not modify the separate Ternux repository or launcher.
 
-Keep interactive help and the existing CLI/TUI/Web/GTK paths easy to use for supported Native functions. `tx` is the public command. Use only `TERNUXX_STATE_DIR`, `$HOME/.local/share/ternuxx`, and `$PREFIX/lib/ternuxx` for product state/runtime modules. License remains unresolved unless an owner-approved LICENSE file exists.
+Keep interactive help and the existing CLI/TUI/Web/GTK paths easy to use for supported Native functions. `tx` is the public command. Use only `TERNUXX_STATE_DIR`, `$HOME/.local/share/ternuxx`, and `$PREFIX/lib/ternuxx` for product state/runtime modules. Original Ternuxx project source is licensed under GPL-3.0-or-later; see [LICENSE](LICENSE). This does not cover third-party software, models, runtime binaries, SDKs, firmware, or other separately identified materials, whose own terms and redistribution rights must be verified.
 
 ## Required context
 

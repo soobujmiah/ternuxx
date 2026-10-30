@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 718,
-  "read_count": 195,
+  "read_count": 198,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -43,10 +43,10 @@
     {
       "path": "AI_ASSISTANT.md",
       "kind": "narrative",
-      "sha256": "d2a32256a8540090fdb46e26a68604f12b1839e511609d8b2663982ea57f9741",
+      "sha256": "03a95ab8d517968bdd072cafc2cc215efb28ad101aac58e46cafc75a65f85f9b",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "d2a32256a8540090fdb46e26a68604f12b1839e511609d8b2663982ea57f9741"
+      "read_sha256": "03a95ab8d517968bdd072cafc2cc215efb28ad101aac58e46cafc75a65f85f9b"
     },
     {
       "path": "CURRENT_STATE.md",
@@ -75,10 +75,10 @@
     {
       "path": "README.md",
       "kind": "narrative",
-      "sha256": "4530f43cb279018b3027123573891ea7761fa8c996a765a5f330f87421312bd8",
+      "sha256": "1a800b5efd4b68c4b868b4154237add50e0e1aeb9bfd9ebea073f6105cb7609b",
       "lines": 157,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "1a800b5efd4b68c4b868b4154237add50e0e1aeb9bfd9ebea073f6105cb7609b"
     },
     {
       "path": "SECURITY.md",
@@ -355,7 +355,7 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "c05e3a91eb3454eff27b95ccd647a9f46707c93f7caa1988c76fc852a5bfe75d",
+      "sha256": "8851ca857359a79b1565dfc64bd665ed6ea12f9f012eec4f4ebb475339ac7c95",
       "lines": 188,
       "read_status": "pending",
       "read_sha256": null
@@ -411,7 +411,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "4530df2ba5dd7c0e5a93f2daec06de0e422a9ed3ed6f65087320e0025f7600bb",
+      "sha256": "94b11507dbe38200223d57594459a79ecb449cbe93624d6a7f0141b7313964b9",
       "lines": 69,
       "read_status": "pending",
       "read_sha256": null
@@ -4363,18 +4363,18 @@
     {
       "path": "docs/evidence/2026-10-29-p12-runtime-install-selection.bn.md",
       "kind": "narrative",
-      "sha256": "4319fd3946269a36541b836c8686197608546323e56e755a44a9d59b702686f4",
+      "sha256": "9ce622786f81b3f9be89cd4a37afe6ad992f767ae4e77683425451e06273c750",
       "lines": 29,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "9ce622786f81b3f9be89cd4a37afe6ad992f767ae4e77683425451e06273c750"
     },
     {
       "path": "docs/evidence/2026-10-29-p12-runtime-install-selection.md",
       "kind": "narrative",
-      "sha256": "c636a23e009348238eecb669c64c67029e598ba1ad1b88b24a7255705550dd71",
+      "sha256": "3c0faf750a7c47e22f4c6d59857dde4ab1f2486a05df6c0cb3c44b3c3d6b18a1",
       "lines": 29,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "3c0faf750a7c47e22f4c6d59857dde4ab1f2486a05df6c0cb3c44b3c3d6b18a1"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-candidate-handoff-verifier.bn.md",
@@ -4419,18 +4419,18 @@
     {
       "path": "docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.bn.md",
       "kind": "narrative",
-      "sha256": "4ee9b9e9bcda19e750b5c5c474262b723fe921994ff2dca070751d66305b4648",
+      "sha256": "36d72a0f0cb7948362f548e084e960e94f7cc23e1d5bd2389175e2cf53327d57",
       "lines": 35,
-      "read_status": "read",
-      "read_sha256": "4ee9b9e9bcda19e750b5c5c474262b723fe921994ff2dca070751d66305b4648"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.md",
       "kind": "narrative",
-      "sha256": "ce1edb0018dda57aa0db9bb1068ae9b3eb96ecad765ae108ce7cad4b6b6d60f3",
+      "sha256": "1ec45c16f94cf30e25f3ea2aeca1976f12e137ae44c9c27c00402522966b7b9d",
       "lines": 33,
       "read_status": "read",
-      "read_sha256": "ce1edb0018dda57aa0db9bb1068ae9b3eb96ecad765ae108ce7cad4b6b6d60f3"
+      "read_sha256": "1ec45c16f94cf30e25f3ea2aeca1976f12e137ae44c9c27c00402522966b7b9d"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-artifact-audit.bn.md",
@@ -4467,10 +4467,10 @@
     {
       "path": "docs/evidence/2026-10-30-p12-htp-notice-candidate.md",
       "kind": "narrative",
-      "sha256": "5b882861466163f969c8b1500dccbf341041fa6d2f8d89ed91e94c26cb1444c6",
+      "sha256": "d862c41a0e0862c22bf20a0ecd42c7a02f950569601d432ed06a438260d41f0a",
       "lines": 32,
       "read_status": "read",
-      "read_sha256": "5b882861466163f969c8b1500dccbf341041fa6d2f8d89ed91e94c26cb1444c6"
+      "read_sha256": "d862c41a0e0862c22bf20a0ecd42c7a02f950569601d432ed06a438260d41f0a"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-qualification.json",
@@ -4499,18 +4499,18 @@
     {
       "path": "docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md",
       "kind": "narrative",
-      "sha256": "b5d1a7f166158ce0c981b13e7f889d33e179a02a018cbb25e97b1da9e5af777d",
+      "sha256": "e893a21d745129b9691492ce250f1fd1b09fff836ed18204e66729ade3588ad5",
       "lines": 53,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "e893a21d745129b9691492ce250f1fd1b09fff836ed18204e66729ade3588ad5"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.md",
       "kind": "narrative",
-      "sha256": "35c5028284774e2b93deb5b76dae44a009930970a455106b853e2b4175065094",
+      "sha256": "6951a535e9b22a93d32cbbea4ad1c56752f60a4fa220a95dee4325e4610311e3",
       "lines": 57,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "6951a535e9b22a93d32cbbea4ad1c56752f60a4fa220a95dee4325e4610311e3"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-reproducible-candidate.bn.md",
@@ -4523,10 +4523,10 @@
     {
       "path": "docs/evidence/2026-10-30-p12-htp-reproducible-candidate.md",
       "kind": "narrative",
-      "sha256": "867b6c1c57549c5aa30750498ac9db42522de1b64b7b34b4af3cb6f14655b8b9",
+      "sha256": "1e5ce3380e6713282b092df569b8945806677725c4ba8c379c7ec195dd93a2af",
       "lines": 55,
       "read_status": "read",
-      "read_sha256": "867b6c1c57549c5aa30750498ac9db42522de1b64b7b34b4af3cb6f14655b8b9"
+      "read_sha256": "1e5ce3380e6713282b092df569b8945806677725c4ba8c379c7ec195dd93a2af"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-integrity-snapshot.json",
@@ -4699,10 +4699,10 @@
     {
       "path": "docs/evidence/2026-10-30-p12-third-party-notices.md",
       "kind": "narrative",
-      "sha256": "18ac946649809f2e3299c0e7732be202fa2a98b2acc670a4f51fb75254c36a26",
+      "sha256": "e87cff0d23c5127c8961e487a63cb445e43a5bc99084f0e3ac291ed5f143d744",
       "lines": 27,
       "read_status": "read",
-      "read_sha256": "18ac946649809f2e3299c0e7732be202fa2a98b2acc670a4f51fb75254c36a26"
+      "read_sha256": "e87cff0d23c5127c8961e487a63cb445e43a5bc99084f0e3ac291ed5f143d744"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-vulkan-qualification.json",
@@ -5155,10 +5155,10 @@
     {
       "path": "docs/readiness/LEGAL-IP.md",
       "kind": "narrative",
-      "sha256": "5d430b6195c224b5540261ef5431647da803565c1cb895602bf55113a3adde57",
+      "sha256": "f10d1001d9c10ac73ad51f3e06211302f828c5415750cad0749449037338706c",
       "lines": 59,
       "read_status": "read",
-      "read_sha256": "5d430b6195c224b5540261ef5431647da803565c1cb895602bf55113a3adde57"
+      "read_sha256": "f10d1001d9c10ac73ad51f3e06211302f828c5415750cad0749449037338706c"
     },
     {
       "path": "docs/readiness/PREMIUM-DISTRIBUTION.md",
@@ -5211,10 +5211,10 @@
     {
       "path": "docs/readiness/THIRD-PARTY-NOTICES.md",
       "kind": "narrative",
-      "sha256": "e9609b2e187a11c9c92b64762635c8a75c5daa27b725bab271d8b01944f4d028",
+      "sha256": "d3b644f4d8bc7bc7ddd2cf2edc51abe82fa821d7b13b33ae41da54c7fc84c32a",
       "lines": 22,
       "read_status": "read",
-      "read_sha256": "e9609b2e187a11c9c92b64762635c8a75c5daa27b725bab271d8b01944f4d028"
+      "read_sha256": "d3b644f4d8bc7bc7ddd2cf2edc51abe82fa821d7b13b33ae41da54c7fc84c32a"
     },
     {
       "path": "docs/readiness/THREAT-MODEL.md",
@@ -5387,10 +5387,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "354efe1b1689e43d4c41f2334de523418c30f257be04e6f3bb8a5d294780952d",
+      "sha256": "8336195fb5fca36b5bf4d815db5c12809205925cf2e88964dbdfd3b5a453ebc9",
       "lines": 291,
-      "read_status": "read",
-      "read_sha256": "354efe1b1689e43d4c41f2334de523418c30f257be04e6f3bb8a5d294780952d"
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "requirements-dev.txt",
