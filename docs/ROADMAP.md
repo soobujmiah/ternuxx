@@ -25,7 +25,7 @@ Ternuxx uses Native Termux as its host/control plane and optional Ternuxx-manage
 <!-- generated:active-work:start -->
 **Active phase:** P12 — Qualify Native CPU, GPU and NPU acceleration
 
-**Next action:** Complete third-party binary/toolchain license review and wait for two passing guarded thermal preflights before controlled CPU/Vulkan/HTP qualification.
+**Next action:** Resolve exact runtime/toolchain redistribution rights and, after substantial cooling, run the benchmark protocol with comparable launch conditions and repeated CPU/Vulkan/HTP trials.
 
 Complete this item and update its evidence before moving to the next item or phase.
 <!-- generated:active-work:end -->

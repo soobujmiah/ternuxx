@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Owner selected GPL-3.0-or-later for original Ternuxx source; candidate artifact redistribution remains uncleared pending third-party/toolchain rights and device qualification.
+The GPL-3.0-or-later source license is recorded; exact candidate ELF and SDK evidence are documented. Reproducible HTP artifact redistribution and all three backend performance/stability qualification remain open.
 
-**Next action:** Complete third-party binary/toolchain license review and wait for two passing guarded thermal preflights before controlled CPU/Vulkan/HTP qualification.
+**Next action:** Resolve exact runtime/toolchain redistribution rights and, after substantial cooling, run the benchmark protocol with comparable launch conditions and repeated CPU/Vulkan/HTP trials.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -186,3 +186,4 @@ Evidence:
 - [docs/evidence/2026-10-30-p12-htp-notice-candidate.bn.md](evidence/2026-10-30-p12-htp-notice-candidate.bn.md)
 - [docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.md](evidence/2026-10-30-p12-hexagon-sdk-license-audit.md)
 - [docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.bn.md](evidence/2026-10-30-p12-hexagon-sdk-license-audit.bn.md)
+- [docs/evidence/2026-10-30-p12-accelerator-speed-review.md](evidence/2026-10-30-p12-accelerator-speed-review.md)

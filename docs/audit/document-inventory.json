@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 718,
-  "read_count": 199,
+  "document_count": 720,
+  "read_count": 201,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -355,8 +355,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "8851ca857359a79b1565dfc64bd665ed6ea12f9f012eec4f4ebb475339ac7c95",
-      "lines": 188,
+      "sha256": "4a9a9a29816a3454c69ccbbb631f92e711fce1c315c2d9adb29ff8d90bc1440c",
+      "lines": 189,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -411,7 +411,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "94b11507dbe38200223d57594459a79ecb449cbe93624d6a7f0141b7313964b9",
+      "sha256": "729be4e007c6c12d68550f82791e17722d1dbd67a28ba064933575286d9dfcc7",
       "lines": 69,
       "read_status": "pending",
       "read_sha256": null
@@ -4377,6 +4377,22 @@
       "read_sha256": "3c0faf750a7c47e22f4c6d59857dde4ab1f2486a05df6c0cb3c44b3c3d6b18a1"
     },
     {
+      "path": "docs/evidence/2026-10-30-p12-accelerator-speed-review.bn.md",
+      "kind": "narrative",
+      "sha256": "709398958cbb6cc2d4403a386744bea204184015cb0de919104c23238b90895f",
+      "lines": 39,
+      "read_status": "read",
+      "read_sha256": "709398958cbb6cc2d4403a386744bea204184015cb0de919104c23238b90895f"
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-accelerator-speed-review.md",
+      "kind": "narrative",
+      "sha256": "745dbbaad1ac455b6c4c3504bbf4e823be335eced0e1a4b06d412f52a94aa95f",
+      "lines": 39,
+      "read_status": "read",
+      "read_sha256": "745dbbaad1ac455b6c4c3504bbf4e823be335eced0e1a4b06d412f52a94aa95f"
+    },
+    {
       "path": "docs/evidence/2026-10-30-p12-candidate-handoff-verifier.bn.md",
       "kind": "narrative",
       "sha256": "48f7a16f55c8611354264d11e10f845cdb14f3715079c2b251e91aedf348cc92",
@@ -5307,10 +5323,10 @@
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "684738b2dc506bccd5e919306621df55852becb2b483ef337617489e9685be4d",
-      "lines": 68,
+      "sha256": "d7c4a518d5eba727d9d9c1ce586bdfdc04b73ccfcdb427e76838c8f10e3d416f",
+      "lines": 72,
       "read_status": "read",
-      "read_sha256": "684738b2dc506bccd5e919306621df55852becb2b483ef337617489e9685be4d"
+      "read_sha256": "d7c4a518d5eba727d9d9c1ce586bdfdc04b73ccfcdb427e76838c8f10e3d416f"
     },
     {
       "path": "docs/testing/README.md",
@@ -5387,8 +5403,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "8336195fb5fca36b5bf4d815db5c12809205925cf2e88964dbdfd3b5a453ebc9",
-      "lines": 291,
+      "sha256": "2cb66da086361957590a63e6f91b66b8abd5205131a7e451b345562e0b68729c",
+      "lines": 292,
       "read_status": "pending",
       "read_sha256": null
     },
