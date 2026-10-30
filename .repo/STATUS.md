@@ -2,14 +2,14 @@
 # ternuxx -- deterministic status
 
 - Repository: `soobujmiah/ternuxx`
-- Generated at: 2026-10-30T00:58:45Z (by `tools/repo_knowledge collect`)
-- Version: `native-mesa-adreno825-2026.10.27-133-g38ff672`
-- Head: `38ff6726f294d737e6face28ca2186036e619092` on `main` (2026-10-30T00:55:33Z)
+- Generated at: 2026-10-30T01:02:40Z (by `tools/repo_knowledge collect`)
+- Version: `native-mesa-adreno825-2026.10.27-136-gcefb6a0`
+- Head: `cefb6a044da2a89b5716f22112e8085a2f2cf2a4` on `main` (2026-10-30T00:59:50Z)
 
 ## Build / test
 
-- Build: **unknown** (run `40982717806`)
-- Test: **failed**
+- Build: **unknown** (run `40983143340`)
+- Test: **passed**
 - Last failed build: `69e378eb33247678437bda4b2de9ab25f6bcb91d` at 2026-10-18T19:42:44Z
 
 ## Phases
@@ -19,4 +19,4 @@
 
 - Status: ok
 - Source: ci
-- Last synced at: 2026-10-30T00:58:45Z
+- Last synced at: 2026-10-30T01:02:40Z
