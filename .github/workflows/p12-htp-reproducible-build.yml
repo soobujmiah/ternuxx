@@ -216,6 +216,17 @@ jobs:
           Path('candidate/reproducibility-verification.json').write_text(
             json.dumps(record,indent=2,sort_keys=True)+'\n',encoding='utf-8')
           PY
+          (
+            cd candidate
+            sha256sum \
+              llama-b11849-bin-android-arm64-snapdragon.tar.gz \
+              SHA256SUMS manifest.json upstream-source.spdx.json runtime.spdx.json \
+              toolchain-versions.txt cmake-user-preset.sha256 packager.sha256 \
+              submodules.txt upstream-LICENSE.txt reproducibility-verification.json \
+              > CANDIDATE.SHA256SUMS
+          )
+          python3 tools/package_snapdragon_release.py verify-candidate \
+            --candidate-dir candidate
 
       - name: Upload verified internal candidate (not a release)
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.2

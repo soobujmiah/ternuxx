@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 674,
+  "document_count": 676,
   "read_count": 179,
   "reading_complete": false,
   "broken_local_links": [],
@@ -11,8 +11,8 @@
     {
       "path": ".github/workflows/p12-htp-reproducible-build.yml",
       "kind": "structured",
-      "sha256": "15d416cfde1ad009eb73cf47fada5d0e4b9ab2ededa2f817b223e1c0e76bfa0a",
-      "lines": 226,
+      "sha256": "9752350f7623268d45e9e3d3a2032f387c0e22b8f741853e77e603c7453c976a",
+      "lines": 237,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -211,8 +211,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "8abebe2f57449a00dfea244d4b26819ef8cc5eb437a44045630ccf64f64514ef",
-      "lines": 177,
+      "sha256": "3e488d847a3d474e16416443bb5d6ed54cb02c739890f209e536141f56cadf2c",
+      "lines": 179,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -4229,6 +4229,22 @@
       "kind": "narrative",
       "sha256": "c636a23e009348238eecb669c64c67029e598ba1ad1b88b24a7255705550dd71",
       "lines": 29,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-candidate-handoff-verifier.bn.md",
+      "kind": "narrative",
+      "sha256": "48f7a16f55c8611354264d11e10f845cdb14f3715079c2b251e91aedf348cc92",
+      "lines": 21,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-candidate-handoff-verifier.md",
+      "kind": "narrative",
+      "sha256": "eccdb9cf2731d9c456b86a41833cac15688c2423e0f3ef7badb266d8e1f792cc",
+      "lines": 21,
       "read_status": "pending",
       "read_sha256": null
     },
