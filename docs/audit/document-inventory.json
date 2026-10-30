@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 723,
-  "read_count": 199,
+  "document_count": 724,
+  "read_count": 203,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -355,10 +355,10 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "9637e184ee63945c3dd401d139389fa5e3a4d7e4c40c75ccede88d6c4b0f616c",
+      "sha256": "5a400c2a8b989475d457758889038e7a28136aac82c81dc01cf1594d04752cb6",
       "lines": 194,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "5a400c2a8b989475d457758889038e7a28136aac82c81dc01cf1594d04752cb6"
     },
     {
       "path": "docs/PRODUCT-VISION.md",
@@ -4497,6 +4497,14 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-30-p12-htp-headroom-preflight-4.json",
+      "kind": "structured",
+      "sha256": "4a59e3f06b72c3657c0c55a802be71fc33a7378acd4452867097c39f3bea23b5",
+      "lines": 61,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-30-p12-htp-notice-candidate.bn.md",
       "kind": "narrative",
       "sha256": "fd2ffda87a26efd2348a799d753bf66d12aa7185d95ab5e66e62ff32de834559",
@@ -4587,18 +4595,18 @@
     {
       "path": "docs/evidence/2026-10-30-p12-native-qualification.bn.md",
       "kind": "narrative",
-      "sha256": "c35dda621bd9848578422aa69f23e1a92f35c60477e8b79e186c48fb3371aac2",
-      "lines": 45,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "3d3a3e31e53155e8943d937e5de05a795100199a07b0ad4c4de391796f0cc213",
+      "lines": 47,
+      "read_status": "read",
+      "read_sha256": "3d3a3e31e53155e8943d937e5de05a795100199a07b0ad4c4de391796f0cc213"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-native-qualification.md",
       "kind": "narrative",
-      "sha256": "6f8a70aaed814af36d811326c0b3e510e39a9167eb32e266120f6eaaafe71dd4",
-      "lines": 42,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "88a80b9f321a19c1459541bd08ee00aebb08f583ced8ffe54f4916393ba6b764",
+      "lines": 44,
+      "read_status": "read",
+      "read_sha256": "88a80b9f321a19c1459541bd08ee00aebb08f583ced8ffe54f4916393ba6b764"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-npu-candidate-preflight-1.json",
@@ -5331,10 +5339,10 @@
     {
       "path": "docs/testing/KNOWN-LIMITATIONS.md",
       "kind": "narrative",
-      "sha256": "ba4b20fa6469fdfa11bb245a3d930cffc1e78130dcdee34d3bc3af72943db8f0",
+      "sha256": "6a6877876eb5c389ee4e1cb86ba457227a6081842e27fed307d0d3074776c258",
       "lines": 29,
-      "read_status": "pending",
-      "read_sha256": null
+      "read_status": "read",
+      "read_sha256": "6a6877876eb5c389ee4e1cb86ba457227a6081842e27fed307d0d3074776c258"
     },
     {
       "path": "docs/testing/NATIVE-ACCEL-QUALIFICATION.md",
