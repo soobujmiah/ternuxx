@@ -290,8 +290,10 @@ def verify_candidate(args: argparse.Namespace) -> dict[str, object]:
         raise PackageError("candidate file set is not exact (" + "; ".join(details) + ")")
     for path in members:
         info = path.lstat()
-        if not stat.S_ISREG(info.st_mode) or path.is_symlink() or info.st_size <= 0:
-            raise PackageError(f"candidate entry must be a non-empty regular file: {path.name}")
+        empty_submodule_inventory = path.name == "submodules.txt" and info.st_size == 0
+        if (not stat.S_ISREG(info.st_mode) or path.is_symlink()
+                or info.st_size <= 0 and not empty_submodule_inventory):
+            raise PackageError(f"candidate entry must be a regular file with required content: {path.name}")
     checkfile = directory / "CANDIDATE.SHA256SUMS"
     try:
         lines = checkfile.read_text(encoding="ascii").splitlines()
@@ -347,8 +349,8 @@ def verify_candidate(args: argparse.Namespace) -> dict[str, object]:
     if not digest_line.fullmatch(preset_line) or not digest_line.fullmatch(packager_line):
         raise PackageError("candidate source-input checksum sidecar is malformed")
     submodules = (directory / "submodules.txt").read_text(encoding="utf-8").splitlines()
-    if not submodules or any(not re.match(r"^ [0-9a-f]{40}(?: .+)?$", line) for line in submodules):
-        raise PackageError("candidate submodule inventory is empty or not at the recorded commits")
+    if any(not re.match(r"^ [0-9a-f]{40}(?: .+)?$", line) for line in submodules):
+        raise PackageError("candidate submodule inventory has entries not at the recorded commits")
     if not (directory / "toolchain-versions.txt").read_text(encoding="utf-8").strip():
         raise PackageError("candidate toolchain inventory is empty")
     if not (directory / "upstream-LICENSE.txt").read_text(encoding="utf-8").strip():
