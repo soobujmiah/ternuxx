@@ -33,7 +33,11 @@ The default command `printf '2 + 2 = ? reply with one digit' | bash tx ai run --
 
 The model must be available through an owner-approved Ternuxx private model path before controlled CPU/HTP comparisons can run. The project instruction forbids Ternuxx from traversing shared `/sdcard` storage, so no LAI model there was accessed. Two fresh thermal preflight samples are required before any inference sequence; subsequent runs must record answer correctness, exact layer offload, model SHA-256, backend, token counts, elapsed time, process cleanup, and sampled thermal/memory telemetry.
 
-The initial installer still has no CPU/Vulkan/HTP AI-runtime multi-select. The reproducible HTP archive is an internal Actions candidate only; device installation, installer integration, Mesa provenance, redistribution/license review, and public release remain open. Image-generation/QNN qualification is a separate workload and is not covered by this chat inference route.
+The guided installer now has a CPU/Vulkan/HTP multi-select, with choices gated by device probing: HTP on SM8735, Vulkan when its Native probe is supported, and CPU fallback. Defaults are HTP on SM8735, otherwise Vulkan when supported, otherwise CPU. Selecting HTP also selects the CPU fallback package. The installer uses the pinned upstream b11849 archive; it does not install the Ternuxx-built internal candidate. See the [runtime install selection report](2026-10-29-p12-runtime-install-selection.md). A fresh-device install and rollback remain unverified. The internal candidate still needs device qualification and distribution clearance; Mesa provenance and public release remain open. Image-generation/QNN qualification is a separate workload and is not covered by this chat inference route.
+
+## Installer selection status update — 2026-10-30
+
+A current source/fixture recheck confirms the guided installer selection implementation: `tests.test_install_wizard`, `tests.test_install_master`, and `tests.test_npu_inference` passed **50 tests** on 2026-10-30. This validates selection and install-plan fixture contracts, not a fresh-device package transaction, runtime download, or HTP workload.
 
 ## Evidence
 

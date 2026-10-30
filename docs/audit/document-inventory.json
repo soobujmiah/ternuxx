@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 724,
-  "read_count": 203,
+  "read_count": 205,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -4347,18 +4347,18 @@
     {
       "path": "docs/evidence/2026-10-29-p12-auto-backend-routing.bn.md",
       "kind": "narrative",
-      "sha256": "817ac384aef6bdefaadf726cbb676cb0e672403f65e674c6b0041acc7d85f210",
-      "lines": 41,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "69122167d6bae34e27fee87c9283de2e5f3c1223a1e04b0850c519793b5b0955",
+      "lines": 45,
+      "read_status": "read",
+      "read_sha256": "69122167d6bae34e27fee87c9283de2e5f3c1223a1e04b0850c519793b5b0955"
     },
     {
       "path": "docs/evidence/2026-10-29-p12-auto-backend-routing.md",
       "kind": "narrative",
-      "sha256": "3105715348cb127703e94aa057254de8e17ffa37bccf9a49f22ae0f786bfcd67",
-      "lines": 45,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "b4bab130dff6ff7d84f7cda326b14bd92be6a36ae3be79d2fa102ab4119805df",
+      "lines": 49,
+      "read_status": "read",
+      "read_sha256": "b4bab130dff6ff7d84f7cda326b14bd92be6a36ae3be79d2fa102ab4119805df"
     },
     {
       "path": "docs/evidence/2026-10-29-p12-runtime-install-selection.bn.md",
