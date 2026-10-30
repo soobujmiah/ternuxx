@@ -4355,16 +4355,16 @@
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.bn.md",
       "kind": "narrative",
-      "sha256": "f168e0467fb3b44e412c9df19d482555747e3dc47e901eaaa30f9ecf0e88b610",
-      "lines": 32,
+      "sha256": "e4730fa62dddbacb7d789a4843b29e7a517eca267802dba118cb74138ac3b2b4",
+      "lines": 34,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.md",
       "kind": "narrative",
-      "sha256": "c6441109e59eecbf97101a2a4a66ea472a5232acfd35949c51bb499e9efefcde",
-      "lines": 32,
+      "sha256": "39f74fd084c29e3497df2a9b4354ad6279d052bbf5ec1a1747efbc49d92f9281",
+      "lines": 34,
       "read_status": "pending",
       "read_sha256": null
     },
