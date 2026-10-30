@@ -1,0 +1,7 @@
+event_id: commit-7ee322b39c74-3ccc2bd3689f68b1
+repository: soobujmiah/ternuxx
+commit: 7ee322b39c74210218693dd5dd02b173bb1f14ea
+kind: commit
+occurred_at: '2026-10-30T06:54:57Z'
+status: completed
+summary: 'docs(p12): audit Hexagon SDK distribution terms (#28)'
