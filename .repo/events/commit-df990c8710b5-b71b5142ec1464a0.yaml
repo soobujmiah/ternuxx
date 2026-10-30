@@ -1,0 +1,7 @@
+event_id: commit-df990c8710b5-b71b5142ec1464a0
+repository: soobujmiah/ternuxx
+commit: df990c8710b5944fbb286106a2b614f1872309df
+kind: commit
+occurred_at: '2026-10-30T05:48:49Z'
+status: completed
+summary: 'fix(release): verify runtime SBOM file hashes (#21)'
