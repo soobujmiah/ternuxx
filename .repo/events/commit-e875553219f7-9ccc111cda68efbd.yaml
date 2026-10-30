@@ -1,0 +1,7 @@
+event_id: commit-e875553219f7-9ccc111cda68efbd
+repository: soobujmiah/ternuxx
+commit: e875553219f75f870ad43edad6275017df6b8e23
+kind: commit
+occurred_at: '2026-10-30T06:23:02Z'
+status: completed
+summary: 'fix(p12): preserve runtime third-party notices (#24)'
