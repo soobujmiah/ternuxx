@@ -175,6 +175,9 @@ class SnapdragonPackageTests(unittest.TestCase):
             "CMAKE_INSTALL_RPATH=$ORIGIN;$ORIGIN/../lib",
             "CMAKE_BUILD_WITH_INSTALL_RPATH=ON",
             "LLAMA_BUILD_SERVER=OFF",
+            "LLAMA_BUILD_TESTS=OFF",
+            "LLAMA_BUILD_EXAMPLES=OFF",
+            "LLAMA_BUILD_APP=OFF",
             "LLAMA_BUILD_UI=OFF",
             "LLAMA_USE_PREBUILT_UI=OFF",
         ])
@@ -195,7 +198,7 @@ class SnapdragonPackageTests(unittest.TestCase):
                 "CMAKE_BUILD_WITH_INSTALL_RPATH=ON",
             ]
             manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-            with self.assertRaisesRegex(packager.PackageError, "server/UI-free"):
+            with self.assertRaisesRegex(packager.PackageError, "CLI-only"):
                 packager.verify(type("Args", (), {
                     "archive": root / "bundle/llama-b11849-bin-android-arm64-snapdragon.tar.gz",
                     "manifest": manifest_path})())

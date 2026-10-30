@@ -11,8 +11,8 @@
     {
       "path": ".github/workflows/p12-htp-reproducible-build.yml",
       "kind": "structured",
-      "sha256": "046e7825f916714b70f76860e93ad7768f549b8887c2622ae219122c9b44923c",
-      "lines": 240,
+      "sha256": "29441089ea35f2a5fb4d24764422fa42ddcd13711d5e8c8ad42fcab9abfb8965",
+      "lines": 243,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -259,7 +259,7 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "b7fa8a78bf18ca0ce7c0e08b0f4ecc6f56a94217e146b1dcb52d523fe7abcd1a",
+      "sha256": "c616802cc2af70f4e3fead0a61efb10e9ce2ade049e9825b55bc9dc2b13bb12e",
       "lines": 186,
       "read_status": "pending",
       "read_sha256": null
@@ -4307,7 +4307,7 @@
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.bn.md",
       "kind": "narrative",
-      "sha256": "a2aee3711c03573a61d4c653bb65a60d422f8c580a9af43d0bf2ccf41fb6db98",
+      "sha256": "6e55cc96270a54f93ec8bd05b0e4a5db8aff70a774b6ff1f92d37ed19cffec79",
       "lines": 28,
       "read_status": "pending",
       "read_sha256": null
@@ -4315,7 +4315,7 @@
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.md",
       "kind": "narrative",
-      "sha256": "8c34f7830f9c6c0dfe4cb32e01d8fb93730395030c4ebaf85d3e27077c0f1c55",
+      "sha256": "2fd4b34b7a62f10e0121050e8e28673507bf69314b3314b4bdd8c16e4353549f",
       "lines": 28,
       "read_status": "pending",
       "read_sha256": null

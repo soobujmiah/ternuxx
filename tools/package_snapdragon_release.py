@@ -29,6 +29,9 @@ PINNED_BUILD_FLAGS = [
     "CMAKE_INSTALL_RPATH=$ORIGIN;$ORIGIN/../lib",
     "CMAKE_BUILD_WITH_INSTALL_RPATH=ON",
     "LLAMA_BUILD_SERVER=OFF",
+    "LLAMA_BUILD_TESTS=OFF",
+    "LLAMA_BUILD_EXAMPLES=OFF",
+    "LLAMA_BUILD_APP=OFF",
     "LLAMA_BUILD_UI=OFF",
     "LLAMA_USE_PREBUILT_UI=OFF",
 ]
@@ -208,7 +211,7 @@ def verify(args: argparse.Namespace) -> dict[str, object]:
     if manifest.get("builder_image") != PINNED_BUILDER_IMAGE:
         raise PackageError("package manifest does not identify the pinned Snapdragon toolchain")
     if manifest.get("build_flags") != PINNED_BUILD_FLAGS:
-        raise PackageError("package manifest does not identify the pinned server/UI-free CLI build")
+        raise PackageError("package manifest does not identify the pinned CLI-only build")
     if args.archive.name != manifest.get("artifact"):
         raise PackageError("archive filename does not match manifest")
     size, digest = _sha256(args.archive)
