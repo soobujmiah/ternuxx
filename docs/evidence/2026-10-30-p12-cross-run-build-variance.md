@@ -23,7 +23,9 @@ The reproducible workflow was changed to request a CLI-only package: `LLAMA_BUIL
 
 The next run, [`40987954678`](https://github.com/soobujmiah/ternuxx/actions/runs/40987954678), compiled both builders but failed during packaging: the pinned upstream CMake source creates `tools/cli` only inside `if (LLAMA_BUILD_SERVER)`, so disabling the server also removes the required `llama-cli` executable. No candidate artifact was produced. The next correction enables that upstream build switch while leaving the UI, tests, examples, and unified app disabled; the packager still selects only the CLI and required runtime libraries.
 
-The rebuild is still pending. Required evidence remains two separate successful post-fix main-branch runs with matching verified archive SHA-256 values; each must also pass its within-run two-builder comparison and whole-candidate verifier.
+The corrected workflow was merged as PR [#10](https://github.com/soobujmiah/ternuxx/pull/10) at `5e3ff398d4fcf6dcd34fa86eab7f982ced03f194`. Main-branch run [`40989392795`](https://github.com/soobujmiah/ternuxx/actions/runs/40989392795) passed both independent builds, byte-identical within-run archive comparison, and candidate verification. The downloaded archive also passed local whole-candidate verification: SHA-256 `fde7c7c4643f4df8b38a437231c59dad4516ce7c7bb986971b110a7494b9e356`, size 45,896,938 bytes, 23 runtime files. Its source and runtime SPDX documents still contain 456 unresolved package-license assertions in total; the candidate verifier correctly reports `distribution_cleared=false`.
+
+A second, separate main-branch run [`41004311539`](https://github.com/soobujmiah/ternuxx/actions/runs/41004311539) is now in progress. Cross-run reproducibility remains unproven until that run also passes and its downloaded, verified archive SHA-256 matches the first. This is build reproducibility evidence only, not device inference qualification.
 
 ## Release status
 
