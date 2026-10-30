@@ -1,0 +1,7 @@
+event_id: commit-3630c57efd3f-943c5d710939837d
+repository: soobujmiah/ternuxx
+commit: 3630c57efd3fd40c8be73b6cfaf60d631d499a95
+kind: commit
+occurred_at: '2026-10-30T07:42:52Z'
+status: completed
+summary: 'Merge pull request #37 from soobujmiah/codex/p12-thermal-preflight-record'
