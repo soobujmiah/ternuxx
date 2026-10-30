@@ -236,7 +236,7 @@
       "id": "P12",
       "title": "Qualify Native CPU, GPU and NPU acceleration",
       "status": "in_progress",
-      "summary": "Qwen2.5 is hash-verified. CPU/Vulkan/HTP attempts still cross in-run guards; empirical pre-inference headroom gates now prevent launches when prior sensor rises could exceed those guards.",
+      "summary": "Two corrected independent HTP candidate builds now produce byte-identical, locally verified archives. Device CPU, Vulkan and HTP paths remain unqualified after repeated thermal guard cancellations and failed launch preflights.",
       "evidence": [
         "docs/evidence/2026-10-24-native-acceleration-live-check.md",
         "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
@@ -270,9 +270,10 @@
         "docs/evidence/2026-10-30-p12-htp-reproducible-build-preparation.bn.md",
         "docs/evidence/2026-10-29-p12-auto-backend-routing.md",
         "docs/evidence/2026-10-29-p12-runtime-install-selection.md",
-        "docs/evidence/2026-10-30-p12-native-qualification.md"
+        "docs/evidence/2026-10-30-p12-native-qualification.md",
+        "docs/evidence/2026-10-30-p12-cross-run-build-variance.md"
       ],
-      "next_action": "Wait until two fresh preflight samples meet the backend-specific empirical launch ceilings (CPU 40°C; Vulkan CPU/GPU 45/50°C; NPU CPU/HTP 50/40°C). Save full reports directly to evidence; do not bypass thermal limits. Then test the owner-handed-off HTP candidate, clean-install replay, provenance/licensing, and release gates."
+      "next_action": "Wait for two fresh passing backend-specific thermal preflights. Then record a same-model CPU baseline; after adequate recovery, qualify the exact self-built HTP candidate with output correctness, full offload, model/runtime integrity and telemetry; compare Vulkan and CPU; verify runtime selection, rollback and clean install. Resolve project/dependency licenses and full provenance before any public release asset."
     }
   ]
 }
