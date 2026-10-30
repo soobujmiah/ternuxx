@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 681,
+  "document_count": 683,
   "read_count": 179,
   "reading_complete": false,
   "broken_local_links": [],
@@ -235,8 +235,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "0930db91b36aa048ea2a584a822bd2bad6a88250c2b9eafbc042f8a3152cda2a",
-      "lines": 181,
+      "sha256": "c90cde7d42777126c8be88523a3d6e48717bbfd58ff0f05b96becc4440c9cc75",
+      "lines": 183,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -4283,16 +4283,24 @@
     {
       "path": "docs/evidence/2026-10-30-p12-htp-artifact-audit.bn.md",
       "kind": "narrative",
-      "sha256": "cd0cc9c2828f512b2ae14bf0067dddaadfcbadd36cecea9b00e558ba9d785b0c",
-      "lines": 21,
+      "sha256": "36eb26b72946c968ccffc13841ea84f3303139643b8481fcc2a4bd98dc8f072b",
+      "lines": 23,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-artifact-audit.md",
       "kind": "narrative",
-      "sha256": "e72532bfa002663b4591159cf63169afd61438c75a76083b3d0c0794df85a67e",
-      "lines": 21,
+      "sha256": "1c6dd1b2adc28072e803fdf6e14abb8f2c8c446ebdf9f1ddbb7fc42e4333ffc4",
+      "lines": 23,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-htp-candidate-device-discovery.json",
+      "kind": "structured",
+      "sha256": "fafd8967c7eb6183d63c5a8c5ea10d03c20788a341b417fe7d392288520d9e1d",
+      "lines": 20,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -4365,6 +4373,14 @@
       "kind": "narrative",
       "sha256": "903ce5ba25792f0daa6b8dfa624deda04d2d9b6298ed3d460da9c8188884f94d",
       "lines": 37,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-npu-candidate-preflight-1.json",
+      "kind": "structured",
+      "sha256": "8a72d305acec27bbdaf537c72452b7bea11feaedad406856548cd82e31200dda",
+      "lines": 62,
       "read_status": "pending",
       "read_sha256": null
     },

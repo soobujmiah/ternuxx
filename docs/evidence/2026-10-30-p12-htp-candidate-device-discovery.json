@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-10-30T01:25:00Z",
+  "candidate_actions_run_id": "40962919123",
+  "candidate_archive_sha256": "f1a6f9ade2dd6b31503bf9b12c87c92a63ef6b043ffb318bf4a4e10692156b29",
+  "runtime_extraction": {
+    "scope": "private project workspace under artifacts/incoming; not the Ternuxx application runtime path",
+    "runtime_file_count": 23,
+    "runtime_bytes": 198171030
+  },
+  "command": "candidate llama-cli --list-devices",
+  "exit_code": 0,
+  "devices_reported": [
+    "GPUOpenCL: QUALCOMM Adreno(TM) 825 (5616 MiB, 4592 MiB free)",
+    "HTP0: Hexagon (0 MiB, 0 MiB free)"
+  ],
+  "htp0_enumerated": true,
+  "inference_started": false,
+  "qualification_status": "device discovery only; not an install, inference, thermal, stability, or release qualification"
+}
