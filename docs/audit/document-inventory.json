@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 692,
+  "document_count": 696,
   "read_count": 179,
   "reading_complete": false,
   "broken_local_links": [],
@@ -138,6 +138,30 @@
     },
     {
       "path": "artifacts/incoming/run-40989392795/upstream-LICENSE.txt",
+      "kind": "narrative",
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+      "lines": 21,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "artifacts/incoming/run-41004311539/submodules.txt",
+      "kind": "narrative",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lines": 0,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "artifacts/incoming/run-41004311539/toolchain-versions.txt",
+      "kind": "narrative",
+      "sha256": "0144039c77db517e3d4b2145b649a66f9d4c061902984f49d08ef9bdffb4d88d",
+      "lines": 6,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "artifacts/incoming/run-41004311539/upstream-LICENSE.txt",
       "kind": "narrative",
       "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
       "lines": 21,
@@ -4331,7 +4355,7 @@
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.bn.md",
       "kind": "narrative",
-      "sha256": "86d9428291537a34b8057172a1b95b2ae6e95eb6185d6e9492d056e25db42e23",
+      "sha256": "f168e0467fb3b44e412c9df19d482555747e3dc47e901eaaa30f9ecf0e88b610",
       "lines": 32,
       "read_status": "pending",
       "read_sha256": null
@@ -4339,7 +4363,7 @@
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.md",
       "kind": "narrative",
-      "sha256": "4084ac80b32720143038226eddf4aaead61d458eff60dd70943aac80c3fef5e0",
+      "sha256": "eeacdad71fbae37313749f3aafc50b0d401bff7acfa6e3b4b4c68c887e88c6d0",
       "lines": 32,
       "read_status": "pending",
       "read_sha256": null
@@ -4452,6 +4476,14 @@
       "path": "docs/evidence/2026-10-30-p12-npu-candidate-preflight-2.json",
       "kind": "structured",
       "sha256": "5f04366a71451d33e5433dca5f87407c473bf4f39185d25a5160130a9eba399f",
+      "lines": 62,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-npu-candidate-preflight-3.json",
+      "kind": "structured",
+      "sha256": "643f2e30c7d883068c993f41ff644de6744a255b454d93554aca77f53a5dfc16",
       "lines": 62,
       "read_status": "pending",
       "read_sha256": null
