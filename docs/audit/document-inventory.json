@@ -4419,18 +4419,18 @@
     {
       "path": "docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.bn.md",
       "kind": "narrative",
-      "sha256": "b5fa956757593b7ab46ced944f24277d6bac1fd9d988cbb834b45e16301b8acd",
+      "sha256": "6666e71fe122c24f056ca521677235cc1c286c4fe96f0c4ccfa7460865bb2ba2",
       "lines": 39,
       "read_status": "read",
-      "read_sha256": "b5fa956757593b7ab46ced944f24277d6bac1fd9d988cbb834b45e16301b8acd"
+      "read_sha256": "6666e71fe122c24f056ca521677235cc1c286c4fe96f0c4ccfa7460865bb2ba2"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.md",
       "kind": "narrative",
-      "sha256": "d28d0f52685f82664b9599b2728ce6f52356440615163ab3126819670d3fc716",
+      "sha256": "2267d79b09ce09f209a3a0a8054abf6968bced5e036638b7a0133089b8df3af8",
       "lines": 37,
       "read_status": "read",
-      "read_sha256": "d28d0f52685f82664b9599b2728ce6f52356440615163ab3126819670d3fc716"
+      "read_sha256": "2267d79b09ce09f209a3a0a8054abf6968bced5e036638b7a0133089b8df3af8"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-artifact-audit.bn.md",
