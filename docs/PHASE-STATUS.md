@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-The pinned build links nine vendored components whose notices were absent from the runtime archive; a deterministic notice collector and installer preservation/hash verification are implemented, with 31 targeted tests passing. New build and device qualification remain open.
+Two independent builds produced internal candidate SHA-256 677cc34b02d8f1521c55449532100d2cc15627bfd4916a31faa7dc91e5981f09; 24 file hashes, third-party notices, and isolated extraction verify, while thermal device qualification and distribution clearance remain open.
 
-**Next action:** Pass PR CI, rebuild and compare two independent candidates with the notice file, then verify the exact new artifact. Keep distribution blocked until linked binary licenses, Snapdragon toolchain redistribution terms, and Ternuxx project license are resolved; resume device qualification only after two independent thermal preflight samples pass.
+**Next action:** Resume exact-candidate CPU/Vulkan/HTP inference only after two independent thermal preflight samples pass. Qualify the normal selected-runtime installation and rollback path. Resolve binary/source license conclusions, Snapdragon toolchain redistribution terms, and the Ternuxx project license before any public release.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -182,3 +182,5 @@ Evidence:
 - [docs/evidence/2026-10-30-p12-htp-reproducible-candidate.bn.md](evidence/2026-10-30-p12-htp-reproducible-candidate.bn.md)
 - [docs/evidence/2026-10-30-p12-third-party-notices.md](evidence/2026-10-30-p12-third-party-notices.md)
 - [docs/evidence/2026-10-30-p12-third-party-notices.bn.md](evidence/2026-10-30-p12-third-party-notices.bn.md)
+- [docs/evidence/2026-10-30-p12-htp-notice-candidate.md](evidence/2026-10-30-p12-htp-notice-candidate.md)
+- [docs/evidence/2026-10-30-p12-htp-notice-candidate.bn.md](evidence/2026-10-30-p12-htp-notice-candidate.bn.md)
