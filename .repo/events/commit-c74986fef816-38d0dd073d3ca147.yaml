@@ -1,0 +1,7 @@
+event_id: commit-c74986fef816-38d0dd073d3ca147
+repository: soobujmiah/ternuxx
+commit: c74986fef8168e2ee33416ff9539f7cc19cc7ca0
+kind: commit
+occurred_at: '2026-10-30T05:21:08Z'
+status: completed
+summary: 'Merge pull request #16 from soobujmiah/codex/p12-candidate-installer-probe'
