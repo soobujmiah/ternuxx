@@ -4459,18 +4459,18 @@
     {
       "path": "docs/evidence/2026-10-30-p12-htp-reproducible-candidate.bn.md",
       "kind": "narrative",
-      "sha256": "0cb417a1c1b10872003bb67a65f854efab862b833ea95bf555284e4a5c6a8279",
-      "lines": 47,
+      "sha256": "1d0757ca3502f7ba3cb67428c4c66846d5f921c3b3bee01cd990920624fa0abe",
+      "lines": 55,
       "read_status": "read",
-      "read_sha256": "0cb417a1c1b10872003bb67a65f854efab862b833ea95bf555284e4a5c6a8279"
+      "read_sha256": "1d0757ca3502f7ba3cb67428c4c66846d5f921c3b3bee01cd990920624fa0abe"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-htp-reproducible-candidate.md",
       "kind": "narrative",
-      "sha256": "0ab29151a1e2f35ee165cca16f8190665bf15f78a6b5ab1cda3fe9de3e957f8c",
-      "lines": 47,
+      "sha256": "867b6c1c57549c5aa30750498ac9db42522de1b64b7b34b4af3cb6f14655b8b9",
+      "lines": 55,
       "read_status": "read",
-      "read_sha256": "0ab29151a1e2f35ee165cca16f8190665bf15f78a6b5ab1cda3fe9de3e957f8c"
+      "read_sha256": "867b6c1c57549c5aa30750498ac9db42522de1b64b7b34b4af3cb6f14655b8b9"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-integrity-snapshot.json",
