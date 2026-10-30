@@ -12,6 +12,8 @@ The latest NPU preflight pair failed its empirical launch headroom gate: HTP mea
 
 A third no-inference NPU sample at 00:00:31Z showed CPU 52.4°C and HTP 45.9°C. CPU cooled by 2°C from the prior sample but both launch ceilings still fail; no inference started.
 
+A fourth preflight at 00:03:10Z still measured CPU 52.4°C and HTP 45.1°C, so both NPU start ceilings fail and no inference ran.
+
 ## Blender Native GUI authoring and GPU MCP — 2026-10-28
 
 The open Native Blender 5.2.2 GUI on `:1` now has a startup `bpy` bridge and
