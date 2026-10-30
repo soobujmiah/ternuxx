@@ -4547,18 +4547,18 @@
     {
       "path": "docs/evidence/2026-10-30-p12-qnn-image-route-audit.bn.md",
       "kind": "narrative",
-      "sha256": "185107166977b2ddda27f2f7264369962fb5523a5506385b631e631d30d1edc2",
+      "sha256": "a96afe9787f8a9138fad814a29932826b7b5808ece52f92aa820123b48fff13b",
       "lines": 38,
       "read_status": "read",
-      "read_sha256": "185107166977b2ddda27f2f7264369962fb5523a5506385b631e631d30d1edc2"
+      "read_sha256": "a96afe9787f8a9138fad814a29932826b7b5808ece52f92aa820123b48fff13b"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-qnn-image-route-audit.md",
       "kind": "narrative",
-      "sha256": "5805762946e4564f8ab8aa40c35b91138ebf1f4232fd59be0fcd677b6c191d12",
+      "sha256": "abe5e2d0b2dee0061efda269fa61d9f9d793c4feb6769c5d92baa9b8d9fe6f44",
       "lines": 38,
       "read_status": "read",
-      "read_sha256": "5805762946e4564f8ab8aa40c35b91138ebf1f4232fd59be0fcd677b6c191d12"
+      "read_sha256": "abe5e2d0b2dee0061efda269fa61d9f9d793c4feb6769c5d92baa9b8d9fe6f44"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-qwen25-model-pin.bn.md",
