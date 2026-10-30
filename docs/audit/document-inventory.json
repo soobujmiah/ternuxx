@@ -4587,8 +4587,8 @@
     {
       "path": "docs/evidence/2026-10-30-p12-native-qualification.bn.md",
       "kind": "narrative",
-      "sha256": "5fa55a9634fcf1646ddf9cab09fee1a7f5107088b5d1dcd6f97920705a3ff325",
-      "lines": 41,
+      "sha256": "c35dda621bd9848578422aa69f23e1a92f35c60477e8b79e186c48fb3371aac2",
+      "lines": 45,
       "read_status": "pending",
       "read_sha256": null
     },
