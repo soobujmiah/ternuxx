@@ -307,8 +307,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "c616802cc2af70f4e3fead0a61efb10e9ce2ade049e9825b55bc9dc2b13bb12e",
-      "lines": 186,
+      "sha256": "a1ca1a51c47246d5c2f4195eeeefc1c57c89210219184b5e417d61a8971fefa1",
+      "lines": 176,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -363,7 +363,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "9dd0a3d92e740689569377c7972e4901cb35a074b07b736739e5b2bdf654fb6f",
+      "sha256": "8654b1cfe6df064bf7a8eb3dfc184167db2c70a0af65f128aeae8485e81dad0d",
       "lines": 69,
       "read_status": "pending",
       "read_sha256": null
@@ -4355,16 +4355,16 @@
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.bn.md",
       "kind": "narrative",
-      "sha256": "f168e0467fb3b44e412c9df19d482555747e3dc47e901eaaa30f9ecf0e88b610",
-      "lines": 32,
+      "sha256": "e4730fa62dddbacb7d789a4843b29e7a517eca267802dba118cb74138ac3b2b4",
+      "lines": 34,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.md",
       "kind": "narrative",
-      "sha256": "c6441109e59eecbf97101a2a4a66ea472a5232acfd35949c51bb499e9efefcde",
-      "lines": 32,
+      "sha256": "38812808a72e4fdce07f5ba73c14dee82ec355c1145f77e35b2498b957bd7b28",
+      "lines": 41,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -5235,8 +5235,8 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "61344e47c84b5748e50230146ebaff1a04e6730b6b884d7a04cee7d16f1cbd07",
-      "lines": 278,
+      "sha256": "f14bf8132b562284a8bbccb0ddf1cc8e02f741203ea81e50c273a624c5e6ff58",
+      "lines": 279,
       "read_status": "pending",
       "read_sha256": null
     },

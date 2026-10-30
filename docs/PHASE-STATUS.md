@@ -135,11 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Qwen2.5 is hash-verified. CPU/Vulkan/HTP attempts still cross in-run guards; empirical pre-inference headroom gates now prevent launches when prior sensor rises could exceed those guards.
+Two corrected independent HTP candidate builds now produce byte-identical, locally verified archives. Device CPU, Vulkan and HTP paths remain unqualified after repeated thermal guard cancellations and failed launch preflights.
 
-**Next action:** The build audit found a cross-run runtime mismatch: both old runs were internally reproducible, but `libllama-server-impl.so` differed because pinned upstream CMake fell back to mutable Hugging Face `latest` UI assets. A first server/UI-disabled build failed because upstream tests still compiled server test targets and lacked `mtmd.h`; no artifact was produced. The workflow now also disables upstream tests, examples and unified app for `llama-cli`; a successful corrected build and a second separate matching-hash run remain required. Independently, wait for substantial passive cooling, then require two fresh preflight samples under empirical launch ceilings (CPU 40°C; Vulkan CPU/GPU 45/50°C; NPU CPU/HTP 50/40°C). The latest NPU samples still fail (CPU/HTP 54.4/46.3°C), so no inference ran. After both gates pass, install and qualify the exact corrected candidate, then complete clean-install replay and provenance/licensing/release gates.
-
-Internal HTP candidate handoff verification tooling and fixture results: [English report](evidence/2026-10-30-p12-candidate-handoff-verifier.md) · [বাংলা প্রতিবেদন](evidence/2026-10-30-p12-candidate-handoff-verifier.bn.md). Downloaded candidate artifact audit: [English report](evidence/2026-10-30-p12-htp-artifact-audit.md) · [বাংলা প্রতিবেদন](evidence/2026-10-30-p12-htp-artifact-audit.bn.md). Cross-run build variance and corrective pinning: [English report](evidence/2026-10-30-p12-cross-run-build-variance.md) · [বাংলা প্রতিবেদন](evidence/2026-10-30-p12-cross-run-build-variance.bn.md). Owner-provided Qwen2.5 Q4_0 model-routing implementation and fixture results: [English report](evidence/2026-10-30-p12-owner-model-routing-integration.md) · [বাংলা প্রতিবেদন](evidence/2026-10-30-p12-owner-model-routing-integration.bn.md). This source/test evidence does not qualify a live device backend.
+**Next action:** Wait for two fresh passing backend-specific thermal preflights. Then record a same-model CPU baseline; after adequate recovery, qualify the exact self-built HTP candidate with output correctness, full offload, model/runtime integrity and telemetry; compare Vulkan and CPU; verify runtime selection, rollback and clean install. Resolve project/dependency licenses and full provenance before any public release asset.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -175,12 +173,4 @@ Evidence:
 - [docs/evidence/2026-10-29-p12-auto-backend-routing.md](evidence/2026-10-29-p12-auto-backend-routing.md)
 - [docs/evidence/2026-10-29-p12-runtime-install-selection.md](evidence/2026-10-29-p12-runtime-install-selection.md)
 - [docs/evidence/2026-10-30-p12-native-qualification.md](evidence/2026-10-30-p12-native-qualification.md)
-- [docs/evidence/2026-10-30-p12-candidate-handoff-verifier.md](evidence/2026-10-30-p12-candidate-handoff-verifier.md)
-- [docs/evidence/2026-10-30-p12-candidate-handoff-verifier.bn.md](evidence/2026-10-30-p12-candidate-handoff-verifier.bn.md)
-- [docs/evidence/2026-10-30-p12-htp-artifact-audit.md](evidence/2026-10-30-p12-htp-artifact-audit.md)
-- [docs/evidence/2026-10-30-p12-htp-artifact-audit.bn.md](evidence/2026-10-30-p12-htp-artifact-audit.bn.md)
-- [docs/evidence/2026-10-30-p12-htp-candidate-device-discovery.json](evidence/2026-10-30-p12-htp-candidate-device-discovery.json)
-- [docs/evidence/2026-10-30-p12-npu-candidate-preflight-1.json](evidence/2026-10-30-p12-npu-candidate-preflight-1.json)
-- [docs/evidence/2026-10-30-p12-npu-candidate-preflight-2.json](evidence/2026-10-30-p12-npu-candidate-preflight-2.json)
 - [docs/evidence/2026-10-30-p12-cross-run-build-variance.md](evidence/2026-10-30-p12-cross-run-build-variance.md)
-- [docs/evidence/2026-10-30-p12-cross-run-build-variance.bn.md](evidence/2026-10-30-p12-cross-run-build-variance.bn.md)
