@@ -1,0 +1,7 @@
+event_id: commit-67670ce8da33-a46cb2b93c4c04e3
+repository: soobujmiah/ternuxx
+commit: 67670ce8da3376e46327e452287de317f546491f
+kind: commit
+occurred_at: '2026-10-30T06:16:03Z'
+status: completed
+summary: 'docs(p12): record candidate install and thermal checks (#23)'
