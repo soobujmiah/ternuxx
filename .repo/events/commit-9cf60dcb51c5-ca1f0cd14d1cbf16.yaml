@@ -1,0 +1,7 @@
+event_id: commit-9cf60dcb51c5-ca1f0cd14d1cbf16
+repository: soobujmiah/ternuxx
+commit: 9cf60dcb51c5fee32933eb1b3c1b730b2ea1c204
+kind: commit
+occurred_at: '2026-10-30T00:24:04Z'
+status: completed
+summary: 'docs(p12): record eighth NPU headroom sample'
