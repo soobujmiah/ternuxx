@@ -135,9 +135,9 @@ Evidence:
 
 **Status:** in_progress
 
-Two independent reproducible builds and the 24-file notice-bearing candidate verify, but the latest guarded preflight at 06:45:04 UTC failed CPU and HTP ceilings as temperatures rose; device qualification and distribution clearance remain open.
+The internal HTP candidate is reproducible and integrity-verified, but its runtime SPDX leaves binary licenses unasserted and the pinned builder embeds Hexagon SDK 6.7.0.0; distribution and device qualification remain blocked.
 
-**Next action:** Resume exact-candidate CPU/Vulkan/HTP inference only after two independent passing thermal preflight samples. Qualify the normal selected-runtime installation and rollback path. Resolve binary/source license conclusions, Snapdragon toolchain redistribution terms, and the Ternuxx project license before any public release.
+**Next action:** Resume exact-candidate CPU/Vulkan/HTP inference only after two independent passing thermal preflight samples. Qualify the normal selected-runtime installation and rollback path. Obtain an authorized project-license decision and written rights review for the Hexagon SDK/toolchain-derived runtime before any public release.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -184,3 +184,5 @@ Evidence:
 - [docs/evidence/2026-10-30-p12-third-party-notices.bn.md](evidence/2026-10-30-p12-third-party-notices.bn.md)
 - [docs/evidence/2026-10-30-p12-htp-notice-candidate.md](evidence/2026-10-30-p12-htp-notice-candidate.md)
 - [docs/evidence/2026-10-30-p12-htp-notice-candidate.bn.md](evidence/2026-10-30-p12-htp-notice-candidate.bn.md)
+- [docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.md](evidence/2026-10-30-p12-hexagon-sdk-license-audit.md)
+- [docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.bn.md](evidence/2026-10-30-p12-hexagon-sdk-license-audit.bn.md)

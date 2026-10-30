@@ -236,7 +236,7 @@
       "id": "P12",
       "title": "Qualify Native CPU, GPU and NPU acceleration",
       "status": "in_progress",
-      "summary": "Two independent reproducible builds and the 24-file notice-bearing candidate verify, but the latest guarded preflight at 06:45:04 UTC failed CPU and HTP ceilings as temperatures rose; device qualification and distribution clearance remain open.",
+      "summary": "The internal HTP candidate is reproducible and integrity-verified, but its runtime SPDX leaves binary licenses unasserted and the pinned builder embeds Hexagon SDK 6.7.0.0; distribution and device qualification remain blocked.",
       "evidence": [
         "docs/evidence/2026-10-24-native-acceleration-live-check.md",
         "docs/evidence/2026-10-24-p12-ternux-htp-path-review.md",
@@ -281,9 +281,11 @@
         "docs/evidence/2026-10-30-p12-third-party-notices.md",
         "docs/evidence/2026-10-30-p12-third-party-notices.bn.md",
         "docs/evidence/2026-10-30-p12-htp-notice-candidate.md",
-        "docs/evidence/2026-10-30-p12-htp-notice-candidate.bn.md"
+        "docs/evidence/2026-10-30-p12-htp-notice-candidate.bn.md",
+        "docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.md",
+        "docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.bn.md"
       ],
-      "next_action": "Resume exact-candidate CPU/Vulkan/HTP inference only after two independent passing thermal preflight samples. Qualify the normal selected-runtime installation and rollback path. Resolve binary/source license conclusions, Snapdragon toolchain redistribution terms, and the Ternuxx project license before any public release."
+      "next_action": "Resume exact-candidate CPU/Vulkan/HTP inference only after two independent passing thermal preflight samples. Qualify the normal selected-runtime installation and rollback path. Obtain an authorized project-license decision and written rights review for the Hexagon SDK/toolchain-derived runtime before any public release."
     }
   ]
 }

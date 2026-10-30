@@ -3,8 +3,8 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 716,
-  "read_count": 193,
+  "document_count": 718,
+  "read_count": 195,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -355,8 +355,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "23ce8314098b15c6d0bab6febb0d76adef53219aeef8af78fbb0a528c88863ed",
-      "lines": 186,
+      "sha256": "c05e3a91eb3454eff27b95ccd647a9f46707c93f7caa1988c76fc852a5bfe75d",
+      "lines": 188,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -411,7 +411,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "d02308938e866b77a1d72461ae029d3335ab4a450709ba9b08459b8d5553dead",
+      "sha256": "4530df2ba5dd7c0e5a93f2daec06de0e422a9ed3ed6f65087320e0025f7600bb",
       "lines": 69,
       "read_status": "pending",
       "read_sha256": null
@@ -4417,6 +4417,22 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.bn.md",
+      "kind": "narrative",
+      "sha256": "4ee9b9e9bcda19e750b5c5c474262b723fe921994ff2dca070751d66305b4648",
+      "lines": 35,
+      "read_status": "read",
+      "read_sha256": "4ee9b9e9bcda19e750b5c5c474262b723fe921994ff2dca070751d66305b4648"
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-hexagon-sdk-license-audit.md",
+      "kind": "narrative",
+      "sha256": "ce1edb0018dda57aa0db9bb1068ae9b3eb96ecad765ae108ce7cad4b6b6d60f3",
+      "lines": 33,
+      "read_status": "read",
+      "read_sha256": "ce1edb0018dda57aa0db9bb1068ae9b3eb96ecad765ae108ce7cad4b6b6d60f3"
+    },
+    {
       "path": "docs/evidence/2026-10-30-p12-htp-artifact-audit.bn.md",
       "kind": "narrative",
       "sha256": "36eb26b72946c968ccffc13841ea84f3303139643b8481fcc2a4bd98dc8f072b",
@@ -5371,10 +5387,10 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "acd9f8e9962ae21e629595cd9c3a0ce4ec5687a28879c63525b5a00c032f4d47",
-      "lines": 289,
+      "sha256": "354efe1b1689e43d4c41f2334de523418c30f257be04e6f3bb8a5d294780952d",
+      "lines": 291,
       "read_status": "read",
-      "read_sha256": "acd9f8e9962ae21e629595cd9c3a0ce4ec5687a28879c63525b5a00c032f4d47"
+      "read_sha256": "354efe1b1689e43d4c41f2334de523418c30f257be04e6f3bb8a5d294780952d"
     },
     {
       "path": "requirements-dev.txt",
