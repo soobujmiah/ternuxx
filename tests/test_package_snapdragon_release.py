@@ -170,6 +170,36 @@ class SnapdragonPackageTests(unittest.TestCase):
             with self.assertRaisesRegex(packager.PackageError, "regular bin directory"):
                 self._package(prefix, root / "bundle")
 
+    def test_manifest_and_workflow_pin_a_cli_only_build_without_mutable_web_ui(self) -> None:
+        self.assertEqual(packager.PINNED_BUILD_FLAGS, [
+            "CMAKE_INSTALL_RPATH=$ORIGIN;$ORIGIN/../lib",
+            "CMAKE_BUILD_WITH_INSTALL_RPATH=ON",
+            "LLAMA_BUILD_SERVER=OFF",
+            "LLAMA_BUILD_UI=OFF",
+            "LLAMA_USE_PREBUILT_UI=OFF",
+        ])
+        workflow = (Path(__file__).resolve().parents[1] /
+                    ".github/workflows/p12-htp-reproducible-build.yml").read_text(encoding="utf-8")
+        for flag in packager.PINNED_BUILD_FLAGS[2:]:
+            self.assertIn("-D" + flag, workflow)
+
+    def test_verifier_rejects_manifest_with_mutable_or_unpinned_build_flags(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            prefix = self._prefix(root)
+            self._package(prefix, root / "bundle")
+            manifest_path = root / "bundle/manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["build_flags"] = [
+                "CMAKE_INSTALL_RPATH=$ORIGIN;$ORIGIN/../lib",
+                "CMAKE_BUILD_WITH_INSTALL_RPATH=ON",
+            ]
+            manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+            with self.assertRaisesRegex(packager.PackageError, "server/UI-free"):
+                packager.verify(type("Args", (), {
+                    "archive": root / "bundle/llama-b11849-bin-android-arm64-snapdragon.tar.gz",
+                    "manifest": manifest_path})())
+
     def test_verifier_rejects_unpinned_source_manifest(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

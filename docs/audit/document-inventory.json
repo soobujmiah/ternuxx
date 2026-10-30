@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 683,
+  "document_count": 689,
   "read_count": 179,
   "reading_complete": false,
   "broken_local_links": [],
@@ -11,8 +11,8 @@
     {
       "path": ".github/workflows/p12-htp-reproducible-build.yml",
       "kind": "structured",
-      "sha256": "9752350f7623268d45e9e3d3a2032f387c0e22b8f741853e77e603c7453c976a",
-      "lines": 237,
+      "sha256": "046e7825f916714b70f76860e93ad7768f549b8887c2622ae219122c9b44923c",
+      "lines": 240,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -95,6 +95,30 @@
       "lines": 16,
       "read_status": "read",
       "read_sha256": "4bdb2de63df2521b52489db86a6beacd27f2dcd6df2805e6a15067f5659afd9d"
+    },
+    {
+      "path": "artifacts/incoming/run-40985050416/submodules.txt",
+      "kind": "narrative",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lines": 0,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "artifacts/incoming/run-40985050416/toolchain-versions.txt",
+      "kind": "narrative",
+      "sha256": "0144039c77db517e3d4b2145b649a66f9d4c061902984f49d08ef9bdffb4d88d",
+      "lines": 6,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "artifacts/incoming/run-40985050416/upstream-LICENSE.txt",
+      "kind": "narrative",
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+      "lines": 21,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "artifacts/incoming/submodules.txt",
@@ -235,8 +259,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "c90cde7d42777126c8be88523a3d6e48717bbfd58ff0f05b96becc4440c9cc75",
-      "lines": 183,
+      "sha256": "b7fa8a78bf18ca0ce7c0e08b0f4ecc6f56a94217e146b1dcb52d523fe7abcd1a",
+      "lines": 186,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -4281,6 +4305,22 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.bn.md",
+      "kind": "narrative",
+      "sha256": "a2aee3711c03573a61d4c653bb65a60d422f8c580a9af43d0bf2ccf41fb6db98",
+      "lines": 28,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-cross-run-build-variance.md",
+      "kind": "narrative",
+      "sha256": "8c34f7830f9c6c0dfe4cb32e01d8fb93730395030c4ebaf85d3e27077c0f1c55",
+      "lines": 28,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-30-p12-htp-artifact-audit.bn.md",
       "kind": "narrative",
       "sha256": "36eb26b72946c968ccffc13841ea84f3303139643b8481fcc2a4bd98dc8f072b",
@@ -4380,6 +4420,14 @@
       "path": "docs/evidence/2026-10-30-p12-npu-candidate-preflight-1.json",
       "kind": "structured",
       "sha256": "8a72d305acec27bbdaf537c72452b7bea11feaedad406856548cd82e31200dda",
+      "lines": 62,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-npu-candidate-preflight-2.json",
+      "kind": "structured",
+      "sha256": "5f04366a71451d33e5433dca5f87407c473bf4f39185d25a5160130a9eba399f",
       "lines": 62,
       "read_status": "pending",
       "read_sha256": null
