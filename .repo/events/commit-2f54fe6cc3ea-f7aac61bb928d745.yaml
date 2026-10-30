@@ -1,0 +1,7 @@
+event_id: commit-2f54fe6cc3ea-f7aac61bb928d745
+repository: soobujmiah/ternuxx
+commit: 2f54fe6cc3eafaa25a46c28fb7dc356fa97fd522
+kind: commit
+occurred_at: '2026-10-30T00:09:18Z'
+status: completed
+summary: 'docs(p12): capture persistent NPU thermal block'
