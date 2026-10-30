@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 720,
+  "document_count": 722,
   "read_count": 200,
   "reading_complete": false,
   "broken_local_links": [],
@@ -4473,6 +4473,22 @@
       "read_sha256": null
     },
     {
+      "path": "docs/evidence/2026-10-30-p12-htp-headroom-preflight-1.json",
+      "kind": "structured",
+      "sha256": "c19dcad10e4834dd06e59bc093f3422b92f03cb5ea3fd780311b6bca1962d66e",
+      "lines": 25,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-htp-headroom-preflight-2.json",
+      "kind": "structured",
+      "sha256": "9afd8f49108c33fba73deb61008a2450e995d32140f219f0614071f928c37a22",
+      "lines": 61,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
       "path": "docs/evidence/2026-10-30-p12-htp-notice-candidate.bn.md",
       "kind": "narrative",
       "sha256": "fd2ffda87a26efd2348a799d753bf66d12aa7185d95ab5e66e62ff32de834559",
@@ -4563,16 +4579,16 @@
     {
       "path": "docs/evidence/2026-10-30-p12-native-qualification.bn.md",
       "kind": "narrative",
-      "sha256": "cc07a2b40b848915496f3d919220034b6ee478301d4640cd51ea049684684d0d",
-      "lines": 37,
+      "sha256": "5790c7016f5ad1cce02f07bf62a22ce5a1f490586d4f5744896c26b76a20861c",
+      "lines": 39,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-30-p12-native-qualification.md",
       "kind": "narrative",
-      "sha256": "903ce5ba25792f0daa6b8dfa624deda04d2d9b6298ed3d460da9c8188884f94d",
-      "lines": 37,
+      "sha256": "cd66f67b6c3aa20ba8148a94701bbc8859fbd1458d7dbb6a208904171ef6b9c2",
+      "lines": 40,
       "read_status": "pending",
       "read_sha256": null
     },
