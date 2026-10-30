@@ -137,9 +137,9 @@ Evidence:
 
 Qwen2.5 is hash-verified. CPU/Vulkan/HTP attempts still cross in-run guards; empirical pre-inference headroom gates now prevent launches when prior sensor rises could exceed those guards.
 
-**Next action:** Wait for substantial passive cooling, then require two fresh preflight samples under the backend-specific empirical launch ceilings (CPU 40°C; Vulkan CPU/GPU 45/50°C; NPU CPU/HTP 50/40°C). Save reports and do not bypass thermal limits. The candidate handoff verifier is implemented, but the owner-provided real artifact is still needed at `artifacts/incoming`; then run the verifier, test that exact artifact, perform clean-install replay, and close provenance/licensing and release gates.
+**Next action:** Wait for substantial passive cooling, then require two fresh preflight samples under the backend-specific empirical launch ceilings (CPU 40°C; Vulkan CPU/GPU 45/50°C; NPU CPU/HTP 50/40°C). Save reports and do not bypass thermal limits. The real internal HTP artifact is now in `artifacts/incoming`; its archive, manifest and two-build record verify. Its SBOM still has unresolved `NOASSERTION` license fields, and the artifact has not been installed or device-qualified. Next, make the exact candidate installable through a controlled private test path, then qualify it only after the thermal start gate passes; complete clean-install replay and provenance/licensing/release gates.
 
-Internal HTP candidate handoff verification tooling and fixture results: [English report](evidence/2026-10-30-p12-candidate-handoff-verifier.md) · [বাংলা প্রতিবেদন](evidence/2026-10-30-p12-candidate-handoff-verifier.bn.md). Owner-provided Qwen2.5 Q4_0 model-routing implementation and fixture results: [English report](evidence/2026-10-30-p12-owner-model-routing-integration.md) · [বাংলা প্রতিবেদন](evidence/2026-10-30-p12-owner-model-routing-integration.bn.md). This source/test evidence does not qualify a live device backend.
+Internal HTP candidate handoff verification tooling and fixture results: [English report](evidence/2026-10-30-p12-candidate-handoff-verifier.md) · [বাংলা প্রতিবেদন](evidence/2026-10-30-p12-candidate-handoff-verifier.bn.md). Downloaded candidate artifact audit: [English report](evidence/2026-10-30-p12-htp-artifact-audit.md) · [বাংলা প্রতিবেদন](evidence/2026-10-30-p12-htp-artifact-audit.bn.md). Owner-provided Qwen2.5 Q4_0 model-routing implementation and fixture results: [English report](evidence/2026-10-30-p12-owner-model-routing-integration.md) · [বাংলা প্রতিবেদন](evidence/2026-10-30-p12-owner-model-routing-integration.bn.md). This source/test evidence does not qualify a live device backend.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
@@ -177,3 +177,5 @@ Evidence:
 - [docs/evidence/2026-10-30-p12-native-qualification.md](evidence/2026-10-30-p12-native-qualification.md)
 - [docs/evidence/2026-10-30-p12-candidate-handoff-verifier.md](evidence/2026-10-30-p12-candidate-handoff-verifier.md)
 - [docs/evidence/2026-10-30-p12-candidate-handoff-verifier.bn.md](evidence/2026-10-30-p12-candidate-handoff-verifier.bn.md)
+- [docs/evidence/2026-10-30-p12-htp-artifact-audit.md](evidence/2026-10-30-p12-htp-artifact-audit.md)
+- [docs/evidence/2026-10-30-p12-htp-artifact-audit.bn.md](evidence/2026-10-30-p12-htp-artifact-audit.bn.md)

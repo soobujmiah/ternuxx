@@ -3,7 +3,7 @@
   "scope": "Git tracked/non-ignored narrative docs, docs/schema/config/workflow contracts, root manifests and phase state; .repo generated state excluded",
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
-  "document_count": 676,
+  "document_count": 681,
   "read_count": 179,
   "reading_complete": false,
   "broken_local_links": [],
@@ -95,6 +95,30 @@
       "lines": 16,
       "read_status": "read",
       "read_sha256": "4bdb2de63df2521b52489db86a6beacd27f2dcd6df2805e6a15067f5659afd9d"
+    },
+    {
+      "path": "artifacts/incoming/submodules.txt",
+      "kind": "narrative",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "lines": 0,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "artifacts/incoming/toolchain-versions.txt",
+      "kind": "narrative",
+      "sha256": "0144039c77db517e3d4b2145b649a66f9d4c061902984f49d08ef9bdffb4d88d",
+      "lines": 6,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "artifacts/incoming/upstream-LICENSE.txt",
+      "kind": "narrative",
+      "sha256": "94f29bbed6a22c35b992c5c6ebf0e7c92f13b836b90f36f461c9cf2f0f1d010d",
+      "lines": 21,
+      "read_status": "pending",
+      "read_sha256": null
     },
     {
       "path": "bn/INSTALLATION.md",
@@ -211,8 +235,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "3e488d847a3d474e16416443bb5d6ed54cb02c739890f209e536141f56cadf2c",
-      "lines": 179,
+      "sha256": "0930db91b36aa048ea2a584a822bd2bad6a88250c2b9eafbc042f8a3152cda2a",
+      "lines": 181,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -4253,6 +4277,22 @@
       "kind": "structured",
       "sha256": "b24a8c329e457bc47eb1dc2145ea2cccc2fa6e4070a4f724c679e1e37c0398c5",
       "lines": 151,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-htp-artifact-audit.bn.md",
+      "kind": "narrative",
+      "sha256": "cd0cc9c2828f512b2ae14bf0067dddaadfcbadd36cecea9b00e558ba9d785b0c",
+      "lines": 21,
+      "read_status": "pending",
+      "read_sha256": null
+    },
+    {
+      "path": "docs/evidence/2026-10-30-p12-htp-artifact-audit.md",
+      "kind": "narrative",
+      "sha256": "e72532bfa002663b4591159cf63169afd61438c75a76083b3d0c0794df85a67e",
+      "lines": 21,
       "read_status": "pending",
       "read_sha256": null
     },

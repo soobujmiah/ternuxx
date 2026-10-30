@@ -74,7 +74,8 @@ class SnapdragonPackageTests(unittest.TestCase):
         (output / "toolchain-versions.txt").write_text("clang: test\n", encoding="utf-8")
         (output / "cmake-user-preset.sha256").write_text("a" * 64 + "  preset.json\n", encoding="ascii")
         (output / "packager.sha256").write_text("b" * 64 + "  packager.py\n", encoding="ascii")
-        (output / "submodules.txt").write_text(" " + "d" * 40 + " ggml\n", encoding="ascii")
+        # llama.cpp b11849 currently has no submodules; an empty inventory is valid.
+        (output / "submodules.txt").write_text("", encoding="ascii")
         (output / "upstream-LICENSE.txt").write_text("MIT\n", encoding="utf-8")
         (output / "reproducibility-verification.json").write_text(json.dumps({
             "schema_version": 1,
