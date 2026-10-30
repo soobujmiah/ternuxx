@@ -11,7 +11,7 @@
 
 ## Qualification launch headroom
 
-The native accelerator qualification runner now requires empirical start margins below its in-run stop guards: CPU launch at or below 40°C, Vulkan CPU/GPU at or below 45°C/50°C, and HTP CPU/HTP at or below 50°C/40°C. These values are derived from observed short-run sensor increases and are test policy, not OEM limits. Three fresh NPU preflights at 07:38:59Z, 07:39:16Z, and 07:48:54Z failed because HTP stayed at 42.4°C; none launched inference. Stop polling until substantial passive cooling, then require two passing samples. Do not bypass this gate with `--ignore-thermal-limits`. See the [English and Bangla P12 reports](../evidence/2026-10-30-p12-native-qualification.md).
+The native accelerator qualification runner now requires empirical start margins below its in-run stop guards: CPU launch at or below 40°C, Vulkan CPU/GPU at or below 45°C/50°C, and HTP CPU/HTP at or below 50°C/40°C. These values are derived from observed short-run sensor increases and are test policy, not OEM limits. Four fresh NPU preflights at 07:38:59Z, 07:39:16Z, 07:48:54Z, and 09:07:19Z failed (HTP 41.2–42.4°C against the 40°C ceiling); none launched inference. The latest followed 79 minutes of passive cooling. Stop polling until further passive cooling, then require two passing samples. Do not bypass this gate with `--ignore-thermal-limits`. See the [English and Bangla P12 reports](../evidence/2026-10-30-p12-native-qualification.md).
 
 ## Lifecycle and recovery
 
