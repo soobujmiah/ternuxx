@@ -35,6 +35,8 @@ A tenth no-inference NPU sample at 2026-10-30 01:00:16.726Z measured CPU 53.2°C
 
 A fresh NPU preflight pair at 2026-10-30 07:38:59Z and 07:39:16Z recorded CPU 48.8°C, GPU 40.8°C, HTP 42.4°C, and battery about 40.1°C in both samples. No inference process was active and neither preflight launched inference. Both failed the 40°C HTP launch ceiling; the required two passing samples have not been obtained. Stop polling and allow further passive cooling before another preflight. Full reports: [sample 1](2026-10-30-p12-htp-headroom-preflight-1.json) and [sample 2](2026-10-30-p12-htp-headroom-preflight-2.json).
 
+A third no-inference preflight at 2026-10-30 07:48:54Z measured CPU 49.2°C and HTP 42.4°C; GPU was 40.8°C, battery 40.04°C, and MemAvailable 5,470 MiB. The HTP launch ceiling still fails, with no active inference PID and no launch. Stop further polling until substantial passive cooling; two new passing samples are required. Full report: [HTP headroom preflight 3](2026-10-30-p12-htp-headroom-preflight-3.json).
+
 **Decision:** no backend is stable or release-qualified. P12 remains in progress. The new runner now captures exact output and model/runtime integrity. The latest CPU and HTP repeats both hit the unchanged CPU 60°C test guard before accepting output, even after passing fresh preflights. Do not run another inference until the device has substantial thermal headroom; capture the next full report directly to an evidence file. No guard override is permitted. Then repeat qualification and complete clean-install/provenance gates. Clean-install and provenance gates also remain open.
 
 Bengali version: [2026-10-30-p12-native-qualification.bn.md](2026-10-30-p12-native-qualification.bn.md).

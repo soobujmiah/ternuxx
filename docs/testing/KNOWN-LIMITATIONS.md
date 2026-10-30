@@ -11,7 +11,7 @@
 
 ## Qualification launch headroom
 
-The native accelerator qualification runner now requires empirical start margins below its in-run stop guards: CPU launch at or below 40°C, Vulkan CPU/GPU at or below 45°C/50°C, and HTP CPU/HTP at or below 50°C/40°C. These values are derived from observed short-run sensor increases and are test policy, not OEM limits. A 2026-10-29 preflight at CPU 52.8°C was refused before inference. Do not bypass this gate with `--ignore-thermal-limits`.
+The native accelerator qualification runner now requires empirical start margins below its in-run stop guards: CPU launch at or below 40°C, Vulkan CPU/GPU at or below 45°C/50°C, and HTP CPU/HTP at or below 50°C/40°C. These values are derived from observed short-run sensor increases and are test policy, not OEM limits. Three fresh NPU preflights at 07:38:59Z, 07:39:16Z, and 07:48:54Z failed because HTP stayed at 42.4°C; none launched inference. Stop polling until substantial passive cooling, then require two passing samples. Do not bypass this gate with `--ignore-thermal-limits`. See the [English and Bangla P12 reports](../evidence/2026-10-30-p12-native-qualification.md).
 
 ## Lifecycle and recovery
 
@@ -22,8 +22,8 @@ The native accelerator qualification runner now requires empirical start margins
 
 ## Release readiness
 
-- No project license has been selected. Do not redistribute source-derived binaries or artifacts until ownership, dependency licenses, and provenance have been reviewed.
-- Public release still needs an approved license, build-specific SBOM, artifact signing and provenance, clean-device installation evidence, broader device support decisions, and the remaining workload and lifecycle gates.
+- GPL-3.0-or-later is selected for original Ternuxx source. Source ownership/provenance, reused-code authority, third-party dependencies, Mesa components, and Snapdragon toolchain/runtime redistribution still need review. Do not infer third-party rights from the root LICENSE.
+- Public release still needs a complete build-specific SBOM, artifact signing and provenance, cleared runtime/toolchain redistribution rights, clean-device installation evidence, broader device support decisions, and the remaining workload and lifecycle gates.
 - The automated full suite validates repository behavior and fixtures. It cannot prove GUI visibility, human usability, external network reachability, physical audio, sustained accelerator performance, or cold-boot delivery.
 
 Use [CURRENT_STATE.md](../../CURRENT_STATE.md) for current runtime observations and the [current repository audit checkpoint](../audit/REPOSITORY-AUDIT.md) for its source and documentation review. The earlier pre-Native-only audit is preserved in [history](../history/REPOSITORY-AUDIT-pre-native-only-2026-10-24.md). Dated evidence remains a snapshot; recheck live behavior before operational decisions.
