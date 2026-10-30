@@ -20,11 +20,15 @@ The candidate includes llama.cpp's MIT `LICENSE` and `THIRD_PARTY_NOTICES.txt` f
 
 Therefore this audit does not establish a public distribution right for the toolchain, Hexagon SDK-derived outputs, or Ternuxx itself. Keep `distribution_cleared=false`; do not publish or pin this candidate in the public installer until the exact applicable terms are reviewed and release permission is recorded; the owner-selected GPL-3.0-or-later applies only to original project source. This report does not accept any terms.
 
+## Candidate ELF dependency inspection
+
+The exact retained archive was inspected locally with `llvm-readelf -d`. Its `libggml-htp-v73.so` (SHA-256 `f315a2d6f59f7775d3719263b85acf86dba4bf0ec087a9f8ea22e2b01ad09145`) declares dynamic dependencies on `libc.so` and `libgcc.so`. The host-side `libggml-hexagon.so` declares Android `liblog.so`, `libdl.so`, `libggml-base.so`, `libm.so`, and `libc.so`; `libggml-opencl.so` also depends on `libOpenCL.so`. No separately named Qualcomm SDK shared library appears in these dynamic dependency entries. This is a bounded ELF dependency observation only: it does not identify statically linked material, grant rights to SDK-generated output, or resolve the Qualcomm toolchain agreement. The runtime SPDX `NOASSERTION` findings and `distribution_cleared=false` remain unchanged.
+
 ## Next work
 
 - Preserve the exact SDK/toolchain license text and source/version provenance from the original licensee or image publisher without accepting new terms on their behalf.
 - Have the authorized licensee/reviewer decide whether the built artifacts may be distributed and record the permitted scope.
-- Resolve the Ternuxx root license as an explicit owner decision.
+- The owner selected GPL-3.0-or-later for original Ternuxx source; keep that scope separate from the candidate binaries and toolchain.
 - Independently complete device qualification, normal installation and rollback before describing this candidate as production-ready.
 
 ## Evidence
