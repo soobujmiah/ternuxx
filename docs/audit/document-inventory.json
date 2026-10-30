@@ -51,10 +51,10 @@
     {
       "path": "CURRENT_STATE.md",
       "kind": "narrative",
-      "sha256": "d95ce116532028f7aace851e106ffa0072437bb781c9f4faa3ef36873a5852c3",
-      "lines": 469,
+      "sha256": "70b4adbf85bc0826edde0d5a4957c1efce35cdf53722ba2f7f8060f05f2733e8",
+      "lines": 471,
       "read_status": "read",
-      "read_sha256": "d95ce116532028f7aace851e106ffa0072437bb781c9f4faa3ef36873a5852c3"
+      "read_sha256": "70b4adbf85bc0826edde0d5a4957c1efce35cdf53722ba2f7f8060f05f2733e8"
     },
     {
       "path": "PROJECT_CLASSIFICATION.yaml",
@@ -4299,26 +4299,26 @@
     {
       "path": "docs/evidence/2026-10-30-p12-native-qualification.bn.md",
       "kind": "narrative",
-      "sha256": "0ada9512d663d0bd4f75ca510096785b4aa1949b899498516b1f838e6ec41699",
-      "lines": 31,
+      "sha256": "411268930bed2a3eb5314f8ad727bc4156db225a9b5644b2420d64d854c78135",
+      "lines": 33,
       "read_status": "read",
-      "read_sha256": "0ada9512d663d0bd4f75ca510096785b4aa1949b899498516b1f838e6ec41699"
+      "read_sha256": "411268930bed2a3eb5314f8ad727bc4156db225a9b5644b2420d64d854c78135"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-native-qualification.md",
       "kind": "narrative",
-      "sha256": "b5410e39306695b56f04dca9af8028f9c4160b8f47cabdc2c34dddcfa71b8e58",
-      "lines": 31,
+      "sha256": "e2839cd5d99bae21c2f6e63e928a35f7bc3ff9aaab6e253d05ab6792ffef5ae9",
+      "lines": 33,
       "read_status": "read",
-      "read_sha256": "b5410e39306695b56f04dca9af8028f9c4160b8f47cabdc2c34dddcfa71b8e58"
+      "read_sha256": "e2839cd5d99bae21c2f6e63e928a35f7bc3ff9aaab6e253d05ab6792ffef5ae9"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-npu-headroom-recheck.json",
       "kind": "structured",
-      "sha256": "a6a84fdd2e64d4c2e133a44b404f8d2f66d5efc219b20e29b6a5718788585953",
-      "lines": 148,
+      "sha256": "9f0cc112a354774511b330178b600422ad6c37f7813b29fe45377cfb108bd606",
+      "lines": 166,
       "read_status": "read",
-      "read_sha256": "a6a84fdd2e64d4c2e133a44b404f8d2f66d5efc219b20e29b6a5718788585953"
+      "read_sha256": "9f0cc112a354774511b330178b600422ad6c37f7813b29fe45377cfb108bd606"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-qwen25-model-pin.bn.md",
