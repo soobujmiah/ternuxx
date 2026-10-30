@@ -4347,10 +4347,10 @@
     {
       "path": "docs/evidence/2026-10-29-p12-auto-backend-routing.bn.md",
       "kind": "narrative",
-      "sha256": "a9ef173f236ef8865320838cab1902c0b85e71a88bb3ff5f262f1902b10a2a57",
+      "sha256": "69122167d6bae34e27fee87c9283de2e5f3c1223a1e04b0850c519793b5b0955",
       "lines": 45,
       "read_status": "read",
-      "read_sha256": "a9ef173f236ef8865320838cab1902c0b85e71a88bb3ff5f262f1902b10a2a57"
+      "read_sha256": "69122167d6bae34e27fee87c9283de2e5f3c1223a1e04b0850c519793b5b0955"
     },
     {
       "path": "docs/evidence/2026-10-29-p12-auto-backend-routing.md",
