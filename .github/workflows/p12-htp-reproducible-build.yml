@@ -98,6 +98,9 @@ jobs:
             > build-output/cmake-user-preset.sha256
           sha256sum tools/package_snapdragon_release.py > build-output/packager.sha256
           cp upstream/LICENSE build-output/install/LICENSE
+          python3 tools/collect_snapdragon_notices.py \
+            --source-dir upstream \
+            --output build-output/install/THIRD_PARTY_NOTICES.txt
           cp upstream/LICENSE build-output/upstream-LICENSE.txt
 
       - name: Package and verify deterministic install archive

@@ -20,6 +20,7 @@ class SnapdragonPackageTests(unittest.TestCase):
         (prefix / "lib").mkdir()
         (prefix / "bin/llama-cli").write_bytes(b"fake executable")
         (prefix / "LICENSE").write_text("MIT test fixture\n", encoding="utf-8")
+        (prefix / "THIRD_PARTY_NOTICES.txt").write_text("Third-party notices\n", encoding="utf-8")
         for name in ("libggml-hexagon.so", "libggml-htp-v73.so", "libggml-opencl.so", "libggml-base.so"):
             (prefix / "lib" / name).write_bytes(name.encode("ascii"))
         return prefix
@@ -48,7 +49,15 @@ class SnapdragonPackageTests(unittest.TestCase):
             result = packager.verify(type("Args", (), {
                 "archive": archive, "manifest": root / "first/manifest.json"})())
             self.assertEqual(result["status"], "verified")
-            self.assertEqual(result["runtime_file_count"], 6)
+            self.assertEqual(result["runtime_file_count"], 7)
+
+    def test_package_requires_the_third_party_notice_file(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            prefix = self._prefix(root)
+            (prefix / "THIRD_PARTY_NOTICES.txt").unlink()
+            with self.assertRaisesRegex(packager.PackageError, "missing required runtime file"):
+                self._package(prefix, root / "candidate")
 
     def _candidate(self, base: Path) -> Path:
         prefix = self._prefix(base)
@@ -114,30 +123,35 @@ class SnapdragonPackageTests(unittest.TestCase):
             candidate = self._candidate(Path(temporary))
             result = packager.verify_candidate(SimpleNamespace(candidate_dir=candidate))
             self.assertEqual(result["candidate_status"], "integrity_verified_internal_candidate")
-            self.assertEqual(result["runtime_file_count"], 6)
+            self.assertEqual(result["runtime_file_count"], 7)
             self.assertFalse(result["distribution_cleared"])
             self.assertEqual(result["unresolved_package_license_assertions"], 2)
-            self.assertEqual(result["sbom"][1]["file_count"], 6)
-            self.assertEqual(result["sbom"][1]["unresolved_file_license_assertions"], 10)
+            self.assertEqual(result["sbom"][1]["file_count"], 7)
+            self.assertEqual(result["sbom"][1]["unresolved_file_license_assertions"], 12)
 
-    def test_runtime_sbom_normalizer_adds_license_file_and_manifest_sha256(self) -> None:
+    def test_runtime_sbom_normalizer_adds_notices_and_manifest_sha256(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             candidate = self._candidate(Path(temporary))
             sbom_path = candidate / "runtime.spdx.json"
             sbom = json.loads(sbom_path.read_text(encoding="utf-8"))
-            sbom["files"] = [record for record in sbom["files"] if record["fileName"] != "LICENSE"]
+            sbom["files"] = [record for record in sbom["files"]
+                              if record["fileName"] not in {"LICENSE", "THIRD_PARTY_NOTICES.txt"}]
             for record in sbom["files"]:
                 record["checksums"] = [{"algorithm": "SHA1", "checksumValue": "0" * 40}]
             sbom_path.write_text(json.dumps(sbom), encoding="utf-8")
             result = packager.normalize_runtime_spdx(SimpleNamespace(
                 manifest=candidate / "manifest.json", spdx=sbom_path))
-            self.assertEqual(result["file_count"], 6)
+            self.assertEqual(result["file_count"], 7)
             normalized = json.loads(sbom_path.read_text(encoding="utf-8"))
             self.assertEqual({record["fileName"] for record in normalized["files"]},
                              set(json.loads((candidate / "manifest.json").read_text())["runtime_files"]))
             license_record = next(record for record in normalized["files"] if record["fileName"] == "LICENSE")
             self.assertEqual(license_record["licenseConcluded"], "MIT")
             self.assertEqual(license_record["checksums"][0]["algorithm"], "SHA256")
+            notice_record = next(record for record in normalized["files"]
+                                 if record["fileName"] == "THIRD_PARTY_NOTICES.txt")
+            self.assertEqual(notice_record["licenseConcluded"], "NOASSERTION")
+            self.assertEqual(notice_record["checksums"][0]["algorithm"], "SHA256")
 
     def test_candidate_verifier_rejects_runtime_sbom_checksum_mismatch(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
