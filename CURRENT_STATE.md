@@ -22,6 +22,8 @@ A seventh no-inference NPU preflight at 00:20:18Z showed CPU 51.6°C and HTP 44.
 
 An eighth no-inference NPU preflight at 00:23:45Z measured CPU 51.2°C and HTP 44.4°C; CPU eased slightly, but both start limits remain exceeded.
 
+A ninth preflight at 00:35:54Z measured CPU 52.4°C and HTP 45.5°C; both launch ceilings still fail, and both readings rose from the preceding sample. No inference process was active or launched. Stop preflight polling until substantial passive cooling; require two fresh passing samples before any backend test.
+
 ## Blender Native GUI authoring and GPU MCP — 2026-10-28
 
 The open Native Blender 5.2.2 GUI on `:1` now has a startup `bpy` bridge and

@@ -160,7 +160,25 @@
         "cpu=51.2 C lacks launch headroom; start ceiling is 50 C",
         "htp=44.4 C lacks launch headroom; start ceiling is 40 C"
       ]
+    },
+    {
+      "observed_at": "2026-10-30T00:35:54.305053+00:00",
+      "snapshot": {
+        "cpu": 52.4,
+        "gpu": 44.0,
+        "htp": 45.5,
+        "battery": 42.05,
+        "socd": 35.0,
+        "memavailable_kib": 6234640
+      },
+      "ok": false,
+      "will_start_inference": false,
+      "pids": [],
+      "issues": [
+        "cpu=52.4 C lacks launch headroom; start ceiling is 50 C",
+        "htp=45.5 C lacks launch headroom; start ceiling is 40 C"
+      ]
     }
   ],
-  "decision": "No controlled inference was started. All eight samples failed the NPU launch headroom gate. The latest CPU and HTP readings were 51.2 C and 44.4 C, both still above their 50 C and 40 C ceilings. Allow more passive cooling before taking another preflight; require two fresh passing samples before inference. These are device observations and empirical test margins, not OEM thermal limits."
+  "decision": "No controlled inference was started. All nine samples failed the NPU launch headroom gate. The latest CPU and HTP readings were 52.4 C and 45.5 C, both above their 50 C and 40 C ceilings; CPU increased after the preceding sample. Stop preflight polling and allow substantial passive cooling before another sample. Require two fresh passing samples before inference. These are device observations and empirical test margins, not OEM thermal limits."
 }
