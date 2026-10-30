@@ -211,8 +211,8 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "8d5b4edc20ff46dceb476c47cfa7cde919e8c1345797e912077ff12fe21182dd",
-      "lines": 175,
+      "sha256": "8abebe2f57449a00dfea244d4b26819ef8cc5eb437a44045630ccf64f64514ef",
+      "lines": 177,
       "read_status": "pending",
       "read_sha256": null
     },
@@ -4323,16 +4323,16 @@
     {
       "path": "docs/evidence/2026-10-30-p12-owner-model-routing-integration.bn.md",
       "kind": "narrative",
-      "sha256": "b9fc6febcb2fb6247fa2110fcc315476bf01832bc91d17274e41ef1734c6dbf0",
-      "lines": 25,
+      "sha256": "5e365b36ebb0aed9e586914f3bb8fd9dc5ec44ef1eb6f837e8eaf0a14aac0c45",
+      "lines": 26,
       "read_status": "pending",
       "read_sha256": null
     },
     {
       "path": "docs/evidence/2026-10-30-p12-owner-model-routing-integration.md",
       "kind": "narrative",
-      "sha256": "8231cdd728343fa079820d78eabd251a79780665b01f30004dad4b0dc486c9d0",
-      "lines": 25,
+      "sha256": "29f5966ab5b32888d6fe9bd0376c7c9245ebb17ef940fd6845b16aac6a1c5571",
+      "lines": 26,
       "read_status": "pending",
       "read_sha256": null
     },

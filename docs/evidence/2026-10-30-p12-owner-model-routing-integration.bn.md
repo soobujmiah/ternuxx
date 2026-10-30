@@ -12,14 +12,15 @@
 
 ## এই worktree-তে যাচাই
 
-- `python3 -m unittest tests.test_management_service tests.test_cpu_inference`: ৯৪টি পরীক্ষা উত্তীর্ণ।
-- `python3 -m unittest tests.test_install_wizard tests.test_launch_commands`: ৩৭টি পরীক্ষা উত্তীর্ণ।
+- AI, runtime ও installation-সংক্রান্ত পূর্ণ cross-client group-এ: ৩২৭টি পরীক্ষা উত্তীর্ণ।
+- `bash scripts/repo_test.sh`: সম্পূর্ণ সংগ্রহশালার ১,৩৭০টি পরীক্ষা ২৪৯.৫৫৩ সেকেন্ডে উত্তীর্ণ; CLI help contract-ও উত্তীর্ণ।
 - `bash tests/test_cli_help.sh`: উত্তীর্ণ।
 - `python3 -m py_compile lib/cpu_inference.py lib/npu_inference.py lib/management_service.py lib/terminal_ui.py scripts/management_desktop_bridge.py`: উত্তীর্ণ।
-- Catalog পরিবর্তনের আগে `git diff --check` উত্তীর্ণ হয়েছিল; চূড়ান্ত পরিবর্তন ও পূর্ণ test run-এর পর আবার চালাতে হবে।
+- `python3 -m tools.repo_knowledge verify`: কোনো সমস্যা পাওয়া যায়নি। `python3 tools/doc_bridge.py check --strict --project-id ternuxx README.md` উত্তীর্ণ। নথির তালিকা নতুন করে তৈরি ও যাচাই করা হয়েছে।
+- `python3 -m py_compile ...` এবং `git diff --check` উত্তীর্ণ।
 
 এগুলো কৃত্রিম তথ্যভিত্তিক পরীক্ষা ও source যাচাই। এই worktree থেকে shared-storage মডেল দেখা বা পড়া হয়নি এবং inference চালানো হয়নি। যন্ত্রে পরীক্ষা করতে হলে `CURRENT_STATE.md`-এর তাপমাত্রা-ভিত্তিক পূর্বপরীক্ষার নিয়ম মানতে হবে; কোনো backend-কে স্থিতিশীল বা প্রকাশের জন্য যোগ্য বলা যাচ্ছে না।
 
 ## বাকি যাচাই
 
-পরিবর্তনগুলোকে বর্তমান `origin/main`-এর সঙ্গে rebase করে পূর্ণ test ও CI gate পাস করাতে হবে এবং integration-এর আগে পর্যালোচনা করতে হবে। সঠিক output, runtime ও মডেলের অখণ্ডতা, যন্ত্রের telemetry এবং নিয়ন্ত্রিত CPU/GPU/HTP তুলনাসহ যন্ত্রে যোগ্যতা যাচাই বাকি। মডেল বিতরণের শর্ত যাচাই করা হয়নি; এই পরিবর্তন শুধু মালিকের আগের স্থানীয় ফাইল ব্যবহার করে। Ternuxx-এর নিজস্ব ও নির্ভরশীল runtime-এর license, installer-এ একাধিক runtime বাছাই, পরিচ্ছন্ন installation পুনরাবৃত্তি, signing এবং release অনুমোদনও আলাদা বাকি ধাপ।
+শাখাটি বর্তমান `origin/main`-এর সঙ্গে rebase করা এবং স্থানীয় পূর্ণ test suite উত্তীর্ণ; integration-এর আগে hosted CI ও পর্যালোচনা উত্তীর্ণ হতে হবে। সঠিক output, runtime ও মডেলের অখণ্ডতা, যন্ত্রের telemetry এবং নিয়ন্ত্রিত CPU/GPU/HTP তুলনাসহ যন্ত্রে যোগ্যতা যাচাই বাকি। মডেল বিতরণের শর্ত যাচাই করা হয়নি; এই পরিবর্তন শুধু মালিকের আগের স্থানীয় ফাইল ব্যবহার করে। Ternuxx-এর নিজস্ব ও নির্ভরশীল runtime-এর license, installer-এ একাধিক runtime বাছাই, পরিচ্ছন্ন installation পুনরাবৃত্তি, signing এবং release অনুমোদনও আলাদা বাকি ধাপ।
