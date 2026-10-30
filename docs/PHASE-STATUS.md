@@ -135,12 +135,16 @@ Evidence:
 
 **Status:** in_progress
 
-The GPL-3.0-or-later source license is recorded; exact candidate ELF and SDK evidence are documented. Reproducible HTP artifact redistribution and all three backend performance/stability qualification remain open.
+The GPL-3.0-or-later source license is recorded; exact candidate ELF and SDK evidence are documented. The pinned upstream HTP runtime now has exact-preview install and verified removal paths across CLI, TUI, Web, and GTK; removal preserves model/cache files and refuses unsafe or active runtime trees. CI passed for the implementation. This hardens recovery but does not qualify runtime stability or the separately built candidate.
 
-**Next action:** Resolve exact runtime/toolchain redistribution rights and, after substantial cooling, run the benchmark protocol with comparable launch conditions and repeated CPU/Vulkan/HTP trials.
+Two fresh NPU preflights at 2026-10-30 07:38:59Z and 07:39:16Z both failed the empirical HTP launch ceiling (42.4°C versus 40°C); neither launched inference. Wait for substantial passive cooling and two passing samples before any controlled inference. Reproducible HTP candidate redistribution remains uncleared: its verifier reports `distribution_cleared=false`, runtime SPDX has unresolved binary assertions, and the applicable Qualcomm toolchain/SDK redistribution terms have not been established. CPU/Vulkan/HTP performance and stability qualification, plus normal fresh-install/rollback acceptance, remain open.
+
+**Next action:** Resolve exact runtime/toolchain redistribution rights. Once the thermal gate passes, run comparable repeated CPU/Vulkan/HTP trials with output, telemetry, model/runtime integrity, install, and rollback evidence.
 
 Evidence:
 - [docs/evidence/2026-10-24-native-acceleration-live-check.md](evidence/2026-10-24-native-acceleration-live-check.md)
+- [2026-10-30 NPU qualification report (English)](evidence/2026-10-30-p12-native-qualification.md) and [Bangla](evidence/2026-10-30-p12-native-qualification.bn.md)
+- [HTP candidate redistribution audit](evidence/2026-10-30-p12-hexagon-sdk-license-audit.md) and [Bangla](evidence/2026-10-30-p12-hexagon-sdk-license-audit.bn.md)
 - [docs/evidence/2026-10-24-p12-ternux-htp-path-review.md](evidence/2026-10-24-p12-ternux-htp-path-review.md)
 - [docs/evidence/2026-10-24-gh-ci-native-bridge-fixture.md](evidence/2026-10-24-gh-ci-native-bridge-fixture.md)
 - [docs/evidence/2026-10-24-p12-htp-runtime-integrity-followup.md](evidence/2026-10-24-p12-htp-runtime-integrity-followup.md)
