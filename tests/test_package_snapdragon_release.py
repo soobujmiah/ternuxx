@@ -174,7 +174,7 @@ class SnapdragonPackageTests(unittest.TestCase):
         self.assertEqual(packager.PINNED_BUILD_FLAGS, [
             "CMAKE_INSTALL_RPATH=$ORIGIN;$ORIGIN/../lib",
             "CMAKE_BUILD_WITH_INSTALL_RPATH=ON",
-            "LLAMA_BUILD_SERVER=OFF",
+            "LLAMA_BUILD_SERVER=ON",
             "LLAMA_BUILD_TESTS=OFF",
             "LLAMA_BUILD_EXAMPLES=OFF",
             "LLAMA_BUILD_APP=OFF",

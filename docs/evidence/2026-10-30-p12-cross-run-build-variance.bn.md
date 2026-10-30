@@ -21,7 +21,9 @@ Manifest-এর runtime তালিকায় একটি file অমিল: `l
 
 Reproducible workflow-এ প্রথমে CLI-শুধু package-এর জন্য `LLAMA_BUILD_SERVER=OFF`, `LLAMA_BUILD_UI=OFF` এবং `LLAMA_USE_PREBUILT_UI=OFF` দেওয়া হয়। প্রথম post-change run [`40986902773`](https://github.com/soobujmiah/ternuxx/actions/runs/40986902773) দুই Android build-এই ব্যর্থ হয়: upstream-এ `LLAMA_BUILD_TESTS` চালু থাকায় server বন্ধ করার পরও server test target compile হয়; `mtmd.h` না পাওয়ার চারটি compile error আসে। কোনো candidate artifact তৈরি হয়নি।
 
-এখন workflow-এ আরও `LLAMA_BUILD_TESTS=OFF`, `LLAMA_BUILD_EXAMPLES=OFF` এবং `LLAMA_BUILD_APP=OFF` যোগ হয়েছে। Ternuxx inference-এ `llama-cli` চলে; `llama-server`, test, example বা unified app লাগে না। ছয়টি নির্দিষ্ট flag manifest-এ থাকে, verifier সেগুলো বাধ্যতামূলক করে এবং test দিয়ে পরিবর্তন ঠেকানো হয়। সফল rebuild এখনো হয়নি। প্রয়োজনীয় প্রমাণ: সব correction-সহ main branch-এর আলাদা দুই run সফল হতে হবে এবং দুই archive-এর যাচাইকৃত SHA-256 মিলতে হবে; প্রত্যেক run-এ ভেতরের দুই builder-এর তুলনা ও candidate verifier pass করতে হবে।
+পরের run [`40987954678`](https://github.com/soobujmiah/ternuxx/actions/runs/40987954678)-এ দুই builder-ই compile শেষ করলেও packaging ধাপে ব্যর্থ হয়। pinned upstream CMake-এ `tools/cli` কেবল `LLAMA_BUILD_SERVER` চালু থাকলে তৈরি হয়; server flag বন্ধ করায় দরকারি `llama-cli` executable-ও বাদ পড়ে। কোনো candidate artifact তৈরি হয়নি। পরের সংশোধনে upstream build switch চালু থাকবে, তবে UI, test, example ও unified app বন্ধই থাকবে; packager শুধু CLI ও প্রয়োজনীয় runtime library নেবে।
+
+পুনর্নির্মাণ এখনো বাকি। দরকারি প্রমাণ হলো: সংশোধনের পর main branch-এর আলাদা দুই run সফল হবে এবং যাচাইকৃত archive-এর SHA-256 মিলবে; প্রতিটি run-এ ভেতরের দুই builder-এর তুলনা ও পুরো candidate verifier pass করতে হবে।
 
 ## Release অবস্থা
 
