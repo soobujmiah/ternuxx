@@ -4,7 +4,7 @@
   "semantics": "Hashing/indexing is not review. Read marks are explicit agent records; claim acceptance remains in the worklist. Changed hashes invalidate previous read marks.",
   "generated_state_scope": ".repo generated status/events use tools.repo_knowledge; exclude their volatile hashes to avoid CI/inventory loops",
   "document_count": 702,
-  "read_count": 182,
+  "read_count": 184,
   "reading_complete": false,
   "broken_local_links": [],
   "documents": [
@@ -307,7 +307,7 @@
     {
       "path": "docs/PHASE-STATUS.md",
       "kind": "narrative",
-      "sha256": "b54ae1e4d5706b0daab9452fc4ea9a3afb63ece8072786c63d30f3a5387fd7ad",
+      "sha256": "a2bdcce789f8d670895d09699dfeca673ff9ce1d14dc865a1107365bb3feb5cc",
       "lines": 178,
       "read_status": "pending",
       "read_sha256": null
@@ -363,7 +363,7 @@
     {
       "path": "docs/ROADMAP.md",
       "kind": "narrative",
-      "sha256": "bb49824cf3284fbedcd1f179a898a09e2746eaca69cc9414bfeb639e5f57fa08",
+      "sha256": "aa93c184c0517556021386b17a27a5bdbfd7d06f61548a6bed901adb1e6d78e9",
       "lines": 69,
       "read_status": "pending",
       "read_sha256": null
@@ -4547,18 +4547,18 @@
     {
       "path": "docs/evidence/2026-10-30-p12-qnn-image-route-audit.bn.md",
       "kind": "narrative",
-      "sha256": "a96afe9787f8a9138fad814a29932826b7b5808ece52f92aa820123b48fff13b",
-      "lines": 38,
+      "sha256": "8d1e3450b81199b9e77176f11fef62c79dbdd43339959e0a39e653b71dd948a5",
+      "lines": 39,
       "read_status": "read",
-      "read_sha256": "a96afe9787f8a9138fad814a29932826b7b5808ece52f92aa820123b48fff13b"
+      "read_sha256": "8d1e3450b81199b9e77176f11fef62c79dbdd43339959e0a39e653b71dd948a5"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-qnn-image-route-audit.md",
       "kind": "narrative",
-      "sha256": "abe5e2d0b2dee0061efda269fa61d9f9d793c4feb6769c5d92baa9b8d9fe6f44",
-      "lines": 38,
+      "sha256": "719ac399c2187e16a3b79cfb920dc1839798cd8603e82739237a24cc5b05ad30",
+      "lines": 39,
       "read_status": "read",
-      "read_sha256": "abe5e2d0b2dee0061efda269fa61d9f9d793c4feb6769c5d92baa9b8d9fe6f44"
+      "read_sha256": "719ac399c2187e16a3b79cfb920dc1839798cd8603e82739237a24cc5b05ad30"
     },
     {
       "path": "docs/evidence/2026-10-30-p12-qwen25-model-pin.bn.md",
@@ -5075,18 +5075,18 @@
     {
       "path": "docs/readiness/THIRD-PARTY-NOTICES.bn.md",
       "kind": "narrative",
-      "sha256": "5f4a0141b652ccb00690a23998e2c3a6c9968d3e0e6530330d76eda6b73a9d7a",
-      "lines": 20,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "28a4fe44b6550721a91781250c408c1a461b2d29a8a88c2b1fc7a48c16fc8192",
+      "lines": 21,
+      "read_status": "read",
+      "read_sha256": "28a4fe44b6550721a91781250c408c1a461b2d29a8a88c2b1fc7a48c16fc8192"
     },
     {
       "path": "docs/readiness/THIRD-PARTY-NOTICES.md",
       "kind": "narrative",
-      "sha256": "ab16be92649ac887b1c7757233164477bd9e2c84493cf40e208f3c265706acb7",
-      "lines": 21,
-      "read_status": "pending",
-      "read_sha256": null
+      "sha256": "e9609b2e187a11c9c92b64762635c8a75c5daa27b725bab271d8b01944f4d028",
+      "lines": 22,
+      "read_status": "read",
+      "read_sha256": "e9609b2e187a11c9c92b64762635c8a75c5daa27b725bab271d8b01944f4d028"
     },
     {
       "path": "docs/readiness/THREAT-MODEL.md",
@@ -5259,7 +5259,7 @@
     {
       "path": "project/phase-state.json",
       "kind": "structured",
-      "sha256": "2fc85cb34376d772aee7c1c5172299288c6993191cfa7d32c948e430259d7c4b",
+      "sha256": "d728d3243ee6f1745c746762f36c7ea512d197cb69b8708f65474f076f803834",
       "lines": 281,
       "read_status": "pending",
       "read_sha256": null
