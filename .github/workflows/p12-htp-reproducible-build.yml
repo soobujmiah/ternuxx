@@ -76,7 +76,7 @@ jobs:
           cmake --preset arm64-android-snapdragon-release -B build \
             -DCMAKE_INSTALL_RPATH='$ORIGIN;$ORIGIN/../lib' \
             -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON \
-            -DLLAMA_BUILD_SERVER=OFF \
+            -DLLAMA_BUILD_SERVER=ON \
             -DLLAMA_BUILD_TESTS=OFF \
             -DLLAMA_BUILD_EXAMPLES=OFF \
             -DLLAMA_BUILD_APP=OFF \

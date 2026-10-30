@@ -21,7 +21,9 @@ The pinned upstream [UI CMake configuration](https://github.com/ggml-org/llama.c
 
 The reproducible workflow was changed to request a CLI-only package: `LLAMA_BUILD_SERVER=OFF`, `LLAMA_BUILD_UI=OFF`, and `LLAMA_USE_PREBUILT_UI=OFF`. The first post-change run, [`40986902773`](https://github.com/soobujmiah/ternuxx/actions/runs/40986902773), failed both Android builds because upstream `LLAMA_BUILD_TESTS` remained on and server test targets still compiled after the server target was disabled; four compile errors reported missing `mtmd.h`. No candidate artifact was produced.
 
-The workflow now additionally sets `LLAMA_BUILD_TESTS=OFF`, `LLAMA_BUILD_EXAMPLES=OFF`, and `LLAMA_BUILD_APP=OFF`. Ternuxx inference executes `llama-cli`; it does not call `llama-server`, tests, examples, or the unified app. The six exact build flags are recorded in the manifest, enforced by the verifier, and protected by tests. The rebuild is still pending. Required evidence remains two separate successful post-fix main-branch runs with matching verified archive SHA-256 values; each must also pass its within-run two-builder comparison and whole-candidate verifier.
+The next run, [`40987954678`](https://github.com/soobujmiah/ternuxx/actions/runs/40987954678), compiled both builders but failed during packaging: the pinned upstream CMake source creates `tools/cli` only inside `if (LLAMA_BUILD_SERVER)`, so disabling the server also removes the required `llama-cli` executable. No candidate artifact was produced. The next correction enables that upstream build switch while leaving the UI, tests, examples, and unified app disabled; the packager still selects only the CLI and required runtime libraries.
+
+The rebuild is still pending. Required evidence remains two separate successful post-fix main-branch runs with matching verified archive SHA-256 values; each must also pass its within-run two-builder comparison and whole-candidate verifier.
 
 ## Release status
 
