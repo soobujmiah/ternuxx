@@ -31,7 +31,11 @@ Ternuxx-এর শেয়ার্ড সার্ভিসে এখন `infe
 
 নিয়ন্ত্রিত CPU/HTP তুলনার আগে মালিক-অনুমোদিত Ternuxx private model path-এ মডেল থাকতে হবে। প্রকল্প নির্দেশে Ternuxx-কে shared `/sdcard` storage পড়তে নিষেধ করা হয়েছে; তাই সেখানে থাকা কোনো LAI মডেল দেখা হয়নি। ইনফারেন্স শুরুর আগে নতুন করে দুইটি thermal preflight sample পাস করতে হবে। এরপর সঠিক উত্তর, নির্দিষ্ট layer offload, model SHA-256, ব্যাকএন্ড, token সংখ্যা, সময়, process cleanup এবং sampled thermal/memory telemetry সংরক্ষণ করতে হবে।
 
-প্রাথমিক installer-এ CPU/Vulkan/HTP AI runtime-গুলোর multi-select এখনো নেই। Reproducible HTP archive internal Actions candidate-ই; device install, installer integration, Mesa provenance, redistribution/license review এবং public release বাকি। Image-generation/QNN qualification আলাদা workload; এই chat inference route সেটিকে cover করে না।
+নির্দেশিত installer-এ এখন CPU/Vulkan/HTP AI চালন-পরিবেশের একাধিক নির্বাচন আছে; যন্ত্র যাচাই অনুযায়ী বিকল্প দেখায়—SM8735-এ HTP, Native Vulkan যাচাই পাস করলে Vulkan, এবং CPU fallback। SM8735-এ HTP, অন্যথায় সমর্থিত হলে Vulkan, আর তাও না হলে CPU প্রাথমিক নির্বাচন। HTP বাছলে CPU fallback-এর প্যাকেজও যোগ হয়। Installer নির্দিষ্ট upstream b11849 archive ব্যবহার করে; Ternuxx-এর নিজস্ব নির্মিত অভ্যন্তরীণ প্রার্থী স্থাপন করে না। দেখুন [চালন-পরিবেশ স্থাপন-নির্বাচন প্রতিবেদন](2026-10-29-p12-runtime-install-selection.md)। নতুন যন্ত্রে স্থাপন ও পূর্বাবস্থায় ফেরানো এখনও যাচাই করা হয়নি। অভ্যন্তরীণ প্রার্থীর যন্ত্র-যোগ্যতা ও বিতরণ-অনুমতি বাকি; Mesa-র উৎস-ইতিহাস ও জনসমক্ষে প্রকাশও অমীমাংসিত। ছবি-তৈরি/QNN যোগ্যতা যাচাই আলাদা কাজ; এই chat inference route তা অন্তর্ভুক্ত করে না।
+
+## ২০২৬-১০-৩০ তারিখে installer নির্বাচন পুনর্যাচাই
+
+বর্তমান উৎস ও fixture পুনর্যাচাইয়ে নির্দেশিত installer-এর একাধিক চালন-পরিবেশ নির্বাচনের বাস্তবায়ন নিশ্চিত হয়েছে। `tests.test_install_wizard`, `tests.test_install_master` এবং `tests.test_npu_inference` মিলিয়ে **৫০টি পরীক্ষা পাস** করেছে। এতে নির্বাচন ও স্থাপন-পরিকল্পনার fixture যাচাই হয়; নতুন যন্ত্রে প্যাকেজ লেনদেন, চালন-পরিবেশ নামানো, অথবা HTP মডেল-গণনা প্রমাণিত হয় না।
 
 ## প্রমাণ
 
