@@ -5323,7 +5323,7 @@
     {
       "path": "docs/testing/NPU-ACCELERATION.md",
       "kind": "narrative",
-      "sha256": "9e7225af5b33cd130686267d1502905de64978ff141a9d6a4f03090a5e37006f",
+      "sha256": "d81d73088252d6f0b91cf6cc046d4655c6cd99faf4f7af6f67ab253b12c08eea",
       "lines": 72,
       "read_status": "pending",
       "read_sha256": null

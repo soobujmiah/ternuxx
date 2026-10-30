@@ -64,7 +64,8 @@ class ManagementCenterNativeUiContractTests(unittest.TestCase):
 
     def test_native_hexagon_inference_has_preview_confirmation_status_and_explicit_run(self):
         for contract in ("inference.npu.local", "ai_npu_status_button", "npu-status",
-                         "npu-runtime-preview", "npu-runtime-apply", "Type INSTALL exactly",
+                         "npu-runtime-preview", "npu-runtime-remove-preview", "npu-runtime-apply",
+                         "Type INSTALL exactly", "Type REMOVE exactly", "ai_npu_remove_button",
                          "ai_npu_run_button", "npu-run", "CPU fallback is disabled"):
             with self.subTest(contract=contract):
                 self.assertIn(contract, SOURCE + BRIDGE)

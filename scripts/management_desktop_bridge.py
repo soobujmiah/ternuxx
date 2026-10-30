@@ -137,15 +137,21 @@ def main(argv: list[str]) -> int:
         result = call("inference.npu.status")
         print(management_presentation.format_report(result))
         return 0 if result.get("ok") else 1
-    if action == "npu-runtime-preview" and len(argv) == 1:
-        result = call("inference.npu.runtime.preview")
+    if action in {"npu-runtime-preview", "npu-runtime-remove-preview"} and len(argv) == 1:
+        runtime_action = "remove" if action == "npu-runtime-remove-preview" else "install"
+        result = (call("inference.npu.runtime.preview", {"action": "remove"}) if runtime_action == "remove"
+                  else call("inference.npu.runtime.preview"))
         if not result.get("ok"):
             print(management_presentation.format_report(result)); return 1
         data = result.get("data", {})
         print("P\t" + clean(data.get("plan_id")) + "\t" + clean(json.dumps(data, sort_keys=True)))
         return 0
-    if action == "npu-runtime-apply" and len(argv) == 3 and re.fullmatch(r"[0-9a-f]{24}", argv[1]) and argv[2] == "INSTALL":
-        result = call("inference.npu.runtime.apply", {"plan_id": argv[1], "confirmed": True})
+    if action == "npu-runtime-apply" and len(argv) == 3 and re.fullmatch(r"[0-9a-f]{24}", argv[1]) and argv[2] in {"INSTALL", "REMOVE"}:
+        runtime_action = "remove" if argv[2] == "REMOVE" else "install"
+        result_args = {"plan_id": argv[1], "confirmed": True}
+        if runtime_action == "remove":
+            result_args["action"] = "remove"
+        result = call("inference.npu.runtime.apply", result_args)
         print(management_presentation.format_report(result))
         return 0 if result.get("ok") else 1
     if action == "npu-run" and len(argv) == 1:
