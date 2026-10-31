@@ -1,0 +1,7 @@
+event_id: commit-d4bb83a37810-016488620ca1d83f
+repository: soobujmiah/ternuxx
+commit: d4bb83a37810f1f1e47809c614410dfa02de7b42
+kind: commit
+occurred_at: '2026-10-31T18:57:07Z'
+status: completed
+summary: 'fix(gui): recover stale external X11 socket (#44)'
