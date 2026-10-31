@@ -206,6 +206,13 @@ def _display_state(session: dict, tmp_root: Path, *, require_ready: bool, proc: 
             pass
         except OSError:
             return "unknown"
+        try:
+            lock.lstat()
+            return "unknown"
+        except FileNotFoundError:
+            pass
+        except OSError:
+            return "unknown"
         if dir_meta is None:
             return "absent"
         try:
@@ -217,13 +224,6 @@ def _display_state(session: dict, tmp_root: Path, *, require_ready: bool, proc: 
         if (not stat.S_ISSOCK(socket_meta.st_mode)
                 or socket_meta.st_uid != os.getuid()):
             return "unsafe"
-        try:
-            lock.lstat()
-            return "unknown"
-        except FileNotFoundError:
-            pass
-        except OSError:
-            return "unknown"
         try:
             with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
                 client.settimeout(0.25)
