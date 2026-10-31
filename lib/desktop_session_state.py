@@ -191,7 +191,58 @@ def _display_state(session: dict, tmp_root: Path, *, require_ready: bool, proc: 
     if external:
         identity = x11_display.attachable(proc, tmp_root, number)
         recorded = session.get("x11", {})
-        return "ready" if identity == (recorded.get("pid"), recorded.get("start_ticks")) else "unknown"
+        if identity == (recorded.get("pid"), recorded.get("start_ticks")):
+            return "ready"
+        # A live or ambiguous external endpoint remains protected. A recorded
+        # external server is stale only when its exact PID is gone, its private
+        # socket is owned by us, no X lock exists, and connect is refused.
+        pid = recorded.get("pid")
+        if type(pid) is not int or pid < 2:
+            return "unknown"
+        try:
+            (proc / str(pid) / "stat").lstat()
+            return "unknown"
+        except FileNotFoundError:
+            pass
+        except OSError:
+            return "unknown"
+        try:
+            lock.lstat()
+            return "unknown"
+        except FileNotFoundError:
+            pass
+        except OSError:
+            return "unknown"
+        if dir_meta is None:
+            return "absent"
+        try:
+            socket_meta = sock.lstat()
+        except FileNotFoundError:
+            return "absent"
+        except OSError:
+            return "unknown"
+        if (not stat.S_ISSOCK(socket_meta.st_mode)
+                or socket_meta.st_uid != os.getuid()):
+            return "unsafe"
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as client:
+                client.settimeout(0.25)
+                client.connect(str(sock))
+            return "unknown"
+        except ConnectionRefusedError:
+            try:
+                current = sock.lstat()
+                (proc / str(pid) / "stat").lstat()
+                return "unknown"
+            except FileNotFoundError:
+                if ((current.st_dev, current.st_ino) ==
+                        (socket_meta.st_dev, socket_meta.st_ino)):
+                    return "stale"
+                return "unknown"
+            except OSError:
+                return "unknown"
+        except OSError:
+            return "unknown"
     found = []
     for index, path in enumerate((sock, lock)):
         if index == 0 and dir_meta is None:
