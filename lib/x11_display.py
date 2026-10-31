@@ -5,6 +5,7 @@ import os
 import re
 import socket
 import stat
+import struct
 import sys
 
 
@@ -49,6 +50,105 @@ def ensure_socket_directory(root):
             or directory_stat.st_uid != os.getuid()):
         return "unsafe"
     return "created" if created else "existing"
+
+
+def attachable(proc_root, tmp_root, number):
+    """Return identity for one exact, responsive native Termux:X11 process."""
+    if not number.isdigit() or not 0 <= int(number) <= 10:
+        return None
+    sock = os.path.join(tmp_root, ".X11-unix", "X" + number)
+    try:
+        meta = os.lstat(sock)
+        if not stat.S_ISSOCK(meta.st_mode) or meta.st_uid != os.getuid():
+            return None
+        with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as probe:
+            probe.settimeout(0.6)
+            probe.connect(sock)
+            probe.sendall(struct.pack("<BBHHHHH", ord("l"), 0, 11, 0, 0, 0, 0))
+            reply = bytearray()
+            while len(reply) < 8:
+                chunk = probe.recv(8 - len(reply))
+                if not chunk:
+                    return None
+                reply.extend(chunk)
+            if reply[0] != 1 or struct.unpack("<H", reply[2:4])[0] != 11:
+                return None
+    except OSError:
+        return None
+    matches = []
+    try:
+        with os.scandir(proc_root) as entries:
+            for entry in entries:
+                if not entry.name.isdecimal():
+                    continue
+                base = os.path.join(proc_root, entry.name)
+                try:
+                    with open(os.path.join(base, "cmdline"), "rb") as stream:
+                        args = stream.read().split(b"\0")
+                    with open(os.path.join(base, "status"), encoding="ascii") as stream:
+                        status = stream.read()
+                    with open(os.path.join(base, "stat"), encoding="ascii") as stream:
+                        stat_line = stream.read()
+                except OSError:
+                    continue
+                uid = re.search(r"^Uid:\s+(\d+)", status, re.M)
+                if not uid or int(uid.group(1)) != os.getuid():
+                    continue
+                native_argv = args == [b"termux-x11", b"com.termux.x11", (b":" + number.encode()), b""]
+                if not native_argv:
+                    try:
+                        with open(os.path.join(base, "environ"), "rb") as stream:
+                            env = stream.read().split(b"\0")
+                    except OSError:
+                        continue
+                    has_x11_loader = any(item.startswith(b"CLASSPATH=") and item.endswith(b"termux-x11/loader.apk") for item in env)
+                    if not has_x11_loader:
+                        continue
+                    try:
+                        with open(os.path.join(base, "maps"), encoding="utf-8", errors="replace") as stream:
+                            maps = stream.read()
+                    except OSError:
+                        continue
+                    native_app_process = (
+                        any("/com.termux.x11-" in line and line.rstrip().endswith("/base.apk")
+                            for line in maps.splitlines())
+                    )
+                    if not native_app_process:
+                        continue
+                _comm, sep, tail = stat_line.rpartition(")")
+                fields = tail.strip().split() if sep else []
+                if len(fields) >= 20:
+                    matches.append((int(entry.name), fields[19]))
+    except OSError:
+        return None
+    if len(matches) != 1:
+        return None
+    pid, ticks = matches[0]
+    lock = os.path.join(tmp_root, ".X" + number + "-lock")
+    try:
+        lock_meta = os.lstat(lock)
+    except FileNotFoundError:
+        return pid, ticks
+    except OSError:
+        return None
+    if (stat.S_ISLNK(lock_meta.st_mode) or not stat.S_ISREG(lock_meta.st_mode)
+            or lock_meta.st_uid != os.getuid()):
+        return None
+    try:
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_CLOEXEC", 0)
+        fd = os.open(lock, flags)
+        try:
+            current = os.fstat(fd)
+            if (not stat.S_ISREG(current.st_mode) or current.st_uid != os.getuid()
+                    or (current.st_dev, current.st_ino) != (lock_meta.st_dev, lock_meta.st_ino)):
+                return None
+            with os.fdopen(fd, "r", encoding="ascii", closefd=False) as stream:
+                lock_pid = stream.read(64).strip()
+        finally:
+            os.close(fd)
+    except OSError:
+        return None
+    return (pid, ticks) if lock_pid == str(pid) else None
 
 
 def prepare(root, number):
@@ -308,7 +408,13 @@ def recover_proot_link2symlink(root, number, guest_rootfs, proc_root="/proc"):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 3 and sys.argv[1] == "ensure-directory":
+    if len(sys.argv) == 5 and sys.argv[1] == "attachable":
+        identity = attachable(sys.argv[2], sys.argv[3], sys.argv[4])
+        if identity is None:
+            raise SystemExit(1)
+        print(*identity)
+        raise SystemExit(0)
+    elif len(sys.argv) == 3 and sys.argv[1] == "ensure-directory":
         result = ensure_socket_directory(sys.argv[2])
     elif len(sys.argv) == 3:
         result = prepare(sys.argv[1], sys.argv[2])

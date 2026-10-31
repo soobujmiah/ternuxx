@@ -13,6 +13,7 @@ import tempfile
 import native_desktops
 import proot_desktops
 import proot_profiles
+import x11_display
 
 MARKERS = {"supervisor": "desktop-supervisor.sh", "x11": "termux-x11", "desktop": "xfce4-session"}
 DESKTOP_MARKERS = {"native": "xfce4-session", "proot": "proot-display0"}
@@ -75,6 +76,7 @@ def _proc_state(role: str, record: object, proc: Path, expected_marker: str | No
                 allow_exec_transition: bool = False) -> str:
     if not isinstance(record, dict):
         raise StateError(f"recorded {role} identity is malformed")
+    external_x11 = role == "x11" and record.get("ownership") == "external"
     pid, ticks, marker = record.get("pid"), record.get("start_ticks"), record.get("command_marker")
     if pid is None and role in ("x11", "desktop"):
         return "absent"
@@ -92,7 +94,7 @@ def _proc_state(role: str, record: object, proc: Path, expected_marker: str | No
         except OSError:
             return "unknown"
         return "unknown"
-    if role != "supervisor" and (record.get("pgid") != pid or record.get("sid") != pid):
+    if role != "supervisor" and not external_x11 and (record.get("pgid") != pid or record.get("sid") != pid):
         raise StateError(f"recorded {role} group/session identity is unsafe")
     root = proc / str(pid)
     try:
@@ -123,7 +125,7 @@ def _proc_state(role: str, record: object, proc: Path, expected_marker: str | No
             return _session_group_state(record.get("pgid"), record.get("sid"), proc,
                                         anchor_pid=pid, anchor_ticks=ticks)
         return "absent"  # The recorded process ended or its PID was reused.
-    if role != "supervisor" and (fields[2] != str(pid) or fields[3] != str(pid)):
+    if role != "supervisor" and not external_x11 and (fields[2] != str(pid) or fields[3] != str(pid)):
         if allow_exec_transition and role == "desktop":
             return _session_group_state(record.get("pgid"), record.get("sid"), proc,
                                         anchor_pid=pid, anchor_ticks=ticks)
@@ -140,11 +142,27 @@ def _proc_state(role: str, record: object, proc: Path, expected_marker: str | No
     if marker not in cmd and allow_exec_transition and role == "desktop":
         return _session_group_state(record.get("pgid"), record.get("sid"), proc,
                                         anchor_pid=pid, anchor_ticks=ticks)
-    if marker not in cmd:
+    if external_x11:
+        args = (root / "cmdline").read_bytes().split(b"\0")
+        # External Termux:X11 attachments must match the host activity's exact
+        # argv shape or the Android app_process signature, never a substring.
+        display_arg = record.get("display")
+        native_argv = args == [b"termux-x11", b"com.termux.x11", str(display_arg).encode(), b""]
+        if not native_argv:
+            try:
+                env = (root / "environ").read_bytes().split(b"\0")
+                maps = (root / "maps").read_text(encoding="utf-8", errors="replace").splitlines()
+            except OSError:
+                return "unknown"
+            native_app = (any(item.startswith(b"CLASSPATH=") and item.endswith(b"termux-x11/loader.apk") for item in env)
+                          and any("/com.termux.x11-" in line and line.rstrip().endswith("/base.apk") for line in maps))
+            if not native_app:
+                return "unsafe"
+    elif marker not in cmd:
         return "absent"
     return "live"
 
-def _display_state(session: dict, tmp_root: Path, *, require_ready: bool) -> str:
+def _display_state(session: dict, tmp_root: Path, *, require_ready: bool, proc: Path = Path("/proc")) -> str:
     display = session["display"]
     number = display[1:]
     sock_dir = tmp_root / ".X11-unix"
@@ -169,6 +187,11 @@ def _display_state(session: dict, tmp_root: Path, *, require_ready: bool) -> str
         return "unsafe"
     sock = sock_dir / f"X{number}"
     lock = tmp_root / f".X{number}-lock"
+    external = session.get("x11", {}).get("ownership") == "external"
+    if external:
+        identity = x11_display.attachable(proc, tmp_root, number)
+        recorded = session.get("x11", {})
+        return "ready" if identity == (recorded.get("pid"), recorded.get("start_ticks")) else "unknown"
     found = []
     for index, path in enumerate((sock, lock)):
         if index == 0 and dir_meta is None:
@@ -186,6 +209,9 @@ def _display_state(session: dict, tmp_root: Path, *, require_ready: bool) -> str
         found.append(meta)
     if all(item is None for item in found):
         return "absent"
+    if found[0] is not None and found[1] is None:
+        identity = x11_display.attachable(proc, tmp_root, number)
+        return "external" if identity is not None else "unknown"
     if found[0] is None or found[1] is None or not stat.S_ISSOCK(found[0].st_mode) or not stat.S_ISREG(found[1].st_mode):
         return "unknown"
     try:
@@ -371,7 +397,7 @@ def inspect(home: Path, state_dir: Path, proc: Path, tmp_root: Path) -> dict:
             return {"state": "unknown", "reason": "process identity cannot be verified", "processes": roles}
         any_live = "live" in roles.values()
         all_live = all(value == "live" for value in roles.values())
-        display = _display_state(data, tmp_root, require_ready=all_live or not any_live)
+        display = _display_state(data, tmp_root, require_ready=all_live or not any_live, proc=proc)
         if display == "unsafe":
             return {"state": "unsafe", "reason": "display artifacts have unsafe ownership or identity", "processes": roles}
         if data["status"] == "running" and all_live and display == "ready":
@@ -388,13 +414,13 @@ def inspect(home: Path, state_dir: Path, proc: Path, tmp_root: Path) -> dict:
             state = "stale"
         elif data["status"] in ("failed", "stop_incomplete"):
             state = "failed"
-        elif not any_live and display in ("absent", "stale"):
-            state = "stopped" if data["status"] == "stopped" and display == "absent" else "stale"
+        elif not any_live and display in ("absent", "stale", "external"):
+            state = "stopped" if data["status"] == "stopped" and display in ("absent", "external") else "stale"
         elif data["status"] == "running" and any_live:
             state = "failed"
         else:
             state = "unknown"
-        result = {"state": state, "reason": "record and verified process/display evidence reconciled", "display": data["display"], "display_state": display, "processes": roles, "recorded_status": data["status"]}
+        result = {"state": state, "reason": "record and verified process/display evidence reconciled", "display": data["display"], "display_state": display, "processes": roles, "recorded_status": data["status"], "x11_ownership": data.get("x11", {}).get("ownership", "ternuxx")}
         if provider == "proot" and state == "running":
             readiness = _proot_desktop_readiness(data, proc)
             if readiness["state"] == "unsafe":

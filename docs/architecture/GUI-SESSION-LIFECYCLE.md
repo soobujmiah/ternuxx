@@ -12,7 +12,7 @@ Native desktop lifecycle is managed in Native Termux. Debian PRoot GUI sessions 
 
 The lifecycle states exposed by the classifier are:
 
-- `stopped`: no session record, or an explicitly stopped record with all recorded identities and display artifacts absent.
+- `stopped`: no session record, or an explicitly stopped record with all Ternuxx desktop identities absent; a separately verified external X11 server may remain available for the next start.
 - `starting` / `stopping`: the record says the operation is in progress and at least one recorded process remains verifiable; a second start is refused.
 - `running`: all three recorded process identities are live and the display endpoint is responsive.
 - `failed`: an explicit failure or a running record whose verified process roles disagree, including a live session whose display is not ready.
@@ -26,7 +26,7 @@ The lifecycle states exposed by the classifier are:
 
 ## Stable native display
 
-Native Ternuxx defaults to display `:1`. Default startup fails closed when `:1` is occupied or ambiguous; it does not silently create another native desktop on `:2` or higher. An explicit `tx start --display N` remains available for an owner-selected alternate. After a stale Ternuxx `:1` record is safely reconciled, startup reuses `:1`; repeated start is idempotent, and stop signals only the recorded Ternuxx process identities while retaining state and logs.
+Native Ternuxx defaults to display `:1`. When `:1` is already served by the exact, responsive native Termux:X11 Android process, startup attaches XFCE to that server and records its X11 ownership as external. It verifies the socket, UID, process start time, and either the exact CLI argv or Android app-process signature; ambiguous or unresponsive endpoints still fail closed. Ternuxx never signals or removes artifacts for an external X11 server, including during startup failure or `tx stop`. If no verified server exists, Ternuxx launches and owns its normal X11 process. Default startup does not silently create another native desktop on `:2` or higher; an explicit `tx start --display N` remains available for an owner-selected alternate. Repeated start is idempotent, and stop signals only recorded Ternuxx-owned identities while retaining state and logs.
 
 ## Health limits
 

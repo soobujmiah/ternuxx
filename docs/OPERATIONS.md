@@ -14,7 +14,7 @@ tx web
 tx mng center
 ```
 
-`tx start`, `stop`, `restart`, and `status` operate on the recorded Native desktop. The supervisor verifies process identity before sending signals and refuses ambiguous ownership. Native `tx start` and standalone `tx pgui start` launch detached `nohup setsid` supervisors, so their X-server and desktop processes survive the launching shell exiting; stop them with the matching `tx stop` or `tx pgui stop` command. This does not promise survival after Android force-stop or OS process eviction. The Android Termux:X11 app's visible state is separate from server readiness.
+`tx start`, `stop`, `restart`, and `status` operate on the recorded Native desktop. If the existing native Termux:X11 app already serves responsive `:1`, `tx start` verifies and attaches XFCE to it; `tx stop` leaves that externally owned Android X11 server running. Otherwise Ternuxx starts its own server. The supervisor verifies process identity before sending signals and refuses ambiguous ownership. Native `tx start` and standalone `tx pgui start` launch detached `nohup setsid` supervisors, so their X-server and desktop processes survive the launching shell exiting; stop them with the matching `tx stop` or `tx pgui stop` command. This does not promise survival after Android force-stop or OS process eviction. The Android Termux:X11 app's visible state is separate from server readiness.
 
 ## Management clients
 

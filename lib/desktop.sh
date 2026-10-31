@@ -236,7 +236,7 @@ PY_DESKTOP_LIST
 }
 
 nt_cmd_start() {
-  local display_number="" desktop_id="xfce" desktop_command="" desktop_marker="" desktop_name="" desktop_json="" arg state_root supervisor owned_exec log_file tmp_root operation_id mesa_prefix=""
+  local display_number="" desktop_id="xfce" desktop_command="" desktop_marker="" desktop_name="" desktop_json="" arg state_root supervisor owned_exec log_file tmp_root operation_id mesa_prefix="" x11_ownership=owned external_x11_pid="" external_x11_ticks="" attached_identity=""
   # Do not pass a caller-specific loader directory (for example Codex's
   # bundled runtime) into Native Termux desktop processes.
   local -a launch_env=() launch_unset=()
@@ -350,9 +350,12 @@ import json,sys
 try:
     report=json.loads(sys.argv[1])
     processes=report.get("processes", {})
-    safe=(report.get("state")=="failed" and report.get("display_state")=="absent"
-          and set(processes)=={"supervisor","x11","desktop"}
-          and all(value=="absent" for value in processes.values()))
+    external=(report.get("x11_ownership")=="external" and report.get("display_state")=="ready")
+    owned_roles_absent=(processes.get("supervisor")=="absent" and processes.get("desktop")=="absent")
+    x11_safe=(processes.get("x11")=="absent" or (external and processes.get("x11")=="live"))
+    safe=(report.get("state")=="failed" and set(processes)=={"supervisor","x11","desktop"}
+          and owned_roles_absent and x11_safe
+          and (report.get("display_state")=="absent" or external))
 except (ValueError,AttributeError,TypeError):
     safe=False
 raise SystemExit(0 if safe else 1)
@@ -362,7 +365,7 @@ PY_FAILED_SESSION_SAFE
         [ ! -e "$failed_archive" ] || { nt_fail "A failed-session archive already exists; preserving the record."; return 1; }
         mv -- "$state_root/session.json" "$failed_archive" || { nt_fail "Could not preserve the failed-session record; no process was started."; return 1; }
         chmod 600 "$failed_archive"
-        nt_warn "Archived the failed session after verifying every recorded process and its display artifacts are absent."
+        nt_warn "Archived the failed session after verifying every recorded Ternuxx process is absent and any external display remains separately owned."
       else
         nt_fail "The prior Ternuxx session is failed or ambiguous. Review $state_root/desktop.log and session.json; no process was signaled."; return 1
       fi ;;
@@ -377,9 +380,20 @@ PY_FAILED_SESSION_SAFE
     }
   fi
   if [ -z "$display_number" ]; then
-    display_number="$(nt_find_free_display)" || { nt_fail "Canonical Native Termux display :1 is occupied or ambiguous; inspect its owner instead of starting a duplicate display."; return 1; }
+    attached_identity="$(python3 "$_TN_LIB_DIR/x11_display.py" attachable /proc "${TMPDIR:-/data/data/com.termux/files/usr/tmp}" 1 2>/dev/null || true)"
+    if [ -n "$attached_identity" ]; then display_number=1; else
+      display_number="$(nt_find_free_display)" || { nt_fail "Canonical Native Termux display :1 is occupied or ambiguous; inspect its owner instead of starting a duplicate display."; return 1; }
+    fi
+  else
+    attached_identity="$(python3 "$_TN_LIB_DIR/x11_display.py" attachable /proc "${TMPDIR:-/data/data/com.termux/files/usr/tmp}" "$display_number" 2>/dev/null || true)"
   fi
-  _nt_display_available "$display_number" || { nt_fail "Display :$display_number has a socket or lock; refusing to reuse it"; return 1; }
+  if [ -n "$attached_identity" ]; then
+    read -r external_x11_pid external_x11_ticks <<< "$attached_identity"
+    x11_ownership=external
+    nt_info "Attaching to the verified native Termux:X11 server on :$display_number; Ternuxx will leave that server running on stop."
+  else
+    _nt_display_available "$display_number" || { nt_fail "Display :$display_number has a socket or lock; refusing to reuse it"; return 1; }
+  fi
 
   _nt_use audio && nt_audio_ensure || true
 
@@ -421,10 +435,10 @@ PY_FAILED_SESSION_SAFE
   touch "$log_file" || { _nt_journal_update "$operation_id" failed "desktop log could not be created" || true; nt_fail "Cannot create the Ternuxx desktop log"; return 1; }
   chmod 600 "$log_file" 2>/dev/null || true
   rm -f "$state_root/session.ready" 2>/dev/null || true
-  nt_step "Starting Ternuxx-owned X11 and $desktop_name on :$display_number..."
+  nt_step "Starting the Ternuxx $desktop_name session on :$display_number..."
   nohup setsid env "${launch_unset[@]}" "${launch_env[@]}" "$supervisor" ":$display_number" "$state_root" "$tmp_root" \
     "$(command -v termux-x11)" "$(command -v dbus-launch)" \
-    "$desktop_command" "$owned_exec" "$desktop_marker" native "$desktop_id" >> "$log_file" 2>&1 </dev/null &
+    "$desktop_command" "$owned_exec" "$desktop_marker" native "$desktop_id" "$x11_ownership" "$external_x11_pid" "$external_x11_ticks" >> "$log_file" 2>&1 </dev/null &
 
   local ready=0 result
   for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30; do

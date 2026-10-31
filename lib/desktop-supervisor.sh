@@ -23,6 +23,9 @@ DESKTOP_SID=""
 DESKTOP_MARKER="${8:-xfce4-session}"
 PROVIDER="${9:-native}"
 DESKTOP_ID="${10:-${TERNUXX_DESKTOP_ID:-xfce}}"
+X11_OWNERSHIP="${11:-owned}"
+EXTERNAL_X11_PID="${12:-}"
+EXTERNAL_X11_TICKS="${13:-}"
 STOP_REASON=""
 STARTUP_FAILED=0
 
@@ -160,7 +163,7 @@ cleanup_owned_display_artifacts() {
 
 write_state() {
   local phase="$1" error_text="${2:-}"
-  python3 - "$STATE_FILE" "$phase" "$DISPLAY_VALUE" "$$" "$(proc_ticks "$$")" \
+  python3 - "$STATE_FILE" "$phase" "$DISPLAY_VALUE" "$$" "$(proc_ticks "$$")" "$X11_OWNERSHIP" \
     "$X11_PID" "$X11_TICKS" "$X11_PGID" "$X11_SID" \
     "$DESKTOP_PID" "$DESKTOP_TICKS" "$DESKTOP_PGID" "$DESKTOP_SID" "$error_text" "$DESKTOP_MARKER" "$PROVIDER" "$DESKTOP_ID" "${TERNUXX_PROOT_ALIAS:-debian}" <<'PY'
 import json
@@ -169,7 +172,7 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 
-(path, phase, display, supervisor_pid, supervisor_ticks, x11_pid, x11_ticks,
+(path, phase, display, supervisor_pid, supervisor_ticks, x11_ownership, x11_pid, x11_ticks,
  x11_pgid, x11_sid, desktop_pid, desktop_ticks, desktop_pgid, desktop_sid,
  error, desktop_marker, provider, desktop_id, guest_alias) = sys.argv[1:]
 def role(pid, ticks, pgid, sid, marker):
@@ -182,7 +185,8 @@ state = {
     **({"guest_alias": guest_alias} if provider == "proot" else {}),
     "supervisor": {"pid": int(supervisor_pid), "start_ticks": supervisor_ticks,
                    "command_marker": "desktop-supervisor.sh"},
-    "x11": role(x11_pid, x11_ticks, x11_pgid, x11_sid, "termux-x11"),
+    "x11": {**role(x11_pid, x11_ticks, x11_pgid, x11_sid, "termux-x11"),
+            **({"ownership": "external", "display": display} if x11_ownership == "external" else {})},
     "desktop": role(desktop_pid, desktop_ticks, desktop_pgid, desktop_sid, desktop_marker),
     "error": error or None, "updated_at": datetime.now(timezone.utc).isoformat(),
 }
@@ -241,11 +245,11 @@ cleanup() {
     failed=1
     STOP_REASON="desktop process group could not be verified stopped"
   fi
-  if ! stop_group "$X11_PID" "$X11_TICKS" "termux-x11" "$X11_PGID" "$X11_SID"; then
+  if [ "$X11_OWNERSHIP" = owned ] && ! stop_group "$X11_PID" "$X11_TICKS" "termux-x11" "$X11_PGID" "$X11_SID"; then
     failed=1
     STOP_REASON="Termux:X11 process group could not be verified stopped"
   fi
-  if [ "$failed" -eq 0 ]; then
+  if [ "$failed" -eq 0 ] && [ "$X11_OWNERSHIP" = owned ]; then
     cleanup_owned_display_artifacts || failed=1
   fi
   if [ "$failed" -ne 0 ]; then
@@ -266,6 +270,7 @@ trap on_signal TERM INT HUP
 
 [[ "$DISPLAY_VALUE" =~ ^:[0-9]{1,2}$ ]] || fail "invalid display"
 [[ "$PROVIDER" = native || "$PROVIDER" = proot ]] || fail "unsupported desktop provider"
+[[ "$X11_OWNERSHIP" = owned || "$X11_OWNERSHIP" = external ]] || fail "unsupported X11 ownership"
 [ -d "$STATE_DIR" ] || fail "state directory missing"
 [ -d "$TMP_ROOT/.X11-unix" ] || fail "Termux X11 socket directory missing"
 [ -x "$X11_BIN" ] || fail "termux-x11 executable missing"
@@ -282,19 +287,32 @@ fi
 [ -x "$OWNED_EXEC_BIN" ] || fail "owned process launcher missing"
 
 write_state starting
-"$OWNED_EXEC_BIN" "$X11_BIN" "$DISPLAY_VALUE" >> "$STATE_DIR/desktop.log" 2>&1 &
-X11_PID="$!"
-x11_identity="$(capture_owned_group "$X11_PID" "termux-x11")" || fail "could not verify Termux:X11 owned process group"
-read -r X11_TICKS X11_PGID X11_SID <<EOF_ID
+if [ "$X11_OWNERSHIP" = external ]; then
+  [[ "$EXTERNAL_X11_PID" =~ ^[0-9]+$ && "$EXTERNAL_X11_TICKS" =~ ^[0-9]+$ ]] || fail "external X11 identity is incomplete"
+  external_identity="$(python3 "$(dirname -- "$0")/x11_display.py" attachable /proc "$TMP_ROOT" "${DISPLAY_VALUE#:}" 2>/dev/null || true)"
+  [ "$external_identity" = "$EXTERNAL_X11_PID $EXTERNAL_X11_TICKS" ] || fail "external Termux:X11 identity changed (expected $EXTERNAL_X11_PID $EXTERNAL_X11_TICKS; observed ${external_identity:-none})"
+  X11_PID="$EXTERNAL_X11_PID"
+  X11_TICKS="$EXTERNAL_X11_TICKS"
+else
+  "$OWNED_EXEC_BIN" "$X11_BIN" "$DISPLAY_VALUE" >> "$STATE_DIR/desktop.log" 2>&1 &
+  X11_PID="$!"
+  x11_identity="$(capture_owned_group "$X11_PID" "termux-x11")" || fail "could not verify Termux:X11 owned process group"
+  read -r X11_TICKS X11_PGID X11_SID <<EOF_ID
 $x11_identity
 EOF_ID
+fi
 write_state starting
 
 socket="$TMP_ROOT/.X11-unix/X${DISPLAY_VALUE#:}"
 ready=0
 for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
   [ -S "$socket" ] && { ready=1; break; }
-  matches_owned_process "$X11_PID" "$X11_TICKS" "termux-x11" || fail "Termux:X11 exited before its display socket became ready"
+  if [ "$X11_OWNERSHIP" = owned ]; then
+    matches_owned_process "$X11_PID" "$X11_TICKS" "termux-x11" || fail "Termux:X11 exited before its display socket became ready"
+  else
+    external_identity="$(python3 "$(dirname -- "$0")/x11_display.py" attachable /proc "$TMP_ROOT" "${DISPLAY_VALUE#:}" 2>/dev/null || true)"
+    [ "$external_identity" = "$X11_PID $X11_TICKS" ] || fail "external Termux:X11 server is no longer verified"
+  fi
   sleep 0.25
 done
 [ "$ready" -eq 1 ] || fail "Termux:X11 display socket did not become ready"

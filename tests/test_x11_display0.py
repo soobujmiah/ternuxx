@@ -2,13 +2,15 @@
 """Safety checks for recovery of a positively stale Termux:X11 :0 endpoint."""
 import os
 import socket
+import struct
 import sys
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from lib.x11_display import ensure_socket_directory, prepare, recover, recover_proot_link2symlink
+from lib.x11_display import attachable, ensure_socket_directory, prepare, recover, recover_proot_link2symlink
 
 
 class DisplayZeroRecoveryTest(unittest.TestCase):
@@ -19,6 +21,50 @@ class DisplayZeroRecoveryTest(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+    def _external_process_fixture(self, pid=12345, ticks="789"):
+        proc = self.root / "proc" / str(pid)
+        proc.mkdir(parents=True)
+        (proc / "cmdline").write_bytes(b"termux-x11\0com.termux.x11\0:1\0")
+        fields = ["S", "1", str(pid), str(pid)] + ["0"] * 15 + [ticks]
+        (proc / "stat").write_text(f"{pid} (termux-x11) {' '.join(fields)}\n", encoding="ascii")
+        uid = os.getuid()
+        (proc / "status").write_text(f"Uid:\t{uid}\t{uid}\t{uid}\t{uid}\n", encoding="ascii")
+        return self.root / "proc"
+
+    def _x11_server(self, path):
+        listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        listener.bind(str(path))
+        listener.listen(4)
+        listener.settimeout(3)
+        def serve():
+            while True:
+                try:
+                    client, _ = listener.accept()
+                except OSError:
+                    return
+                with client:
+                    try:
+                        client.recv(12)
+                        client.sendall(struct.pack("<BBHHH", 1, 0, 11, 0, 0))
+                    except OSError:
+                        pass
+        threading.Thread(target=serve, daemon=True).start()
+        self.addCleanup(listener.close)
+        return listener
+
+    def test_attachable_requires_unique_native_identity_and_responsive_socket(self):
+        sock = self.root / ".X11-unix" / "X1"
+        self._x11_server(sock)
+        proc = self._external_process_fixture()
+        self.assertEqual(attachable(proc, self.root, "1"), (12345, "789"))
+
+    def test_attachable_rejects_mismatched_display_lock(self):
+        sock = self.root / ".X11-unix" / "X1"
+        self._x11_server(sock)
+        proc = self._external_process_fixture()
+        (self.root / ".X1-lock").write_text("12346\n", encoding="ascii")
+        self.assertIsNone(attachable(proc, self.root, "1"))
 
     def test_startup_creates_missing_socket_directory_under_owned_root(self):
         socket_dir = self.root / ".X11-unix"

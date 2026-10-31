@@ -4,7 +4,9 @@ import json
 import os
 from pathlib import Path
 import socket
+import struct
 import sys
+import threading
 import tempfile
 import unittest
 
@@ -58,18 +60,71 @@ class DesktopSessionStateTests(unittest.TestCase):
     def _inspect(self) -> dict:
         return desktop_session_state.inspect(self.home, self.state, self.proc, self.tmp)
 
+    def _x11_server(self, path: Path) -> socket.socket:
+        listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        listener.bind(str(path))
+        listener.listen(4)
+        listener.settimeout(3)
+        def serve() -> None:
+            while True:
+                try:
+                    client, _ = listener.accept()
+                except OSError:
+                    return
+                with client:
+                    try:
+                        client.recv(12)
+                        client.sendall(struct.pack("<BBHHH", 1, 0, 11, 0, 0))
+                    except OSError:
+                        pass
+        threading.Thread(target=serve, daemon=True).start()
+        self.addCleanup(listener.close)
+        return listener
+
     def test_healthy_running_requires_all_identities_and_responsive_display(self) -> None:
         self._session()
         sock_path = self.tmp / ".X11-unix/X1"
-        listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        listener.bind(str(sock_path))
-        listener.listen(2)
-        self.addCleanup(listener.close)
+        self._x11_server(sock_path)
         (self.tmp / ".X1-lock").write_text("102\n", encoding="ascii")
         result = self._inspect()
         self.assertEqual(result["state"], "running")
         self.assertEqual(result["display"], ":1")
         self.assertEqual(result["display_state"], "ready")
+
+    def test_native_termux_x11_without_lock_is_classified_as_external(self) -> None:
+        session = self._session("running", process_ticks="456")
+        x11 = self.proc / "102"
+        (x11 / "cmdline").write_bytes(b"termux-x11\0com.termux.x11\0:1\0")
+        session["x11"].update(ownership="external", display=":1", pgid=None, sid=None)
+        path = self.state / "session.json"
+        path.write_text(json.dumps(session), encoding="utf-8")
+        path.chmod(0o600)
+        sock_path = self.tmp / ".X11-unix/X1"
+        self._x11_server(sock_path)
+        result = self._inspect()
+        self.assertEqual(result["state"], "running")
+        self.assertEqual(result["display_state"], "ready")
+
+    def test_lockless_responsive_native_x11_allows_stopped_record_to_start(self) -> None:
+        self._session("stopped", process_ticks="999")
+        x11 = self.proc / "102"
+        (x11 / "cmdline").write_bytes(b"termux-x11\0com.termux.x11\0:1\0")
+        sock_path = self.tmp / ".X11-unix/X1"
+        self._x11_server(sock_path)
+        result = self._inspect()
+        self.assertEqual(result["state"], "stopped")
+        self.assertEqual(result["display_state"], "external")
+
+    def test_unidentified_lockless_display_remains_unknown(self) -> None:
+        self._session("stopped", process_ticks="999")
+        sock_path = self.tmp / ".X11-unix/X1"
+        listener = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        listener.bind(str(sock_path))
+        listener.listen(2)
+        self.addCleanup(listener.close)
+        result = self._inspect()
+        self.assertEqual(result["state"], "unknown")
+        self.assertEqual(result["display_state"], "unknown")
 
     def test_reused_pids_with_mismatched_start_ticks_are_stale(self) -> None:
         self._session(process_ticks="999")
