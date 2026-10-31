@@ -178,54 +178,7 @@ def prepare(root, number):
     if lock_id is None and socket_id is None:
         return "available"
     if lock_id is None:
-        # External Termux:X11 does not create the same lock file on every
-        # version. Reclaim only a lockless, unresponsive socket anchored to an
-        # exact recorded external PID that is now absent.
-        if socket_id is None or int(expected_pid) <= 1:
-            return "busy"
-        try:
-            os.stat("/proc/{}".format(expected_pid))
-            return "busy"
-        except FileNotFoundError:
-            pass
-        except OSError:
-            return "busy"
-        probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        probe.settimeout(0.5)
-        try:
-            probe.connect(sockpath)
-            return "busy"
-        except OSError as error:
-            if error.errno != errno.ECONNREFUSED:
-                return "busy"
-        finally:
-            probe.close()
-        try:
-            if snapshot(lock, "lock") is not None or snapshot(sockpath, "socket") != socket_id:
-                return "busy"
-            os.stat("/proc/{}".format(expected_pid))
-            return "busy"
-        except FileNotFoundError:
-            pass
-        except (OSError, RuntimeError):
-            return "busy"
-        probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        probe.settimeout(0.5)
-        try:
-            probe.connect(sockpath)
-            return "busy"
-        except OSError as error:
-            if error.errno != errno.ECONNREFUSED:
-                return "busy"
-        finally:
-            probe.close()
-        try:
-            if snapshot(lock, "lock") is not None or snapshot(sockpath, "socket") != socket_id:
-                return "busy"
-            os.unlink(sockpath)
-        except (OSError, RuntimeError):
-            return "busy"
-        return "recovered"
+        return "busy"
 
     try:
         with open(lock, "r", encoding="ascii") as stream:
@@ -282,7 +235,56 @@ def recover(root, number, expected_pid):
         return "busy"
     if lock_id is None and socket_id is None:
         return "available"
-    if lock_id is None or int(expected_pid) <= 1 or os.path.exists("/proc/{}".format(expected_pid)):
+    if lock_id is None:
+        # External Termux:X11 may leave a lockless socket. Reclaim only when
+        # the exact PID in the stale Ternuxx record is absent and the same
+        # private socket refuses connections throughout the guarded check.
+        if socket_id is None or int(expected_pid) <= 1:
+            return "busy"
+        try:
+            os.stat("/proc/{}".format(expected_pid))
+            return "busy"
+        except FileNotFoundError:
+            pass
+        except OSError:
+            return "busy"
+        probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        probe.settimeout(0.5)
+        try:
+            probe.connect(sockpath)
+            return "busy"
+        except OSError as error:
+            if error.errno != errno.ECONNREFUSED:
+                return "busy"
+        finally:
+            probe.close()
+        try:
+            if snapshot(lock, "lock") is not None or snapshot(sockpath, "socket") != socket_id:
+                return "busy"
+            os.stat("/proc/{}".format(expected_pid))
+            return "busy"
+        except FileNotFoundError:
+            pass
+        except (OSError, RuntimeError):
+            return "busy"
+        probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        probe.settimeout(0.5)
+        try:
+            probe.connect(sockpath)
+            return "busy"
+        except OSError as error:
+            if error.errno != errno.ECONNREFUSED:
+                return "busy"
+        finally:
+            probe.close()
+        try:
+            if snapshot(lock, "lock") is not None or snapshot(sockpath, "socket") != socket_id:
+                return "busy"
+            os.unlink(sockpath)
+        except (OSError, RuntimeError):
+            return "busy"
+        return "recovered"
+    if int(expected_pid) <= 1 or os.path.exists("/proc/{}".format(expected_pid)):
         return "busy"
     try:
         with open(lock, "r", encoding="ascii") as stream:
