@@ -235,7 +235,9 @@ def recover(root, number, expected_pid):
         return "busy"
     if lock_id is None and socket_id is None:
         return "available"
-    if lock_id is None or int(expected_pid) <= 1 or os.path.exists("/proc/{}".format(expected_pid)):
+    if lock_id is None:
+        return "busy"
+    if int(expected_pid) <= 1 or os.path.exists("/proc/{}".format(expected_pid)):
         return "busy"
     try:
         with open(lock, "r", encoding="ascii") as stream:
@@ -270,6 +272,72 @@ def recover(root, number, expected_pid):
         return "busy"
     return "recovered"
 
+
+
+def recover_external(root, number, expected_pid, proc_root="/proc"):
+    """Reclaim only a stale, lockless external X11 socket from its exact record."""
+    if (not number.isdigit() or not 0 <= int(number) <= 10
+            or not expected_pid.isdigit() or int(expected_pid) <= 1):
+        return "busy"
+    root = os.path.abspath(root)
+    try:
+        root_meta = os.lstat(root)
+        sockdir = os.path.join(root, ".X11-unix")
+        dir_meta = os.lstat(sockdir)
+        if (stat.S_ISLNK(root_meta.st_mode) or not stat.S_ISDIR(root_meta.st_mode)
+                or root_meta.st_uid != os.getuid()
+                or stat.S_ISLNK(dir_meta.st_mode) or not stat.S_ISDIR(dir_meta.st_mode)
+                or dir_meta.st_uid != os.getuid()):
+            return "busy"
+    except OSError:
+        return "busy"
+
+    lock = os.path.join(root, ".X{}-lock".format(number))
+    sockpath = os.path.join(sockdir, "X" + number)
+    try:
+        if snapshot(lock, "lock") is not None:
+            return "busy"
+        socket_id = snapshot(sockpath, "socket")
+    except (OSError, RuntimeError):
+        return "busy"
+    if socket_id is None:
+        return "available"
+
+    def pid_absent():
+        try:
+            os.stat(os.path.join(proc_root, expected_pid))
+            return False
+        except FileNotFoundError:
+            return True
+        except OSError:
+            return False
+
+    def refuses_connection():
+        probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        probe.settimeout(0.5)
+        try:
+            probe.connect(sockpath)
+        except OSError as error:
+            return error.errno == errno.ECONNREFUSED
+        finally:
+            probe.close()
+        return False
+
+    if not pid_absent() or not refuses_connection():
+        return "busy"
+    try:
+        if (snapshot(lock, "lock") is not None
+                or snapshot(sockpath, "socket") != socket_id
+                or not pid_absent() or not refuses_connection()):
+            return "busy"
+        if (snapshot(lock, "lock") is not None
+                or snapshot(sockpath, "socket") != socket_id
+                or not pid_absent()):
+            return "busy"
+        os.unlink(sockpath)
+    except (OSError, RuntimeError):
+        return "busy"
+    return "recovered"
 
 def recover_proot_link2symlink(root, number, guest_rootfs, proc_root="/proc"):
     """Reclaim a dead Xephyr lock only through PRoot's exact Debian l2s chain."""
@@ -420,6 +488,8 @@ if __name__ == "__main__":
         result = prepare(sys.argv[1], sys.argv[2])
     elif len(sys.argv) == 5 and sys.argv[1] == "recover":
         result = recover(sys.argv[2], sys.argv[3], sys.argv[4])
+    elif len(sys.argv) == 5 and sys.argv[1] == "recover-external":
+        result = recover_external(sys.argv[2], sys.argv[3], sys.argv[4])
     elif len(sys.argv) == 5 and sys.argv[1] == "recover-proot":
         result = recover_proot_link2symlink(sys.argv[2], sys.argv[3], sys.argv[4])
     else:

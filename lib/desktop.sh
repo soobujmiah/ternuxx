@@ -240,7 +240,7 @@ nt_cmd_start() {
   # Do not pass a caller-specific loader directory (for example Codex's
   # bundled runtime) into Native Termux desktop processes.
   local -a launch_env=() launch_unset=()
-  local stale_display="" stale_display_number="" stale_x11_pid="" stale_artifact_state=""
+  local stale_display="" stale_display_number="" stale_x11_pid="" stale_x11_ownership="" stale_artifact_state=""
   while [ $# -gt 0 ]; do
     arg="$1"; shift
     case "$arg" in
@@ -325,6 +325,7 @@ nt_cmd_start() {
     stale)
       stale_display="$(_nt_state_value display 2>/dev/null || true)"
       stale_x11_pid="$(_nt_state_value x11.pid 2>/dev/null || true)"
+      stale_x11_ownership="$(_nt_state_value x11.ownership 2>/dev/null || printf owned)"
       session_report="$(python3 "$_TN_LIB_DIR/desktop_session_state.py" reconcile-stale "$HOME" "$state_root" /proc "${TMPDIR:-/data/data/com.termux/files/usr/tmp}" 2>/dev/null)" || {
         nt_fail "Stale session evidence changed or could not be reconciled safely; no process was started."; return 1;
       }
@@ -332,7 +333,11 @@ nt_cmd_start() {
         :1|:2|:3|:4|:5|:6|:7|:8|:9|:10) stale_display_number="${stale_display#:}" ;;
       esac
       if [ -n "$stale_display_number" ] && [[ "$stale_x11_pid" =~ ^[0-9]+$ ]]; then
-        stale_artifact_state="$(python3 "$_TN_LIB_DIR/x11_display.py" recover "${TMPDIR:-/data/data/com.termux/files/usr/tmp}" "$stale_display_number" "$stale_x11_pid" 2>/dev/null)" || stale_artifact_state=busy
+        if [ "$stale_x11_ownership" = external ]; then
+          stale_artifact_state="$(python3 "$_TN_LIB_DIR/x11_display.py" recover-external "${TMPDIR:-/data/data/com.termux/files/usr/tmp}" "$stale_display_number" "$stale_x11_pid" 2>/dev/null)" || stale_artifact_state=busy
+        else
+          stale_artifact_state="$(python3 "$_TN_LIB_DIR/x11_display.py" recover "${TMPDIR:-/data/data/com.termux/files/usr/tmp}" "$stale_display_number" "$stale_x11_pid" 2>/dev/null)" || stale_artifact_state=busy
+        fi
         case "$stale_artifact_state" in
           recovered) nt_warn "Reconciled the exact stale Ternuxx :$stale_display_number socket/lock pair using its recorded, absent X11 PID." ;;
           available) nt_warn "Reconciled the stale Ternuxx session; its recorded display artifacts were already absent." ;;
