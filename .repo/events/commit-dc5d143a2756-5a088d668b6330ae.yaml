@@ -1,0 +1,7 @@
+event_id: commit-dc5d143a2756-5a088d668b6330ae
+repository: soobujmiah/ternuxx
+commit: dc5d143a2756fd98aafc71572cd6fe3eb83dec69
+kind: commit
+occurred_at: '2026-11-05T17:27:08Z'
+status: completed
+summary: 'feat(proot): add managed Alpine and safe removal'
