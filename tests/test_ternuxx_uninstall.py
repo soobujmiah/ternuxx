@@ -11,6 +11,41 @@ import ternuxx_uninstall
 
 
 class TernuxxUninstallTests(unittest.TestCase):
+    def test_git_metadata_directory_timestamp_is_volatile_but_contents_are_fingerprinted(self):
+        with tempfile.TemporaryDirectory(prefix="ternuxx-uninstall-") as temp:
+            checkout = Path(temp) / "checkout"
+            git_dir = checkout / ".git"
+            git_dir.mkdir(parents=True)
+            head = git_dir / "HEAD"
+            head.write_text("ref: refs/heads/main\n")
+            first = ternuxx_uninstall._checkout_fingerprint(checkout)
+            before = git_dir.stat()
+            import os
+            os.utime(git_dir, ns=(before.st_atime_ns, before.st_mtime_ns + 1_000_000_000))
+            self.assertEqual(first, ternuxx_uninstall._checkout_fingerprint(checkout))
+            head.write_text("ref: refs/heads/other\n")
+            self.assertNotEqual(first, ternuxx_uninstall._checkout_fingerprint(checkout))
+
+    def test_internal_guest_previews_do_not_invalidate_full_uninstall_plan(self):
+        with tempfile.TemporaryDirectory(prefix="ternuxx-uninstall-") as temp:
+            home = Path(temp) / "home"
+            home.mkdir()
+            state = home / ".local/share/ternuxx"
+            state.mkdir(parents=True)
+            prefix = Path(temp) / "prefix"
+            prefix.mkdir()
+            def guest_preview(**kwargs):
+                preview_dir = state / "removal-previews"
+                preview_dir.mkdir(mode=0o700, exist_ok=True)
+                (preview_dir / "guest-plan.json").write_text('{"plan_id":"stable"}')
+                return {"alias": "debian", "plan_id": "stable"}
+            with patch.object(ternuxx_uninstall, "EXPECTED_PREFIX", str(prefix)), \
+                 patch.object(ternuxx_uninstall.shutil, "which", return_value="/fake/proot-distro"), \
+                 patch.object(ternuxx_uninstall.proot_distro_removal, "_inventory", return_value={"debian"}), \
+                 patch.object(ternuxx_uninstall.proot_distro_removal, "preview", side_effect=guest_preview):
+                plan = ternuxx_uninstall.preview(prefix=str(prefix), home=str(home), state_dir=str(state))
+                ternuxx_uninstall._verify(plan, prefix=str(prefix), home=str(home), state_dir=str(state))
+
     def test_exact_preview_and_phrase_remove_only_private_state(self):
         with tempfile.TemporaryDirectory(prefix="ternuxx-uninstall-") as temp:
             home = Path(temp) / "home"

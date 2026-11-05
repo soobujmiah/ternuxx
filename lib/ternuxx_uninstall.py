@@ -19,7 +19,7 @@ EXPECTED_PREFIX = "/data/data/com.termux/files/usr"
 _ID = re.compile(r"[0-9a-f]{64}\Z")
 _ORIGINS = {"https://github.com/soobujmiah/ternuxx", "https://github.com/soobujmiah/ternuxx.git",
             "git@github.com:soobujmiah/ternuxx.git"}
-_STATE_OMIT = ("uninstall-previews", "proot-setup/removal-previews", "proot-display0", "audio/runtime", "xfce/runtime")
+_STATE_OMIT = ("uninstall-previews", "removal-previews", "proot-setup/removal-previews", "proot-display0", "audio/runtime", "xfce/runtime")
 
 
 class UninstallError(ValueError):
@@ -65,7 +65,12 @@ def _checkout_fingerprint(root: Path) -> dict:
             relative = str(path.relative_to(root))
             if info.st_uid != os.getuid() or info.st_dev != root_info.st_dev:
                 raise UninstallError("the Ternuxx checkout contains a foreign-owned or mounted path: " + relative)
-            common = (relative, info.st_mode, info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns)
+            # Git may touch the metadata directory timestamp while refreshing
+            # its index/cache during status checks. Its inode and every child
+            # file are still fingerprinted; only this volatile directory mtime
+            # is excluded so the confirmation's own Git check stays stable.
+            mtime_ns = 0 if relative == ".git" and stat.S_ISDIR(info.st_mode) else info.st_mtime_ns
+            common = (relative, info.st_mode, info.st_dev, info.st_ino, info.st_size, mtime_ns)
             if stat.S_ISDIR(info.st_mode):
                 entries.append((*common, "directory"))
                 pending.append(path)
