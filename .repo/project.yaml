@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternuxx
 repository: soobujmiah/ternuxx
-generated_at: '2026-11-05T17:30:52Z'
+generated_at: '2026-11-05T17:48:38Z'
 generated_by: tools/repo_knowledge collect
-version: native-mesa-adreno825-2026.10.27-249-gdc5d143
+version: native-mesa-adreno825-2026.10.27-252-gde311a0
 head:
-  commit: dc5d143a2756fd98aafc71572cd6fe3eb83dec69
+  commit: de311a0668200f31fd7004b429ac2777b1cdbf08
   branch: main
-  committed_at: '2026-11-05T17:27:08Z'
+  committed_at: '2026-11-05T17:45:47Z'
 phases:
   source: not_configured
   completed: []
@@ -15,26 +15,26 @@ phases:
   next: null
 build:
   status: unknown
-  run_id: '42074771652'
-  commit: dc5d143a2756fd98aafc71572cd6fe3eb83dec69
+  run_id: '42077795547'
+  commit: de311a0668200f31fd7004b429ac2777b1cdbf08
   run_attempt: '1'
-  at: '2026-11-05T17:30:52Z'
+  at: '2026-11-05T17:48:38Z'
   timestamp_source: observed
   workflow_name: Repository Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/42074771652
+  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/42077795547
 test:
   status: failed
-  run_id: '42074771652'
-  commit: dc5d143a2756fd98aafc71572cd6fe3eb83dec69
+  run_id: '42077795547'
+  commit: de311a0668200f31fd7004b429ac2777b1cdbf08
   run_attempt: '1'
-  at: '2026-11-05T17:30:52Z'
+  at: '2026-11-05T17:48:38Z'
   timestamp_source: observed
   workflow_name: Repository Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/42074771652
+  run_url: https://github.com/soobujmiah/ternuxx/actions/runs/42077795547
   summary: null
 last_successful_build: null
 last_failed_build:
@@ -43,5 +43,5 @@ last_failed_build:
   run_id: '39159994935'
 sync:
   status: ok
-  last_synced_at: '2026-11-05T17:30:52Z'
+  last_synced_at: '2026-11-05T17:48:38Z'
   source: ci
