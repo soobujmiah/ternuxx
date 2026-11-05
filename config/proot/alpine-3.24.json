@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "profile_id": "ternuxx-alpine-3.24-workstation",
+  "provider": "proot-distro",
+  "distro": "alpine",
+  "release": "3.24.3",
+  "architecture": "aarch64",
+  "lifecycle_owner": "ternuxx",
+  "package_manager": "apk",
+  "package_database": "apk-installed",
+  "rootfs_policy": {
+    "existing": "adopt-in-place; never reinstall, reset, or replace",
+    "missing": "create only through an explicit preview-confirmed Ternuxx setup"
+  },
+  "guest": {
+    "user": "required-install-input",
+    "locale": "C.UTF-8",
+    "startup_files": "do-not-edit",
+    "audio_client": "receive authenticated Native PulseAudio settings from Ternuxx at launch"
+  },
+  "packages": {
+    "base": ["bash", "ca-certificates", "musl-utils", "shadow", "sudo", "tzdata"],
+    "desktop-compat": ["dbus", "desktop-file-utils", "gtk-update-icon-cache", "mesa-dri-gallium", "mesa-gl", "pulseaudio-utils", "xfce4", "xfce4-terminal", "xauth", "xdotool", "xorg-server-xephyr"],
+    "development": ["cmake", "git", "jq", "nodejs", "npm", "openssh-client-default", "python3", "py3-pip", "py3-virtualenv", "rust", "tmux"],
+    "desktop-apps": ["ffmpeg", "poppler-utils", "unzip", "zip"],
+    "fonts": ["font-noto", "font-noto-emoji", "font-noto-symbols"]
+  },
+  "graphics": {
+    "backend": "cpu-mesa",
+    "open_gl_environment": {},
+    "turnip_archive": null,
+    "managed_install_paths": {},
+    "hold_packages": []
+  },
+  "native_handoff": {
+    "display": "explicit Ternuxx session display",
+    "pulse_server": "tcp:127.0.0.1:4713",
+    "pulse_authentication": "private Ternuxx-managed cookie; never store in this manifest",
+    "guest_abi": "musl",
+    "native_bionic_libraries_allowed": false
+  },
+  "fresh_install": {
+    "base_image": "alpine:3.24.3",
+    "image_index_digest": "sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a",
+    "image_date": "2026-10-21",
+    "architecture": "aarch64",
+    "source": "official Docker Hub Alpine image index",
+    "arch_manifest_digest": "sha256:e311ae748be7f56ae5cba304bc488f0786df68ee507513f654a5cc8597cffb42",
+    "config_digest": "sha256:f7bbaec1bd0330a8dba26f03e05f421bb3c8b807bb41873df3c3b0c3d1083d8f",
+    "config_size": 627,
+    "layer_digest": "sha256:d3531b7a4f217bdc3426c57bcff84c170f086f456a39689d4a615c6d026c4be0",
+    "layer_size": 4190488,
+    "image_created": "2026-10-21T22:51:39.084385804Z",
+    "apk_repositories": ["https://dl-cdn.alpinelinux.org/alpine/v3.24/main", "https://dl-cdn.alpinelinux.org/alpine/v3.24/community"]
+  },
+  "release_id": "alpine",
+  "codename": "3.24.3",
+  "release_name": "Alpine Linux 3.24.3"
+}

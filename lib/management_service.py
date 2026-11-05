@@ -61,6 +61,7 @@ import proot_profiles
 import proot_sessions
 import proot_diagnostics
 import proot_guest_retirement as retire_fresh_guest
+import proot_distro_removal
 import proot_shortcuts
 import installer_launch
 
@@ -113,6 +114,8 @@ OPERATIONS = {
     "desktop.stop": {"args": set()},
     "desktop.restart": {"args": {"display", "desktop_id"}},
     "proot.status": {"args": set()},
+    "proot.guest.remove.preview": {"args": {"alias"}},
+    "proot.guest.remove": {"args": {"alias", "confirmed", "plan_id", "typed_alias"}},
     "proot.setup.catalog": {"args": set()},
     "proot.setup.fresh.preview": {"args": {"user", "sudo_mode", "desktops", "distro"}},
     "proot.setup.fresh.apply": {"args": {"user", "sudo_mode", "plan_id", "confirmed", "password", "distro"}},
@@ -386,6 +389,13 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 or ("password" in args and (len(args["password"]) < 4 or len(args["password"]) > 1024
                     or any(ch in args["password"] for ch in "\x00\r\n")))):
             return _error(request_id, "confirmation_required", "fresh guest apply requires the exact preview, selected options, confirmation, and valid guest credentials")
+    if operation == "proot.guest.remove.preview" and (set(args) != {"alias"} or not isinstance(args.get("alias"), str)):
+        return _error(request_id, "invalid_arguments", "guest removal preview requires one exact distro alias")
+    if operation == "proot.guest.remove" and (
+            set(args) != {"alias", "confirmed", "plan_id", "typed_alias"}
+            or not isinstance(args.get("alias"), str) or args.get("confirmed") is not True
+            or not isinstance(args.get("plan_id"), str) or args.get("typed_alias") != args.get("alias")):
+        return _error(request_id, "confirmation_required", "guest removal requires the exact preview, typed guest name, and confirmation")
     if operation == "proot.stop.preview" and (
             set(args) != {"session_id"} or not isinstance(args.get("session_id"), str)):
         return _error(request_id, "invalid_arguments", "a Ternuxx session ID is required")
@@ -671,6 +681,15 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
                 user=args["user"], alias=distro, plan_id=args["plan_id"],
                 confirmed=args["confirmed"], password=args.get("password"),
                 sudo_mode=args["sudo_mode"])
+        elif operation in {"proot.guest.remove.preview", "proot.guest.remove"}:
+            common = {"prefix": process_env["PREFIX"], "home": home,
+                      "state_dir": state_dir or os.path.join(home, ".local/share/ternuxx"),
+                      "alias": args["alias"]}
+            if operation == "proot.guest.remove.preview":
+                data = proot_distro_removal.preview(**common)
+            else:
+                data = proot_distro_removal.apply(**common, plan_id=args["plan_id"],
+                    typed_alias=args["typed_alias"], confirmed=args["confirmed"])
         elif operation == "proot.status":
             data = proot_diagnostics.inspect_installed(
                 prefix=process_env["PREFIX"], home=home,
@@ -1328,6 +1347,8 @@ def dispatch(request: object, *, caller: str = "local_cli", env: dict[str, str] 
         return _error(request_id, "cron_registry_error", str(exc))
     except fixed_service_deployment.ServiceInstallError as exc:
         return _error(request_id, "service_failed", str(exc))
+    except proot_distro_removal.RemovalError as exc:
+        return _error(request_id, "guest_removal_failed", str(exc))
     except retire_fresh_guest.RetirementError as exc:
         return _error(request_id, "guest_retirement_failed", str(exc))
     except proot_setup.SetupError as exc:
@@ -1411,6 +1432,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--snapshot-id")
     parser.add_argument("--name")
     parser.add_argument("--alias")
+    parser.add_argument("--typed-alias")
     parser.add_argument("--backup-id")
     parser.add_argument("--operation-id")
     parser.add_argument("--rollback-id")
@@ -2157,6 +2179,18 @@ def main(argv: list[str] | None = None) -> int:
             payload["app_id"] = args.app_id
         else:
             payload["desktop_id"] = args.desktop_id
+    elif args.operation == "proot.guest.remove.preview":
+        if not args.alias or args.yes or args.plan_id or args.typed_alias:
+            response = _error(request_id, "invalid_arguments", "guest removal preview requires only --alias")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"alias": args.alias}
+    elif args.operation == "proot.guest.remove":
+        if not args.alias or not args.typed_alias or not args.yes or not args.plan_id:
+            response = _error(request_id, "confirmation_required", "guest removal requires --alias, --typed-alias, --yes, and exact --plan-id")
+            print(json.dumps(response, sort_keys=True) if args.json else response["error"]["message"], file=None if args.json else sys.stderr)
+            return 1
+        payload = {"alias": args.alias, "typed_alias": args.typed_alias, "confirmed": True, "plan_id": args.plan_id}
     elif args.operation == "proot.guest.verify":
         source = args.user_source
         if (not args.distro or not args.display or not args.backend

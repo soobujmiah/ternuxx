@@ -56,6 +56,8 @@ MUTATING_OPERATIONS = frozenset({
     "inference.auto.run",
     "proot.app.launch",
     "proot.guest.verify",
+    "proot.guest.remove.preview",
+    "proot.guest.remove",
     "proot.recovery.reconcile",
     "proot.setup.fresh.apply",
     "proot.setup.fresh.preview",

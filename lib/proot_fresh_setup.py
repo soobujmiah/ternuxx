@@ -313,7 +313,8 @@ def _packages(manifest: dict, selected: list[str] | None = None) -> list[str]:
 def _assert_resume_compatible(previous: dict, current: dict) -> None:
     keys = ("schema_version", "alias", "profile_id", "distro", "release", "guest_user", "sudo_mode",
             "desktop_environments", "image", "image_pin", "arch_manifest_digest", "config_digest",
-            "layer_digest", "rootfs_target", "package_groups", "packages", "existing_debian_rootfs_changed")
+            "layer_digest", "rootfs_target", "package_groups", "package_policy",
+            "existing_debian_rootfs_changed")
     try:
         fresh_operation, resume_operation = _operation_names(str(previous.get("profile_id")))
     except FreshSetupError as exc:
@@ -322,11 +323,24 @@ def _assert_resume_compatible(previous: dict, current: dict) -> None:
         raise FreshSetupError("previous setup plan is not a Ternuxx fresh-install plan")
     if any(previous.get(key) != current.get(key) for key in keys):
         raise FreshSetupError("current setup profile changes packages or pinned image; failed install cannot resume")
-    old_snapshot, new_snapshot = previous.get("apt_snapshot"), current.get("apt_snapshot")
-    snapshot_keys = ("snapshot_id", "suites", "components", "valid_until")
-    if (not isinstance(old_snapshot, dict) or not isinstance(new_snapshot, dict)
-            or any(old_snapshot.get(key) != new_snapshot.get(key) for key in snapshot_keys)):
-        raise FreshSetupError("failed install uses a different distro snapshot; refusing resume")
+    previous_packages, current_packages = previous.get("packages"), current.get("packages")
+    if (not isinstance(previous_packages, list) or not isinstance(current_packages, list)
+            or any(not isinstance(package, str) for package in (*previous_packages, *current_packages))
+            or len(set(previous_packages)) != len(previous_packages)
+            or len(set(current_packages)) != len(current_packages)
+            or not set(previous_packages).issubset(current_packages)):
+        raise FreshSetupError("failed install resume may only add explicitly reviewed packages")
+    if previous.get("package_manager") != current.get("package_manager"):
+        raise FreshSetupError("failed install changed package manager; refusing resume")
+    if current.get("package_manager") == "apk":
+        if previous.get("apk_repositories") != current.get("apk_repositories"):
+            raise FreshSetupError("failed install uses different Alpine repositories; refusing resume")
+    else:
+        old_snapshot, new_snapshot = previous.get("apt_snapshot"), current.get("apt_snapshot")
+        snapshot_keys = ("snapshot_id", "suites", "components", "valid_until")
+        if (not isinstance(old_snapshot, dict) or not isinstance(new_snapshot, dict)
+                or any(old_snapshot.get(key) != new_snapshot.get(key) for key in snapshot_keys)):
+            raise FreshSetupError("failed install uses a different distro snapshot; refusing resume")
     old_graphics, new_graphics = previous.get("graphics"), current.get("graphics")
     graphics_keys = ("kgsl_accessible_at_preview", "turnip_archive_sha256",
                      "turnip_install_planned", "rendering_verified")
@@ -375,7 +389,8 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
     ca_path, ca_sha256 = _native_ca_bundle(prefix)
     guest_ca_path = "/tmp/ternuxx-native-ca.pem"
     kgsl = _kgsl_accessible()
-    turnip = kgsl and "app-cpu-runtime" not in chosen_groups
+    turnip = (kgsl and "app-cpu-runtime" not in chosen_groups
+              and manifest.get("native_handoff", {}).get("guest_abi") == "glibc")
     if turnip:
         for name in manifest.get("graphics", {}).get("hold_packages", []):
             if name not in packages:
@@ -399,15 +414,17 @@ def preview(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str
         "package_policy": package_policy,
         "desktop_environments": list(chosen_desktops),
         "packages": packages,
-        "apt_snapshot": manifest["fresh_install"]["apt_snapshot"],
+        "apt_snapshot": manifest["fresh_install"].get("apt_snapshot"),
+        "apk_repositories": manifest["fresh_install"].get("apk_repositories", []),
+        "package_manager": manifest.get("package_manager", "apt"),
         "https_bootstrap": {"source": str(ca_path), "sha256": ca_sha256,
                             "guest_temporary_path": guest_ca_path,
                             "release_signature_required": True},
-        "package_versions": "pinned by the dated distro archive snapshot",
+        "package_versions": ("resolved from the signed APK repository index" if manifest.get("package_manager") == "apk" else "pinned by the dated distro archive snapshot"),
         "existing_debian_rootfs_changed": False,
         "graphics": {
             "kgsl_accessible_at_preview": kgsl,
-            "turnip_archive_sha256": manifest["graphics"]["turnip_archive"]["sha256"],
+            "turnip_archive_sha256": (manifest.get("graphics", {}).get("turnip_archive") or {}).get("sha256"),
             "turnip_install_planned": turnip,
             "rendering_verified": False,
         },
@@ -742,7 +759,7 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         raise FreshSetupError("another fresh Debian setup operation is active") from exc
     owned = None
     attempted = False
-    event_log = None
+    event_log = state / f"fresh-{plan_id}.events.log"
     failure_stage = "rootfs-install"
     try:
         container, rootfs = _target_paths(prefix, alias)
@@ -785,14 +802,18 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                             check=False, timeout=1800)
             if result.returncode:
                 raise FreshSetupError("proot-distro failed to create the new guest alias")
-        # Validate the exact OCI content that proot-distro installed before
-        # changing APT sources, installing packages, or creating guest users.
+        # Validate the exact OCI content before changing package sources,
+        # installing packages, or creating guest users.
         failure_stage = "base-image-verification"
+        if owned is None:
+            # The exact destination was absent at preview and has just been
+            # created by this invocation. Record its identity before validating
+            # downloaded metadata so a failed verification can be safely resumed
+            # or explicitly cleaned up without treating an arbitrary rootfs as ours.
+            owned = _root_identity(container, rootfs)
         _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "verifying",
                                  "stage": failure_stage, "rootfs_identity": owned})
         _verify_base_image(prefix, manifest, alias)
-        if owned is None:
-            owned = _root_identity(container, rootfs)
         _verify_owned_target(prefix, alias, owned)
         _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "configuring",
                                  "rootfs_identity": owned})
@@ -807,39 +828,55 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                            check=False, timeout=180)
         if copied_ca.returncode:
             raise FreshSetupError("verified Native Termux CA bundle could not be staged in the new guest")
-        snapshot = manifest["fresh_install"]["apt_snapshot"]
-        suites = " ".join(snapshot["suites"])
-        components = " ".join(snapshot["components"])
-        keyring = snapshot.get("keyring", "/usr/share/keyrings/debian-archive-keyring.gpg")
-        sources = ("Types: deb\nURIs: " + snapshot["main_archive"] + "\nSuites: " + suites
-                   + "\nComponents: " + components + "\nSigned-By: " + keyring
-                   + "\nCheck-Valid-Until: no\n")
-        configure_sources = "rm -f /etc/apt/sources.list && find /etc/apt/sources.list.d -maxdepth 1 -type f \\( -name '*.sources' -o -name '*.list' \\) -delete && printf %s " + shlex.quote(sources) + " > /etc/apt/sources.list.d/ternuxx-snapshot.sources"
-        policy_hold = proot_policy.hold_command(package_policy["always_hold"])
-        script = "\n".join([
-            "set -eu", f"trap 'rm -f {guest_ca_quoted}' EXIT", "export DEBIAN_FRONTEND=noninteractive", configure_sources,
-            f"apt-get -o Acquire::https::CaInfo={guest_ca_quoted} -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 -o Acquire::Check-Valid-Until=false update",
-            *([policy_hold] if policy_hold else []),
-            f"apt-get -o Acquire::https::CaInfo={guest_ca_quoted} -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 install -y --no-install-recommends {package_args}",
-            f"rm -f {guest_ca_quoted}",
-            "printf '%s\\n' 'en_US.UTF-8 UTF-8' > /etc/locale.gen", "locale-gen",
-            "if ! getent passwd " + guest_user + " >/dev/null; then useradd --create-home --shell /bin/bash " + guest_user + "; fi",
-            f"usermod -aG sudo {guest_user}", "update-locale LANG=en_US.UTF-8",
-            # PRoot login may not populate supplementary groups; validate sudoers explicitly.
-            "printf '%s\\n' " + shlex.quote(user + (" ALL=(ALL:ALL) NOPASSWD: ALL" if sudo_mode == "passwordless" else " ALL=(ALL:ALL) ALL")) + " > /etc/sudoers.d/ternuxx-guest-user",
-            "chmod 0440 /etc/sudoers.d/ternuxx-guest-user",
-            "visudo -cf /etc/sudoers.d/ternuxx-guest-user",
-        ])
-        if sudo_mode == "passwordless":
-            script += "\nrunuser -u " + guest_user + " -- sudo -n true"
-        _verify_owned_target(prefix, alias, owned)
-        event_log = state / f"fresh-{plan_id}.events.log"
-        failure_stage = "guest-apt-account-setup"
+        package_manager = plan["package_manager"]
+        if package_manager == "apk":
+            repositories = "\n".join(plan["apk_repositories"])
+            setup = [
+                "install -d -m 0755 /etc/sudoers.d",
+                "printf '%s\\n' " + shlex.quote(repositories) + " > /etc/apk/repositories",
+                f"SSL_CERT_FILE={guest_ca_quoted} apk update",
+                f"SSL_CERT_FILE={guest_ca_quoted} apk add --no-cache {package_args}",
+                f"rm -f {guest_ca_quoted}",
+                "if ! getent passwd " + guest_user + " >/dev/null; then adduser -D -s /bin/bash " + guest_user + "; fi",
+                f"addgroup {guest_user} wheel",
+                "printf '%s\\n' " + shlex.quote(user + (" ALL=(ALL:ALL) NOPASSWD: ALL" if sudo_mode == "passwordless" else " ALL=(ALL:ALL) ALL")) + " > /etc/sudoers.d/ternuxx-guest-user",
+                "chmod 0440 /etc/sudoers.d/ternuxx-guest-user",
+                "visudo -cf /etc/sudoers.d/ternuxx-guest-user",
+            ]
+            if sudo_mode == "passwordless":
+                setup.append("su -s /bin/sh " + guest_user + " -c " + shlex.quote("sudo -n true"))
+            script = "\n".join(["set -eu", f"trap 'rm -f {guest_ca_quoted}' EXIT", *setup])
+            shell = "/bin/sh"
+        else:
+            snapshot = manifest["fresh_install"]["apt_snapshot"]
+            suites = " ".join(snapshot["suites"])
+            components = " ".join(snapshot["components"])
+            keyring = snapshot.get("keyring", "/usr/share/keyrings/debian-archive-keyring.gpg")
+            sources = ("Types: deb\nURIs: " + snapshot["main_archive"] + "\nSuites: " + suites
+                       + "\nComponents: " + components + "\nSigned-By: " + keyring
+                       + "\nCheck-Valid-Until: no\n")
+            configure_sources = "rm -f /etc/apt/sources.list && find /etc/apt/sources.list.d -maxdepth 1 -type f \\( -name '*.sources' -o -name '*.list' \\) -delete && printf %s " + shlex.quote(sources) + " > /etc/apt/sources.list.d/ternuxx-snapshot.sources"
+            policy_hold = proot_policy.hold_command(package_policy["always_hold"])
+            script = "\n".join([
+                "set -eu", f"trap 'rm -f {guest_ca_quoted}' EXIT", "export DEBIAN_FRONTEND=noninteractive", configure_sources,
+                f"apt-get -o Acquire::https::CaInfo={guest_ca_quoted} -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 -o Acquire::Check-Valid-Until=false update",
+                *([policy_hold] if policy_hold else []),
+                f"apt-get -o Acquire::https::CaInfo={guest_ca_quoted} -o Acquire::https::User-Agent=curl/8 -o Acquire::https::Timeout=20 -o Acquire::https::Retries=2 install -y --no-install-recommends {package_args}",
+                f"rm -f {guest_ca_quoted}",
+                "printf '%s\n' 'en_US.UTF-8 UTF-8' > /etc/locale.gen", "locale-gen",
+                "if ! getent passwd " + guest_user + " >/dev/null; then useradd --create-home --shell /bin/bash " + guest_user + "; fi",
+                f"usermod -aG sudo {guest_user}", "update-locale LANG=en_US.UTF-8",
+                "printf '%s\n' " + shlex.quote(user + (" ALL=(ALL:ALL) NOPASSWD: ALL" if sudo_mode == "passwordless" else " ALL=(ALL:ALL) ALL")) + " > /etc/sudoers.d/ternuxx-guest-user",
+                "chmod 0440 /etc/sudoers.d/ternuxx-guest-user", "visudo -cf /etc/sudoers.d/ternuxx-guest-user",
+            ])
+            if sudo_mode == "passwordless":
+                script += "\nrunuser -u " + guest_user + " -- sudo -n true"
+            shell = "/bin/bash"
+        command = [manager, "login", "--isolated", "--user", "root", alias, "--", shell, "-lc", script]
+        failure_stage = "guest-apk-account-setup" if package_manager == "apk" else "guest-apt-account-setup"
         _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "configuring",
                                  "stage": failure_stage, "event_log": str(event_log),
                                  "rootfs_identity": owned})
-        command = [manager, "login", "--isolated", "--user", "root", alias,
-                   "--", "/bin/bash", "-lc", script]
         if runner is subprocess.run:
             import install_events
             env = {key: value for key, value in os.environ.items()
@@ -870,8 +907,9 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
                                  "stage": failure_stage, "event_log": str(event_log) if event_log else None,
                                  "rootfs_identity": owned})
         release_values = _read_guest_release_identity(rootfs)
+        release_version = release_values.get("VERSION_CODENAME", release_values.get("VERSION_ID", "")).strip('"')
         if (release_values.get("ID", "").strip('"') != manifest["release_id"]
-                or release_values.get("VERSION_CODENAME", "").strip('"') != manifest["codename"]):
+                or release_version != manifest["codename"]):
             raise FreshSetupError("new guest release did not match the selected Ternuxx profile")
         if turnip_files:
             _verify_owned_target(prefix, alias, owned)
@@ -886,6 +924,12 @@ def apply(*, repo_root: str, prefix: str, home: str, state_dir: str, user: str |
         _private_write(journal, {"plan_id": plan_id, "alias": alias, "state": "verifying",
                                  "stage": failure_stage, "event_log": str(event_log) if event_log else None,
                                  "rootfs_identity": owned})
+        if manifest.get("release_id") == "alpine" and "xfce" in plan["desktop_environments"]:
+            try:
+                import proot_alpine
+                proot_alpine.install_glycin_bwrap_shim(rootfs)
+            except (OSError, ValueError) as exc:
+                raise FreshSetupError("Alpine PRoot image-loader compatibility setup failed") from exc
         try:
             import proot_desktop_preferences
             desktop_preferences = proot_desktop_preferences.configure_rootfs(

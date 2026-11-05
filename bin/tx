@@ -155,7 +155,7 @@ _nt_dispatch() {
     app)                       lib_map="management" ;;
     graphics)                   lib_map="desktop" ;;
     gui)                       lib_map="launch" ;;
-    proot|pgui|db|ub|kali)             lib_map="proot" ;;
+    proot|pgui|db|ub|kali|rm)          lib_map="proot" ;;
     terminal)                   lib_map="terminal" ;;
     tui)                        lib_map="tui" ;;
     web)                        lib_map="management" ;;
@@ -198,7 +198,9 @@ while [ $# -gt 0 ]; do
     --json)      TERNUXX_JSON=1; shift ;;
     --verbose)   TERNUXX_VERBOSE=1; shift ;;
     --quiet)     TERNUXX_QUIET=1; shift ;;
-    --help|-h)   _HELP_REQUESTED=1; shift ;;
+    --help|-h)
+      if [ "${_NT_ARGS[0]:-}" = rm ]; then _NT_ARGS+=("$1"); else _HELP_REQUESTED=1; fi
+      shift ;;
     --version|-V) echo "Ternuxx v${TERNUXX_VERSION}"; echo "${TERNUXX_REPO}"; exit 0 ;;
     *) _NT_ARGS+=("$1"); shift ;;
   esac

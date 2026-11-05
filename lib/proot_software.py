@@ -54,7 +54,50 @@ APPS = {
 }
 
 
+ALPINE_APPS = {
+    "browser": ("Firefox browser", ("firefox",)),
+    "music": ("Audacious music player", ("audacious",)),
+    "writer": ("LibreOffice Writer", ("libreoffice-writer",)),
+    "images": ("Ristretto image viewer", ("ristretto",)),
+    "pdf": ("Evince PDF viewer", ("evince",)),
+    "editor": ("Mousepad text editor", ("mousepad",)),
+    "archive": ("Xarchiver archive manager", ("xarchiver",)),
+    "video": ("VLC media player", ("vlc",)),
+    "ai-codex": ("AI: Codex setup recipe + Node.js/npm (agent separate)", ("nodejs", "npm")),
+    "blender": ("Graphics: Blender 3D creation", ("blender",)),
+    "gimp": ("Graphics: GIMP image editor", ("gimp",)),
+    "inkscape": ("Graphics: Inkscape vector editor", ("inkscape",)),
+    "krita": ("Graphics: Krita painting", ("krita",)),
+    "darktable": ("Graphics: Darktable photos", ("darktable",)),
+    "rawtherapee": ("Graphics: RawTherapee photos", ("rawtherapee",)),
+    "openscad": ("CAD: OpenSCAD", ("openscad",)),
+    "freecad": ("CAD: FreeCAD", ("freecad",)),
+    "audacity": ("Media: Audacity audio editor", ("audacity",)),
+    "kdenlive": ("Media: Kdenlive video editor", ("kdenlive",)),
+    "ffmpeg": ("Media: FFmpeg CLI tools", ("ffmpeg",)),
+    "mpv": ("Media: mpv video player", ("mpv",)),
+    "nodejs": ("Development / AI: Node.js + npm prerequisites", ("nodejs", "npm")),
+    "rust": ("Development: Rust and Cargo", ("rust",)),
+    "golang": ("Development: Go toolchain", ("go",)),
+    "jq": ("Development: jq JSON tools", ("jq",)),
+    "sqlite": ("Development: SQLite CLI", ("sqlite",)),
+    "taskmanager": ("System: XFCE task manager", ("xfce4-taskmanager",)),
+    "htop": ("System: htop", ("htop",)),
+    "ncdu": ("System: ncdu disk usage", ("ncdu",)),
+    "lsof": ("System: lsof open files", ("lsof",)),
+    "strace": ("System: strace diagnostics", ("strace",)),
+    "rclone": ("Network: Rclone", ("rclone",)),
+    "aria2": ("Network: aria2 downloads", ("aria2",)),
+    "nmap": ("Network: Nmap diagnostics", ("nmap",)),
+    "iperf3": ("Network: iperf3 tools", ("iperf3",)),
+    "gnuplot": ("Science: Gnuplot", ("gnuplot",)),
+    "octave": ("Science: GNU Octave", ("octave",)),
+}
+
+
 def catalog(distro: str) -> dict:
+    if distro == "alpine":
+        return dict(ALPINE_APPS)
     if distro not in {"debian", "ubuntu"}:
         raise ValueError("unsupported managed software provider")
     items = dict(APPS)
@@ -66,6 +109,14 @@ def catalog(distro: str) -> dict:
 
 def packages(distro: str, selected: list[str]) -> list[str]:
     items = catalog(distro)
+    if distro == "alpine":
+        runtime = ["mesa-dri-gallium", "mesa-gl", "pulseaudio-utils", "xdotool", "xorg-server-xephyr"]
+        items["account-tools"] = ("Ordinary account setup prerequisites", ("shadow", "sudo"))
+        items["cpu-runtime"] = ("CPU rendering and audio runtime", tuple(runtime))
+        items["graphics-runtime"] = ("CPU Mesa rendering and audio runtime", tuple(runtime))
+        if len(set(selected)) != len(selected) or any(key not in items for key in selected):
+            raise ValueError("choose known, unique guest app IDs")
+        return list(dict.fromkeys(package for key in selected for package in items[key][1]))
     runtime = ["libgl1-mesa-dri", "libvulkan1", "mesa-vulkan-drivers", "mesa-utils", "pulseaudio-utils", "vulkan-tools", "x11-utils", "x11-xserver-utils", "xdotool", "xserver-xephyr"]
     if distro == "ubuntu": runtime += ["libegl-mesa0", "libgbm1", "libglx-mesa0"]
     items["account-tools"] = ("Ordinary account setup prerequisites", ("sudo", "passwd"))

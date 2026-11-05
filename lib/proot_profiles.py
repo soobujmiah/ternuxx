@@ -9,12 +9,14 @@ from pathlib import Path
 PROFILE_FILES = {
     "debian-trixie": "debian-trixie.json",
     "ubuntu-noble": "ubuntu-noble.json",
+    "alpine-3.24": "alpine-3.24.json",
 }
 PROFILE_IDS = {
     "debian-trixie": "ternuxx-debian-trixie-workstation",
     "ubuntu-noble": "ternuxx-ubuntu-noble-workstation",
+    "alpine-3.24": "ternuxx-alpine-3.24-workstation",
 }
-PROFILE_ALIASES = {"debian": "debian-trixie", "ubuntu": "ubuntu-noble"}
+PROFILE_ALIASES = {"debian": "debian-trixie", "ubuntu": "ubuntu-noble", "alpine": "alpine-3.24"}
 
 
 class ProfileError(ValueError):
@@ -28,6 +30,8 @@ def profile_for_alias(alias: str) -> str:
         return "ubuntu-noble"
     if alias.startswith("ternuxx-replay-debian-trixie-"):
         return "debian-trixie"
+    if alias.startswith("ternuxx-replay-alpine-3-24-"):
+        return "alpine-3.24"
     if alias.startswith("ternuxx-replay-"):
         return "debian-trixie"
     raise ProfileError("no Ternuxx profile is defined for this guest alias")
@@ -49,7 +53,7 @@ def install_catalog(repo_root: str | Path) -> dict[str, object]:
         } for desktop_id in desktop_ids]
         database = manifest.get("package_database", proot_desktops.PACKAGE_DATABASES.get(profile_id))
         package_manager = manifest.get("package_manager") or {"dpkg-status": "apt"}.get(database, "unsupported")
-        if package_manager != "apt" or not isinstance(manifest.get("fresh_install"), dict):
+        if package_manager not in {"apt", "apk"} or not isinstance(manifest.get("fresh_install"), dict):
             continue
         profiles.append({
             "distro": alias,
@@ -59,7 +63,7 @@ def install_catalog(repo_root: str | Path) -> dict[str, object]:
             "manifest_sha256": digest,
             "package_manager": package_manager,
             "package_database": database,
-            "default_desktops": list(proot_desktops.DEFAULT_DESKTOPS),
+            "default_desktops": list(proot_desktops.DEFAULT_DESKTOPS) if desktops else [],
             "desktops": desktops,
         })
     return {"profiles": profiles}

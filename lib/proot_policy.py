@@ -10,10 +10,12 @@ import re
 PROFILE_POLICIES: dict[str, dict[str, tuple[str, ...]]] = {
     "debian-trixie": {"always_hold": (), "forbidden_packages": ()},
     "ubuntu-noble": {"always_hold": ("snapd",), "forbidden_packages": ("snapd",)},
+    "alpine-3.24": {"always_hold": (), "forbidden_packages": ()},
 }
 PROFILE_ID_ALIASES = {
     "ternuxx-debian-trixie-workstation": "debian-trixie",
     "ternuxx-ubuntu-noble-workstation": "ubuntu-noble",
+    "ternuxx-alpine-3.24-workstation": "alpine-3.24",
 }
 
 

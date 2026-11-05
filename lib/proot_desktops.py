@@ -20,11 +20,14 @@ DEBIAN_DESKTOPS = {
     "cinnamon": {"name": "Cinnamon", "packages": ("cinnamon-desktop-environment",), "session": "cinnamon-session"},
 }
 DEFAULT_DESKTOPS = ("xfce",)
+ALPINE_DESKTOPS = {
+    "xfce": {"name": "XFCE", "packages": ("dbus", "desktop-file-utils", "gtk-update-icon-cache", "mesa-dri-gallium", "mesa-gl", "pulseaudio-utils", "xfce4", "xfce4-terminal", "xauth", "xdotool", "xorg-server-xephyr"), "session": "startxfce4"},
+}
 UBUNTU_DESKTOPS = {
     "xfce": {"name": "XFCE", "packages": ("xfce4", "xfce4-terminal"), "session": "startxfce4"},
 }
-PROVIDERS = {"debian-trixie": DEBIAN_DESKTOPS, "ubuntu-noble": UBUNTU_DESKTOPS}
-PACKAGE_DATABASES = {"debian-trixie": "dpkg-status", "ubuntu-noble": "dpkg-status"}
+PROVIDERS = {"debian-trixie": DEBIAN_DESKTOPS, "ubuntu-noble": UBUNTU_DESKTOPS, "alpine-3.24": ALPINE_DESKTOPS}
+PACKAGE_DATABASES = {"debian-trixie": "dpkg-status", "ubuntu-noble": "dpkg-status", "alpine-3.24": "apk-installed"}
 # Required processes for a usable managed session. These are scoped to the
 # Ternuxx-owned desktop process group; their presence is not Android visibility.
 DESKTOP_READY_PROCESSES = {
@@ -84,7 +87,8 @@ def packages_for(provider: str, selected: list[str] | tuple[str, ...] | None = N
     # Fresh profiles already include dbus-x11 in their base manifest. Include
     # it here too so adding a desktop to an existing guest installs the same
     # required dbus-launch helper used by the managed session launcher.
-    return list(dict.fromkeys(("dbus-x11", *(package for item in choices for package in desktops[item]["packages"]))))
+    bus_package = "dbus" if provider == "alpine-3.24" else "dbus-x11"
+    return list(dict.fromkeys((bus_package, *(package for item in choices for package in desktops[item]["packages"]))))
 
 
 def session_argv(provider: str, selected: str, *, route: str | None = None) -> tuple[str, ...]:

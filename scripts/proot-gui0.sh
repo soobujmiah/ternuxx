@@ -44,6 +44,12 @@ alias,prefix=sys.argv[1:]
 proot_diagnostics.verify_managed_guest_alias(alias,prefix)
 PYALIAS
     fi
+    if [ "$DISTRO_ID" = alpine ]; then
+      PYTHONPATH="$ROOT/lib" python3 - "$PREFIX/var/lib/proot-distro/containers/alpine/rootfs" <<'PYALPINE' || { echo "Alpine PRoot image-loader compatibility setup failed; no desktop was started." >&2; exit 1; }
+import proot_alpine,sys
+proot_alpine.install_glycin_bwrap_shim(sys.argv[1])
+PYALPINE
+    fi
     picker_args=(--prefix "$PREFIX" --alias "$DISTRO_ID")
     [ -z "$EXPLICIT_USER" ] || picker_args+=(--user "$EXPLICIT_USER")
     guest_user="$(PYTHONPATH="$ROOT/lib" python3 "$ROOT/lib/proot_user_picker.py" "${picker_args[@]}")" || {
@@ -410,7 +416,7 @@ PY
     touch "$STATE_DIR/desktop.log"; chmod 600 "$STATE_DIR/desktop.log"
     nohup setsid env TERNUXX_PROOT_USER="$guest_user" TERNUXX_PULSE_COOKIE="$cookie" TERNUXX_DESKTOP_ID="$DESKTOP_ID" TERNUXX_PROOT_ALIAS="$DISTRO_ID" "$SUPERVISOR" ":0" "$STATE_DIR" "$TMP_ROOT" \
       "$PREFIX/bin/termux-x11" "$ROOT/lib/proot-dbus-session.sh" "$WRAPPER" "$OWNED_EXEC" \
-      proot-display0 proot >>"$STATE_DIR/desktop.log" 2>&1 </dev/null &
+      proot-display0 proot "$DESKTOP_ID" owned '' '' "$DISTRO_ID" >>"$STATE_DIR/desktop.log" 2>&1 </dev/null &
     ready=0
     for _ in $(seq 1 80); do
       report="$(inspect 2>/dev/null || true)"

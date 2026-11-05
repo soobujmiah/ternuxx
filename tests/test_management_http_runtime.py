@@ -740,7 +740,9 @@ class TernuxxManagementHTTPRuntimeTests(unittest.TestCase):
 
     def test_web_proot_resource_has_one_shared_status_control(self) -> None:
         page = (ROOT / "lib" / "management_web_ui.html").read_text()
-        self.assertEqual(page.count('run("proot.status")'), 0)
+        self.assertEqual(page.count('run("proot.status")'), 1)
+        self.assertIn('async function manageProotGuestRemoval()', page)
+        self.assertIn('run("proot.guest.remove.preview",{alias})', page)
         self.assertIn('statusOp==="proot.status"?"Check Debian and PRoot status"', page)
         self.assertIn('b.onclick=()=>run(statusOp)', page)
 

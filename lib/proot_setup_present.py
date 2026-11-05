@@ -21,7 +21,7 @@ def summarize(result: object) -> list[str]:
     if not isinstance(release, dict):
         raise ValueError("guest release details are malformed")
     version = release.get("VERSION_ID", "unknown")
-    codename = release.get("VERSION_CODENAME", "unknown")
+    codename = release.get("VERSION_CODENAME", release.get("VERSION_ID", "unknown"))
     user = details.get("guest_user", "unknown")
     distro = details.get("distro", "debian")
     release_name = details.get("release")

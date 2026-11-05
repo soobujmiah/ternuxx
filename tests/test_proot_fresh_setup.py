@@ -37,6 +37,8 @@ class FreshProotSetupTests(unittest.TestCase):
                         self.repo / "config/proot/debian-trixie.json")
         shutil.copyfile(ROOT / "config/proot/ubuntu-noble.json",
                         self.repo / "config/proot/ubuntu-noble.json")
+        shutil.copyfile(ROOT / "config/proot/alpine-3.24.json",
+                        self.repo / "config/proot/alpine-3.24.json")
         self.state = self.home / ".local/share/ternuxx"
         self.state.mkdir(parents=True, mode=0o700)
 
@@ -114,9 +116,15 @@ class FreshProotSetupTests(unittest.TestCase):
             name, equals, version = entry.partition("=")
             if separator and equals:
                 records.append(f"Package: {name}\nStatus: install ok installed\nArchitecture: arm64\nVersion: {version}")
-        status = self.containers / alias / "rootfs/var/lib/dpkg/status"
-        status.parent.mkdir(parents=True, exist_ok=True)
-        status.write_text("\n\n".join(records) + "\n")
+        if manifest.get("package_database") == "apk-installed":
+            status = self.containers / alias / "rootfs/lib/apk/db/installed"
+            status.parent.mkdir(parents=True, exist_ok=True)
+            status.write_text("\n\n".join(
+                f"P:{record.splitlines()[0].split(': ', 1)[1]}\nV:1.0-r0\nA:aarch64" for record in records) + "\n")
+        else:
+            status = self.containers / alias / "rootfs/var/lib/dpkg/status"
+            status.parent.mkdir(parents=True, exist_ok=True)
+            status.write_text("\n\n".join(records) + "\n")
 
     def _fixture_runner(self, calls):
         def run(args, **kwargs):
@@ -128,15 +136,16 @@ class FreshProotSetupTests(unittest.TestCase):
                 provider = proot_profiles.profile_for_alias(alias)
                 manifest_path = self.repo / "config/proot" / proot_profiles.PROFILE_FILES[provider]
                 manifest = json.loads(manifest_path.read_text())
+                version_key = "VERSION_ID" if manifest["release_id"] == "alpine" else "VERSION_CODENAME"
                 (root / "etc/os-release").write_text(
-                    f"ID={manifest['release_id']}\nVERSION_CODENAME={manifest['codename']}\n")
+                    f"ID={manifest['release_id']}\n{version_key}={manifest['codename']}\n")
                 spec = manifest["fresh_install"]
                 (root.parent / "manifest.json").write_text(json.dumps({
                     "image_ref": proot_fresh_setup._pinned_image_reference(spec), "arch": "aarch64",
                     "manifest": {"config": {"digest": spec["config_digest"], "size": spec["config_size"]},
                                  "layers": [{"digest": spec["layer_digest"], "size": spec["layer_size"]}]},
                     "image_config": {"architecture": "arm64", "created": spec["image_created"]}}))
-            if "/bin/bash" in args:
+            if "-lc" in args:
                 alias = args[args.index("--user") + 2]
                 self._write_fixture_package_database(alias)
             return SimpleNamespace(returncode=0)
@@ -148,6 +157,47 @@ class FreshProotSetupTests(unittest.TestCase):
         packages = proot_fresh_setup._packages(manifest)
         packages.extend(proot_desktops.packages_for(provider))
         return "".join("ii \t" + p + "=1.0\n" for p in packages)
+
+
+    def test_alpine_324_preview_uses_apk_and_managed_xfce_profile(self):
+        with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=True):
+            result = proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="sobuj", alias="alpine")
+        plan = result["operation"]
+        self.assertEqual(plan["profile_id"], "alpine-3.24")
+        self.assertEqual(plan["package_manager"], "apk")
+        self.assertEqual(plan["apk_repositories"], [
+            "https://dl-cdn.alpinelinux.org/alpine/v3.24/main",
+            "https://dl-cdn.alpinelinux.org/alpine/v3.24/community"])
+        self.assertIsNone(plan["apt_snapshot"])
+        self.assertEqual(plan["desktop_environments"], ["xfce"])
+        self.assertIn("xfce4", plan["packages"])
+        self.assertIn("desktop-file-utils", plan["packages"])
+        self.assertIn("gtk-update-icon-cache", plan["packages"])
+        self.assertFalse(plan["graphics"]["turnip_install_planned"])
+
+    def test_alpine_apply_records_apk_package_inventory_and_uses_apk_script(self):
+        calls = []
+        with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False), \
+             patch.object(proot_fresh_setup.shutil, "which", return_value="/prefix/bin/proot-distro"):
+            plan = proot_fresh_setup.preview(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="sobuj", alias="alpine",
+                sudo_mode="passwordless")
+            result = proot_fresh_setup.apply(repo_root=str(self.repo), prefix=str(self.prefix),
+                home=str(self.home), state_dir=str(self.state), user="sobuj", alias="alpine",
+                plan_id=plan["plan_id"], confirmed=True, sudo_mode="passwordless",
+                runner=self._fixture_runner(calls))
+        self.assertEqual(result["status"], "installed")
+        self.assertEqual(result["record"]["profile_id"], "ternuxx-alpine-3.24-workstation")
+        commands = [call for call in calls if "-lc" in call]
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(commands[0][commands[0].index("--") + 1], "/bin/sh")
+        self.assertIn("apk add --no-cache", commands[0][-1])
+        self.assertIn("sobuj ALL=(ALL:ALL) NOPASSWD: ALL", commands[0][-1])
+        self.assertIn("su -s /bin/sh sobuj -c", commands[0][-1])
+        self.assertNotIn("runuser", commands[0][-1])
+        self.assertNotIn("apt-get", commands[0][-1])
+        self.assertTrue(result["record"]["package_versions_recorded"])
 
     def test_ubuntu_noble_preview_binds_its_image_snapshot_and_xfce_route(self):
         with patch.object(proot_fresh_setup, "_kgsl_accessible", return_value=False):
@@ -303,6 +353,25 @@ class FreshProotSetupTests(unittest.TestCase):
                 home=str(self.home), state_dir=str(self.state), user="sbj",
                 plan_id=first["plan_id"], confirmed=True, password="example-passphrase", runner=runner)
 
+    def test_failed_apk_resume_can_only_add_explicitly_reviewed_packages(self):
+        previous = {
+            "schema_version": 2, "operation": "fresh-alpine-3.24", "alias": "alpine",
+            "profile_id": "alpine-3.24", "distro": "alpine", "release": "Alpine Linux 3.24.3",
+            "guest_user": "sobuj", "sudo_mode": "passwordless", "desktop_environments": ["xfce"],
+            "image": "alpine:3.24.3@sha256:" + "a" * 64, "image_pin": "sha256:" + "a" * 64,
+            "arch_manifest_digest": "sha256:" + "b" * 64, "config_digest": "sha256:" + "c" * 64,
+            "layer_digest": "sha256:" + "d" * 64, "rootfs_target": "/prefix/alpine/rootfs",
+            "package_groups": ["base"], "package_policy": {"always_hold": [], "forbidden_packages": []},
+            "existing_debian_rootfs_changed": False, "packages": ["bash"], "package_manager": "apk",
+            "apk_repositories": ["https://repo/main"],
+            "graphics": {"kgsl_accessible_at_preview": False, "turnip_archive_sha256": None,
+                         "turnip_install_planned": False, "rendering_verified": False},
+        }
+        current = dict(previous, operation="resume-fresh-alpine-3.24", packages=["bash", "xfce4"])
+        proot_fresh_setup._assert_resume_compatible(previous, current)
+        with self.assertRaisesRegex(proot_fresh_setup.FreshSetupError, "only add"):
+            proot_fresh_setup._assert_resume_compatible(previous, dict(current, packages=["xfce4"]))
+
     def test_parent_symlink_is_refused_and_package_inventory_is_complete(self):
         for output in ("bash=1.0\n", "bash=1.0\\n", "bash=\n", "rc \tbash=1.0\nii \tlocales=2.41\n"):
             with self.subTest(output=output), self.assertRaises(proot_fresh_setup.FreshSetupError):
@@ -392,7 +461,7 @@ class FreshProotSetupTests(unittest.TestCase):
                                              "size": 49761105}]},
                     "image_config": {"architecture": "arm64", "created": "2026-10-05T00:00:00Z"}}))
                 return SimpleNamespace(returncode=0)
-            if "/bin/bash" in args:
+            if "-lc" in args:
                 alias = args[args.index("--user") + 2]
                 self._write_fixture_package_database(alias)
             return SimpleNamespace(returncode=0)

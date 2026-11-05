@@ -30,6 +30,11 @@ nt_cmd_pgui() {
     set -- start "$@"
   fi
   case "${1:-}" in
+    alp|alpine)
+      shift
+      set -- start --mode standalone --alias alpine "$@" ;;
+  esac
+  case "${1:-}" in
     xfce|xfce4|lxqt|lxde|mate|plasma)
       local desktop="${1/xfce4/xfce}"; shift
       set -- start --desktop "$desktop" "$@" ;;
@@ -122,6 +127,38 @@ _nt_guest_login() {
 nt_cmd_db() { _nt_guest_login debian "$@"; }
 nt_cmd_ub() { _nt_guest_login ubuntu "$@"; }
 nt_cmd_kali() { nt_fail 'Kali has no qualified Ternuxx provider yet; no guest was started. Available managed logins: tx db, tx ub.'; return 2; }
+
+
+nt_cmd_rm() {
+  if [ "${1:-}" = "--help" ] || [ "${1:-}" = "-h" ] || [ "${2:-}" = "--help" ] || [ "${2:-}" = "-h" ]; then
+    printf '%s\n' 'Usage: tx rm proot DISTRO_NAME' 'Preview one exact PRoot guest removal; type the alias to permanently delete its rootfs.'
+    return 0
+  fi
+  [ "$#" -eq 2 ] && [ "$1" = proot ] || {
+    nt_fail 'Usage: tx rm proot DISTRO_NAME'; return 2;
+  }
+  local alias="$2" service="$_TN_LIB_DIR/management_service.py" preview plan_id target warning typed result
+  [[ "$alias" =~ ^[a-zA-Z0-9][a-zA-Z0-9_.-]{0,63}$ ]] || {
+    nt_fail 'Distro name is invalid.'; return 2;
+  }
+  [ -t 0 ] && [ -t 1 ] || {
+    nt_fail 'Guest removal needs an attached terminal for exact-name confirmation.'; return 2;
+  }
+  nt_require_termux || return $?
+  nt_require_command python3 || return $?
+  preview="$(python3 "$service" --operation proot.guest.remove.preview --alias "$alias" --json)" || return $?
+  plan_id="$(python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("data",{}).get("plan_id", "") if d.get("ok") else "")' <<<"$preview")" || return 1
+  [ -n "$plan_id" ] || { printf '%s\n' "$preview"; return 1; }
+  target="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["data"].get("container_path", ""))' <<<"$preview")" || return 1
+  warning="$(python3 -c 'import json,sys; print(json.load(sys.stdin)["data"].get("warning", ""))' <<<"$preview")" || return 1
+  printf 'Guest: %s\nPath: %s\n%s\n' "$alias" "$target" "$warning" >&2
+  read -r -p "Type $alias to permanently remove this PRoot guest: " typed || return 2
+  [ "$typed" = "$alias" ] || { nt_info 'Removal cancelled; guest data is unchanged.'; return 1; }
+  result="$(python3 "$service" --operation proot.guest.remove --alias "$alias" --typed-alias "$typed" --yes --plan-id "$plan_id" --json)" || return $?
+  if [ "$TERNUXX_JSON" = 1 ]; then printf '%s\n' "$result"; else
+    python3 -c 'import json,sys; d=json.load(sys.stdin); print(d.get("data",{}).get("status", d.get("error",{}).get("message", "removal failed")))' <<<"$result"
+  fi
+}
 
 nt_cmd_proot() {
   local subcommand="${1:-status}" session_id="" plan_id="" confirmed=0 option
@@ -449,9 +486,9 @@ nt_cmd_proot() {
         catalog) [ -z "$user$plan_id$backup_id$package_groups$desktop_choices$guest_alias$migration_id" ] && [ "$confirmed" -eq 0 ] && [ "$sudo_mode" = password ] || {
           nt_fail "Usage: tx proot setup catalog"; return 2;
         } ;;
-        status) [ -z "$user" ] && [ -z "$plan_id" ] && [ "$confirmed" -eq 0 ] || {
-          nt_fail "Usage: tx proot setup status"; return 2;
-        } ;;
+        status) [ -z "$user$plan_id$package_groups$desktop_choices$migration_id$backup_id" ] && [ "$confirmed" -eq 0 ] || {
+          nt_fail "Usage: tx proot setup status [--alias debian|alpine]"; return 2;
+        }; [ -z "$guest_alias" ] || setup_args+=(--alias "$guest_alias") ;;
         adoption-rollback-preview) [ -n "$backup_id" ] && [ -z "$plan_id" ] && [ "$confirmed" -eq 0 ] || {
           nt_fail "Usage: tx proot setup adoption-rollback-preview --backup-id BACKUP_ID"; return 2;
         }; setup_args+=(--backup-id "$backup_id") ;;
@@ -503,7 +540,7 @@ nt_cmd_proot() {
       fi
       if [ -n "$guest_alias" ]; then
         case "$action" in
-          fresh-preview|fresh-resume-preview|fresh-install) setup_args+=(--alias "$guest_alias") ;;
+          status|fresh-preview|fresh-resume-preview|fresh-install) setup_args+=(--alias "$guest_alias") ;;
           desktop-preview) ;;
           *) nt_fail "--alias is supported only by fresh setup."; return 2 ;;
         esac

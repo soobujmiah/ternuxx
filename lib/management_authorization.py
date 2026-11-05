@@ -15,6 +15,8 @@ OPERATION_CAPABILITIES: dict[str, str] = {
     "installer.open": "software.manage",
     "management.catalog": "diagnostics.read",
     "proot.status": "diagnostics.read",
+    "proot.guest.remove.preview": "proot.session.manage",
+    "proot.guest.remove": "proot.session.manage",
     "proot.setup.catalog": "diagnostics.read",
     "proot.setup.fresh.preview": "proot.install.manage",
     "proot.setup.fresh.apply": "proot.install.manage",

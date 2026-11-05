@@ -157,7 +157,7 @@ _nt_install_wizard() {
   if [ "$profile" = proot ]; then
     components+=,nested
     distros="$(_nt_pick 'Managed PRoot distributions (one or more)' multi debian \
-      'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
+      'debian|Debian Trixie' 'ubuntu|Ubuntu Noble' 'alpine|Alpine Linux 3.24')" || return $?
   fi
   _nt_ai_guidance native "$apps"
   _nt_master_workstation "$root" "$components" "$distros" "" "$ai_npu" || return $?
@@ -244,11 +244,11 @@ _nt_install_native_desktop() {
 _nt_install_proot_short() {
   [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || { nt_fail 'Guest shortcuts need an attached terminal; automation uses install DISTRO preview/apply.'; return 2; }
   local distro="${1:-}" desktop="${2:-}" root="${_TN_LIB_DIR%/lib}"
-  [ $# -le 2 ] || { nt_fail 'Use tx install proot [debian|ubuntu] [DESKTOP].'; return 2; }
+  [ $# -le 2 ] || { nt_fail 'Use tx install proot [debian|ubuntu|alpine] [DESKTOP].'; return 2; }
   if [ -z "$distro" ]; then
-    distro="$(_nt_pick 'Choose a managed PRoot distro' single '' 'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
+    distro="$(_nt_pick 'Choose a managed PRoot distro' single '' 'debian|Debian Trixie' 'ubuntu|Ubuntu Noble' 'alpine|Alpine Linux 3.24')" || return $?
   fi
-  case "$distro" in debian|ubuntu) ;; *) nt_fail 'Supported managed distros: debian, ubuntu.'; return 2 ;; esac
+  case "$distro" in debian|ubuntu|alpine) ;; *) nt_fail 'Supported managed distros: debian, ubuntu, alpine.'; return 2 ;; esac
   nt_require_termux || return 1
   if [ -n "$desktop" ]; then
     PYTHONPATH="$root/lib" command python3 - "$distro" "${desktop/xfce4/xfce}" <<'PYSHORTDESKTOP' || return $?
@@ -329,7 +329,7 @@ _nt_gpu_setup() {
     local proot_defaults=runtime
     [ ! -r /dev/kgsl-3d0 ] || proot_defaults+=,zink
     backend="$(_nt_pick 'PRoot graphics runtime (select installable routes)' multi "$proot_defaults" "${proot_options[@]}")" || return $?
-    distros="$(_nt_pick 'Configure guest runtimes (one or more)' multi debian 'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
+    distros="$(_nt_pick 'Configure guest runtimes (one or more)' multi debian 'debian|Debian Trixie' 'ubuntu|Ubuntu Noble' 'alpine|Alpine Linux 3.24')" || return $?
     for distro in ${distros//,/ }; do
       local app=cpu-runtime
       [[ ",$backend," != *,zink,* ]] || app=graphics-runtime

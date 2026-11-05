@@ -330,17 +330,17 @@ def _contains_sequence(argv: list[str], expected: list[str]) -> bool:
 
 
 def _guest_alias(value: str) -> str:
-    if (not isinstance(value, str) or (value not in {"debian", "ubuntu"}
+    if (not isinstance(value, str) or (value not in {"debian", "ubuntu", "alpine"}
             and not re.fullmatch(r"ternuxx-replay-[a-z0-9][a-z0-9-]{0,31}", value))):
-        raise SessionError("guest alias must be debian or an explicit ternuxx-replay-NAME")
+        raise SessionError("guest alias must be a supported managed distro or an explicit ternuxx-replay-NAME")
     return value
 
 
 def discover_debian(*, prefix: str, which=None, alias: str = "debian") -> dict[str, object]:
     alias = _guest_alias(alias)
-    if alias == "ubuntu":
+    if alias in {"ubuntu", "alpine"}:
         try: proot_diagnostics.verify_managed_guest_alias(alias, prefix)
-        except ValueError as exc: raise SessionError('guest alias Ubuntu requires a verified managed receipt') from exc
+        except ValueError as exc: raise SessionError(f'guest alias {alias} requires a verified managed receipt') from exc
     if which is None:
         import shutil
         which = shutil.which

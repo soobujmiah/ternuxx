@@ -21,7 +21,7 @@ If a prior attached Termux:X11 process exited and left a lockless, unresponsive 
 
 The CLI, TUI, authenticated Web UI, and GTK center call the same typed management service. Implemented operations share validation, authorization, and state; each client exposes only actions supported in its context. Read the catalog and each command's `--help` output before applying a change. Mutations that affect services, packages, keys, boot state, or recovery require the exact preview and confirmation described by the command.
 
-For Native packages, `tx install interactive` offers the supported profiles and previews a selection. Automation can choose `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, or `custom`; each uses the same exact dependency preview and apply engine. The PRoot-provider profile installs `proot-distro` only. Fresh guest creation is a separate pinned setup workflow: `tx install proot [debian|ubuntu] [DE]` guides distro, username and desktop selection, displays the pinned plan, and applies it only after confirmation. In an interactive terminal, desktop IDs are comma-separated; blank selects XFCE. Each catalog choice reports its currently accepted display routes. A non-default profile must be repeated when applying the saved plan.
+For Native packages, `tx install interactive` offers the supported profiles and previews a selection. Automation can choose `minimal-native`, `full-native`, `graphical`, `developer`, `native-proot-provider`, or `custom`; each uses the same exact dependency preview and apply engine. The PRoot-provider profile installs `proot-distro` only. Fresh guest creation is a separate pinned setup workflow: `tx install proot [debian|ubuntu|alpine] [DE]` guides distro, username and desktop selection, displays the pinned plan, and applies it only after confirmation. In an interactive terminal, desktop IDs are comma-separated; blank selects XFCE. Each catalog choice reports its currently accepted display routes. A non-default profile must be repeated when applying the saved plan.
 
 ## SSH and services
 
@@ -70,6 +70,10 @@ Use `tx pgui stop` to stop standalone `:0` or nested `:2`; it leaves Native `:1`
 Nested `tx pgui start --mode nested` uses Xephyr display `:2`. It refuses to start when that display is occupied or its ownership is ambiguous. Before refusing, it may reclaim only a positively stale PRoot `--link2symlink` lock chain whose PID is absent, whose socket refuses connections, and whose complete lock chain is confined to the installed Debian rootfs `.l2s` directory; it never signals a process. All other stale/unknown artifacts remain untouched. Startup geometry follows Native display dimensions. The owner has physically accepted portrait and landscape/fullscreen rotation on this device; screen resizing remains dependent on Termux:X11 and its window manager, and no independent capture was recorded.
 
 
+## Managed guest removal and Alpine
+
+`tx rm proot DISTRO_NAME` previews the exact installed guest path, checks that the guest is idle, and requires typing its exact alias before removal. The management center offers the same preview-and-confirm action. `tx pgui alp` starts the standalone managed Alpine desktop; `tx db` remains the Debian login shortcut. Alpine 3.24 uses its Ternuxx-owned APK package and desktop adapters and does not alter existing Alpine rootfs data.
+
 ## Managed guest login shortcuts
 
 `tx db` and `tx debian` select the managed Debian guest. `tx ub` and `tx ubuntu`
@@ -84,3 +88,6 @@ preserves the rootfs and offers reviewed account creation/default selection. Whe
 multiple accounts exist, `tx pgui` asks which ordinary account to use, or
 `tx pgui --user NAME` selects one explicitly.
 No automatic root login is used. See [account setup](INSTALLATION.md#existing-guest-account-repair-and-login).
+
+
+`tx uninstall` previews the checkout, Native entrypoints and service files, private Ternuxx state, and installed PRoot guests. Applying requires the exact plan and `UNINSTALL TERNUXX` phrase. It first stops the managed PRoot GUI; active or ambiguous guest sessions remain protected. Shared Termux packages are left installed.

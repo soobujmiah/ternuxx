@@ -93,7 +93,7 @@ def resolve_proot_guest_user(*, distro: str, prefix: str) -> str:
         raise GuestProfileError('no ordinary guest account; run tx install proot '+distro+' to set one up')
     if len(users) != 1:
         raise GuestProfileError('guest account is ambiguous; select an account through tx install proot '+distro+' or pass --user NAME')
-    if distro == 'ubuntu':
+    if distro in {'ubuntu', 'alpine'}:
         verify_managed_guest_alias(distro, prefix)
     return users[0]
 
@@ -518,8 +518,29 @@ def verify_managed_guest_alias(distro: str, prefix: str = "/data/data/com.termux
     """Verify a receipt-bound non-Debian canonical guest or Ternuxx replay alias."""
     if isinstance(distro, str) and distro.startswith("ternuxx-replay-"):
         return verify_managed_replay_alias(distro, prefix, home=home, state_dir=state_dir)
+    if distro == "alpine":
+        home = str(Path(home).expanduser()) if home is not None else str(Path.home())
+        state_dir = state_dir or os.environ.get("TERNUXX_STATE_DIR", str(Path(home) / ".local/share/ternuxx"))
+        try:
+            state = proot_fresh_setup._state_root(home, state_dir, create=False)
+            receipt = proot_fresh_setup._read_private(state / "fresh-provider-alpine.json")
+            manifest, _digest, _raw = proot_profiles.load(Path(__file__).resolve().parent.parent, "alpine-3.24")
+            identity = receipt.get("rootfs_identity")
+            if (receipt.get("schema_version") != 1 or receipt.get("alias") != "alpine"
+                    or receipt.get("release") != manifest.get("release_name")
+                    or receipt.get("profile_id") != proot_profiles.PROFILE_IDS["alpine-3.24"]
+                    or not isinstance(receipt.get("plan_id"), str)
+                    or receipt.get("requested_packages_verified_installed") is not True
+                    or receipt.get("package_versions_recorded") is not True):
+                raise ValueError("Alpine install receipt is incomplete")
+            proot_fresh_setup._verify_owned_target(prefix, "alpine", identity)
+            return {"alias": "alpine", "profile_id": "alpine-3.24", "plan_id": receipt["plan_id"],
+                    "guest_user": receipt["guest_user"], "release": receipt["release"],
+                    "rootfs_identity": identity}
+        except (OSError, ValueError, KeyError) as exc:
+            raise ValueError("Alpine guest lacks an exact, valid Ternuxx install receipt") from exc
     if distro != "ubuntu":
-        raise ValueError("only Ubuntu and receipt-verified Ternuxx replay guests are managed here")
+        raise ValueError("only Ubuntu, Alpine, and receipt-verified Ternuxx replay guests are managed here")
     home = str(Path(home).expanduser()) if home is not None else str(Path.home())
     state_dir = state_dir or os.environ.get("TERNUXX_STATE_DIR", str(Path(home) / ".local/share/ternuxx"))
     try:

@@ -232,6 +232,19 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
   if(window.prompt("Review the exact Native launcher change above. Type "+token+" to apply.")!==token)return;
   await run("proot.shortcuts.apply",{action,app_id:item.id,confirmed:true,plan_id:plan.plan_id});
  }
+ async function manageProotGuestRemoval(){
+  const inventory=await run("proot.status");if(!inventory?.ok)return;
+  const aliases=(inventory.data?.installed_distributions||[]).filter(x=>typeof x==="string");
+  if(!aliases.length){notice.textContent="No installed PRoot guests are available to remove.";return}
+  const alias=window.prompt("Enter the exact installed PRoot guest alias to preview removal:\n"+aliases.join(" · "),aliases[0]);
+  if(alias===null||!aliases.includes(alias)){notice.textContent="Choose one exact alias from the installed guest list.";return}
+  const preview=await run("proot.guest.remove.preview",{alias});if(!preview?.ok)return;
+  const data=preview.data||{};out.textContent=JSON.stringify(data,null,2);
+  if(window.confirm("This permanently deletes every file in PRoot guest "+alias+".\n\n"+(data.container_path||"")+"\n\nContinue to exact-name confirmation?")
+    &&window.prompt("Type the exact guest alias to permanently remove it:")===alias){
+    await run("proot.guest.remove",{alias,typed_alias:alias,confirmed:true,plan_id:data.plan_id});
+  }
+ }
  async function manageReplayGuest(){
   const action=window.prompt("Choose replay guest action: retire or restore","retire");
   if(action===null)return;
@@ -635,6 +648,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.8rem;background:#0a12
    if(needed.every(op=>operations.includes(op))){const b=document.createElement("button");b.className="primary";b.textContent="Preview replay guest retirement or restore…";b.onclick=manageReplayGuest;actions.append(b)}
   }
   if(r.id==="proot.debian.workloads"){
+   if(operations.includes("proot.guest.remove.preview")&&operations.includes("proot.guest.remove")){const b=document.createElement("button");b.textContent="Preview removal of one PRoot guest…";b.onclick=manageProotGuestRemoval;actions.append(b)}
    if(operations.includes("proot.setup.fresh.preview")&&operations.includes("proot.setup.fresh.apply")){const install=document.createElement("button");install.className="primary";install.textContent="Install managed proot distro…";install.onclick=installManagedGuest;actions.append(install)}
    if(operations.includes("proot.profiles.list")){const b=document.createElement("button");b.textContent="List supported guest profiles";b.onclick=()=>run("proot.profiles.list");actions.append(b)}
    if(operations.includes("proot.sessions.list")){const b=document.createElement("button");b.textContent="Inspect guest sessions";b.onclick=()=>run("proot.sessions.list");actions.append(b)}

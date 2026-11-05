@@ -640,7 +640,7 @@ _nt_offer_managed_guest() {
   [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] || return 0
   . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_picker.sh"
   local answer distro
-  answer="$(_nt_pick 'Optional managed guests' multi none 'none|Skip guest setup' 'debian|Debian Trixie' 'ubuntu|Ubuntu Noble')" || return $?
+  answer="$(_nt_pick 'Optional managed guests' multi none 'none|Skip guest setup' 'debian|Debian Trixie' 'ubuntu|Ubuntu Noble' 'alpine|Alpine Linux 3.24')" || return $?
   for distro in ${answer//,/ }; do
     [ "$distro" = none ] || _nt_install_managed_guest "$distro" || return $?
   done
@@ -660,7 +660,7 @@ nt_cmd_install() {
       shift
       . "${_TN_LIB_DIR:-$(dirname "${BASH_SOURCE[0]}")}/install_wizard.sh"
       _nt_window_session _nt_install_proot_short "$@"; return $? ;;
-    debian|ubuntu)
+    debian|ubuntu|alpine)
       nt_fail "Use 'tx install proot $1 [DE]' for guided guest setup, or 'tx proot setup fresh-preview --user NAME' for explicit review."; return 2 ;;
   esac
   if [ $# -eq 0 ] || { [ $# -eq 1 ] && [[ "$1" = interactive || "$1" = --interactive ]]; }; then
@@ -1070,6 +1070,10 @@ _nt_install_managed_guest() {
     user="${_NT_GUEST_USER[$distro]}"; sudo_mode="${_NT_GUEST_SUDO[$distro]}"
     desktops="${_NT_GUEST_DESKTOPS[$distro]}"; desktops_set=1
     apps="${_NT_GUEST_APPS[$distro]}"; apps_set=1
+  fi
+  if [ "$distro" = alpine ] && { [ -e "$PREFIX/var/lib/proot-distro/containers/alpine" ] || [ -L "$PREFIX/var/lib/proot-distro/containers/alpine" ]; }; then
+    nt_fail "Alpine add-on transactions are not available yet; existing Alpine data was left untouched."
+    return 2
   fi
   if [ "$action" = guided ] && [ -t 0 ] && [ "${TERNUXX_JSON:-0}" != 1 ] && { [ -e "$PREFIX/var/lib/proot-distro/containers/$distro" ] || [ -L "$PREFIX/var/lib/proot-distro/containers/$distro" ]; }; then
     . "$repo_root/lib/install_wizard.sh"

@@ -830,7 +830,47 @@ def apply_icd_rollback(*, prefix: str, home: str, state_dir: str, migration_id: 
         return {"status": "rolled_back", "migration_id": migration_id,
                 "rootfs_device": identity.st_dev, "rootfs_inode": identity.st_ino}
 
-def status(*, repo_root: str, prefix: str, home: str, state_dir: str) -> dict[str, object]:
+def status(*, repo_root: str, prefix: str, home: str, state_dir: str,
+           alias: str = "debian") -> dict[str, object]:
+    if alias == "alpine":
+        try:
+            alpine_manifest, alpine_hash, _raw = proot_profiles.load(repo_root, "alpine-3.24")
+            state = proot_fresh_setup._state_root(home, state_dir, create=False)
+            receipt = proot_fresh_setup._read_private(state / "fresh-provider-alpine.json")
+            managed = __import__("proot_diagnostics").verify_managed_guest_alias(
+                "alpine", prefix, home=home, state_dir=state_dir)
+        except (OSError, ValueError, KeyError) as exc:
+            return {"status": "missing_or_unavailable", "alias": alias, "detail": str(exc),
+                    "fresh_setup_profile": "alpine-3.24"}
+        versions_path = state / "alpine-package-versions.txt"
+        try:
+            versions = _read_stable_regular_file(versions_path, max_bytes=4 * 1024 * 1024, mode=0o600)
+        except (OSError, SetupError) as exc:
+            raise SetupError("fresh Alpine package-version receipt is invalid or unsafe") from exc
+        versions_hash = hashlib.sha256(versions).hexdigest()
+        if (receipt.get("package_versions_file") != str(versions_path)
+                or receipt.get("package_versions_sha256") != versions_hash
+                or receipt.get("package_versions_recorded") is not True
+                or receipt.get("requested_packages_verified_installed") is not True):
+            raise SetupError("fresh Alpine package-version receipt does not match its verified inventory")
+        if receipt.get("manifest_sha256") != alpine_hash:
+            return {"status": "fresh_profile_changed", "alias": alias,
+                    "manifest_sha256": alpine_hash,
+                    "recorded_manifest_sha256": receipt.get("manifest_sha256"),
+                    "recorded_guest_user": receipt.get("guest_user"),
+                    "next_action": "review the recorded and current Alpine manifest before changing guest state"}
+        rootfs = proot_fresh_setup._verify_owned_target(prefix, alias, managed.get("rootfs_identity"))
+        import proot_desktops
+        desktops = proot_desktops.installed_desktops(rootfs, "alpine-3.24")
+        return {"status": "fresh_installed", "alias": alias, "rootfs": str(rootfs),
+                "manifest_sha256": alpine_hash, "profile_id": proot_profiles.PROFILE_IDS["alpine-3.24"],
+                "recorded_guest_user": receipt.get("guest_user"), "desktop_environments": desktops,
+                "fresh_setup_desktop_environments": receipt.get("desktop_environments", []),
+                "sudo_mode": receipt.get("sudo_mode"),
+                "package_baseline": {"status": "verified_at_install", "changed_groups": []},
+                "package_versions_sha256": versions_hash, "next_action": "none"}
+    if alias != "debian":
+        raise SetupError("setup status supports the Debian or Alpine managed guest alias")
     manifest, manifest_hash = _manifest(Path(repo_root))
     root, previews, record_path = _state_paths(state_dir, home, create=False)
     try:
@@ -956,7 +996,7 @@ def main() -> int:
     try:
         if args.password_fd is not None and (args.action != "fresh-install" or args.sudo_mode != "password"):
             parser.error("--password-fd is only valid for password-mode fresh-install")
-        if args.alias is not None and args.action not in {"fresh-preview", "fresh-resume-preview", "fresh-install", "desktop-preview"}:
+        if args.alias is not None and args.action not in {"status", "fresh-preview", "fresh-resume-preview", "fresh-install", "desktop-preview"}:
             parser.error("--alias is supported only by fresh setup or managed add-on preview")
         if args.apps is not None and args.action != "desktop-preview":
             parser.error("--apps is supported only by desktop-preview")
@@ -998,9 +1038,10 @@ def main() -> int:
                                                state_dir=args.state_dir, plan_id=args.plan_id,
                                                confirmed=True)
         elif args.action == "status":
-            if args.backup_id or args.plan_id or args.user or args.yes:
-                parser.error("status does not accept setup options")
-            result = status(repo_root=args.repo_root, prefix=args.prefix, home=args.home, state_dir=args.state_dir)
+            if args.backup_id or args.plan_id or args.user or args.groups or args.desktops or args.yes:
+                parser.error("status accepts only an optional managed guest --alias")
+            result = status(repo_root=args.repo_root, prefix=args.prefix, home=args.home,
+                            state_dir=args.state_dir, alias=args.alias or "debian")
         elif args.action == "adoption-rollback-preview":
             if not args.backup_id or args.plan_id or args.yes or args.user or args.alias or args.groups or args.desktops:
                 parser.error("adoption-rollback-preview requires --backup-id only")
@@ -1030,14 +1071,15 @@ def main() -> int:
             result = proot_fresh_setup.preview(repo_root=args.repo_root, prefix=args.prefix,
                                                home=args.home, state_dir=args.state_dir, user=args.user,
                                                alias=args.alias if args.alias is not None else proot_fresh_setup.ALIAS,
-                                               resume_plan_id=args.plan_id, groups=groups, desktops=desktops)
+                                               resume_plan_id=args.plan_id, groups=groups,
+                                               sudo_mode=args.sudo_mode, desktops=desktops)
         elif args.action == "fresh-install":
             if not args.plan_id or not args.yes or args.backup_id or args.groups:
                 parser.error("fresh-install requires --yes --plan-id ID; --user and --alias are optional checks against the saved preview")
             password = None
             if args.sudo_mode == "password":
                 selected_alias = args.alias or "debian"
-                distro_name = "Ubuntu" if selected_alias == "ubuntu" or selected_alias.startswith("ternuxx-replay-ubuntu-") else "Debian"
+                distro_name = "Ubuntu" if selected_alias == "ubuntu" or selected_alias.startswith("ternuxx-replay-ubuntu-") else ("Alpine" if selected_alias == "alpine" or selected_alias.startswith("ternuxx-replay-alpine-") else "Debian")
                 if args.password_fd is not None:
                     if args.password_fd < 3:
                         raise proot_fresh_setup.FreshSetupError("credential FD must be a private inherited descriptor")

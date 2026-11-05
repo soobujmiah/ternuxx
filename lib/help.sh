@@ -13,7 +13,7 @@ Detailed options: `tx help TOPIC`
 
 SETUP AND SOFTWARE
   tx install [interactive]	Guided workstation setup
-  tx install proot [DISTRO] [DE]	Install/configure a Debian or Ubuntu guest
+  tx install proot [DISTRO] [DE]	Install/configure a Debian, Ubuntu, or Alpine guest
   tx install gpu	Preview/install compatible graphics and audio runtimes
   tx install xfce|mate|plasma	Add a supported Native desktop
   tx install preview [options]	Preview exact Native package plan
@@ -54,7 +54,9 @@ PRoot GUESTS
   tx proot [status|profiles|sessions|setup ...]	Inspect/configure guest and sessions
   tx mng proot ...	Compatibility alias for PRoot management
   tx pgui [DE] [--alias DISTRO] [--user NAME]	Start managed guest desktop
+  tx pgui alp [--user NAME]	Start standalone Alpine PRoot desktop
   tx pgui stop	Stop managed PRoot GUI sessions
+  tx rm proot DISTRO	Preview and confirm removal of one PRoot guest
   tx db [--user NAME]	Open Debian in current terminal
   tx ub [--user NAME]	Open Ubuntu in current terminal
   tx debian [--user NAME]	Alias for Debian login
@@ -98,6 +100,7 @@ SYSTEM, RECOVERY, AND ACCESS
   tx checkpoint prepare|verify [options]	Record continuity evidence; no reboot
   tx reboot ACTION [options]	Inspect reboot test; does not reboot device
   tx backup create|list|inspect [options]	Preview/manage private backups
+  tx uninstall [preview|apply]	Preview and confirm full Ternuxx removal
   tx restore --preview BACKUP_ID	Review backup restore plan
   tx restore BACKUP_ID --yes --plan-id ID	Apply exact restore plan
   tx recovery ACTION [options]	Inspect/reconcile recovery state
@@ -115,6 +118,19 @@ HELP, ALIASES, AND OPTIONS
 Package/service changes use previews and confirmation where required. Guest
 additions preserve existing root filesystems. GPU detection alone does not prove
 accelerated rendering. See `tx help TOPIC` for full syntax and safety details.
+EOF
+      ;;
+    rm) cat <<'EOF'
+tx rm proot DISTRO_NAME — Preview removal of one managed PRoot guest
+The guest must be idle. Review its exact rootfs path, then type the alias to
+permanently remove that guest. No other distro or Native Termux package is removed.
+EOF
+      ;;
+    uninstall) cat <<'EOF'
+tx uninstall [preview|apply] — Preview full Ternuxx removal or apply an exact plan
+Guided mode previews the checkout, Native entrypoints, private state, and installed
+PRoot guests. Applying requires the exact plan ID and `UNINSTALL TERNUXX` phrase.
+Managed PRoot GUI sessions are stopped gracefully; active or ambiguous guests block removal.
 EOF
       ;;
     kali)
